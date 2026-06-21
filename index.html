@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>派单助手 - 调度端</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%234CAF50'/><text x='50' y='72' font-size='60' text-anchor='middle' fill='white' font-weight='bold' font-family='sans-serif'>调</text></svg>">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    body {
+      background: linear-gradient(135deg, #1a2e1a 0%, #1e3e16 50%, #0f6029 100%);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      text-align: center;
+    }
+
+    /* 登录页 */
+    #login-page {
+      max-width: 380px;
+      width: 100%;
+    }
+    .app-icon {
+      width: 80px;
+      height: 80px;
+      background: #4CAF50;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      margin: 0 auto 14px;
+      box-shadow: 0 4px 20px rgba(76,175,80,0.4);
+    }
+    .app-title {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .app-subtitle {
+      font-size: 15px;
+      color: rgba(255,255,255,0.55);
+      margin-bottom: 32px;
+    }
+    .input-group {
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(10px);
+      border-radius: 14px;
+      padding: 24px 20px;
+      margin-bottom: 16px;
+    }
+    .input-label {
+      font-size: 14px;
+      color: rgba(255,255,255,0.65);
+      margin-bottom: 10px;
+      text-align: left;
+    }
+    .name-input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 10px;
+      background: rgba(255,255,255,0.06);
+      color: #fff;
+      font-size: 18px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .name-input::placeholder { color: rgba(255,255,255,0.25); }
+    .name-input:focus { border-color: #4CAF50; }
+    .enter-btn {
+      width: 100%;
+      padding: 15px;
+      background: #4CAF50;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 17px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      margin-top: 14px;
+    }
+    .enter-btn:active { transform: scale(0.98); }
+    .enter-btn:disabled { background: rgba(76,175,80,0.4); cursor: not-allowed; }
+
+    /* 功能引导 */
+    .guide-card {
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 18px 16px;
+      margin-bottom: 16px;
+      text-align: left;
+    }
+    .guide-card .guide-title {
+      font-size: 14px;
+      color: #4CAF50;
+      font-weight: 600;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    .guide-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .guide-item:last-child { margin-bottom: 0; }
+    .guide-dot {
+      width: 6px;
+      height: 6px;
+      background: #4CAF50;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-right: 10px;
+    }
+    .guide-text {
+      font-size: 14px;
+      color: rgba(255,255,255,0.65);
+    }
+    .guide-example {
+      font-size: 12px;
+      color: rgba(255,255,255,0.35);
+    }
+    .hint-text {
+      font-size: 13px;
+      color: rgba(255,255,255,0.35);
+      margin-top: 8px;
+    }
+
+    /* 聊天引导页 */
+    #chat-page {
+      display: none;
+      max-width: 380px;
+      width: 100%;
+    }
+    #chat-page .app-icon {
+      width: 56px;
+      height: 56px;
+      font-size: 28px;
+      border-radius: 14px;
+    }
+    #chat-page .app-title {
+      font-size: 22px;
+      margin-bottom: 4px;
+    }
+
+    /* 隐藏推荐问题按钮 */
+    [class*="suggestion"], [class*="recommended"], [class*="quick-reply"],
+    [class*="question-item"], [class*="prompt-item"] { display: none !important; }
+
+    #chat-loading {
+      display: inline-block;
+      background: rgba(76,175,80,0.9);
+      color: #fff;
+      padding: 8px 20px;
+      border-radius: 20px;
+      font-size: 14px;
+      animation: pulse 1.5s ease-in-out infinite;
+      margin-top: 12px;
+    }
+    @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+    @keyframes bounce-arrow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(14px); } }
+  </style>
+  <script src="./jsrsasign-all-min.js"></script>
+  <script src="https://lf-cdn.coze.cn/obj/unpkg/flow-platform/chat-app-sdk/1.2.0-beta.20/libs/cn/index.js"></script>
+</head>
+<body>
+
+  <!-- 登录页 -->
+  <div id="login-page">
+    <div class="app-icon">📋</div>
+    <div class="app-title">派单助手</div>
+    <div class="app-subtitle">调度端 · 创建 · 派单 · 追踪</div>
+
+    <div class="input-group">
+      <div class="input-label">输入您的称呼</div>
+      <input class="name-input" id="nameInput" type="text" placeholder="如：小米" maxlength="10">
+      <button class="enter-btn" id="enterBtn" disabled>进入调度台</button>
+    </div>
+
+    <div class="guide-card">
+      <div class="guide-title">💬 一句话搞定</div>
+      <div class="guide-item">
+        <span class="guide-dot"></span>
+        <div>
+          <div class="guide-text">创建工单</div>
+          <div class="guide-example">"有新单子，赵总，空调维修"</div>
+        </div>
+      </div>
+      <div class="guide-item">
+        <span class="guide-dot"></span>
+        <div>
+          <div class="guide-text">查看推荐</div>
+          <div class="guide-example">AI自动匹配空闲师傅</div>
+        </div>
+      </div>
+      <div class="guide-item">
+        <span class="guide-dot"></span>
+        <div>
+          <div class="guide-text">确认派单</div>
+          <div class="guide-example">"派给陈师傅"</div>
+        </div>
+      </div>
+      <div class="guide-item">
+        <span class="guide-dot"></span>
+        <div>
+          <div class="guide-text">查今日情况</div>
+          <div class="guide-example">"今天怎么样"</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hint-text">首次使用？输入称呼即可进入</div>
+  </div>
+
+  <!-- 聊天引导页 -->
+  <div id="chat-page">
+    <div class="app-icon">📋</div>
+    <div class="app-title">已进入调度台</div>
+    <div class="app-subtitle">点击右下角气泡，开始对话</div>
+    <div style="margin-top:32px; animation: bounce-arrow 2s ease-in-out infinite; font-size:48px;">👇</div>
+    <div style="margin-top:16px; font-size:13px; color:rgba(255,255,255,0.35);">创建工单 · AI派单 · 追踪进度</div>
+  </div>
+
+  <script>
+    var ISS = '1199212001020';
+    var KID = 'tsfTukA85NQ4TDqx3uGim2L_CfxqtwWtQXguJGaEsJU';
+    var BOT_ID = '7651958131505283107';
+    var PRIVATE_KEY = '-----BEGIN PRIVATE KEY-----\n' +
+      'MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCxZgtRZP6wS2oy\n' +
+      '8iz5U/y+BKa3dGb2fiBJoTqKzfVwvnGGRLTcFptaTUri3jUrCSE9RNaeCrePjwKE\n' +
+      'L9O3R/wqxDRns/Z0C0/bUBuVDSUhaz1ZWNukvmIWT8L+ENhf9V2f1uEAzYvezAQ9\n' +
+      'tHCeYkExgZeO2EMeIk9bp+GioxC4D12mlHZZxhEfmOxQPka6UFuIIZG8a4xnPVVW\n' +
+      'uVOOmizRBeoYxAIdbLukKBJgmRWjhbXdVElGLuZSoEDEuy1laFMuhPwUmMne9VBM\n' +
+      'o8iDoT6bF+TD3hu86bqwhnG8M/p5ycqaeMaDlsq/xhLaFuvzGI/QOlYsYGm/Ax+h\n' +
+      'nE1I+63RAgMBAAECggEAA0zeQmjpfFJYhEsT4z2mJ2s+8QLS+MxaREu8ovkPjds2\n' +
+      '0arg7hHZWRPpqWMdXFAUsJ8BireGiFQeivgjD/SF0bjxruQhePw+I5rNGuVKMDHJ\n' +
+      'G+q6rNkfdOdDWIPL67aXo8iXtLgDjXJlvze2deWG7WwUq6CU4z2mX21ApfcocX0h\n' +
+      '7h0AHVWZna5960DA8+HJMBaPN4L60ES3Py1ojr+yD6sPeL62Oq6lGe3ZhZiNaVJI\n' +
+      '1UFatQV0iKqwGAXLyRpI+V4hCxnbtPaYusy6jkxwULrB8sdt5HM7lU4aj6hGgLTD\n' +
+      'A645cde3LWSb9prkMZIZ9VIlt6ulN8EHulEaWlF3QQKBgQDVI90qJNINiKFEXdrA\n' +
+      'jJ3RDtNzoYqG2UQ2AHLs2TBLM8Iwr+Suah10T4JT026jYhcincQ5EMCncpQtx86h\n' +
+      'sQyaF7i0ovG3jMPzBnp+FRdw6dp6sZWv4vA50yU4DEIRKZmKbUbm8oTq48Y0V4hd\n' +
+      'fgdpRmB3yiMeEt8g7qkp9r6ekQKBgQDVEkL/RT8No8L43nZcU62MWcREFe4AiZ+M\n' +
+      '0HvMMyvL9HRrtsam/QffnMgwg77QXZZ9Q2GvhJpXMD5ggEB/xmsUDnpo8mfu5Uy4\n' +
+      'avrsH7R1x92/1gD6ewVGyHCcnGC5SEtKVS/+BjmX/gY1CInmk+fLMk+wJm+WzRWR\n' +
+      'WJ/XTGo7QQKBgCT7GwWT6+ozOZ/uFOVxwHQkeWXHsoxhKCeifk5ABNQXf+sIqcnl\n' +
+      'WYTzwq4eskSg4Vi9PO2VzYeAJtumnmCJoqEd2otk9kGdp+YDyr8Tk8SgnqrJIyqo\n' +
+      'Wnv9+ag24EOwDxbojPPHQm6q5JnyUhO+qTSH5HcEWIGATrydDDbevAYxAoGALKHG\n' +
+      'pvI6YwEKtlbjNDPTBrNHCXwOfs5VPYnuZLfTVMXAHVAMDK60F4Mf7AmszrjL7TFQ\n' +
+      'JRQBwIG6jzxORnWpuGnP+mvMmZ4uk/LU3OFHS+Sx7p1FVzKtyEX0UNnw6N7b5pYx\n' +
+      'l2R2bAAqDLHdMQ+KXmYLizqB5XTQL8IAuXioSAECgYEAspZtT4rWB+g44EOPqgTQ\n' +
+      'f+oajUAFO+5fr7hKrroXbZ5nbmzphUW9iCq1XIbAXXEwZ26OhoYFX73J7MXdD9QH\n' +
+      'UE5x40plpip9kpytqNFWqWRNDbVuT7Bl554y5ItGlwUmItMG3Fg3kNZv3vadHjVh\n' +
+      'vCP+57T4M6pAEjiPfJRewmc=\n' +
+      '-----END PRIVATE KEY-----';
+
+    var nameInput = document.getElementById('nameInput');
+    var enterBtn = document.getElementById('enterBtn');
+    var loginPage = document.getElementById('login-page');
+    var chatPage = document.getElementById('chat-page');
+
+    // 名字输入验证
+    nameInput.addEventListener('input', function() {
+      enterBtn.disabled = this.value.trim().length === 0;
+    });
+
+    // 回车提交
+    nameInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && !enterBtn.disabled) enterBtn.click();
+    });
+
+    // Sign JWT
+    function signJWT(sessionName) {
+      var header = { alg: 'RS256', typ: 'JWT', kid: KID };
+      var now = Math.floor(Date.now() / 1000);
+      var payload = {
+        iss: ISS, aud: 'api.coze.cn', iat: now, exp: now + 3600,
+        jti: Math.random().toString(36).substr(2) + Date.now().toString(36),
+        session_name: sessionName
+      };
+      return KJUR.jws.JWS.sign('RS256', JSON.stringify(header), JSON.stringify(payload), PRIVATE_KEY);
+    }
+
+    // Exchange JWT for OAuth access token
+    async function getAccessToken(jwt) {
+      var resp = await fetch('https://api.coze.cn/api/permission/oauth2/token', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + jwt, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer', duration_seconds: 86399 })
+      });
+      var json = await resp.json();
+      var token = json.access_token || (json.data && json.data.access_token);
+      if (!token) throw new Error('No access token: ' + (json.msg || JSON.stringify(json)));
+      return token;
+    }
+
+    // 进入聊天
+    enterBtn.addEventListener('click', async function() {
+      var dispName = nameInput.value.trim();
+      if (!dispName) return;
+
+      enterBtn.disabled = true;
+      enterBtn.textContent = '连接中...';
+
+      try {
+        if (typeof KJUR === 'undefined') throw new Error('加密库未加载，请刷新页面重试');
+
+        // 用名字+时间戳作为session_name实现会话隔离
+        var sessionName = 'disp_' + dispName + '_' + Date.now();
+        var jwt = signJWT(sessionName);
+        var accessToken = await getAccessToken(jwt);
+
+        loginPage.style.display = 'none';
+        chatPage.style.display = 'block';
+
+        new CozeWebSDK.WebChatClient({
+          config: { type: 'bot', bot_id: BOT_ID },
+          auth: {
+            type: 'token', token: accessToken,
+            onRefreshToken: async function() { return await getAccessToken(signJWT(sessionName)); }
+          },
+          userInfo: { id: 'disp_' + dispName, nickname: dispName + '(调度)' },
+          ui: {
+            base: {
+              icon: 'https://lf-coze-web-cdn.coze.cn/obj/eden-cn/lm-lgvj/ljhwZthlaukjlkulzlp/coze/chatsdk-logo.png',
+              layout: 'mobile', lang: 'zh-CN', zIndex: 1000
+            },
+            header: { isShow: true, isNeedClose: true },
+            asstBtn: { isNeed: true },
+            footer: { isShow: true, expressionText: '派单助手 · 调度端' },
+            chatBot: { title: '派单助手', uploadable: false, width: 390 }
+          }
+        });
+
+        // 自动发送身份消息给Bot
+        var identitySent = false;
+        function tryAutoSendIdentity() {
+          if (identitySent) return;
+          var chatInput = null;
+          var textareas = document.querySelectorAll('textarea');
+          for (var i = 0; i < textareas.length; i++) {
+            if (textareas[i].offsetParent && textareas[i].value === '') { chatInput = textareas[i]; break; }
+          }
+          if (!chatInput) {
+            var editables = document.querySelectorAll('[contenteditable="true"]');
+            for (var i = 0; i < editables.length; i++) {
+              if (editables[i].offsetParent) { chatInput = editables[i]; break; }
+            }
+          }
+          if (!chatInput) return;
+          var identityMsg = '[系统]调度员:' + dispName;
+          if (chatInput.tagName === 'TEXTAREA') {
+            var nativeSetter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value').set;
+            nativeSetter.call(chatInput, identityMsg);
+            chatInput.dispatchEvent(new Event('input', { bubbles: true }));
+          } else if (chatInput.contentEditable === 'true') {
+            chatInput.textContent = identityMsg;
+            chatInput.dispatchEvent(new Event('input', { bubbles: true }));
+          }
+          identitySent = true;
+          setTimeout(function() {
+            var btns = document.querySelectorAll('button');
+            var sendBtn = null;
+            for (var j = 0; j < btns.length; j++) {
+              var btn = btns[j];
+              var label = (btn.getAttribute('aria-label') || '').toLowerCase();
+              var cls = (btn.className || '').toLowerCase();
+              if ((label.includes('send') || label.includes('发送') || cls.includes('send') || cls.includes('submit')) && btn.offsetParent && !btn.disabled) {
+                sendBtn = btn; break;
+              }
+            }
+            if (sendBtn) { sendBtn.click(); }
+            else { chatInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter', keyCode: 13, which: 13, bubbles: true })); }
+          }, 300);
+        }
+        var pollCount = 0;
+        var autoSendPoll = setInterval(function() {
+          pollCount++;
+          if (identitySent || pollCount > 60) { clearInterval(autoSendPoll); return; }
+          tryAutoSendIdentity();
+        }, 500);
+      } catch (err) {
+        console.error('Auth failed:', err);
+        enterBtn.disabled = false;
+        enterBtn.textContent = '进入调度台';
+        alert('连接失败：' + err.message);
+      }
+    });
+  </script>
+</body>
+</html>
