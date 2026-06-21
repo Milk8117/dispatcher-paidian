@@ -130,6 +130,61 @@
       color: rgba(255,255,255,0.35);
       margin-top: 8px;
     }
+    .brand-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 24px;
+      padding: 14px 16px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .brand-info {
+      text-align: left;
+      flex: 1;
+    }
+    .brand-name {
+      font-size: 13px;
+      color: rgba(255,255,255,0.55);
+      margin-bottom: 4px;
+    }
+    .brand-name strong { color: rgba(255,255,255,0.85); }
+    .brand-contact {
+      font-size: 14px;
+      color: #4CAF50;
+      margin-bottom: 3px;
+      letter-spacing: 0.5px;
+    }
+    .brand-wechat {
+      font-size: 12px;
+      color: rgba(255,255,255,0.4);
+    }
+    .brand-qr {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-left: 16px;
+      flex-shrink: 0;
+    }
+    .qr-placeholder {
+      width: 56px;
+      height: 56px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: rgba(255,255,255,0.45);
+      font-weight: 600;
+    }
+    .qr-label {
+      font-size: 10px;
+      color: rgba(255,255,255,0.3);
+      margin-top: 3px;
+    }
 
     /* 聊天引导页 */
     #chat-page {
@@ -215,6 +270,18 @@
     </div>
 
     <div class="hint-text">首次使用？输入称呼即可进入</div>
+
+    <div class="brand-footer">
+      <div class="brand-info">
+        <div class="brand-name">出品 <strong>米儿客</strong></div>
+        <div class="brand-contact">📞 180-5277-0121</div>
+        <div class="brand-wechat">微信公众号：米儿客</div>
+      </div>
+      <div class="brand-qr">
+        <div class="qr-placeholder">米儿客</div>
+        <div class="qr-label">扫码关注</div>
+      </div>
+    </div>
   </div>
 
   <!-- 聊天引导页 -->
