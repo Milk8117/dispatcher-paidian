@@ -144,12 +144,11 @@
       text-align: left;
       flex: 1;
     }
-    .brand-name {
-      font-size: 13px;
-      color: rgba(255,255,255,0.55);
-      margin-bottom: 4px;
+    .brand-logo img {
+      height: 28px;
+      margin-bottom: 6px;
+      filter: brightness(0) invert(1) opacity(0.85);
     }
-    .brand-name strong { color: rgba(255,255,255,0.85); }
     .brand-contact {
       font-size: 14px;
       color: #4CAF50;
@@ -176,9 +175,11 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 11px;
-      color: rgba(255,255,255,0.45);
-      font-weight: 600;
+    }
+    .brand-qr img {
+      width: 56px;
+      height: 56px;
+      border-radius: 4px;
     }
     .qr-label {
       font-size: 10px;
@@ -273,12 +274,12 @@
 
     <div class="brand-footer">
       <div class="brand-info">
-        <div class="brand-name">出品 <strong>米儿客</strong></div>
+        <div class="brand-logo"><img src="logo.png" alt="米儿客"></div>
         <div class="brand-contact">📞 180-5277-0121</div>
         <div class="brand-wechat">微信公众号：米儿客</div>
       </div>
       <div class="brand-qr">
-        <div class="qr-placeholder">米儿客</div>
+        <img src="qrcode.png" alt="公众号二维码">
         <div class="qr-label">扫码关注</div>
       </div>
     </div>
