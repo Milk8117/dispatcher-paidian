@@ -485,8 +485,14 @@
       flex: 1;
       display: flex;
       flex-direction: column;
-      background: linear-gradient(135deg, #1a2e1a 0%, #1e3e16 50%, #0f6029 100%);
+      background: #fff;
       position: relative;
+      overflow: hidden;
+    }
+    .chat-area > div,
+    .chat-area > iframe {
+      flex: 1;
+      min-height: 0;
     }
 
     .chat-top-bar {
@@ -1298,11 +1304,7 @@
 
     <!-- 右侧对话区 -->
     <div class="chat-area" id="chatArea">
-      <div class="chat-top-bar">
-        <span class="logo-small">派单助手</span>
-        <span class="logo-sub">调度端 · 创建 · 派单 · 追踪</span>
-      </div>
-      <!-- Chat SDK 渲染在这里 -->
+      <!-- Chat SDK 内嵌渲染在这里 -->
     </div>
   </div>
 
@@ -3056,12 +3058,13 @@
           ui: {
             base: {
               icon: 'https://lf-coze-web-cdn.coze.cn/obj/eden-cn/lm-lgvj/ljhwZthlaukjlkulzlp/coze/chatsdk-logo.png',
-              layout: 'mobile', lang: 'zh-CN', zIndex: 1000
+              layout: 'pc', lang: 'zh-CN', zIndex: 1000,
+              root: '#chatArea'
             },
-            header: { isShow: true, isNeedClose: true },
-            asstBtn: { isNeed: true },
+            header: { isShow: true, isNeedClose: false },
+            asstBtn: { isNeed: false },
             footer: { isShow: true, expressionText: '派单助手 · 调度端' },
-            chatBot: { title: '派单助手', uploadable: false, width: 390 }
+            chatBot: { title: '派单助手', uploadable: false }
           }
         });
       } catch(err) {
