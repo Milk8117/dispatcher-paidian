@@ -334,6 +334,15 @@
       padding: 8px 4px;
       background: #f8f9fa;
       border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .stat-card:hover {
+      background: #e8f5e9;
+      transform: scale(1.03);
+    }
+    .stat-card.click-active {
+      background: #c8e6c9;
     }
     .stat-num {
       font-size: 20px;
@@ -344,6 +353,23 @@
       font-size: 11px;
       color: #999;
       margin-top: 2px;
+    }
+    /* 营收项可点击 */
+    .revenue-item {
+      flex: 1;
+      text-align: center;
+      padding: 6px 4px;
+      background: #fff;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .revenue-item:hover {
+      background: #f5f5f5;
+      transform: scale(1.02);
+    }
+    .revenue-item.click-active {
+      background: #e0e0e0;
     }
 
     /* 列表 */
@@ -917,6 +943,57 @@
     .profit-positive { color: #2e7d32; }
     .profit-negative { color: #c62828; }
 
+    /* 重复报修标签 */
+    .order-card.repeat-repair {
+      border-left: 3px solid #ff9800;
+      padding-left: 13px;
+    }
+    .repeat-tag {
+      display: inline-block;
+      background: #fff3e0;
+      color: #e65100;
+      font-size: 11px;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+    
+    /* 重复报修AI分析样式 */
+    .repeat-analysis {
+      background: #fff8f0;
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 10px;
+      border: 1px solid #ffe0b2;
+    }
+    .repeat-analysis-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #e65100;
+      margin-bottom: 6px;
+    }
+    .repeat-analysis-text {
+      font-size: 13px;
+      color: #333;
+      line-height: 1.5;
+    }
+    .repeat-history {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px dashed #ffe0b2;
+    }
+    .repeat-history-title {
+      font-size: 11px;
+      color: #888;
+      margin-bottom: 4px;
+    }
+    .repeat-history-list {
+      font-size: 12px;
+      color: #666;
+    }
+
     /* 打印样式 */
     @media print {
       .chat-area { display: none !important; }
@@ -951,30 +1028,31 @@
       </div>
 
       <div class="tab-bar">
-        <div class="tab-item active" data-tab="orders" id="tabOrders">工单<span class="tab-badge" id="orderBadge">5</span></div>
+        <div class="tab-item active" data-tab="orders" id="tabOrders">工单<span class="tab-badge" id="orderBadge">2</span></div>
         <div class="tab-item" data-tab="customers" id="tabCustomers">👥 客户</div>
         <div class="tab-item" data-tab="workers" id="tabWorkers">人员</div>
         <div class="tab-item" data-tab="dashboard" id="tabDashboard">📊 看板</div>
       </div>
 
       <div class="stats-bar" id="statsBar">
-        <div class="stat-card"><div class="stat-num" id="statDaipai">2</div><div class="stat-label">待派</div></div>
-        <div class="stat-card"><div class="stat-num" id="statYipai">1</div><div class="stat-label">已派</div></div>
-        <div class="stat-card"><div class="stat-num" id="statJinxing">1</div><div class="stat-label">进行中</div></div>
-        <div class="stat-card"><div class="stat-num" id="statWancheng">1</div><div class="stat-label">已完成</div></div>
-        <div class="stat-card" id="statAlertCard" style="display:none;"><div class="stat-num" id="statAlert" style="color:#f44336;">0</div><div class="stat-label">⚠️异常</div></div>
+        <div class="stat-card" onclick="filterByStat('daipai')"><div class="stat-num" id="statDaipai">2</div><div class="stat-label">待派</div></div>
+        <div class="stat-card" onclick="filterByStat('yipai')"><div class="stat-num" id="statYipai">1</div><div class="stat-label">已派</div></div>
+        <div class="stat-card" onclick="filterByStat('jinxing')"><div class="stat-num" id="statJinxing">1</div><div class="stat-label">进行中</div></div>
+        <div class="stat-card" onclick="filterByStat('wancheng')"><div class="stat-num" id="statWancheng">1</div><div class="stat-label">已完成</div></div>
+        <div class="stat-card" id="statAlertCard" style="display:none;" onclick="filterByOverdue()"><div class="stat-num" id="statAlert" style="color:#f44336;">0</div><div class="stat-label">⚠️异常</div></div>
       </div>
       <!-- 今日营收 -->
       <div class="revenue-bar" id="revenueBar">
         <div class="revenue-title">💰 今日营收</div>
         <div class="revenue-row">
-          <div class="revenue-item"><span class="revenue-num" id="revYingshou">¥0</span><span class="revenue-label">应收</span></div>
-          <div class="revenue-item"><span class="revenue-num revenue-green" id="revYijie">¥0</span><span class="revenue-label">已结</span></div>
-          <div class="revenue-item"><span class="revenue-num revenue-orange" id="revDaishou">¥0</span><span class="revenue-label">待收</span></div>
+          <div class="revenue-item" onclick="filterByRevenue('yingshou')"><span class="revenue-num" id="revYingshou">¥0</span><span class="revenue-label">应收</span></div>
+          <div class="revenue-item" onclick="filterByRevenue('yijie')"><span class="revenue-num revenue-green" id="revYijie">¥0</span><span class="revenue-label">已结</span></div>
+          <div class="revenue-item" onclick="filterByRevenue('daishou')"><span class="revenue-num revenue-orange" id="revDaishou">¥0</span><span class="revenue-label">待收</span></div>
         </div>
         <div class="revenue-row" style="margin-top:4px;">
-          <div class="revenue-item"><span class="revenue-num" id="revCost">¥0</span><span class="revenue-label">成本</span></div>
-          <div class="revenue-item"><span class="revenue-num" id="revProfit">¥0</span><span class="revenue-label">利润</span></div>
+          <div class="revenue-item" onclick="filterByStat('all')"><span class="revenue-num" id="revCost">¥0</span><span class="revenue-label">成本</span></div>
+          <div class="revenue-item" onclick="filterByStat('all')"><span class="revenue-num" id="revProfit">¥0</span><span class="revenue-label">净利</span></div>
+          <div class="revenue-item" onclick="filterByStat('all')"><span class="revenue-num" id="revMaoli">¥0</span><span class="revenue-label">毛利</span></div>
         </div>
       </div>
 
@@ -1064,6 +1142,18 @@
             <span>🔧 空调维修 <span class="warranty-tag warranty-out">维保外</span></span>
             <span>💰 ¥150</span>
             <span>👤 钱总</span>
+          </div>
+        </div>
+        <div class="order-card" data-order="#20260625001" data-status="wancheng" data-customer="赵总" data-service="空调维修" data-worker="周师傅">
+          <div class="order-top">
+            <span class="order-id">#20260625001</span>
+            <span class="order-status status-wancheng">已完成</span>
+          </div>
+          <div class="order-info">
+            <span>🔧 空调维修 <span class="warranty-tag warranty-out">维保外</span></span>
+            <span>💰 ¥150</span>
+            <span>👷 周师傅</span>
+            <span>👤 赵总</span>
           </div>
         </div>
       </div>
@@ -1242,7 +1332,7 @@
         warranty: 'out', warrantyText: '维保外',
         serviceAmount: 150, actualAmount: 0, paidAmount: 0,
         cost: 80,
-        desc: '客厅空调不制冷，开机有异响，购买3年，之前未维修过。'
+        desc: '客厅空调又不制冷了，上次修过一次好了几天又出问题。'
       },
       '#20260616002': {
         id: '#20260616002', status: 'yipai', statusText: '已派',
@@ -1294,6 +1384,20 @@
         serviceAmount: 150, actualAmount: 0, paidAmount: 0,
         cost: 80,
         desc: '卧室空调完全不启动，遥控器有电但无反应。'
+      },
+      // 赵总第1次空调维修（已完成）- 与#20260616001构成重复报修
+      '#20260625001': {
+        id: '#20260625001', status: 'wancheng', statusText: '已完成',
+        customer: '赵总', customerPhone: '138****1001',
+        service: '空调维修', priority: '普通',
+        address: '锦绣路88号 3栋502',
+        worker: '周师傅', workerPhone: '138****1001',
+        createTime: '2026-06-25 08:00', assignTime: '2026-06-25 08:05',
+        finishTime: '2026-06-25 10:30',
+        warranty: 'out', warrantyText: '维保外',
+        serviceAmount: 150, actualAmount: 150, paidAmount: 150,
+        cost: 80,
+        desc: '客厅空调又不制冷了，上次修过一次好了几天又出问题。'
       }
     };
 
@@ -1432,6 +1536,31 @@
         html += '  <div class="detail-section-title">师傅信息</div>';
         html += '  <div class="detail-row"><span class="detail-label">师傅</span><span class="detail-value">👷 ' + d.worker + '</span></div>';
         html += '  <div class="detail-row"><span class="detail-label">电话</span><span class="detail-value">📞 ' + d.workerPhone + '</span></div>';
+        html += '</div>';
+      }
+
+      // 重复报修信息
+      if (d.repeatFlag) {
+        html += '<div class="detail-section">';
+        html += '  <div class="detail-section-title">🔁 重复报修</div>';
+        html += '  <div class="repeat-analysis">';
+        html += '    <div class="repeat-analysis-title">AI分析结论</div>';
+        html += '    <div class="repeat-analysis-text">';
+        if (d.repeatAnalysis === '师傅技术') {
+          html += '⚠️ 不同师傅处理仍报修，建议排查首位师傅维修质量';
+        } else if (d.repeatAnalysis === '设备问题') {
+          html += '⚠️ 同一师傅多次维修仍报修，建议评估设备是否需要更换';
+        } else {
+          html += '⚠️ 重复报修，待派单后跟踪';
+        }
+        html += '    </div>';
+        if (d.relatedOrders && d.relatedOrders.length > 0) {
+          html += '    <div class="repeat-history">';
+          html += '      <div class="repeat-history-title">历史工单</div>';
+          html += '      <div class="repeat-history-list">' + d.relatedOrders.join(', ') + '</div>';
+          html += '    </div>';
+        }
+        html += '  </div>';
         html += '</div>';
       }
 
@@ -1729,36 +1858,240 @@
         document.getElementById('statAlert').textContent = overdueCount;
       }
 
-      // 今日营收计算（含成本/利润）
-      var yingshou = 0, yijie = 0, totalCost = 0;
+      // 修正后的营收计算
+      // 成本 = 所有非待派/非取消工单的cost之和（已派+进行中+已完成）
+      // 毛利 = 应收 - 成本
+      // 净利 = 已结 - 成本
       var keys = Object.keys(orderDetails);
+      var yingshou = 0, yijie = 0, totalCost = 0;
       keys.forEach(function(k) {
         var d = orderDetails[k];
-        if (d.status === 'wancheng') {
-          if (d.warranty === 'out') {
-            yingshou += d.actualAmount;
-            yijie += d.paidAmount;
-          }
-          // 所有工单都计入成本
-          if (d.cost) totalCost += d.cost;
+        // 成本：非待派、非取消的工单
+        if (d.status !== 'daipai' && d.status !== 'quxiao' && d.cost) {
+          totalCost += d.cost;
+        }
+        if (d.status === 'wancheng' && d.warranty === 'out') {
+          yingshou += d.actualAmount;
+          yijie += d.paidAmount;
         }
       });
+      var daishou = yingshou - yijie;
+      var maoli = yingshou - totalCost; // 毛利
+      var jingli = yijie - totalCost; // 净利
+      
       document.getElementById('revYingshou').textContent = '¥' + yingshou;
       document.getElementById('revYijie').textContent = '¥' + yijie;
-      document.getElementById('revDaishou').textContent = '¥' + (yingshou - yijie);
+      document.getElementById('revDaishou').textContent = '¥' + daishou;
       
       // 成本和利润
-      var profit = yijie - totalCost;
       var costEl = document.getElementById('revCost');
       var profitEl = document.getElementById('revProfit');
+      var maoliEl = document.getElementById('revMaoli');
       if (costEl) costEl.textContent = '¥' + totalCost;
       if (profitEl) {
-        profitEl.textContent = (profit >= 0 ? '¥' : '-¥') + Math.abs(profit);
-        profitEl.className = 'revenue-num ' + (profit >= 0 ? 'profit-positive' : 'profit-negative');
+        profitEl.textContent = (jingli >= 0 ? '¥' : '-¥') + Math.abs(jingli);
+        profitEl.className = 'revenue-num ' + (jingli >= 0 ? 'profit-positive' : 'profit-negative');
+      }
+      if (maoliEl) {
+        maoliEl.textContent = (maoli >= 0 ? '¥' : '-¥') + Math.abs(maoli);
+        maoliEl.className = 'revenue-num ' + (maoli >= 0 ? 'profit-positive' : 'profit-negative');
       }
 
+      // 检测重复报修
+      detectRepeatRepairs();
+      
       // 更新超期高亮
       updateOverdueHighlights();
+    }
+
+    // ===== 重复报修检测 =====
+    function detectRepeatRepairs() {
+      var keys = Object.keys(orderDetails);
+      var groups = {}; // 按 (customer + service) 分组
+      
+      // 分组
+      keys.forEach(function(k) {
+        var d = orderDetails[k];
+        var key = d.customer + '|' + d.service;
+        if (!groups[key]) groups[key] = [];
+        groups[key].push(d);
+      });
+      
+      // 清除之前的重复标记
+      keys.forEach(function(k) {
+        orderDetails[k].repeatFlag = false;
+        orderDetails[k].repeatCount = 0;
+        orderDetails[k].repeatAnalysis = null;
+        orderDetails[k].relatedOrders = [];
+      });
+      
+      // 检测重复
+      Object.keys(groups).forEach(function(key) {
+        var items = groups[key];
+        if (items.length > 1) {
+          // 获取处理的师傅列表
+          var workers = items.map(function(item) { return item.worker; }).filter(function(w) { return w; });
+          var uniqueWorkers = [...new Set(workers)];
+          
+          // 分析原因
+          var analysis = '待确认';
+          if (workers.length > 0) {
+            if (uniqueWorkers.length > 1) {
+              analysis = '师傅技术';
+            } else if (uniqueWorkers.length === 1 && workers.length > 1) {
+              analysis = '设备问题';
+            }
+          }
+          
+          // 标记每个工单
+          items.forEach(function(item) {
+            item.repeatFlag = true;
+            item.repeatCount = items.length;
+            item.repeatAnalysis = analysis;
+            item.relatedOrders = items.filter(function(i) { return i.id !== item.id; }).map(function(i) { return i.id; });
+          });
+        }
+      });
+      
+      // 更新工单卡片显示
+      updateRepeatTags();
+    }
+    
+    function updateRepeatTags() {
+      var keys = Object.keys(orderDetails);
+      document.querySelectorAll('.order-card').forEach(function(card) {
+        var orderId = card.getAttribute('data-order');
+        var d = orderDetails[orderId];
+        if (d && d.repeatFlag) {
+          card.classList.add('repeat-repair');
+          // 添加/更新标签
+          var topRow = card.querySelector('.order-top');
+          if (topRow) {
+            var existingTag = topRow.querySelector('.repeat-tag');
+            if (!existingTag) {
+              var tag = document.createElement('span');
+              tag.className = 'repeat-tag';
+              tag.textContent = '🔁重复(' + d.repeatCount + '次)';
+              topRow.appendChild(tag);
+            } else {
+              existingTag.textContent = '🔁重复(' + d.repeatCount + '次)';
+            }
+          }
+        } else {
+          card.classList.remove('repeat-repair');
+          var existingTag = card.querySelector('.repeat-tag');
+          if (existingTag) existingTag.remove();
+        }
+      });
+    }
+
+    // ===== 统计数字点击筛选 =====
+    function filterByStat(filterValue) {
+      // 切换到工单标签
+      document.querySelector('[data-tab="orders"]').click();
+      
+      // 重置营收项的点击高亮
+      document.querySelectorAll('.revenue-item').forEach(function(el) { el.classList.remove('click-active'); });
+      document.querySelectorAll('.stat-card').forEach(function(el) { el.classList.remove('click-active'); });
+      
+      // 设置筛选
+      document.querySelectorAll('.filter-chip').forEach(function(chip) {
+        chip.classList.remove('active');
+        if (chip.getAttribute('data-filter') === filterValue) {
+          chip.classList.add('active');
+          // 高亮点击的统计卡片
+          var statCards = document.querySelectorAll('.stat-card');
+          statCards.forEach(function(sc) {
+            if (sc.onclick && sc.getAttribute('onclick').indexOf("filterByStat('" + filterValue + "')") >= 0) {
+              sc.classList.add('click-active');
+            }
+          });
+        }
+      });
+      
+      currentFilter = filterValue;
+      applyFilters();
+      
+      var filterNames = { all: '全部', daipai: '待派', yipai: '已派', jinxing: '进行中', wancheng: '已完成', quxiao: '已取消' };
+      showToast('已筛选：' + (filterNames[filterValue] || filterValue));
+    }
+    
+    function filterByOverdue() {
+      // 切换到工单标签
+      document.querySelector('[data-tab="orders"]').click();
+      
+      // 获取超期工单ID
+      var overdueIds = getOverdueOrders().map(function(o) { return o.id; });
+      
+      // 重置筛选
+      document.querySelectorAll('.filter-chip').forEach(function(c) { c.classList.remove('active'); });
+      document.querySelectorAll('.stat-card').forEach(function(el) { el.classList.remove('click-active'); });
+      document.querySelectorAll('.revenue-item').forEach(function(el) { el.classList.remove('click-active'); });
+      document.getElementById('statAlertCard').classList.add('click-active');
+      
+      // 只显示超期工单
+      var cards = document.querySelectorAll('.order-card');
+      cards.forEach(function(card) {
+        var orderId = card.getAttribute('data-order');
+        card.style.display = overdueIds.indexOf(orderId) >= 0 ? '' : 'none';
+      });
+      
+      showToast('已筛选：异常工单（' + overdueIds.length + '单）');
+    }
+
+    // ===== 营收数字点击筛选 =====
+    function filterByRevenue(type) {
+      // 切换到工单标签
+      document.querySelector('[data-tab="orders"]').click();
+      
+      // 重置筛选高亮
+      document.querySelectorAll('.filter-chip').forEach(function(c) { c.classList.remove('active'); });
+      document.querySelectorAll('.stat-card').forEach(function(el) { el.classList.remove('click-active'); });
+      document.querySelectorAll('.revenue-item').forEach(function(el) { el.classList.remove('click-active'); });
+      
+      var keys = Object.keys(orderDetails);
+      var cards = document.querySelectorAll('.order-card');
+      
+      // 应收 → 已完成+维保外的工单
+      // 已结 → 已确认到账的工单
+      // 待收 → 未到账的已完成工单
+      cards.forEach(function(card) {
+        var orderId = card.getAttribute('data-order');
+        var d = orderDetails[orderId];
+        var show = false;
+        
+        if (type === 'yingshou') {
+          // 应收：已完成+维保外
+          show = (d.status === 'wancheng' && d.warranty === 'out');
+        } else if (type === 'yijie') {
+          // 已结：已到账
+          show = (d.paidAmount >= d.actualAmount && d.actualAmount > 0);
+        } else if (type === 'daishou') {
+          // 待收：未到账的已完成工单
+          show = (d.status === 'wancheng' && d.warranty === 'out' && d.paidAmount < d.actualAmount);
+        }
+        
+        card.style.display = show ? '' : 'none';
+        
+        // 高亮对应的营收项
+        if (show) {
+          card.setAttribute('data-temp-show', 'true');
+        } else {
+          card.removeAttribute('data-temp-show');
+        }
+      });
+      
+      // 高亮点击的营收项
+      var revenueItems = document.querySelectorAll('.revenue-item');
+      revenueItems.forEach(function(ri) {
+        if (ri.getAttribute('onclick') && ri.getAttribute('onclick').indexOf("filterByRevenue('" + type + "')") >= 0) {
+          ri.classList.add('click-active');
+        }
+      });
+      
+      var typeNames = { yingshou: '应收', yijie: '已结', daishou: '待收' };
+      var shownCount = document.querySelectorAll('.order-card[data-temp-show="true"]').length;
+      showToast('已筛选：' + typeNames[type] + '（' + shownCount + '单）');
     }
 
     // ===== 搜索 =====
@@ -1845,9 +2178,13 @@
 
       // 0. 营收概览
       var revenueOverview = document.getElementById('revenueOverview');
-      var totalYingshou = 0, totalYijie = 0, totalFree = 0;
+      var totalYingshou = 0, totalYijie = 0, totalFree = 0, totalCost = 0;
       keys.forEach(function(k) {
         var d = orderDetails[k];
+        // 成本：非待派、非取消的工单
+        if (d.status !== 'daipai' && d.status !== 'quxiao' && d.cost) {
+          totalCost += d.cost;
+        }
         if (d.status === 'wancheng') {
           if (d.warranty === 'out') {
             totalYingshou += d.actualAmount;
@@ -1857,6 +2194,9 @@
           }
         }
       });
+      var totalDaishou = totalYingshou - totalYijie;
+      var totalMaoli = totalYingshou - totalCost; // 毛利
+      var totalJingli = totalYijie - totalCost; // 净利
       var revHtml = '<div style="display:flex;gap:6px;margin-bottom:10px;">';
       revHtml += '<div style="flex:1;background:#fff8e1;border-radius:8px;padding:10px;text-align:center;">';
       revHtml += '<div style="font-size:20px;font-weight:700;color:#e65100;">¥' + totalYingshou + '</div>';
@@ -1865,26 +2205,23 @@
       revHtml += '<div style="font-size:20px;font-weight:700;color:#2e7d32;">¥' + totalYijie + '</div>';
       revHtml += '<div style="font-size:11px;color:#999;">已结</div></div>';
       revHtml += '<div style="flex:1;background:#fff3e0;border-radius:8px;padding:10px;text-align:center;">';
-      revHtml += '<div style="font-size:20px;font-weight:700;color:#ff9800;">¥' + (totalYingshou - totalYijie) + '</div>';
+      revHtml += '<div style="font-size:20px;font-weight:700;color:#ff9800;">¥' + totalDaishou + '</div>';
       revHtml += '<div style="font-size:11px;color:#999;">待收</div></div>';
       revHtml += '</div>';
       if (totalFree > 0) {
         revHtml += '<div style="font-size:12px;color:#888;">✅ 维保内免费工单 ' + totalFree + ' 单（不产生费用）</div>';
       }
-      // 成本和利润
-      var totalCost = 0;
-      keys.forEach(function(k) {
-        var d = orderDetails[k];
-        if (d.status === 'wancheng' && d.cost) totalCost += d.cost;
-      });
-      var profit = totalYijie - totalCost;
+      // 成本、毛利、净利
       revHtml += '<div style="display:flex;gap:6px;margin-top:8px;">';
       revHtml += '<div style="flex:1;background:#ffebee;border-radius:8px;padding:8px;text-align:center;">';
       revHtml += '<div style="font-size:16px;font-weight:700;color:#c62828;">¥' + totalCost + '</div>';
       revHtml += '<div style="font-size:10px;color:#999;">成本</div></div>';
-      revHtml += '<div style="flex:1;background:' + (profit >= 0 ? '#e8f5e9' : '#ffebee') + ';border-radius:8px;padding:8px;text-align:center;">';
-      revHtml += '<div style="font-size:16px;font-weight:700;color:' + (profit >= 0 ? '#2e7d32' : '#c62828') + ';">' + (profit >= 0 ? '¥' : '-¥') + Math.abs(profit) + '</div>';
-      revHtml += '<div style="font-size:10px;color:#999;">利润</div></div>';
+      revHtml += '<div style="flex:1;background:#e3f2fd;border-radius:8px;padding:8px;text-align:center;">';
+      revHtml += '<div style="font-size:16px;font-weight:700;color:' + (totalMaoli >= 0 ? '#1565c0' : '#c62828') + ';">' + (totalMaoli >= 0 ? '¥' : '-¥') + Math.abs(totalMaoli) + '</div>';
+      revHtml += '<div style="font-size:10px;color:#999;">毛利</div></div>';
+      revHtml += '<div style="flex:1;background:' + (totalJingli >= 0 ? '#e8f5e9' : '#ffebee') + ';border-radius:8px;padding:8px;text-align:center;">';
+      revHtml += '<div style="font-size:16px;font-weight:700;color:' + (totalJingli >= 0 ? '#2e7d32' : '#c62828') + ';">' + (totalJingli >= 0 ? '¥' : '-¥') + Math.abs(totalJingli) + '</div>';
+      revHtml += '<div style="font-size:10px;color:#999;">净利</div></div>';
       revHtml += '</div>';
       revenueOverview.innerHTML = revHtml;
 
@@ -2321,25 +2658,54 @@
         });
       }
       
-      // 利润分析
-      var profit = yijie - totalCost;
-      if (totalCost > 0) {
-        var profitRate = Math.round(profit / totalCost * 100);
-        if (profit < 0) {
+      // 毛利/净利分析
+      // 重新计算（因为上面的计算可能不一致）
+      var calcKeys = Object.keys(orderDetails);
+      var calcYingshou = 0, calcYijie = 0, calcCost = 0;
+      calcKeys.forEach(function(k) {
+        var d = orderDetails[k];
+        if (d.status !== 'daipai' && d.status !== 'quxiao' && d.cost) {
+          calcCost += d.cost;
+        }
+        if (d.status === 'wancheng' && d.warranty === 'out') {
+          calcYingshou += d.actualAmount;
+          calcYijie += d.paidAmount;
+        }
+      });
+      var calcMaoli = calcYingshou - calcCost;
+      var calcJingli = calcYijie - calcCost;
+      if (calcCost > 0) {
+        var maoliRate = Math.round(calcMaoli / calcCost * 100);
+        if (calcMaoli < 0) {
           insights.push({
             type: 'critical',
-            title: '💸 利润亏损',
-            desc: '当前利润率为负（' + profitRate + '%），成本过高',
-            action: '需优化成本或提高收费标准'
+            title: '💸 毛利亏损',
+            desc: '当前毛利为负（' + maoliRate + '%），含未收款',
+            action: '需优化成本结构或加快回款'
           });
-        } else if (profitRate < 30) {
+        } else if (maoliRate < 30) {
           insights.push({
             type: 'warning',
-            title: '📉 利润率偏低',
-            desc: '当前利润率仅 ' + profitRate + '%',
+            title: '📉 毛利率偏低',
+            desc: '当前毛利率仅 ' + maoliRate + '%',
             action: '建议优化成本结构或调整定价'
           });
         }
+      }
+      if (calcJingli < 0) {
+        insights.push({
+          type: 'critical',
+          title: '💰 净利亏损',
+          desc: '已结款项不足以覆盖成本，亏损 ¥' + Math.abs(calcJingli),
+          action: '立即优化成本，严控支出'
+        });
+      } else if (calcJingli < calcCost * 0.3) {
+        insights.push({
+          type: 'warning',
+          title: '📊 净利率偏低',
+          desc: '当前净利率仅 ' + Math.round(calcJingli / calcCost * 100) + '%',
+          action: '建议提升收款速度或优化成本'
+        });
       }
       
       // 技能覆盖分析
@@ -2356,6 +2722,28 @@
           title: '🔧 技能覆盖不足',
           desc: '当前仅覆盖 ' + Array.from(skills).join('/') + ' 类服务',
           action: '建议培养综合技能师傅，拓展业务'
+        });
+      }
+      
+      // 重复报修分析
+      var repeatOrders = keys.filter(function(k) { return orderDetails[k].repeatFlag; });
+      if (repeatOrders.length > 0) {
+        repeatOrders.forEach(function(k) {
+          var d = orderDetails[k];
+          var suggestion = '';
+          if (d.repeatAnalysis === '师傅技术') {
+            suggestion = '建议加强师傅技能培训或派更高水平师傅处理';
+          } else if (d.repeatAnalysis === '设备问题') {
+            suggestion = '建议评估设备状况，必要时建议客户更换';
+          } else {
+            suggestion = '持续跟踪，确定原因后针对性解决';
+          }
+          insights.push({
+            type: 'critical',
+            title: '🔁 重复报修警告',
+            desc: d.customer + '的' + d.service + '重复报修' + d.repeatCount + '次，可能是【' + d.repeatAnalysis + '】',
+            action: suggestion
+          });
         });
       }
       
