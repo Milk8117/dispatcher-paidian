@@ -116,6 +116,106 @@
       border-color: #4CAF50;
     }
 
+    /* 日期筛选 */
+    .date-filter {
+      display: flex;
+      align-items: center;
+      padding: 6px 12px 10px;
+      gap: 6px;
+      flex-shrink: 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .date-label {
+      font-size: 12px;
+      color: #999;
+      flex-shrink: 0;
+    }
+    .date-input {
+      flex: 1;
+      min-width: 0;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      padding: 5px 8px;
+      font-size: 12px;
+      color: #333;
+      outline: none;
+      background: #fff;
+    }
+    .date-input:focus { border-color: #4CAF50; }
+    .date-sep {
+      font-size: 12px;
+      color: #ccc;
+      flex-shrink: 0;
+    }
+    .date-clear {
+      background: none;
+      border: none;
+      font-size: 12px;
+      color: #4CAF50;
+      cursor: pointer;
+      padding: 4px 6px;
+      flex-shrink: 0;
+      display: none;
+    }
+    .date-clear.show { display: block; }
+
+    /* 看板 */
+    .dashboard-view { display: none; flex-direction: column; height: 100%; }
+    .dashboard-view.active { display: flex; }
+    .dash-section {
+      padding: 14px 16px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .dash-section-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 10px;
+    }
+    .dash-scroll { flex: 1; overflow-y: auto; }
+    .dash-scroll::-webkit-scrollbar { width: 4px; }
+    .dash-scroll::-webkit-scrollbar-thumb { background: #ddd; border-radius: 2px; }
+
+    /* 状态分布条 */
+    .status-dist { display: flex; height: 24px; border-radius: 12px; overflow: hidden; margin-bottom: 8px; }
+    .status-dist-item { transition: width 0.4s ease; min-width: 2px; }
+    .dist-daipai { background: #ff9800; }
+    .dist-yipai { background: #2196f3; }
+    .dist-jinxing { background: #4caf50; }
+    .dist-wancheng { background: #bdbdbd; }
+    .dist-quxiao { background: #f44336; }
+    .status-legend { display: flex; flex-wrap: wrap; gap: 8px 14px; }
+    .legend-item { display: flex; align-items: center; gap: 4px; font-size: 12px; color: #666; }
+    .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .legend-val { font-weight: 600; color: #333; }
+
+    /* 柱状图 */
+    .bar-chart { display: flex; align-items: flex-end; gap: 6px; height: 100px; padding-top: 8px; }
+    .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .bar-fill { width: 100%; border-radius: 4px 4px 0 0; background: #4CAF50; transition: height 0.4s ease; min-height: 2px; }
+    .bar-label { font-size: 10px; color: #999; }
+    .bar-val { font-size: 11px; font-weight: 600; color: #333; }
+
+    /* 排名 */
+    .rank-item { display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid #f5f5f5; }
+    .rank-item:last-child { border-bottom: none; }
+    .rank-num { width: 22px; height: 22px; border-radius: 50%; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-right: 8px; }
+    .rank-1 { background: #ffd54f; color: #795548; }
+    .rank-2 { background: #b0bec5; color: #fff; }
+    .rank-3 { background: #a1887f; color: #fff; }
+    .rank-other { background: #e0e0e0; color: #999; }
+    .rank-name { flex: 1; font-size: 13px; font-weight: 500; color: #333; }
+    .rank-bar-wrap { width: 60px; height: 6px; background: #f0f0f0; border-radius: 3px; overflow: hidden; margin-right: 8px; }
+    .rank-bar { height: 100%; background: #4CAF50; border-radius: 3px; transition: width 0.4s ease; }
+    .rank-count { font-size: 13px; font-weight: 600; color: #4CAF50; min-width: 24px; text-align: right; }
+
+    /* 类型分布 */
+    .type-item { display: flex; align-items: center; margin-bottom: 8px; }
+    .type-label { font-size: 12px; color: #666; width: 60px; flex-shrink: 0; }
+    .type-bar-wrap { flex: 1; height: 8px; background: #f0f0f0; border-radius: 4px; overflow: hidden; margin: 0 8px; }
+    .type-bar { height: 100%; background: #2196f3; border-radius: 4px; transition: width 0.4s ease; }
+    .type-val { font-size: 12px; font-weight: 600; color: #333; min-width: 20px; text-align: right; }
+
     /* 标签切换 */
     .tab-bar {
       display: flex;
@@ -458,6 +558,113 @@
     }
     .btn-secondary:hover { background: #eee; }
 
+    /* Toast */
+    .toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-80px);
+      background: #333;
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-size: 14px;
+      z-index: 9999;
+      opacity: 0;
+      transition: all 0.3s ease;
+      pointer-events: none;
+      white-space: nowrap;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* 弹窗遮罩 */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal-box {
+      background: #fff;
+      border-radius: 14px;
+      width: 90%;
+      max-width: 320px;
+      overflow: hidden;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+    }
+    .modal-header {
+      padding: 16px 20px 8px;
+      font-size: 16px;
+      font-weight: 700;
+      color: #333;
+    }
+    .modal-body {
+      padding: 8px 20px 16px;
+      font-size: 13px;
+      color: #666;
+      line-height: 1.6;
+    }
+    .modal-body .recommend-card {
+      background: #f0f7f0;
+      border-radius: 10px;
+      padding: 12px;
+      margin-top: 8px;
+    }
+    .modal-body .recommend-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #2e7d32;
+    }
+    .modal-body .recommend-reason {
+      font-size: 12px;
+      color: #666;
+      margin-top: 4px;
+    }
+    .modal-body .worker-option {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border: 1px solid #eee;
+      border-radius: 10px;
+      margin-top: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .modal-body .worker-option:hover {
+      border-color: #4CAF50;
+      background: #f8fdf8;
+    }
+    .modal-body .wo-left { display: flex; align-items: center; gap: 8px; }
+    .modal-body .wo-name { font-size: 14px; font-weight: 600; color: #333; }
+    .modal-body .wo-info { font-size: 12px; color: #999; }
+    .modal-body .wo-status { font-size: 12px; padding: 2px 8px; border-radius: 10px; }
+    .modal-footer {
+      display: flex;
+      border-top: 1px solid #f0f0f0;
+    }
+    .modal-btn {
+      flex: 1;
+      padding: 14px;
+      border: none;
+      background: none;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .modal-btn:first-child { border-right: 1px solid #f0f0f0; color: #888; }
+    .modal-btn:last-child { color: #4CAF50; }
+    .modal-btn:hover { background: #f5f5f5; }
+
     /* 隐藏推荐问题按钮 */
     [class*="suggestion"], [class*="recommended"], [class*="quick-reply"],
     [class*="question-item"], [class*="prompt-item"] { display: none !important; }
@@ -500,6 +707,14 @@
 
   <button class="mobile-panel-toggle" id="panelToggle">📋</button>
   <div class="overlay" id="overlay"></div>
+  <div class="toast" id="toast"></div>
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal-box">
+      <div class="modal-header" id="modalHeader"></div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-footer" id="modalFooter"></div>
+    </div>
+  </div>
 
   <div class="main-container">
     <!-- 左侧数据面板 -->
@@ -512,6 +727,7 @@
       <div class="tab-bar">
         <div class="tab-item active" data-tab="orders" id="tabOrders">工单<span class="tab-badge" id="orderBadge">5</span></div>
         <div class="tab-item" data-tab="workers" id="tabWorkers">人员</div>
+        <div class="tab-item" data-tab="dashboard" id="tabDashboard">📊 看板</div>
       </div>
 
       <div class="stats-bar" id="statsBar">
@@ -538,6 +754,15 @@
         <div class="filter-chip" data-filter="jinxing">进行中</div>
         <div class="filter-chip" data-filter="wancheng">已完成</div>
         <div class="filter-chip" data-filter="quxiao">已取消</div>
+      </div>
+
+      <!-- 日期筛选 -->
+      <div class="date-filter" id="dateFilter">
+        <span class="date-label">📅</span>
+        <input type="date" class="date-input" id="dateStart">
+        <span class="date-sep">~</span>
+        <input type="date" class="date-input" id="dateEnd">
+        <button class="date-clear" id="dateClear">清除</button>
       </div>
 
       <!-- 工单列表 -->
@@ -669,6 +894,29 @@
           </div>
         </div>
       </div>
+
+      <!-- 看板 -->
+      <div class="dashboard-view" id="dashboardView">
+        <div class="dash-scroll">
+          <div class="dash-section">
+            <div class="dash-section-title">📈 工单状态分布</div>
+            <div class="status-dist" id="statusDist"></div>
+            <div class="status-legend" id="statusLegend"></div>
+          </div>
+          <div class="dash-section">
+            <div class="dash-section-title">📊 近7日工单趋势</div>
+            <div class="bar-chart" id="barChart"></div>
+          </div>
+          <div class="dash-section">
+            <div class="dash-section-title">🏆 师傅工单排名</div>
+            <div id="workerRank"></div>
+          </div>
+          <div class="dash-section">
+            <div class="dash-section-title">🔧 服务类型分布</div>
+            <div id="typeDist"></div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- 右侧对话区 -->
@@ -747,31 +995,43 @@
     var statsBar = document.getElementById('statsBar');
     var searchBar = document.getElementById('searchBar');
     var filterBar = document.getElementById('filterBar');
+    var dateFilter = document.getElementById('dateFilter');
     var detailView = document.getElementById('detailView');
     var detailBack = document.getElementById('detailBack');
     var detailTitle = document.getElementById('detailTitle');
     var detailBody = document.getElementById('detailBody');
     var detailActions = document.getElementById('detailActions');
+    var dashboardView = document.getElementById('dashboardView');
 
     // 面板子视图：list / detail
     var currentView = 'list';
+
+    function hideAllPanels() {
+      orderList.style.display = 'none';
+      workerList.style.display = 'none';
+      statsBar.style.display = 'none';
+      searchBar.style.display = 'none';
+      filterBar.style.display = 'none';
+      dateFilter.style.display = 'none';
+      detailView.classList.remove('active');
+      dashboardView.classList.remove('active');
+    }
 
     tabs.forEach(function(tab) {
       tab.addEventListener('click', function() {
         tabs.forEach(function(t) { t.classList.remove('active'); });
         this.classList.add('active');
         var target = this.getAttribute('data-tab');
+        hideAllPanels();
         if (target === 'orders') {
           showListView();
-          searchBar.style.display = '';
-          filterBar.style.display = '';
-        } else {
-          showListView();
-          orderList.style.display = 'none';
+        } else if (target === 'workers') {
+          currentView = 'list';
           workerList.style.display = '';
-          statsBar.style.display = 'none';
-          searchBar.style.display = 'none';
-          filterBar.style.display = 'none';
+        } else if (target === 'dashboard') {
+          currentView = 'dashboard';
+          dashboardView.classList.add('active');
+          renderDashboard();
         }
       });
     });
@@ -779,11 +1039,13 @@
     function showListView() {
       currentView = 'list';
       detailView.classList.remove('active');
+      dashboardView.classList.remove('active');
       orderList.style.display = '';
       workerList.style.display = 'none';
       statsBar.style.display = '';
       searchBar.style.display = '';
       filterBar.style.display = '';
+      dateFilter.style.display = '';
     }
 
     function showDetailView(orderId) {
@@ -794,6 +1056,7 @@
       statsBar.style.display = 'none';
       searchBar.style.display = 'none';
       filterBar.style.display = 'none';
+      dateFilter.style.display = 'none';
       detailView.classList.add('active');
       detailTitle.textContent = '工单详情';
 
@@ -837,16 +1100,16 @@
       // 操作按钮
       var actHtml = '';
       if (d.status === 'daipai') {
-        actHtml += '<button class="detail-btn btn-primary" onclick="sendToChat(\'AI派单 ' + d.id + '\')">🤖 AI智能派单</button>';
-        actHtml += '<button class="detail-btn btn-secondary" onclick="sendToChat(\'手动派单 ' + d.id + '\')">✋ 手动指定师傅</button>';
+        actHtml += '<button class="detail-btn btn-primary" onclick="doAIDispatch(\'' + d.id + '\')">🤖 AI智能派单</button>';
+        actHtml += '<button class="detail-btn btn-secondary" onclick="doManualDispatch(\'' + d.id + '\')">✋ 手动指定师傅</button>';
       } else if (d.status === 'yipai') {
-        actHtml += '<button class="detail-btn btn-secondary" onclick="sendToChat(\'催单 ' + d.id + '\')">📞 催单提醒</button>';
-        actHtml += '<button class="detail-btn btn-secondary" onclick="sendToChat(\'改派 ' + d.id + '\')">🔄 改派师傅</button>';
+        actHtml += '<button class="detail-btn btn-secondary" onclick="doRemind(\'' + d.id + '\')">📞 催单提醒</button>';
+        actHtml += '<button class="detail-btn btn-secondary" onclick="doReassign(\'' + d.id + '\')">🔄 改派师傅</button>';
       } else if (d.status === 'jinxing') {
-        actHtml += '<button class="detail-btn btn-primary" onclick="sendToChat(\'完成 ' + d.id + '\')">✅ 标记完成</button>';
-        actHtml += '<button class="detail-btn btn-secondary" onclick="sendToChat(\'催单 ' + d.id + '\')">📞 催单提醒</button>';
+        actHtml += '<button class="detail-btn btn-primary" onclick="doFinish(\'' + d.id + '\')">✅ 标记完成</button>';
+        actHtml += '<button class="detail-btn btn-secondary" onclick="doRemind(\'' + d.id + '\')">📞 催单提醒</button>';
       } else if (d.status === 'wancheng') {
-        actHtml += '<button class="detail-btn btn-secondary" onclick="sendToChat(\'回访 ' + d.id + '\')">💬 客户回访</button>';
+        actHtml += '<button class="detail-btn btn-secondary" onclick="doCallback(\'' + d.id + '\')">💬 客户回访</button>';
       }
       detailActions.innerHTML = actHtml;
     }
@@ -889,8 +1152,164 @@
           }
         }, 200);
       }
-      // 详情页点击操作后返回列表
-      showListView();
+    }
+
+    // ===== Toast =====
+    var toastEl = document.getElementById('toast');
+    var toastTimer;
+    function showToast(msg) {
+      clearTimeout(toastTimer);
+      toastEl.textContent = msg;
+      toastEl.classList.add('show');
+      toastTimer = setTimeout(function() { toastEl.classList.remove('show'); }, 2200);
+    }
+
+    // ===== Modal =====
+    var modalOverlay = document.getElementById('modalOverlay');
+    var modalHeader = document.getElementById('modalHeader');
+    var modalBody = document.getElementById('modalBody');
+    var modalFooter = document.getElementById('modalFooter');
+
+    function openModal(title, bodyHtml, footerHtml) {
+      modalHeader.textContent = title;
+      modalBody.innerHTML = bodyHtml;
+      modalFooter.innerHTML = footerHtml;
+      modalOverlay.classList.add('show');
+    }
+    function closeModal() {
+      modalOverlay.classList.remove('show');
+    }
+    modalOverlay.addEventListener('click', function(e) {
+      if (e.target === modalOverlay) closeModal();
+    });
+
+    // 师傅数据
+    var workers = [
+      { name: '周师傅', area: '锦绣路片区', skill: '空调', status: '空闲', cls: 'ws-kongxian', phone: '138****1001' },
+      { name: '陈师傅', area: '河西片区', skill: '空调+综合', status: '在途', cls: 'ws-zaitu', phone: '138****1002' },
+      { name: '张师傅', area: '城东片区', skill: '空调+综合', status: '空闲', cls: 'ws-kongxian', phone: '138****1003' },
+      { name: '李师傅', area: '城北片区', skill: '水电+管道', status: '空闲', cls: 'ws-kongxian', phone: '138****1004' }
+    ];
+
+    // ===== 操作函数 =====
+
+    // AI智能派单
+    function doAIDispatch(orderId) {
+      var d = orderDetails[orderId];
+      if (!d) return;
+      // 模拟AI推荐：根据服务类型选最合适的空闲师傅
+      var recommended = '陈师傅';
+      var reason = '';
+      if (d.service.indexOf('空调') >= 0) {
+        recommended = '周师傅';
+        reason = '周师傅专精空调维修，当前空闲，距客户最近（锦绣路片区），今日仅2单负荷轻，预计15分钟到达。';
+      } else if (d.service.indexOf('水电') >= 0) {
+        recommended = '李师傅';
+        reason = '李师傅专精水电维修，当前空闲，今日0单，可立即出发。';
+      } else {
+        recommended = '张师傅';
+        reason = '张师傅综合技能强，当前空闲，今日3单经验丰富。';
+      }
+
+      var bodyHtml = '<div style="font-size:13px;color:#888;margin-bottom:4px;">工单 ' + orderId + '</div>';
+      bodyHtml += '<div class="recommend-card">';
+      bodyHtml += '  <div class="recommend-name">👷 推荐师傅：' + recommended + '</div>';
+      bodyHtml += '  <div class="recommend-reason">' + reason + '</div>';
+      bodyHtml += '</div>';
+
+      var footerHtml = '<button class="modal-btn" onclick="closeModal()">取消</button>';
+      footerHtml += '<button class="modal-btn" onclick="confirmDispatch(\'' + orderId + '\',\'' + recommended + '\')">确认派单</button>';
+
+      openModal('🤖 AI智能派单', bodyHtml, footerHtml);
+    }
+
+    // 手动指定师傅
+    function doManualDispatch(orderId) {
+      var bodyHtml = '<div style="font-size:13px;color:#888;margin-bottom:8px;">选择要派给的师傅：</div>';
+      workers.forEach(function(w) {
+        bodyHtml += '<div class="worker-option" onclick="confirmDispatch(\'' + orderId + '\',\'' + w.name + '\')">';
+        bodyHtml += '  <div class="wo-left"><span class="wo-name">👷 ' + w.name + '</span><span class="wo-info">' + w.area + ' · ' + w.skill + '</span></div>';
+        bodyHtml += '  <span class="wo-status ' + w.cls + '">' + w.status + '</span>';
+        bodyHtml += '</div>';
+      });
+      openModal('✋ 手动指定师傅', bodyHtml, '<button class="modal-btn" onclick="closeModal()" style="width:100%">取消</button>');
+    }
+
+    // 确认派单
+    function confirmDispatch(orderId, workerName) {
+      closeModal();
+      var d = orderDetails[orderId];
+      if (d) {
+        d.status = 'yipai';
+        d.statusText = '已派';
+        d.worker = workerName;
+        // 更新卡片
+        var card = document.querySelector('.order-card[data-order="' + orderId + '"]');
+        if (card) {
+          card.setAttribute('data-status', 'yipai');
+          card.setAttribute('data-worker', workerName);
+          var statusEl = card.querySelector('.order-status');
+          if (statusEl) { statusEl.className = 'order-status status-yipai'; statusEl.textContent = '已派'; }
+        }
+        showDetailView(orderId);
+      }
+      showToast('✅ 已派给 ' + workerName);
+      sendToChat('派单 ' + orderId + ' 给 ' + workerName);
+      updateStats();
+    }
+
+    // 催单提醒
+    function doRemind(orderId) {
+      var d = orderDetails[orderId];
+      showToast('📞 已通知 ' + (d.worker || '师傅') + ' 尽快处理');
+      sendToChat('催单 ' + orderId);
+    }
+
+    // 改派师傅
+    function doReassign(orderId) {
+      doManualDispatch(orderId);
+    }
+
+    // 标记完成
+    function doFinish(orderId) {
+      var d = orderDetails[orderId];
+      if (d) {
+        d.status = 'wancheng';
+        d.statusText = '已完成';
+        d.finishTime = new Date().toLocaleString('zh-CN', {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).replace(/\//g, '-');
+        var card = document.querySelector('.order-card[data-order="' + orderId + '"]');
+        if (card) {
+          card.setAttribute('data-status', 'wancheng');
+          var statusEl = card.querySelector('.order-status');
+          if (statusEl) { statusEl.className = 'order-status status-wancheng'; statusEl.textContent = '已完成'; }
+        }
+        showDetailView(orderId);
+      }
+      showToast('✅ 工单已标记完成');
+      sendToChat('完成 ' + orderId);
+      updateStats();
+    }
+
+    // 客户回访
+    function doCallback(orderId) {
+      showToast('💬 已发起客户回访');
+      sendToChat('回访 ' + orderId);
+    }
+
+    // 更新统计
+    function updateStats() {
+      var cards = document.querySelectorAll('.order-card');
+      var counts = { daipai: 0, yipai: 0, jinxing: 0, wancheng: 0, quxiao: 0 };
+      cards.forEach(function(c) {
+        var s = c.getAttribute('data-status');
+        if (counts[s] !== undefined) counts[s]++;
+      });
+      document.getElementById('statDaipai').textContent = counts.daipai;
+      document.getElementById('statYipai').textContent = counts.yipai;
+      document.getElementById('statJinxing').textContent = counts.jinxing;
+      document.getElementById('statWancheng').textContent = counts.wancheng;
+      var badge = document.getElementById('orderBadge');
+      if (badge) badge.textContent = counts.daipai;
     }
 
     // ===== 搜索 =====
@@ -921,6 +1340,8 @@
 
     function applyFilters() {
       var keyword = searchInput.value.trim().toLowerCase();
+      var dateStart = document.getElementById('dateStart').value;
+      var dateEnd = document.getElementById('dateEnd').value;
       var cards = document.querySelectorAll('.order-card');
       cards.forEach(function(card) {
         var status = card.getAttribute('data-status');
@@ -932,8 +1353,141 @@
         var matchFilter = (currentFilter === 'all') || (status === currentFilter);
         var matchSearch = !keyword || orderId.indexOf(keyword) >= 0 || customer.indexOf(keyword) >= 0 || service.indexOf(keyword) >= 0 || worker.indexOf(keyword) >= 0;
 
-        card.style.display = (matchFilter && matchSearch) ? '' : 'none';
+        // 日期筛选
+        var matchDate = true;
+        if (dateStart || dateEnd) {
+          var d = orderDetails[card.getAttribute('data-order')];
+          if (d && d.createTime) {
+            var createDate = d.createTime.substring(0, 10);
+            if (dateStart && createDate < dateStart) matchDate = false;
+            if (dateEnd && createDate > dateEnd) matchDate = false;
+          }
+        }
+
+        card.style.display = (matchFilter && matchSearch && matchDate) ? '' : 'none';
       });
+    }
+
+    // 日期筛选
+    var dateStartEl = document.getElementById('dateStart');
+    var dateEndEl = document.getElementById('dateEnd');
+    var dateClearEl = document.getElementById('dateClear');
+
+    function checkDateClear() {
+      var show = dateStartEl.value || dateEndEl.value;
+      dateClearEl.classList.toggle('show', !!show);
+    }
+    dateStartEl.addEventListener('change', function() { checkDateClear(); applyFilters(); });
+    dateEndEl.addEventListener('change', function() { checkDateClear(); applyFilters(); });
+    dateClearEl.addEventListener('click', function() {
+      dateStartEl.value = '';
+      dateEndEl.value = '';
+      dateClearEl.classList.remove('show');
+      applyFilters();
+    });
+
+    // ===== 看板渲染 =====
+    function renderDashboard() {
+      var keys = Object.keys(orderDetails);
+      var total = keys.length;
+
+      // 1. 状态分布
+      var counts = { daipai: 0, yipai: 0, jinxing: 0, wancheng: 0, quxiao: 0 };
+      keys.forEach(function(k) { var s = orderDetails[k].status; if (counts[s] !== undefined) counts[s]++; });
+
+      var statusDist = document.getElementById('statusDist');
+      var statusLegend = document.getElementById('statusLegend');
+      var distHtml = '';
+      var legendHtml = '';
+      var statusInfo = [
+        { key: 'daipai', label: '待派', cls: 'dist-daipai', color: '#ff9800' },
+        { key: 'yipai', label: '已派', cls: 'dist-yipai', color: '#2196f3' },
+        { key: 'jinxing', label: '进行中', cls: 'dist-jinxing', color: '#4caf50' },
+        { key: 'wancheng', label: '已完成', cls: 'dist-wancheng', color: '#bdbdbd' },
+        { key: 'quxiao', label: '已取消', cls: 'dist-quxiao', color: '#f44336' }
+      ];
+      statusInfo.forEach(function(si) {
+        var pct = total > 0 ? (counts[si.key] / total * 100) : 0;
+        distHtml += '<div class="status-dist-item ' + si.cls + '" style="width:' + pct + '%"></div>';
+        legendHtml += '<div class="legend-item"><span class="legend-dot" style="background:' + si.color + '"></span>' + si.label + ' <span class="legend-val">' + counts[si.key] + '</span></div>';
+      });
+      statusDist.innerHTML = distHtml;
+      statusLegend.innerHTML = legendHtml;
+
+      // 2. 近7日趋势
+      var barChart = document.getElementById('barChart');
+      var days = [];
+      var dayCounts = {};
+      for (var i = 6; i >= 0; i--) {
+        var d = new Date();
+        d.setDate(d.getDate() - i);
+        var ds = d.toISOString().substring(0, 10);
+        days.push(ds);
+        dayCounts[ds] = 0;
+      }
+      // 模拟数据：给每天随机1-3单
+      days.forEach(function(ds) { dayCounts[ds] = Math.floor(Math.random() * 3) + 1; });
+      // 用真实数据覆盖
+      keys.forEach(function(k) {
+        var ct = orderDetails[k].createTime;
+        if (ct) {
+          var cd = ct.substring(0, 10);
+          if (dayCounts[cd] !== undefined) dayCounts[cd]++;
+        }
+      });
+      var maxDay = Math.max.apply(null, Object.values(dayCounts));
+      if (maxDay === 0) maxDay = 1;
+      var barHtml = '';
+      days.forEach(function(ds) {
+        var h = (dayCounts[ds] / maxDay * 80);
+        var label = ds.substring(5).replace('-', '/');
+        barHtml += '<div class="bar-col"><div class="bar-val">' + dayCounts[ds] + '</div><div class="bar-fill" style="height:' + h + 'px"></div><div class="bar-label">' + label + '</div></div>';
+      });
+      barChart.innerHTML = barHtml;
+
+      // 3. 师傅排名
+      var workerRank = document.getElementById('workerRank');
+      var workerCounts = {};
+      keys.forEach(function(k) {
+        var w = orderDetails[k].worker;
+        if (w) workerCounts[w] = (workerCounts[w] || 0) + 1;
+      });
+      workers.forEach(function(w) { if (!workerCounts[w.name]) workerCounts[w.name] = 0; });
+      var sorted = Object.keys(workerCounts).sort(function(a, b) { return workerCounts[b] - workerCounts[a]; });
+      var maxW = sorted.length > 0 ? workerCounts[sorted[0]] : 1;
+      if (maxW === 0) maxW = 1;
+      var rankHtml = '';
+      sorted.forEach(function(name, idx) {
+        var cls = idx < 3 ? 'rank-' + (idx + 1) : 'rank-other';
+        var pct = (workerCounts[name] / maxW * 100);
+        rankHtml += '<div class="rank-item">';
+        rankHtml += '  <div class="rank-num ' + cls + '">' + (idx + 1) + '</div>';
+        rankHtml += '  <div class="rank-name">' + name + '</div>';
+        rankHtml += '  <div class="rank-bar-wrap"><div class="rank-bar" style="width:' + pct + '%"></div></div>';
+        rankHtml += '  <div class="rank-count">' + workerCounts[name] + '单</div>';
+        rankHtml += '</div>';
+      });
+      workerRank.innerHTML = rankHtml;
+
+      // 4. 服务类型分布
+      var typeDist = document.getElementById('typeDist');
+      var typeCounts = {};
+      keys.forEach(function(k) {
+        var svc = orderDetails[k].service;
+        if (svc) typeCounts[svc] = (typeCounts[svc] || 0) + 1;
+      });
+      var maxT = Math.max.apply(null, Object.values(typeCounts));
+      if (maxT === 0) maxT = 1;
+      var typeHtml = '';
+      Object.keys(typeCounts).forEach(function(svc) {
+        var pct = (typeCounts[svc] / maxT * 100);
+        typeHtml += '<div class="type-item">';
+        typeHtml += '  <div class="type-label">' + svc + '</div>';
+        typeHtml += '  <div class="type-bar-wrap"><div class="type-bar" style="width:' + pct + '%"></div></div>';
+        typeHtml += '  <div class="type-val">' + typeCounts[svc] + '</div>';
+        typeHtml += '</div>';
+      });
+      typeDist.innerHTML = typeHtml;
     }
 
     // ===== 移动端面板 =====
