@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>派单助手 - 调度端</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%234CAF50'/><text x='50' y='72' font-size='60' text-anchor='middle' fill='white' font-weight='bold' font-family='sans-serif'>调</text></svg>">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    body {
+      background: #f5f6f8;
+      color: #333;
+    }
+
+    /* ===== 主布局 ===== */
+    .main-container {
+      display: flex;
+      width: 100%;
+      height: 100vh;
+    }
+
+    /* ===== 左侧面板 ===== */
+    .side-panel {
+      width: 320px;
+      background: #fff;
+      border-right: 1px solid #e8eaed;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 16px 20px;
+      background: #4CAF50;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .panel-header h1 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+    .panel-header .subtitle {
+      font-size: 12px;
+      opacity: 0.8;
+    }
+
+    /* 标签切换 */
+    .tab-bar {
+      display: flex;
+      border-bottom: 1px solid #e8eaed;
+      flex-shrink: 0;
+    }
+    .tab-item {
+      flex: 1;
+      padding: 12px 0;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 500;
+      color: #666;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+    .tab-item.active {
+      color: #4CAF50;
+      border-bottom-color: #4CAF50;
+    }
+    .tab-item:hover { color: #4CAF50; }
+    .tab-badge {
+      display: inline-block;
+      background: #ff5252;
+      color: #fff;
+      font-size: 11px;
+      padding: 1px 6px;
+      border-radius: 10px;
+      margin-left: 4px;
+      vertical-align: top;
+    }
+
+    /* 统计栏 */
+    .stats-bar {
+      display: flex;
+      padding: 12px 16px;
+      gap: 8px;
+      flex-shrink: 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .stat-card {
+      flex: 1;
+      text-align: center;
+      padding: 8px 4px;
+      background: #f8f9fa;
+      border-radius: 8px;
+    }
+    .stat-num {
+      font-size: 20px;
+      font-weight: 700;
+      color: #333;
+    }
+    .stat-label {
+      font-size: 11px;
+      color: #999;
+      margin-top: 2px;
+    }
+
+    /* 列表 */
+    .list-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+    }
+    .list-area::-webkit-scrollbar { width: 4px; }
+    .list-area::-webkit-scrollbar-thumb { background: #ddd; border-radius: 2px; }
+
+    /* 工单卡片 */
+    .order-card {
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .order-card:hover {
+      border-color: #4CAF50;
+      box-shadow: 0 2px 8px rgba(76,175,80,0.12);
+    }
+    .order-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .order-id {
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+    }
+    .order-status {
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 500;
+    }
+    .status-daipai { background: #fff3e0; color: #e65100; }
+    .status-yipai { background: #e3f2fd; color: #1565c0; }
+    .status-jinxing { background: #e8f5e9; color: #2e7d32; }
+    .status-wancheng { background: #f5f5f5; color: #999; }
+    .status-quxiao { background: #ffebee; color: #c62828; }
+    .order-info {
+      display: flex;
+      gap: 16px;
+      font-size: 13px;
+      color: #666;
+    }
+    .order-info span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* 人员卡片 */
+    .worker-card {
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 8px;
+      transition: all 0.15s;
+    }
+    .worker-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .worker-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #333;
+    }
+    .worker-status {
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 500;
+    }
+    .ws-kongxian { background: #e8f5e9; color: #2e7d32; }
+    .ws-zaitu { background: #fff3e0; color: #e65100; }
+    .ws-xiuxi { background: #f5f5f5; color: #999; }
+    .worker-detail {
+      display: flex;
+      gap: 12px;
+      font-size: 13px;
+      color: #888;
+      flex-wrap: wrap;
+    }
+    .worker-detail span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .skill-tag {
+      display: inline-block;
+      background: #f0f7f0;
+      color: #4CAF50;
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-right: 4px;
+    }
+
+    /* ===== 右侧对话区 ===== */
+    .chat-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: linear-gradient(135deg, #1a2e1a 0%, #1e3e16 50%, #0f6029 100%);
+      position: relative;
+    }
+
+    .chat-top-bar {
+      height: 52px;
+      background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      flex-shrink: 0;
+    }
+    .chat-top-bar .logo-small {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .chat-top-bar .logo-sub {
+      font-size: 12px;
+      color: rgba(255,255,255,0.5);
+      margin-left: 8px;
+    }
+
+    /* 移动端面板切换按钮 */
+    .mobile-panel-toggle {
+      display: none;
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      z-index: 1100;
+      background: #4CAF50;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      font-size: 20px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    /* 空状态 */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #bbb;
+    }
+    .empty-state .empty-icon {
+      font-size: 40px;
+      margin-bottom: 12px;
+    }
+    .empty-state .empty-text {
+      font-size: 14px;
+    }
+
+    /* 隐藏推荐问题按钮 */
+    [class*="suggestion"], [class*="recommended"], [class*="quick-reply"],
+    [class*="question-item"], [class*="prompt-item"] { display: none !important; }
+
+    /* ===== 响应式 ===== */
+    @media (max-width: 768px) {
+      .side-panel {
+        position: fixed;
+        top: 0;
+        left: -320px;
+        z-index: 1050;
+        height: 100vh;
+        transition: left 0.3s ease;
+        box-shadow: none;
+      }
+      .side-panel.open {
+        left: 0;
+        box-shadow: 4px 0 20px rgba(0,0,0,0.2);
+      }
+      .mobile-panel-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .chat-area { width: 100%; }
+      .overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.4);
+        z-index: 1040;
+      }
+      .overlay.show { display: block; }
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/jsrsasign@11.1.0/lib/jsrsasign-all-min.js"></script>
+  <script src="https://lf-cdn.coze.cn/obj/unpkg/flow-platform/chat-app-sdk/1.2.0-beta.20/libs/cn/index.js"></script>
+</head>
+<body>
+
+  <button class="mobile-panel-toggle" id="panelToggle">📋</button>
+  <div class="overlay" id="overlay"></div>
+
+  <div class="main-container">
+    <!-- 左侧数据面板 -->
+    <div class="side-panel" id="sidePanel">
+      <div class="panel-header">
+        <h1>📋 小米派单系统</h1>
+        <div class="subtitle">数据面板 · 实时概览</div>
+      </div>
+
+      <div class="tab-bar">
+        <div class="tab-item active" data-tab="orders" id="tabOrders">工单<span class="tab-badge" id="orderBadge">5</span></div>
+        <div class="tab-item" data-tab="workers" id="tabWorkers">人员</div>
+      </div>
+
+      <div class="stats-bar" id="statsBar">
+        <div class="stat-card"><div class="stat-num" id="statDaipai">2</div><div class="stat-label">待派</div></div>
+        <div class="stat-card"><div class="stat-num" id="statYipai">1</div><div class="stat-label">已派</div></div>
+        <div class="stat-card"><div class="stat-num" id="statJinxing">1</div><div class="stat-label">进行中</div></div>
+        <div class="stat-card"><div class="stat-num" id="statWancheng">1</div><div class="stat-label">已完成</div></div>
+      </div>
+
+      <!-- 工单列表 -->
+      <div class="list-area" id="orderList">
+        <div class="order-card" data-order="#20260616001">
+          <div class="order-top">
+            <span class="order-id">#20260616001</span>
+            <span class="order-status status-daipai">待派</span>
+          </div>
+          <div class="order-info">
+            <span>🔧 空调维修</span>
+            <span>👤 赵总</span>
+          </div>
+        </div>
+        <div class="order-card" data-order="#20260616002">
+          <div class="order-top">
+            <span class="order-id">#20260616002</span>
+            <span class="order-status status-yipai">已派</span>
+          </div>
+          <div class="order-info">
+            <span>🔧 空调维修</span>
+            <span>👷 陈师傅</span>
+            <span>👤 李总</span>
+          </div>
+        </div>
+        <div class="order-card" data-order="#20260618001">
+          <div class="order-top">
+            <span class="order-id">#20260618001</span>
+            <span class="order-status status-jinxing">进行中</span>
+          </div>
+          <div class="order-info">
+            <span>🔧 水电维修</span>
+            <span>👷 周师傅</span>
+            <span>👤 王总</span>
+          </div>
+        </div>
+        <div class="order-card" data-order="#20260619001">
+          <div class="order-top">
+            <span class="order-id">#20260619001</span>
+            <span class="order-status status-wancheng">已完成</span>
+          </div>
+          <div class="order-info">
+            <span>🔧 管道疏通</span>
+            <span>👷 张师傅</span>
+            <span>👤 孙总</span>
+          </div>
+        </div>
+        <div class="order-card" data-order="#20260620001">
+          <div class="order-top">
+            <span class="order-id">#20260620001</span>
+            <span class="order-status status-daipai">待派</span>
+          </div>
+          <div class="order-info">
+            <span>🔧 空调维修</span>
+            <span>👤 钱总</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 人员列表 -->
+      <div class="list-area" id="workerList" style="display:none;">
+        <div class="worker-card">
+          <div class="worker-top">
+            <span class="worker-name">👷 周师傅</span>
+            <span class="worker-status ws-kongxian">空闲</span>
+          </div>
+          <div class="worker-detail">
+            <span>📍 锦绣路片区</span>
+            <span>📋 今日2单 / 累计21单</span>
+          </div>
+          <div style="margin-top:6px;">
+            <span class="skill-tag">空调</span>
+          </div>
+        </div>
+        <div class="worker-card">
+          <div class="worker-top">
+            <span class="worker-name">👷 陈师傅</span>
+            <span class="worker-status ws-zaitu">在途</span>
+          </div>
+          <div class="worker-detail">
+            <span>📍 河西片区</span>
+            <span>📋 今日1单 / 累计16单</span>
+          </div>
+          <div style="margin-top:6px;">
+            <span class="skill-tag">空调</span>
+            <span class="skill-tag">综合</span>
+          </div>
+        </div>
+        <div class="worker-card">
+          <div class="worker-top">
+            <span class="worker-name">👷 张师傅</span>
+            <span class="worker-status ws-kongxian">空闲</span>
+          </div>
+          <div class="worker-detail">
+            <span>📍 城东片区</span>
+            <span>📋 今日3单 / 累计18单</span>
+          </div>
+          <div style="margin-top:6px;">
+            <span class="skill-tag">空调</span>
+            <span class="skill-tag">综合</span>
+          </div>
+        </div>
+        <div class="worker-card">
+          <div class="worker-top">
+            <span class="worker-name">👷 李师傅</span>
+            <span class="worker-status ws-kongxian">空闲</span>
+          </div>
+          <div class="worker-detail">
+            <span>📍 城北片区</span>
+            <span>📋 今日0单 / 累计8单</span>
+          </div>
+          <div style="margin-top:6px;">
+            <span class="skill-tag">水电</span>
+            <span class="skill-tag">管道</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右侧对话区 -->
+    <div class="chat-area" id="chatArea">
+      <div class="chat-top-bar">
+        <span class="logo-small">派单助手</span>
+        <span class="logo-sub">调度端 · 创建 · 派单 · 追踪</span>
+      </div>
+      <!-- Chat SDK 渲染在这里 -->
+    </div>
+  </div>
+
+  <script>
+    // ===== 标签切换 =====
+    var tabs = document.querySelectorAll('.tab-item');
+    var orderList = document.getElementById('orderList');
+    var workerList = document.getElementById('workerList');
+    var statsBar = document.getElementById('statsBar');
+
+    tabs.forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        tabs.forEach(function(t) { t.classList.remove('active'); });
+        this.classList.add('active');
+        var target = this.getAttribute('data-tab');
+        if (target === 'orders') {
+          orderList.style.display = '';
+          workerList.style.display = 'none';
+          statsBar.style.display = '';
+        } else {
+          orderList.style.display = 'none';
+          workerList.style.display = '';
+          statsBar.style.display = 'none';
+        }
+      });
+    });
+
+    // ===== 工单点击 → 对话区查询 =====
+    document.querySelectorAll('.order-card').forEach(function(card) {
+      card.addEventListener('click', function() {
+        var orderId = this.getAttribute('data-order');
+        // 向Chat SDK发送查询消息
+        var chatInput = document.querySelector('textarea') || document.querySelector('[contenteditable="true"]');
+        if (chatInput) {
+          var msg = '查看工单 ' + orderId;
+          if (chatInput.tagName === 'TEXTAREA') {
+            var nativeSetter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value').set;
+            nativeSetter.call(chatInput, msg);
+            chatInput.dispatchEvent(new Event('input', { bubbles: true }));
+          } else {
+            chatInput.textContent = msg;
+            chatInput.dispatchEvent(new Event('input', { bubbles: true }));
+          }
+          setTimeout(function() {
+            var btns = document.querySelectorAll('button');
+            for (var j = 0; j < btns.length; j++) {
+              var btn = btns[j];
+              var label = (btn.getAttribute('aria-label') || '').toLowerCase();
+              var cls = (btn.className || '').toLowerCase();
+              if ((label.includes('send') || label.includes('发送') || cls.includes('send') || cls.includes('submit')) && btn.offsetParent && !btn.disabled) {
+                btn.click(); break;
+              }
+            }
+          }, 200);
+        }
+        // 移动端关闭面板
+        closePanel();
+      });
+    });
+
+    // ===== 移动端面板 =====
+    var sidePanel = document.getElementById('sidePanel');
+    var overlay = document.getElementById('overlay');
+    var panelToggle = document.getElementById('panelToggle');
+
+    function closePanel() {
+      sidePanel.classList.remove('open');
+      overlay.classList.remove('show');
+    }
+    panelToggle.addEventListener('click', function() {
+      sidePanel.classList.toggle('open');
+      overlay.classList.toggle('show');
+    });
+    overlay.addEventListener('click', closePanel);
+
+    // ===== 以下为原有Chat SDK认证逻辑 =====
+    var ISS = '1199212001020';
+    var KID = 'tsfTukA85NQ4TDqx3uGim2L_CfxqtwWtQXguJGaEsJU';
+    var BOT_ID = '7651958131505283107';
+    var PRIVATE_KEY = '-----BEGIN PRIVATE KEY-----\n' +
+      'MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCxZgtRZP6wS2oy\n' +
+      '8iz5U/y+BKa3dGb2fiBJoTqKzfVwvnGGRLTcFptaTUri3jUrCSE9RNaeCrePjwKE\n' +
+      'L9O3R/wqxDRns/Z0C0/bUBuVDSUhaz1ZWNukvmIWT8L+ENhf9V2f1uEAzYvezAQ9\n' +
+      'tHCeYkExgZeO2EMeIk9bp+GioxC4D12mlHZZxhEfmOxQPka6UFuIIZG8a4xnPVVW\n' +
+      'uVOOmizRBeoYxAIdbLukKBJgmRWjhbXdVElGLuZSoEDEuy1laFMuhPwUmMne9VBM\n' +
+      'o8iDoT6bF+TD3hu86bqwhnG8M/p5ycqaeMaDlsq/xhLaFuvzGI/QOlYsYGm/Ax+h\n' +
+      'nE1I+63RAgMBAAECggEAA0zeQmjpfFJYhEsT4z2mJ2s+8QLS+MxaREu8ovkPjds2\n' +
+      '0arg7hHZWRPpqWMdXFAUsJ8BireGiFQeivgjD/SF0bjxruQhePw+I5rNGuVKMDHJ\n' +
+      'G+q6rNkfdOdDWIPL67aXo8iXtLgDjXJlvze2deWG7WwUq6CU4z2mX21ApfcocX0h\n' +
+      '7h0AHVWZna5960DA8+HJMBaPN4L60ES3Py1ojr+yD6sPeL62Oq6lGe3ZhZiNaVJI\n' +
+      '1UFatQV0iKqwGAXLyRpI+V4hCxnbtPaYusy6jkxwULrB8sdt5HM7lU4aj6hGgLTD\n' +
+      'A645cde3LWSb9prkMZIZ9VIlt6ulN8EHulEaWlF3QQKBgQDVI90qJNINiKFEXdrA\n' +
+      'jJ3RDtNzoYqG2UQ2AHLs2TBLM8Iwr+Suah10T4JT026jYhcincQ5EMCncpQtx86h\n' +
+      'sQyaF7i0ovG3jMPzBnp+FRdw6dp6sZWv4vA50yU4DEIRKZmKbUbm8oTq48Y0V4hd\n' +
+      'fgdpRmB3yiMeEt8g7qkp9r6ekQKBgQDVEkL/RT8No8L43nZcU62MWcREFe4AiZ+M\n' +
+      '0HvMMyvL9HRrtsam/QffnMgwg77QXZZ9Q2GvhJpXMD5ggEB/xmsUDnpo8mfu5Uy4\n' +
+      'avrsH7R1x92/1gD6ewVGyHCcnGC5SEtKVS/+BjmX/gY1CInmk+fLMk+wJm+WzRWR\n' +
+      'WJ/XTGo7QQKBgCT7GwWT6+ozOZ/uFOVxwHQkeWXHsoxhKCeifk5ABNQXf+sIqcnl\n' +
+      'WYTzwq4eskSg4Vi9PO2VzYeAJtumnmCJoqEd2otk9kGdp+YDyr8Tk8SgnqrJIyqo\n' +
+      'Wnv9+ag24EOwDxbojPPHQm6q5JnyUhO+qTSH5HcEWIGATrydDDbevAYxAoGALKHG\n' +
+      'pvI6YwEKtlbjNDPTBrNHCXwOfs5VPYnuZLfTVMXAHVAMDK60F4Mf7AmszrjL7TFQ\n' +
+      'JRQBwIG6jzxORnWpuGnP+mvMmZ4uk/LU3OFHS+Sx7p1FVzKtyEX0UNnw6N7b5pYx\n' +
+      'l2R2bAAqDLHdMQ+KXmYLizqB5XTQL8IAuXioSAECgYEAspZtT4rWB+g44EOPqgTQ\n' +
+      'f+oajUAFO+5fr7hKrroXbZ5nbmzphUW9iCq1XIbAXXEwZ26OhoYFX73J7MXdD9QH\n' +
+      'UE5x40plpip9kpytqNFWqWRNDbVuT7Bl554y5ItGlwUmItMG3Fg3kNZv3vadHjVh\n' +
+      'vCP+57T4M6pAEjiPfJRewmc=\n' +
+      '-----END PRIVATE KEY-----';
+
+    function signJWT(sessionName) {
+      var header = { alg: 'RS256', typ: 'JWT', kid: KID };
+      var now = Math.floor(Date.now() / 1000);
+      var payload = {
+        iss: ISS, aud: 'api.coze.cn', iat: now, exp: now + 3600,
+        jti: Math.random().toString(36).substr(2) + Date.now().toString(36),
+        session_name: sessionName
+      };
+      return KJUR.jws.JWS.sign('RS256', JSON.stringify(header), JSON.stringify(payload), PRIVATE_KEY);
+    }
+
+    async function getAccessToken(jwt) {
+      var resp = await fetch('https://api.coze.cn/api/permission/oauth2/token', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + jwt, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer', duration_seconds: 86399 })
+      });
+      var json = await resp.json();
+      var token = json.access_token || (json.data && json.data.access_token);
+      if (!token) throw new Error('No access token: ' + (json.msg || JSON.stringify(json)));
+      return token;
+    }
+
+    // 自动登录（直接用默认调度员身份）
+    async function initChat() {
+      var dispName = '小米';
+      try {
+        if (typeof KJUR === 'undefined') throw new Error('加密库未加载');
+        var sessionName = 'disp_' + dispName + '_' + Date.now();
+        var jwt = signJWT(sessionName);
+        var accessToken = await getAccessToken(jwt);
+
+        new CozeWebSDK.WebChatClient({
+          config: { type: 'bot', bot_id: BOT_ID },
+          auth: {
+            type: 'token', token: accessToken,
+            onRefreshToken: async function() { return await getAccessToken(signJWT(sessionName)); }
+          },
+          userInfo: { id: 'disp_' + dispName, nickname: dispName + '(调度)' },
+          ui: {
+            base: {
+              icon: 'https://lf-coze-web-cdn.coze.cn/obj/eden-cn/lm-lgvj/ljhwZthlaukjlkulzlp/coze/chatsdk-logo.png',
+              layout: 'mobile', lang: 'zh-CN', zIndex: 1000
+            },
+            header: { isShow: true, isNeedClose: true },
+            asstBtn: { isNeed: true },
+            footer: { isShow: true, expressionText: '派单助手 · 调度端' },
+            chatBot: { title: '派单助手', uploadable: false, width: 390 }
+          }
+        });
+      } catch(err) {
+        console.error('Auth failed:', err);
+      }
+    }
+
+    // 页面加载后自动初始化
+    initChat();
+  </script>
+</body>
+</html>
