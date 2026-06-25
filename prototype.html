@@ -1571,22 +1571,38 @@
 
       detailBody.innerHTML = html;
 
-      // 操作按钮
+      // 操作按钮 - 根据当前状态精确渲染，防止重复操作
       var actHtml = '';
       if (d.status === 'daipai') {
+        // 只有待派状态可以派单
         actHtml += '<button class="detail-btn btn-primary" onclick="doAIDispatch(\'' + d.id + '\')">🤖 AI智能派单</button>';
         actHtml += '<button class="detail-btn btn-secondary" onclick="doManualDispatch(\'' + d.id + '\')">✋ 手动指定师傅</button>';
       } else if (d.status === 'yipai') {
-        actHtml += '<button class="detail-btn btn-secondary" onclick="doRemind(\'' + d.id + '\')">📞 催单提醒</button>';
+        // 已派状态：可催单、可改派
+        if (d.worker) {
+          actHtml += '<button class="detail-btn btn-primary" onclick="doRemind(\'' + d.id + '\')">📞 催单提醒</button>';
+        }
         actHtml += '<button class="detail-btn btn-secondary" onclick="doReassign(\'' + d.id + '\')">🔄 改派师傅</button>';
+        // 已派状态不能标记完成（师傅还没开始）
+        actHtml += '<div style="text-align:center;font-size:12px;color:#999;padding:8px 0;">⏳ 待师傅接单后开始服务</div>';
       } else if (d.status === 'jinxing') {
+        // 进行中状态：可标记完成、可催单
         actHtml += '<button class="detail-btn btn-primary" onclick="doFinish(\'' + d.id + '\')">✅ 标记完成</button>';
-        actHtml += '<button class="detail-btn btn-secondary" onclick="doRemind(\'' + d.id + '\')">📞 催单提醒</button>';
+        if (d.worker) {
+          actHtml += '<button class="detail-btn btn-secondary" onclick="doRemind(\'' + d.id + '\')">📞 催单提醒</button>';
+        }
       } else if (d.status === 'wancheng') {
+        // 已完成状态：可确认到账(维保外+未到账)、可回访
         if (d.warranty === 'out' && d.actualAmount > 0 && d.paidAmount < d.actualAmount) {
           actHtml += '<button class="detail-btn btn-confirm-pay" onclick="doConfirmPay(\'' + d.id + '\')">💰 确认到账 ¥' + d.actualAmount + '</button>';
+        } else if (d.warranty === 'out' && d.actualAmount > 0 && d.paidAmount >= d.actualAmount) {
+          // 已到账，显示已确认状态
+          actHtml += '<div style="text-align:center;font-size:13px;color:#2e7d32;padding:12px 0;background:#e8f5e9;border-radius:10px;margin-bottom:8px;">✅ 已确认到账 ¥' + d.paidAmount + '</div>';
         }
         actHtml += '<button class="detail-btn btn-secondary" onclick="doCallback(\'' + d.id + '\')">💬 客户回访</button>';
+      } else if (d.status === 'quxiao') {
+        // 已取消状态：无操作
+        actHtml += '<div style="text-align:center;font-size:13px;color:#c62828;padding:12px 0;background:#ffebee;border-radius:10px;">❌ 已取消工单</div>';
       }
       detailActions.innerHTML = actHtml;
     }
@@ -1668,12 +1684,18 @@
       { name: '李师傅', area: '城北片区', skill: '水电+管道', status: '空闲', cls: 'ws-kongxian', phone: '138****1004' }
     ];
 
-    // ===== 操作函数 =====
+    // ===== 操作函数 - 带状态校验 =====
 
     // AI智能派单
     function doAIDispatch(orderId) {
       var d = orderDetails[orderId];
       if (!d) return;
+      // 状态校验：只有待派状态可以派单
+      if (d.status !== 'daipai') {
+        showToast('⚠️ 该工单已派单，无法重复派发');
+        showDetailView(orderId);
+        return;
+      }
       // 模拟AI推荐：根据服务类型选最合适的空闲师傅
       var recommended = '陈师傅';
       var reason = '';
@@ -1702,6 +1724,14 @@
 
     // 手动指定师傅
     function doManualDispatch(orderId) {
+      var d = orderDetails[orderId];
+      if (!d) return;
+      // 状态校验：只有待派状态可以派单
+      if (d.status !== 'daipai') {
+        showToast('⚠️ 该工单已派单，无法重复派发');
+        showDetailView(orderId);
+        return;
+      }
       var bodyHtml = '<div style="font-size:13px;color:#888;margin-bottom:8px;">选择要派给的师傅：</div>';
       workers.forEach(function(w) {
         bodyHtml += '<div class="worker-option" onclick="confirmDispatch(\'' + orderId + '\',\'' + w.name + '\')">';
@@ -1714,22 +1744,33 @@
 
     // 确认派单
     function confirmDispatch(orderId, workerName) {
-      closeModal();
       var d = orderDetails[orderId];
-      if (d) {
-        d.status = 'yipai';
-        d.statusText = '已派';
-        d.worker = workerName;
-        // 更新卡片
-        var card = document.querySelector('.order-card[data-order="' + orderId + '"]');
-        if (card) {
-          card.setAttribute('data-status', 'yipai');
-          card.setAttribute('data-worker', workerName);
-          var statusEl = card.querySelector('.order-status');
-          if (statusEl) { statusEl.className = 'order-status status-yipai'; statusEl.textContent = '已派'; }
-        }
+      if (!d) return;
+      // 双重校验：防止重复派单
+      if (d.status !== 'daipai') {
+        closeModal();
+        showToast('⚠️ 该工单已派单，无法重复派发');
         showDetailView(orderId);
+        return;
       }
+      closeModal();
+      // 更新状态
+      d.status = 'yipai';
+      d.statusText = '已派';
+      d.worker = workerName;
+      // 查找并更新师傅电话
+      var w = workers.find(function(x) { return x.name === workerName; });
+      if (w) d.workerPhone = w.phone;
+      // 更新卡片
+      var card = document.querySelector('.order-card[data-order="' + orderId + '"]');
+      if (card) {
+        card.setAttribute('data-status', 'yipai');
+        card.setAttribute('data-worker', workerName);
+        var statusEl = card.querySelector('.order-status');
+        if (statusEl) { statusEl.className = 'order-status status-yipai'; statusEl.textContent = '已派'; }
+      }
+      // 立即刷新详情页按钮区（根据新状态渲染）
+      showDetailView(orderId);
       showToast('✅ 已派给 ' + workerName);
       sendToChat('派单 ' + orderId + ' 给 ' + workerName);
       updateStats();
@@ -1738,12 +1779,39 @@
     // 催单提醒
     function doRemind(orderId) {
       var d = orderDetails[orderId];
-      showToast('📞 已通知 ' + (d.worker || '师傅') + ' 尽快处理');
+      if (!d) return;
+      // 状态校验：只有已派/进行中状态可以催单
+      if (d.status !== 'yipai' && d.status !== 'jinxing') {
+        if (d.status === 'daipai') {
+          showToast('⚠️ 该工单尚未派单，请先派单');
+        } else if (d.status === 'wancheng') {
+          showToast('⚠️ 该工单已完成，无需催单');
+        } else {
+          showToast('⚠️ 当前状态无法催单');
+        }
+        showDetailView(orderId);
+        return;
+      }
+      // 必须有师傅才能催单
+      if (!d.worker) {
+        showToast('⚠️ 该工单尚未分配师傅，无法催单');
+        showDetailView(orderId);
+        return;
+      }
+      showToast('📞 已通知 ' + d.worker + ' 尽快处理');
       sendToChat('催单 ' + orderId);
     }
 
     // 改派师傅
     function doReassign(orderId) {
+      var d = orderDetails[orderId];
+      if (!d) return;
+      // 状态校验：只有已派/进行中状态可以改派
+      if (d.status !== 'yipai' && d.status !== 'jinxing') {
+        showToast('⚠️ 当前状态无法改派');
+        showDetailView(orderId);
+        return;
+      }
       doManualDispatch(orderId);
     }
 
@@ -1751,6 +1819,22 @@
     function doFinish(orderId) {
       var d = orderDetails[orderId];
       if (!d) return;
+      // 状态校验：只有进行中状态可以标记完成（已派状态需先转为进行中）
+      if (d.status !== 'jinxing') {
+        if (d.status === 'daipai') {
+          showToast('⚠️ 该工单尚未派单，请先派单');
+        } else if (d.status === 'yipai') {
+          showToast('⚠️ 师傅尚未开始服务，请等待');
+        } else if (d.status === 'wancheng') {
+          showToast('⚠️ 该工单已完成，无法重复标记');
+        } else if (d.status === 'quxiao') {
+          showToast('⚠️ 该工单已取消，无法标记完成');
+        } else {
+          showToast('⚠️ 当前状态无法标记完成');
+        }
+        showDetailView(orderId);
+        return;
+      }
 
       // 维保内直接完成，维保外需填实收金额
       if (d.warranty === 'out') {
@@ -1789,18 +1873,24 @@
 
     function doFinishComplete(orderId) {
       var d = orderDetails[orderId];
-      if (d) {
-        d.status = 'wancheng';
-        d.statusText = '已完成';
-        d.finishTime = new Date().toLocaleString('zh-CN', {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).replace(/\//g, '-');
-        var card = document.querySelector('.order-card[data-order="' + orderId + '"]');
-        if (card) {
-          card.setAttribute('data-status', 'wancheng');
-          var statusEl = card.querySelector('.order-status');
-          if (statusEl) { statusEl.className = 'order-status status-wancheng'; statusEl.textContent = '已完成'; }
-        }
+      if (!d) return;
+      // 双重校验：防止重复完成
+      if (d.status !== 'jinxing') {
+        showToast('⚠️ 该工单已完成，无法重复标记');
         showDetailView(orderId);
+        return;
       }
+      d.status = 'wancheng';
+      d.statusText = '已完成';
+      d.finishTime = new Date().toLocaleString('zh-CN', {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).replace(/\//g, '-');
+      var card = document.querySelector('.order-card[data-order="' + orderId + '"]');
+      if (card) {
+        card.setAttribute('data-status', 'wancheng');
+        var statusEl = card.querySelector('.order-status');
+        if (statusEl) { statusEl.className = 'order-status status-wancheng'; statusEl.textContent = '已完成'; }
+      }
+      // 立即刷新详情页按钮区
+      showDetailView(orderId);
       showToast('✅ 工单已标记完成');
       sendToChat('完成 ' + orderId);
       updateStats();
@@ -1810,6 +1900,27 @@
     function doConfirmPay(orderId) {
       var d = orderDetails[orderId];
       if (!d) return;
+      // 状态校验：只有已完成+维保外+未到账可以确认
+      if (d.status !== 'wancheng') {
+        showToast('⚠️ 该工单尚未完成，无法确认到账');
+        showDetailView(orderId);
+        return;
+      }
+      if (d.warranty === 'in') {
+        showToast('⚠️ 维保内工单无需确认到账');
+        showDetailView(orderId);
+        return;
+      }
+      if (d.actualAmount <= 0) {
+        showToast('⚠️ 该工单无应收金额');
+        showDetailView(orderId);
+        return;
+      }
+      if (d.paidAmount >= d.actualAmount) {
+        showToast('⚠️ 该工单已确认到账');
+        showDetailView(orderId);
+        return;
+      }
       var bodyHtml = '<div style="font-size:13px;color:#888;margin-bottom:4px;">工单 ' + orderId + '</div>';
       bodyHtml += '<div style="margin-top:8px;font-size:14px;">实收金额：<b style="color:#e65100;font-size:18px;">¥' + d.actualAmount + '</b></div>';
       bodyHtml += '<div style="font-size:13px;color:#666;margin-top:8px;">确认该笔款项已到账？</div>';
@@ -1819,18 +1930,33 @@
     }
 
     function confirmPay(orderId) {
-      closeModal();
       var d = orderDetails[orderId];
-      if (d) {
-        d.paidAmount = d.actualAmount;
+      if (!d) return;
+      // 双重校验：防止重复确认到账
+      if (d.paidAmount >= d.actualAmount) {
+        closeModal();
+        showToast('⚠️ 该工单已确认到账');
+        showDetailView(orderId);
+        return;
       }
-      showToast('✅ ¥' + d.actualAmount + ' 已确认到账');
+      closeModal();
+      d.paidAmount = d.actualAmount;
+      // 立即刷新详情页按钮区
       showDetailView(orderId);
+      showToast('✅ ¥' + d.actualAmount + ' 已确认到账');
       updateStats();
     }
 
     // 客户回访
     function doCallback(orderId) {
+      var d = orderDetails[orderId];
+      if (!d) return;
+      // 状态校验：只有已完成状态可以回访
+      if (d.status !== 'wancheng') {
+        showToast('⚠️ 该工单尚未完成，无法回访');
+        showDetailView(orderId);
+        return;
+      }
       showToast('💬 已发起客户回访');
       sendToChat('回访 ' + orderId);
     }
@@ -1875,12 +2001,13 @@
           yijie += d.paidAmount;
         }
       });
-      var daishou = yingshou - yijie;
-      var maoli = yingshou - totalCost; // 毛利
-      var jingli = yijie - totalCost; // 净利
+      // 防空处理：确保金额为数字，避免NaN
+      var daishou = isNaN(yingshou - yijie) ? 0 : yingshou - yijie;
+      var maoli = isNaN(yingshou - totalCost) ? 0 : yingshou - totalCost; // 毛利
+      var jingli = isNaN(yijie - totalCost) ? 0 : yijie - totalCost; // 净利
       
-      document.getElementById('revYingshou').textContent = '¥' + yingshou;
-      document.getElementById('revYijie').textContent = '¥' + yijie;
+      document.getElementById('revYingshou').textContent = '¥' + (isNaN(yingshou) ? 0 : yingshou);
+      document.getElementById('revYijie').textContent = '¥' + (isNaN(yijie) ? 0 : yijie);
       document.getElementById('revDaishou').textContent = '¥' + daishou;
       
       // 成本/利润数据仍保留计算，供看板和AI洞察使用
@@ -2113,6 +2240,7 @@
       var dateStart = document.getElementById('dateStart').value;
       var dateEnd = document.getElementById('dateEnd').value;
       var cards = document.querySelectorAll('.order-card');
+      var visibleCount = 0;
       cards.forEach(function(card) {
         var status = card.getAttribute('data-status');
         var orderId = (card.getAttribute('data-order') || '').toLowerCase();
@@ -2134,8 +2262,24 @@
           }
         }
 
-        card.style.display = (matchFilter && matchSearch && matchDate) ? '' : 'none';
+        var isVisible = matchFilter && matchSearch && matchDate;
+        card.style.display = isVisible ? '' : 'none';
+        if (isVisible) visibleCount++;
       });
+      
+      // 空状态提示
+      var existingEmpty = document.getElementById('emptyFilterResult');
+      if (visibleCount === 0) {
+        if (!existingEmpty) {
+          var emptyDiv = document.createElement('div');
+          emptyDiv.id = 'emptyFilterResult';
+          emptyDiv.className = 'empty-state';
+          emptyDiv.innerHTML = '<div class="empty-icon">📋</div><div class="empty-text">暂无匹配工单</div>';
+          orderList.appendChild(emptyDiv);
+        }
+      } else {
+        if (existingEmpty) existingEmpty.remove();
+      }
     }
 
     // 日期筛选
@@ -2182,15 +2326,15 @@
           }
         }
       });
-      var totalDaishou = totalYingshou - totalYijie;
-      var totalMaoli = totalYingshou - totalCost; // 毛利
-      var totalJingli = totalYijie - totalCost; // 净利
+      var totalDaishou = isNaN(totalYingshou - totalYijie) ? 0 : totalYingshou - totalYijie;
+      var totalMaoli = isNaN(totalYingshou - totalCost) ? 0 : totalYingshou - totalCost; // 毛利
+      var totalJingli = isNaN(totalYijie - totalCost) ? 0 : totalYijie - totalCost; // 净利
       var revHtml = '<div style="display:flex;gap:6px;margin-bottom:10px;">';
       revHtml += '<div style="flex:1;background:#fff8e1;border-radius:8px;padding:10px;text-align:center;">';
-      revHtml += '<div style="font-size:20px;font-weight:700;color:#e65100;">¥' + totalYingshou + '</div>';
+      revHtml += '<div style="font-size:20px;font-weight:700;color:#e65100;">¥' + (isNaN(totalYingshou) ? 0 : totalYingshou) + '</div>';
       revHtml += '<div style="font-size:11px;color:#999;">应收总额</div></div>';
       revHtml += '<div style="flex:1;background:#e8f5e9;border-radius:8px;padding:10px;text-align:center;">';
-      revHtml += '<div style="font-size:20px;font-weight:700;color:#2e7d32;">¥' + totalYijie + '</div>';
+      revHtml += '<div style="font-size:20px;font-weight:700;color:#2e7d32;">¥' + (isNaN(totalYijie) ? 0 : totalYijie) + '</div>';
       revHtml += '<div style="font-size:11px;color:#999;">已结</div></div>';
       revHtml += '<div style="flex:1;background:#fff3e0;border-radius:8px;padding:10px;text-align:center;">';
       revHtml += '<div style="font-size:20px;font-weight:700;color:#ff9800;">¥' + totalDaishou + '</div>';
@@ -2202,7 +2346,7 @@
       // 成本、毛利、净利
       revHtml += '<div style="display:flex;gap:6px;margin-top:8px;">';
       revHtml += '<div style="flex:1;background:#ffebee;border-radius:8px;padding:8px;text-align:center;">';
-      revHtml += '<div style="font-size:16px;font-weight:700;color:#c62828;">¥' + totalCost + '</div>';
+      revHtml += '<div style="font-size:16px;font-weight:700;color:#c62828;">¥' + (isNaN(totalCost) ? 0 : totalCost) + '</div>';
       revHtml += '<div style="font-size:10px;color:#999;">成本</div></div>';
       revHtml += '<div style="flex:1;background:#e3f2fd;border-radius:8px;padding:8px;text-align:center;">';
       revHtml += '<div style="font-size:16px;font-weight:700;color:' + (totalMaoli >= 0 ? '#1565c0' : '#c62828') + ';">' + (totalMaoli >= 0 ? '¥' : '-¥') + Math.abs(totalMaoli) + '</div>';
@@ -2480,28 +2624,33 @@
       });
 
       var html = '';
-      Object.keys(customers).forEach(function(name) {
-        var c = customers[name];
-        var orderCount = c.orders.length;
-        var lastOrder = c.orders[c.orders.length - 1];
-        var isHot = orderCount > 1;
-        
-        html += '<div class="customer-card" onclick="filterByCustomer(\'' + name + '\')">';
-        html += '<div class="customer-top">';
-        html += '<span class="customer-name">👤 ' + name + '</span>';
-        if (isHot) html += '<span class="customer-reorder reorder-hot">🔥 复购</span>';
-        html += '</div>';
-        html += '<div class="customer-info">';
-        html += '<span>📞 ' + c.phone + '</span>';
-        html += '<span>📋 累计' + orderCount + '单</span>';
-        html += '<span>最近: ' + lastOrder.id + '</span>';
-        html += '</div>';
-        html += '<div style="margin-top:6px;display:flex;justify-content:space-between;align-items:center;">';
-        html += '<span style="font-size:12px;color:#888;">累计消费</span>';
-        html += '<span class="customer-total">¥' + c.totalAmount + '</span>';
-        html += '</div></div>';
-      });
-      customerList.innerHTML = html || '<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-text">暂无客户数据</div></div>';
+      var customerCount = Object.keys(customers).length;
+      if (customerCount === 0) {
+        html = '<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-text">暂无客户数据</div></div>';
+      } else {
+        Object.keys(customers).forEach(function(name) {
+          var c = customers[name];
+          var orderCount = c.orders.length;
+          var lastOrder = c.orders[c.orders.length - 1];
+          var isHot = orderCount > 1;
+          
+          html += '<div class="customer-card" onclick="filterByCustomer(\'' + name + '\')">';
+          html += '<div class="customer-top">';
+          html += '<span class="customer-name">👤 ' + name + '</span>';
+          if (isHot) html += '<span class="customer-reorder reorder-hot">🔥 复购</span>';
+          html += '</div>';
+          html += '<div class="customer-info">';
+          html += '<span>📞 ' + c.phone + '</span>';
+          html += '<span>📋 累计' + orderCount + '单</span>';
+          html += '<span>最近: ' + lastOrder.id + '</span>';
+          html += '</div>';
+          html += '<div style="margin-top:6px;display:flex;justify-content:space-between;align-items:center;">';
+          html += '<span style="font-size:12px;color:#888;">累计消费</span>';
+          html += '<span class="customer-total">¥' + c.totalAmount + '</span>';
+          html += '</div></div>';
+        });
+      }
+      customerList.innerHTML = html;
     }
 
     function filterByCustomer(customerName) {
@@ -2533,7 +2682,7 @@
         }
       });
       
-      var daishou = yingshou - yijie;
+      var daishou = isNaN(yingshou - yijie) ? 0 : yingshou - yijie;
       if (daishou > 0) {
         insights.push({
           type: 'critical',
@@ -2543,20 +2692,22 @@
         });
       }
       
-      if (yingshou > 0 && (daishou / yingshou) > 0.5) {
+      var daishouRate = isNaN(yingshou) || yingshou === 0 ? 0 : Math.round(daishou / yingshou * 100);
+      if (yingshou > 0 && daishouRate > 50) {
         insights.push({
           type: 'critical',
           title: '⚠️ 现金流预警',
-          desc: '超半数应收款项（' + Math.round(daishou / yingshou * 100) + '%）未到账',
+          desc: '超半数应收款项（' + daishouRate + '%）未到账',
           action: '需重点关注资金回笼'
         });
       }
       
+      var warrantyInRate = isNaN(total) || total === 0 ? 0 : Math.round(warrantyIn / total * 100);
       if (warrantyIn > 0) {
         insights.push({
           type: 'warning',
           title: '📋 维保内工单占比',
-          desc: '维保内免费工单占 ' + Math.round(warrantyIn / total * 100) + '%',
+          desc: '维保内免费工单占 ' + warrantyInRate + '%',
           action: '需评估维保合同定价策略'
         });
       }
@@ -2607,11 +2758,12 @@
       if (maxWorker && workerCounts[maxWorker] > 0) {
         var maxCount = workerCounts[maxWorker];
         var totalWorkerOrders = Object.values(workerCounts).reduce(function(a, b) { return a + b; }, 0);
-        if (totalWorkerOrders > 0 && (maxCount / totalWorkerOrders) > 0.5) {
+        var workerRatio = isNaN(totalWorkerOrders) || totalWorkerOrders === 0 ? 0 : Math.round(maxCount / totalWorkerOrders * 100);
+        if (totalWorkerOrders > 0 && workerRatio > 50) {
           insights.push({
             type: 'warning',
             title: '⚖️ 派单不均衡',
-            desc: maxWorker + ' 单量占比 ' + Math.round(maxCount / totalWorkerOrders * 100) + '%，负荷过重',
+            desc: maxWorker + ' 单量占比 ' + workerRatio + '%，负荷过重',
             action: '建议均衡派单，避免师傅疲劳'
           });
         }
@@ -2660,10 +2812,10 @@
           calcYijie += d.paidAmount;
         }
       });
-      var calcMaoli = calcYingshou - calcCost;
-      var calcJingli = calcYijie - calcCost;
+      var calcMaoli = isNaN(calcYingshou - calcCost) ? 0 : calcYingshou - calcCost;
+      var calcJingli = isNaN(calcYijie - calcCost) ? 0 : calcYijie - calcCost;
+      var maoliRate = isNaN(calcCost) || calcCost === 0 ? 0 : Math.round(calcMaoli / calcCost * 100);
       if (calcCost > 0) {
-        var maoliRate = Math.round(calcMaoli / calcCost * 100);
         if (calcMaoli < 0) {
           insights.push({
             type: 'critical',
@@ -2680,6 +2832,7 @@
           });
         }
       }
+      var jingliRate = isNaN(calcCost) || calcCost === 0 ? 0 : Math.round(calcJingli / calcCost * 100);
       if (calcJingli < 0) {
         insights.push({
           type: 'critical',
@@ -2687,11 +2840,11 @@
           desc: '已结款项不足以覆盖成本，亏损 ¥' + Math.abs(calcJingli),
           action: '立即优化成本，严控支出'
         });
-      } else if (calcJingli < calcCost * 0.3) {
+      } else if (jingliRate < 30) {
         insights.push({
           type: 'warning',
           title: '📊 净利率偏低',
-          desc: '当前净利率仅 ' + Math.round(calcJingli / calcCost * 100) + '%',
+          desc: '当前净利率仅 ' + jingliRate + '%',
           action: '建议提升收款速度或优化成本'
         });
       }
