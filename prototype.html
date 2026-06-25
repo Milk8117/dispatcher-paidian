@@ -47,6 +47,77 @@
       opacity: 0.8;
     }
 
+    /* 今日营收 */
+    .revenue-bar {
+      display: flex;
+      flex-direction: column;
+      padding: 10px 16px;
+      flex-shrink: 0;
+      border-bottom: 1px solid #f0f0f0;
+      background: #fafbfc;
+    }
+    .revenue-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #666;
+      margin-bottom: 6px;
+    }
+    .revenue-row {
+      display: flex;
+      gap: 4px;
+    }
+    .revenue-item {
+      flex: 1;
+      text-align: center;
+      padding: 6px 4px;
+      background: #fff;
+      border-radius: 6px;
+    }
+    .revenue-num {
+      display: block;
+      font-size: 16px;
+      font-weight: 700;
+      color: #333;
+    }
+    .revenue-green { color: #2e7d32; }
+    .revenue-orange { color: #e65100; }
+    .revenue-label {
+      display: block;
+      font-size: 10px;
+      color: #999;
+      margin-top: 2px;
+    }
+
+    /* 维保标签 */
+    .warranty-tag {
+      display: inline-block;
+      font-size: 11px;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-weight: 500;
+      margin-left: 4px;
+      vertical-align: middle;
+    }
+    .warranty-in { background: #e8f5e9; color: #2e7d32; }
+    .warranty-out { background: #fff3e0; color: #e65100; }
+
+    /* 金额高亮 */
+    .amount-highlight {
+      font-weight: 700;
+      color: #e65100;
+    }
+    .amount-free {
+      font-weight: 700;
+      color: #2e7d32;
+    }
+
+    /* 确认到账按钮 */
+    .btn-confirm-pay {
+      background: #ff9800;
+      color: #fff;
+    }
+    .btn-confirm-pay:hover { background: #f57c00; }
+
     /* 搜索栏 */
     .search-bar {
       padding: 8px 12px;
@@ -736,6 +807,15 @@
         <div class="stat-card"><div class="stat-num" id="statJinxing">1</div><div class="stat-label">进行中</div></div>
         <div class="stat-card"><div class="stat-num" id="statWancheng">1</div><div class="stat-label">已完成</div></div>
       </div>
+      <!-- 今日营收 -->
+      <div class="revenue-bar" id="revenueBar">
+        <div class="revenue-title">💰 今日营收</div>
+        <div class="revenue-row">
+          <div class="revenue-item"><span class="revenue-num" id="revYingshou">¥0</span><span class="revenue-label">应收</span></div>
+          <div class="revenue-item"><span class="revenue-num revenue-green" id="revYijie">¥0</span><span class="revenue-label">已结</span></div>
+          <div class="revenue-item"><span class="revenue-num revenue-orange" id="revDaishou">¥0</span><span class="revenue-label">待收</span></div>
+        </div>
+      </div>
 
       <!-- 搜索栏 -->
       <div class="search-bar" id="searchBar">
@@ -773,7 +853,8 @@
             <span class="order-status status-daipai">待派</span>
           </div>
           <div class="order-info">
-            <span>🔧 空调维修</span>
+            <span>🔧 空调维修 <span class="warranty-tag warranty-out">维保外</span></span>
+            <span>💰 ¥150</span>
             <span>👤 赵总</span>
           </div>
         </div>
@@ -783,7 +864,8 @@
             <span class="order-status status-yipai">已派</span>
           </div>
           <div class="order-info">
-            <span>🔧 空调维修</span>
+            <span>🔧 空调维修 <span class="warranty-tag warranty-in">维保内</span></span>
+            <span>💰 免费</span>
             <span>👷 陈师傅</span>
             <span>👤 李总</span>
           </div>
@@ -794,7 +876,8 @@
             <span class="order-status status-jinxing">进行中</span>
           </div>
           <div class="order-info">
-            <span>🔧 水电维修</span>
+            <span>🔧 水电维修 <span class="warranty-tag warranty-out">维保外</span></span>
+            <span>💰 ¥100</span>
             <span>👷 周师傅</span>
             <span>👤 王总</span>
           </div>
@@ -805,7 +888,8 @@
             <span class="order-status status-wancheng">已完成</span>
           </div>
           <div class="order-info">
-            <span>🔧 管道疏通</span>
+            <span>🔧 管道疏通 <span class="warranty-tag warranty-out">维保外</span></span>
+            <span>💰 ¥120</span>
             <span>👷 张师傅</span>
             <span>👤 孙总</span>
           </div>
@@ -816,7 +900,8 @@
             <span class="order-status status-daipai">待派</span>
           </div>
           <div class="order-info">
-            <span>🔧 空调维修</span>
+            <span>🔧 空调维修 <span class="warranty-tag warranty-out">维保外</span></span>
+            <span>💰 ¥150</span>
             <span>👤 钱总</span>
           </div>
         </div>
@@ -899,6 +984,10 @@
       <div class="dashboard-view" id="dashboardView">
         <div class="dash-scroll">
           <div class="dash-section">
+            <div class="dash-section-title">💰 营收概览</div>
+            <div id="revenueOverview"></div>
+          </div>
+          <div class="dash-section">
             <div class="dash-section-title">📈 工单状态分布</div>
             <div class="status-dist" id="statusDist"></div>
             <div class="status-legend" id="statusLegend"></div>
@@ -915,6 +1004,10 @@
             <div class="dash-section-title">🔧 服务类型分布</div>
             <div id="typeDist"></div>
           </div>
+          <div class="dash-section">
+            <div class="dash-section-title">📋 收费标准</div>
+            <div id="priceTable"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -930,6 +1023,18 @@
   </div>
 
   <script>
+    // ===== 收费标准（预制） =====
+    var priceTable = {
+      '空调维修': 150,
+      '空调安装': 200,
+      '空调清洗': 80,
+      '水电维修': 100,
+      '管道疏通': 120,
+      '综合维修': 100,
+      '漏水处理': 150,
+      '电路检修': 100
+    };
+
     // ===== 工单详情数据 =====
     var orderDetails = {
       '#20260616001': {
@@ -940,6 +1045,8 @@
         worker: '', workerPhone: '',
         createTime: '2026-06-16 09:30',
         assignTime: '', finishTime: '',
+        warranty: 'out', warrantyText: '维保外',
+        serviceAmount: 150, actualAmount: 0, paidAmount: 0,
         desc: '客厅空调不制冷，开机有异响，购买3年，之前未维修过。'
       },
       '#20260616002': {
@@ -950,6 +1057,8 @@
         worker: '陈师傅', workerPhone: '138****1002',
         createTime: '2026-06-16 10:15', assignTime: '2026-06-16 10:22',
         finishTime: '',
+        warranty: 'in', warrantyText: '维保内',
+        serviceAmount: 0, actualAmount: 0, paidAmount: 0,
         desc: '办公室中央空调漏水，影响办公，需要尽快处理。'
       },
       '#20260618001': {
@@ -960,6 +1069,8 @@
         worker: '周师傅', workerPhone: '138****1001',
         createTime: '2026-06-18 14:00', assignTime: '2026-06-18 14:05',
         finishTime: '',
+        warranty: 'out', warrantyText: '维保外',
+        serviceAmount: 100, actualAmount: 0, paidAmount: 0,
         desc: '厨房水龙头漏水，卫生间灯不亮。'
       },
       '#20260619001': {
@@ -970,6 +1081,8 @@
         worker: '张师傅', workerPhone: '138****1003',
         createTime: '2026-06-19 08:30', assignTime: '2026-06-19 08:35',
         finishTime: '2026-06-19 11:20',
+        warranty: 'out', warrantyText: '维保外',
+        serviceAmount: 120, actualAmount: 120, paidAmount: 0,
         desc: '卫生间下水道堵塞，已疏通完毕，客户确认满意。'
       },
       '#20260620001': {
@@ -979,6 +1092,8 @@
         address: '锦绣路166号 B栋2201',
         worker: '', workerPhone: '',
         createTime: '2026-06-20 16:45', assignTime: '', finishTime: '',
+        warranty: 'out', warrantyText: '维保外',
+        serviceAmount: 150, actualAmount: 0, paidAmount: 0,
         desc: '卧室空调完全不启动，遥控器有电但无反应。'
       }
     };
@@ -993,6 +1108,7 @@
     var orderList = document.getElementById('orderList');
     var workerList = document.getElementById('workerList');
     var statsBar = document.getElementById('statsBar');
+    var revenueBar = document.getElementById('revenueBar');
     var searchBar = document.getElementById('searchBar');
     var filterBar = document.getElementById('filterBar');
     var dateFilter = document.getElementById('dateFilter');
@@ -1010,6 +1126,7 @@
       orderList.style.display = 'none';
       workerList.style.display = 'none';
       statsBar.style.display = 'none';
+      revenueBar.style.display = 'none';
       searchBar.style.display = 'none';
       filterBar.style.display = 'none';
       dateFilter.style.display = 'none';
@@ -1043,6 +1160,7 @@
       orderList.style.display = '';
       workerList.style.display = 'none';
       statsBar.style.display = '';
+      revenueBar.style.display = '';
       searchBar.style.display = '';
       filterBar.style.display = '';
       dateFilter.style.display = '';
@@ -1054,11 +1172,16 @@
       currentView = 'detail';
       orderList.style.display = 'none';
       statsBar.style.display = 'none';
+      revenueBar.style.display = 'none';
       searchBar.style.display = 'none';
       filterBar.style.display = 'none';
       dateFilter.style.display = 'none';
       detailView.classList.add('active');
       detailTitle.textContent = '工单详情';
+
+      var warrantyCls = d.warranty === 'in' ? 'warranty-in' : 'warranty-out';
+      var warrantyLabel = d.warranty === 'in' ? '✅ 维保内' : '⚠️ 维保外';
+      var amountDisplay = d.warranty === 'in' ? '<span class="amount-free">免费</span>' : '<span class="amount-highlight">¥' + d.serviceAmount + '</span>';
 
       var html = '';
       html += '<div class="detail-status-row">';
@@ -1069,10 +1192,28 @@
       html += '<div class="detail-section">';
       html += '  <div class="detail-section-title">基本信息</div>';
       html += '  <div class="detail-row"><span class="detail-label">服务类型</span><span class="detail-value">🔧 ' + d.service + '</span></div>';
+      html += '  <div class="detail-row"><span class="detail-label">维保类型</span><span class="detail-value"><span class="warranty-tag ' + warrantyCls + '">' + warrantyLabel + '</span></span></div>';
       html += '  <div class="detail-row"><span class="detail-label">优先级</span><span class="detail-value">' + d.priority + '</span></div>';
       html += '  <div class="detail-row"><span class="detail-label">创建时间</span><span class="detail-value">' + d.createTime + '</span></div>';
       if (d.assignTime) html += '  <div class="detail-row"><span class="detail-label">派单时间</span><span class="detail-value">' + d.assignTime + '</span></div>';
       if (d.finishTime) html += '  <div class="detail-row"><span class="detail-label">完成时间</span><span class="detail-value">' + d.finishTime + '</span></div>';
+      html += '</div>';
+
+      // 费用信息
+      html += '<div class="detail-section">';
+      html += '  <div class="detail-section-title">💰 费用信息</div>';
+      html += '  <div class="detail-row"><span class="detail-label">标准收费</span><span class="detail-value">' + amountDisplay + '</span></div>';
+      if (d.warranty === 'out') {
+        html += '  <div class="detail-row"><span class="detail-label">服务金额</span><span class="detail-value">' + (d.serviceAmount > 0 ? '¥' + d.serviceAmount : '按标准') + '</span></div>';
+        if (d.status === 'wancheng') {
+          html += '  <div class="detail-row"><span class="detail-label">实收金额</span><span class="detail-value amount-highlight">¥' + d.actualAmount + '</span></div>';
+          html += '  <div class="detail-row"><span class="detail-label">到账状态</span><span class="detail-value">' + (d.paidAmount >= d.actualAmount && d.actualAmount > 0 ? '<span class="amount-free">✅ 已到账</span>' : '<span class="amount-highlight">⏳ 待收款</span>') + '</span></div>';
+        } else {
+          html += '  <div class="detail-row"><span class="detail-label">实收金额</span><span class="detail-value" style="color:#999">完成时填写</span></div>';
+        }
+      } else {
+        html += '  <div class="detail-row"><span class="detail-label">实收金额</span><span class="detail-value amount-free">¥0（维保内免费）</span></div>';
+      }
       html += '</div>';
 
       html += '<div class="detail-section">';
@@ -1109,6 +1250,9 @@
         actHtml += '<button class="detail-btn btn-primary" onclick="doFinish(\'' + d.id + '\')">✅ 标记完成</button>';
         actHtml += '<button class="detail-btn btn-secondary" onclick="doRemind(\'' + d.id + '\')">📞 催单提醒</button>';
       } else if (d.status === 'wancheng') {
+        if (d.warranty === 'out' && d.actualAmount > 0 && d.paidAmount < d.actualAmount) {
+          actHtml += '<button class="detail-btn btn-confirm-pay" onclick="doConfirmPay(\'' + d.id + '\')">💰 确认到账 ¥' + d.actualAmount + '</button>';
+        }
         actHtml += '<button class="detail-btn btn-secondary" onclick="doCallback(\'' + d.id + '\')">💬 客户回访</button>';
       }
       detailActions.innerHTML = actHtml;
@@ -1273,6 +1417,45 @@
     // 标记完成
     function doFinish(orderId) {
       var d = orderDetails[orderId];
+      if (!d) return;
+
+      // 维保内直接完成，维保外需填实收金额
+      if (d.warranty === 'out') {
+        var defaultAmt = d.serviceAmount || priceTable[d.service] || 0;
+        var inputHtml = '<div style="font-size:13px;color:#888;margin-bottom:8px;">工单 ' + orderId + ' · ' + d.service + '</div>';
+        inputHtml += '<div style="font-size:13px;color:#666;margin-bottom:4px;">标准收费：<b>¥' + defaultAmt + '</b></div>';
+        inputHtml += '<div style="margin-top:8px;"><label style="font-size:13px;color:#666;">实收金额（元）</label>';
+        inputHtml += '<input type="number" id="finishActualAmt" value="' + defaultAmt + '" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:18px;font-weight:700;color:#e65100;margin-top:4px;" min="0" step="1"></div>';
+        inputHtml += '<div style="font-size:11px;color:#999;margin-top:6px;">* 不填实收金额无法完成工单</div>';
+        var footerHtml = '<button class="modal-btn" onclick="closeModal()">取消</button>';
+        footerHtml += '<button class="modal-btn" onclick="confirmFinish(\'' + orderId + '\')">确认完成</button>';
+        openModal('✅ 确认完成 - 填写实收金额', inputHtml, footerHtml);
+      } else {
+        // 维保内免费，直接完成
+        d.actualAmount = 0;
+        d.paidAmount = 0;
+        doFinishComplete(orderId);
+      }
+    }
+
+    function confirmFinish(orderId) {
+      var amtInput = document.getElementById('finishActualAmt');
+      var amt = amtInput ? parseInt(amtInput.value) : 0;
+      if (isNaN(amt) || amt < 0) {
+        showToast('⚠️ 请输入有效的实收金额');
+        return;
+      }
+      closeModal();
+      var d = orderDetails[orderId];
+      if (d) {
+        d.actualAmount = amt;
+        d.paidAmount = 0; // 刚完成还没到账
+      }
+      doFinishComplete(orderId);
+    }
+
+    function doFinishComplete(orderId) {
+      var d = orderDetails[orderId];
       if (d) {
         d.status = 'wancheng';
         d.statusText = '已完成';
@@ -1287,6 +1470,29 @@
       }
       showToast('✅ 工单已标记完成');
       sendToChat('完成 ' + orderId);
+      updateStats();
+    }
+
+    // 确认到账
+    function doConfirmPay(orderId) {
+      var d = orderDetails[orderId];
+      if (!d) return;
+      var bodyHtml = '<div style="font-size:13px;color:#888;margin-bottom:4px;">工单 ' + orderId + '</div>';
+      bodyHtml += '<div style="margin-top:8px;font-size:14px;">实收金额：<b style="color:#e65100;font-size:18px;">¥' + d.actualAmount + '</b></div>';
+      bodyHtml += '<div style="font-size:13px;color:#666;margin-top:8px;">确认该笔款项已到账？</div>';
+      var footerHtml = '<button class="modal-btn" onclick="closeModal()">取消</button>';
+      footerHtml += '<button class="modal-btn" onclick="confirmPay(\'' + orderId + '\')">✅ 确认到账</button>';
+      openModal('💰 确认到账', bodyHtml, footerHtml);
+    }
+
+    function confirmPay(orderId) {
+      closeModal();
+      var d = orderDetails[orderId];
+      if (d) {
+        d.paidAmount = d.actualAmount;
+      }
+      showToast('✅ ¥' + d.actualAmount + ' 已确认到账');
+      showDetailView(orderId);
       updateStats();
     }
 
@@ -1310,6 +1516,20 @@
       document.getElementById('statWancheng').textContent = counts.wancheng;
       var badge = document.getElementById('orderBadge');
       if (badge) badge.textContent = counts.daipai;
+
+      // 今日营收计算
+      var yingshou = 0, yijie = 0;
+      var keys = Object.keys(orderDetails);
+      keys.forEach(function(k) {
+        var d = orderDetails[k];
+        if (d.status === 'wancheng' && d.warranty === 'out') {
+          yingshou += d.actualAmount;
+          yijie += d.paidAmount;
+        }
+      });
+      document.getElementById('revYingshou').textContent = '¥' + yingshou;
+      document.getElementById('revYijie').textContent = '¥' + yijie;
+      document.getElementById('revDaishou').textContent = '¥' + (yingshou - yijie);
     }
 
     // ===== 搜索 =====
@@ -1390,6 +1610,36 @@
     function renderDashboard() {
       var keys = Object.keys(orderDetails);
       var total = keys.length;
+
+      // 0. 营收概览
+      var revenueOverview = document.getElementById('revenueOverview');
+      var totalYingshou = 0, totalYijie = 0, totalFree = 0;
+      keys.forEach(function(k) {
+        var d = orderDetails[k];
+        if (d.status === 'wancheng') {
+          if (d.warranty === 'out') {
+            totalYingshou += d.actualAmount;
+            totalYijie += d.paidAmount;
+          } else {
+            totalFree++;
+          }
+        }
+      });
+      var revHtml = '<div style="display:flex;gap:6px;margin-bottom:10px;">';
+      revHtml += '<div style="flex:1;background:#fff8e1;border-radius:8px;padding:10px;text-align:center;">';
+      revHtml += '<div style="font-size:20px;font-weight:700;color:#e65100;">¥' + totalYingshou + '</div>';
+      revHtml += '<div style="font-size:11px;color:#999;">应收总额</div></div>';
+      revHtml += '<div style="flex:1;background:#e8f5e9;border-radius:8px;padding:10px;text-align:center;">';
+      revHtml += '<div style="font-size:20px;font-weight:700;color:#2e7d32;">¥' + totalYijie + '</div>';
+      revHtml += '<div style="font-size:11px;color:#999;">已结</div></div>';
+      revHtml += '<div style="flex:1;background:#fff3e0;border-radius:8px;padding:10px;text-align:center;">';
+      revHtml += '<div style="font-size:20px;font-weight:700;color:#ff9800;">¥' + (totalYingshou - totalYijie) + '</div>';
+      revHtml += '<div style="font-size:11px;color:#999;">待收</div></div>';
+      revHtml += '</div>';
+      if (totalFree > 0) {
+        revHtml += '<div style="font-size:12px;color:#888;">✅ 维保内免费工单 ' + totalFree + ' 单（不产生费用）</div>';
+      }
+      revenueOverview.innerHTML = revHtml;
 
       // 1. 状态分布
       var counts = { daipai: 0, yipai: 0, jinxing: 0, wancheng: 0, quxiao: 0 };
@@ -1488,6 +1738,18 @@
         typeHtml += '</div>';
       });
       typeDist.innerHTML = typeHtml;
+
+      // 5. 收费标准
+      var priceTableEl = document.getElementById('priceTable');
+      var ptHtml = '';
+      Object.keys(priceTable).forEach(function(svc) {
+        ptHtml += '<div class="detail-row" style="padding:6px 0;">';
+        ptHtml += '  <span class="detail-label" style="font-size:12px;">' + svc + '</span>';
+        ptHtml += '  <span class="detail-value" style="font-size:13px;font-weight:600;color:#e65100;">¥' + priceTable[svc] + '</span>';
+        ptHtml += '</div>';
+      });
+      ptHtml += '<div style="font-size:11px;color:#999;margin-top:6px;">💡 维保范围内免费，维保范围外按标准收费</div>';
+      priceTableEl.innerHTML = ptHtml;
     }
 
     // ===== 移动端面板 =====
@@ -1595,6 +1857,7 @@
 
     // 页面加载后自动初始化
     initChat();
+    updateStats();
   </script>
 </body>
 </html>
