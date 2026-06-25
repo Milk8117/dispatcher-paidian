@@ -770,6 +770,160 @@
       }
       .overlay.show { display: block; }
     }
+
+    /* 导出按钮 */
+    .export-btn {
+      position: absolute;
+      top: 14px;
+      right: 16px;
+      background: rgba(255,255,255,0.2);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .export-btn:hover { background: rgba(255,255,255,0.3); }
+
+    /* 导出类型选项 */
+    .export-option {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px;
+      border: 1px solid #eee;
+      border-radius: 10px;
+      margin-top: 10px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .export-option:hover { border-color: #4CAF50; background: #f8fdf8; }
+    .export-option:first-child { margin-top: 0; }
+    .export-opt-left { display: flex; align-items: center; gap: 10px; }
+    .export-opt-icon { font-size: 24px; }
+    .export-opt-title { font-size: 14px; font-weight: 600; color: #333; }
+    .export-opt-desc { font-size: 12px; color: #999; }
+
+    /* 客户卡片 */
+    .customer-card {
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .customer-card:hover {
+      border-color: #4CAF50;
+      box-shadow: 0 2px 8px rgba(76,175,80,0.12);
+    }
+    .customer-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .customer-name { font-size: 15px; font-weight: 600; color: #333; }
+    .customer-reorder { font-size: 12px; padding: 2px 8px; border-radius: 10px; }
+    .reorder-hot { background: #ffebee; color: #c62828; }
+    .customer-info { font-size: 13px; color: #888; display: flex; flex-wrap: wrap; gap: 8px; }
+    .customer-info span { display: flex; align-items: center; gap: 4px; }
+    .customer-total { font-size: 16px; font-weight: 700; color: #e65100; }
+
+    /* 异常卡片高亮 */
+    .order-card.overdue {
+      border-left: 3px solid #f44336;
+      padding-left: 13px;
+    }
+    .overdue-tag {
+      display: inline-block;
+      background: #ffebee;
+      color: #c62828;
+      font-size: 11px;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
+    /* 统计栏异常 */
+    .stat-card.alert .stat-num { color: #f44336; }
+    .stat-card.alert .stat-label { color: #f44336; }
+
+    /* 运营效率指标卡片 */
+    .efficiency-cards { display: flex; gap: 8px; margin-bottom: 10px; }
+    .eff-card {
+      flex: 1;
+      background: #fff;
+      border-radius: 10px;
+      padding: 12px 8px;
+      text-align: center;
+      border: 1px solid #f0f0f0;
+    }
+    .eff-icon { font-size: 20px; margin-bottom: 4px; }
+    .eff-num { font-size: 18px; font-weight: 700; color: #333; }
+    .eff-unit { font-size: 12px; color: #999; }
+    .eff-label { font-size: 11px; color: #666; margin-top: 4px; }
+
+    /* 异常告警列表 */
+    .alert-item {
+      display: flex;
+      align-items: center;
+      padding: 10px 12px;
+      background: #fff;
+      border: 1px solid #ffebee;
+      border-radius: 8px;
+      margin-bottom: 6px;
+    }
+    .alert-icon { font-size: 18px; margin-right: 10px; flex-shrink: 0; }
+    .alert-info { flex: 1; min-width: 0; }
+    .alert-id { font-size: 13px; font-weight: 600; color: #333; }
+    .alert-reason { font-size: 11px; color: #c62828; margin-top: 2px; }
+
+    /* AI洞察卡片 */
+    .insight-card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 8px;
+      border-left: 4px solid #e0e0e0;
+    }
+    .insight-card.critical { border-left-color: #f44336; background: #fff8f8; }
+    .insight-card.warning { border-left-color: #ffc107; background: #fffef0; }
+    .insight-card.good { border-left-color: #4CAF50; background: #f0fff0; }
+    .insight-title { font-size: 13px; font-weight: 600; color: #333; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+    .insight-desc { font-size: 12px; color: #666; line-height: 1.5; }
+    .insight-action { font-size: 12px; color: #4CAF50; margin-top: 6px; font-weight: 500; }
+
+    /* 客户列表视图 */
+    #customerList { display: none; }
+    #customerList.show { display: block; }
+
+    /* 看板内子标题 */
+    .dash-section-title-clickable {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .dash-section-title-clickable:hover { color: #4CAF50; }
+    .dash-hint { font-size: 11px; color: #999; font-weight: 400; }
+
+    /* 利润显示 */
+    .profit-positive { color: #2e7d32; }
+    .profit-negative { color: #c62828; }
+
+    /* 打印样式 */
+    @media print {
+      .chat-area { display: none !important; }
+      .side-panel { width: 100% !important; border: none !important; }
+      .panel-header { background: #4CAF50 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+
   </style>
   <script src="https://cdn.jsdelivr.net/npm/jsrsasign@11.1.0/lib/jsrsasign-all-min.js"></script>
   <script src="https://lf-cdn.coze.cn/obj/unpkg/flow-platform/chat-app-sdk/1.2.0-beta.20/libs/cn/index.js"></script>
@@ -790,13 +944,15 @@
   <div class="main-container">
     <!-- 左侧数据面板 -->
     <div class="side-panel" id="sidePanel">
-      <div class="panel-header">
+      <div class="panel-header" style="position:relative;">
         <h1>📋 小米派单系统</h1>
         <div class="subtitle">数据面板 · 实时概览</div>
+        <button class="export-btn" id="exportBtn" onclick="showExportModal()">📤 导出</button>
       </div>
 
       <div class="tab-bar">
         <div class="tab-item active" data-tab="orders" id="tabOrders">工单<span class="tab-badge" id="orderBadge">5</span></div>
+        <div class="tab-item" data-tab="customers" id="tabCustomers">👥 客户</div>
         <div class="tab-item" data-tab="workers" id="tabWorkers">人员</div>
         <div class="tab-item" data-tab="dashboard" id="tabDashboard">📊 看板</div>
       </div>
@@ -806,6 +962,7 @@
         <div class="stat-card"><div class="stat-num" id="statYipai">1</div><div class="stat-label">已派</div></div>
         <div class="stat-card"><div class="stat-num" id="statJinxing">1</div><div class="stat-label">进行中</div></div>
         <div class="stat-card"><div class="stat-num" id="statWancheng">1</div><div class="stat-label">已完成</div></div>
+        <div class="stat-card" id="statAlertCard" style="display:none;"><div class="stat-num" id="statAlert" style="color:#f44336;">0</div><div class="stat-label">⚠️异常</div></div>
       </div>
       <!-- 今日营收 -->
       <div class="revenue-bar" id="revenueBar">
@@ -814,6 +971,10 @@
           <div class="revenue-item"><span class="revenue-num" id="revYingshou">¥0</span><span class="revenue-label">应收</span></div>
           <div class="revenue-item"><span class="revenue-num revenue-green" id="revYijie">¥0</span><span class="revenue-label">已结</span></div>
           <div class="revenue-item"><span class="revenue-num revenue-orange" id="revDaishou">¥0</span><span class="revenue-label">待收</span></div>
+        </div>
+        <div class="revenue-row" style="margin-top:4px;">
+          <div class="revenue-item"><span class="revenue-num" id="revCost">¥0</span><span class="revenue-label">成本</span></div>
+          <div class="revenue-item"><span class="revenue-num" id="revProfit">¥0</span><span class="revenue-label">利润</span></div>
         </div>
       </div>
 
@@ -980,9 +1141,18 @@
         </div>
       </div>
 
+      <!-- 客户列表 -->
+      <div class="list-area" id="customerList">
+        <!-- 动态渲染 -->
+      </div>
+
       <!-- 看板 -->
       <div class="dashboard-view" id="dashboardView">
         <div class="dash-scroll">
+          <div class="dash-section">
+            <div class="dash-section-title">💡 AI运营洞察</div>
+            <div id="insightsContainer"></div>
+          </div>
           <div class="dash-section">
             <div class="dash-section-title">💰 营收概览</div>
             <div id="revenueOverview"></div>
@@ -991,6 +1161,26 @@
             <div class="dash-section-title">📈 工单状态分布</div>
             <div class="status-dist" id="statusDist"></div>
             <div class="status-legend" id="statusLegend"></div>
+          </div>
+          <div class="dash-section">
+            <div class="dash-section-title">⚡ 运营效率</div>
+            <div class="efficiency-cards">
+              <div class="eff-card">
+                <div class="eff-icon">⏱️</div>
+                <div class="eff-num" id="avgDispatchTime">-</div>
+                <div class="eff-label">平均派单速度</div>
+              </div>
+              <div class="eff-card">
+                <div class="eff-icon">✅</div>
+                <div class="eff-num" id="avgFinishTime">-</div>
+                <div class="eff-label">平均完成时长</div>
+              </div>
+              <div class="eff-card">
+                <div class="eff-icon">🎯</div>
+                <div class="eff-num" id="firstPassRate">-</div>
+                <div class="eff-label">一次完成率</div>
+              </div>
+            </div>
           </div>
           <div class="dash-section">
             <div class="dash-section-title">📊 近7日工单趋势</div>
@@ -1003,6 +1193,10 @@
           <div class="dash-section">
             <div class="dash-section-title">🔧 服务类型分布</div>
             <div id="typeDist"></div>
+          </div>
+          <div class="dash-section">
+            <div class="dash-section-title">🚨 异常告警</div>
+            <div id="alertList"></div>
           </div>
           <div class="dash-section">
             <div class="dash-section-title">📋 收费标准</div>
@@ -1047,6 +1241,7 @@
         assignTime: '', finishTime: '',
         warranty: 'out', warrantyText: '维保外',
         serviceAmount: 150, actualAmount: 0, paidAmount: 0,
+        cost: 80,
         desc: '客厅空调不制冷，开机有异响，购买3年，之前未维修过。'
       },
       '#20260616002': {
@@ -1059,6 +1254,7 @@
         finishTime: '',
         warranty: 'in', warrantyText: '维保内',
         serviceAmount: 0, actualAmount: 0, paidAmount: 0,
+        cost: 60,
         desc: '办公室中央空调漏水，影响办公，需要尽快处理。'
       },
       '#20260618001': {
@@ -1071,6 +1267,7 @@
         finishTime: '',
         warranty: 'out', warrantyText: '维保外',
         serviceAmount: 100, actualAmount: 0, paidAmount: 0,
+        cost: 50,
         desc: '厨房水龙头漏水，卫生间灯不亮。'
       },
       '#20260619001': {
@@ -1083,6 +1280,7 @@
         finishTime: '2026-06-19 11:20',
         warranty: 'out', warrantyText: '维保外',
         serviceAmount: 120, actualAmount: 120, paidAmount: 0,
+        cost: 55,
         desc: '卫生间下水道堵塞，已疏通完毕，客户确认满意。'
       },
       '#20260620001': {
@@ -1094,6 +1292,7 @@
         createTime: '2026-06-20 16:45', assignTime: '', finishTime: '',
         warranty: 'out', warrantyText: '维保外',
         serviceAmount: 150, actualAmount: 0, paidAmount: 0,
+        cost: 80,
         desc: '卧室空调完全不启动，遥控器有电但无反应。'
       }
     };
@@ -1107,6 +1306,7 @@
     var tabs = document.querySelectorAll('.tab-item');
     var orderList = document.getElementById('orderList');
     var workerList = document.getElementById('workerList');
+    var customerList = document.getElementById('customerList');
     var statsBar = document.getElementById('statsBar');
     var revenueBar = document.getElementById('revenueBar');
     var searchBar = document.getElementById('searchBar');
@@ -1125,6 +1325,8 @@
     function hideAllPanels() {
       orderList.style.display = 'none';
       workerList.style.display = 'none';
+      customerList.style.display = 'none';
+      customerList.classList.remove('show');
       statsBar.style.display = 'none';
       revenueBar.style.display = 'none';
       searchBar.style.display = 'none';
@@ -1142,6 +1344,8 @@
         hideAllPanels();
         if (target === 'orders') {
           showListView();
+        } else if (target === 'customers') {
+          showCustomerView();
         } else if (target === 'workers') {
           currentView = 'list';
           workerList.style.display = '';
@@ -1517,19 +1721,44 @@
       var badge = document.getElementById('orderBadge');
       if (badge) badge.textContent = counts.daipai;
 
-      // 今日营收计算
-      var yingshou = 0, yijie = 0;
+      // 异常工单统计
+      var overdueCount = getOverdueOrders().length;
+      var alertCard = document.getElementById('statAlertCard');
+      if (alertCard) {
+        alertCard.style.display = overdueCount > 0 ? '' : 'none';
+        document.getElementById('statAlert').textContent = overdueCount;
+      }
+
+      // 今日营收计算（含成本/利润）
+      var yingshou = 0, yijie = 0, totalCost = 0;
       var keys = Object.keys(orderDetails);
       keys.forEach(function(k) {
         var d = orderDetails[k];
-        if (d.status === 'wancheng' && d.warranty === 'out') {
-          yingshou += d.actualAmount;
-          yijie += d.paidAmount;
+        if (d.status === 'wancheng') {
+          if (d.warranty === 'out') {
+            yingshou += d.actualAmount;
+            yijie += d.paidAmount;
+          }
+          // 所有工单都计入成本
+          if (d.cost) totalCost += d.cost;
         }
       });
       document.getElementById('revYingshou').textContent = '¥' + yingshou;
       document.getElementById('revYijie').textContent = '¥' + yijie;
       document.getElementById('revDaishou').textContent = '¥' + (yingshou - yijie);
+      
+      // 成本和利润
+      var profit = yijie - totalCost;
+      var costEl = document.getElementById('revCost');
+      var profitEl = document.getElementById('revProfit');
+      if (costEl) costEl.textContent = '¥' + totalCost;
+      if (profitEl) {
+        profitEl.textContent = (profit >= 0 ? '¥' : '-¥') + Math.abs(profit);
+        profitEl.className = 'revenue-num ' + (profit >= 0 ? 'profit-positive' : 'profit-negative');
+      }
+
+      // 更新超期高亮
+      updateOverdueHighlights();
     }
 
     // ===== 搜索 =====
@@ -1611,6 +1840,9 @@
       var keys = Object.keys(orderDetails);
       var total = keys.length;
 
+      // AI运营洞察
+      renderInsights();
+
       // 0. 营收概览
       var revenueOverview = document.getElementById('revenueOverview');
       var totalYingshou = 0, totalYijie = 0, totalFree = 0;
@@ -1639,6 +1871,21 @@
       if (totalFree > 0) {
         revHtml += '<div style="font-size:12px;color:#888;">✅ 维保内免费工单 ' + totalFree + ' 单（不产生费用）</div>';
       }
+      // 成本和利润
+      var totalCost = 0;
+      keys.forEach(function(k) {
+        var d = orderDetails[k];
+        if (d.status === 'wancheng' && d.cost) totalCost += d.cost;
+      });
+      var profit = totalYijie - totalCost;
+      revHtml += '<div style="display:flex;gap:6px;margin-top:8px;">';
+      revHtml += '<div style="flex:1;background:#ffebee;border-radius:8px;padding:8px;text-align:center;">';
+      revHtml += '<div style="font-size:16px;font-weight:700;color:#c62828;">¥' + totalCost + '</div>';
+      revHtml += '<div style="font-size:10px;color:#999;">成本</div></div>';
+      revHtml += '<div style="flex:1;background:' + (profit >= 0 ? '#e8f5e9' : '#ffebee') + ';border-radius:8px;padding:8px;text-align:center;">';
+      revHtml += '<div style="font-size:16px;font-weight:700;color:' + (profit >= 0 ? '#2e7d32' : '#c62828') + ';">' + (profit >= 0 ? '¥' : '-¥') + Math.abs(profit) + '</div>';
+      revHtml += '<div style="font-size:10px;color:#999;">利润</div></div>';
+      revHtml += '</div>';
       revenueOverview.innerHTML = revHtml;
 
       // 1. 状态分布
@@ -1663,6 +1910,9 @@
       });
       statusDist.innerHTML = distHtml;
       statusLegend.innerHTML = legendHtml;
+
+      // 运营效率指标
+      renderEfficiencyMetrics();
 
       // 2. 近7日趋势
       var barChart = document.getElementById('barChart');
@@ -1750,6 +2000,9 @@
       });
       ptHtml += '<div style="font-size:11px;color:#999;margin-top:6px;">💡 维保范围内免费，维保范围外按标准收费</div>';
       priceTableEl.innerHTML = ptHtml;
+
+      // 异常告警
+      renderAlerts();
     }
 
     // ===== 移动端面板 =====
@@ -1766,6 +2019,438 @@
       overlay.classList.toggle('show');
     });
     overlay.addEventListener('click', closePanel);
+
+    // ===== 异常检测函数 =====
+    function getOverdueOrders() {
+      var now = new Date();
+      var overdue = [];
+      var keys = Object.keys(orderDetails);
+      keys.forEach(function(k) {
+        var d = orderDetails[k];
+        var createTime = new Date(d.createTime.replace(/-/g, '/'));
+        var hoursSinceCreate = (now - createTime) / (1000 * 60 * 60);
+        
+        if (d.status === 'yipai' && hoursSinceCreate > 24) {
+          overdue.push({ id: d.id, reason: '已派超24小时', hours: Math.floor(hoursSinceCreate) });
+        } else if (d.status === 'jinxing' && hoursSinceCreate > 48) {
+          overdue.push({ id: d.id, reason: '进行中超48小时', hours: Math.floor(hoursSinceCreate) });
+        }
+      });
+      return overdue;
+    }
+
+    function updateOverdueHighlights() {
+      var overdueIds = getOverdueOrders().map(function(o) { return o.id; });
+      document.querySelectorAll('.order-card').forEach(function(card) {
+        var orderId = card.getAttribute('data-order');
+        var isOverdue = overdueIds.indexOf(orderId) >= 0;
+        card.classList.toggle('overdue', isOverdue);
+        // 更新标签
+        var existingTag = card.querySelector('.overdue-tag');
+        if (isOverdue && !existingTag) {
+          var topRow = card.querySelector('.order-top');
+          if (topRow) {
+            var tag = document.createElement('span');
+            tag.className = 'overdue-tag';
+            tag.textContent = '⚠️超期';
+            topRow.appendChild(tag);
+          }
+        } else if (!isOverdue && existingTag) {
+          existingTag.remove();
+        }
+      });
+    }
+
+    function renderAlerts() {
+      var alertList = document.getElementById('alertList');
+      var overdue = getOverdueOrders();
+      if (overdue.length === 0) {
+        alertList.innerHTML = '<div style="text-align:center;padding:20px;color:#4CAF50;font-size:13px;">🎉 当前无异常工单</div>';
+        return;
+      }
+      var html = '';
+      overdue.forEach(function(o) {
+        html += '<div class="alert-item">';
+        html += '<span class="alert-icon">⚠️</span>';
+        html += '<div class="alert-info">';
+        html += '<div class="alert-id">' + o.id + '</div>';
+        html += '<div class="alert-reason">' + o.reason + '（已' + o.hours + '小时）</div>';
+        html += '</div></div>';
+      });
+      alertList.innerHTML = html;
+    }
+
+    // ===== 运营效率指标 =====
+    function renderEfficiencyMetrics() {
+      var keys = Object.keys(orderDetails);
+      var total = keys.length;
+      var completed = keys.filter(function(k) { return orderDetails[k].status === 'wancheng'; }).length;
+      
+      // 平均派单速度（已派工单的assignTime-createTime平均）
+      var dispatchTimes = [];
+      keys.forEach(function(k) {
+        var d = orderDetails[k];
+        if (d.assignTime && d.createTime) {
+          var create = new Date(d.createTime.replace(/-/g, '/'));
+          var assign = new Date(d.assignTime.replace(/-/g, '/'));
+          var mins = (assign - create) / (1000 * 60);
+          if (mins > 0) dispatchTimes.push(mins);
+        }
+      });
+      var avgDispatch = dispatchTimes.length > 0 ? Math.round(dispatchTimes.reduce(function(a, b) { return a + b; }, 0) / dispatchTimes.length) : 0;
+      
+      // 平均完成时长
+      var finishTimes = [];
+      keys.forEach(function(k) {
+        var d = orderDetails[k];
+        if (d.finishTime && d.assignTime) {
+          var assign = new Date(d.assignTime.replace(/-/g, '/'));
+          var finish = new Date(d.finishTime.replace(/-/g, '/'));
+          var hours = (finish - assign) / (1000 * 60 * 60);
+          if (hours > 0) finishTimes.push(hours);
+        }
+      });
+      var avgFinish = finishTimes.length > 0 ? (finishTimes.reduce(function(a, b) { return a + b; }, 0) / finishTimes.length).toFixed(1) : 0;
+      
+      // 一次完成率
+      var firstPassRate = total > 0 ? Math.round((completed / total) * 100) : 0;
+      
+      document.getElementById('avgDispatchTime').textContent = avgDispatch + '分钟';
+      document.getElementById('avgFinishTime').textContent = avgFinish + '小时';
+      document.getElementById('firstPassRate').textContent = firstPassRate + '%';
+    }
+
+    // ===== 客户视图 =====
+    function showCustomerView() {
+      currentView = 'customer';
+      detailView.classList.remove('active');
+      dashboardView.classList.remove('active');
+      workerList.style.display = 'none';
+      orderList.style.display = 'none';
+      customerList.style.display = '';
+      customerList.classList.add('show');
+      statsBar.style.display = 'none';
+      revenueBar.style.display = 'none';
+      searchBar.style.display = 'none';
+      filterBar.style.display = 'none';
+      dateFilter.style.display = 'none';
+      renderCustomerList();
+    }
+
+    function renderCustomerList() {
+      var customers = {};
+      var keys = Object.keys(orderDetails);
+      keys.forEach(function(k) {
+        var d = orderDetails[k];
+        if (!customers[d.customer]) {
+          customers[d.customer] = {
+            name: d.customer,
+            phone: d.customerPhone,
+            orders: [],
+            totalAmount: 0
+          };
+        }
+        customers[d.customer].orders.push(d);
+        if (d.actualAmount > 0) customers[d.customer].totalAmount += d.actualAmount;
+      });
+
+      var html = '';
+      Object.keys(customers).forEach(function(name) {
+        var c = customers[name];
+        var orderCount = c.orders.length;
+        var lastOrder = c.orders[c.orders.length - 1];
+        var isHot = orderCount > 1;
+        
+        html += '<div class="customer-card" onclick="filterByCustomer(\'' + name + '\')">';
+        html += '<div class="customer-top">';
+        html += '<span class="customer-name">👤 ' + name + '</span>';
+        if (isHot) html += '<span class="customer-reorder reorder-hot">🔥 复购</span>';
+        html += '</div>';
+        html += '<div class="customer-info">';
+        html += '<span>📞 ' + c.phone + '</span>';
+        html += '<span>📋 累计' + orderCount + '单</span>';
+        html += '<span>最近: ' + lastOrder.id + '</span>';
+        html += '</div>';
+        html += '<div style="margin-top:6px;display:flex;justify-content:space-between;align-items:center;">';
+        html += '<span style="font-size:12px;color:#888;">累计消费</span>';
+        html += '<span class="customer-total">¥' + c.totalAmount + '</span>';
+        html += '</div></div>';
+      });
+      customerList.innerHTML = html || '<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-text">暂无客户数据</div></div>';
+    }
+
+    function filterByCustomer(customerName) {
+      // 切换到工单标签并筛选
+      document.querySelector('[data-tab="orders"]').click();
+      document.getElementById('searchInput').value = customerName;
+      document.getElementById('searchInput').dispatchEvent(new Event('input'));
+      showToast('已筛选 ' + customerName + ' 的工单');
+    }
+
+    // ===== AI运营洞察 =====
+    function generateInsights() {
+      var insights = [];
+      var keys = Object.keys(orderDetails);
+      var total = keys.length;
+      
+      // 营收分析
+      var yingshou = 0, yijie = 0, totalCost = 0, warrantyIn = 0;
+      keys.forEach(function(k) {
+        var d = orderDetails[k];
+        if (d.status === 'wancheng') {
+          if (d.warranty === 'out') {
+            yingshou += d.actualAmount;
+            yijie += d.paidAmount;
+          } else {
+            warrantyIn++;
+          }
+          if (d.cost) totalCost += d.cost;
+        }
+      });
+      
+      var daishou = yingshou - yijie;
+      if (daishou > 0) {
+        insights.push({
+          type: 'critical',
+          title: '⚠️ 待收款提醒',
+          desc: '当前有 <b style="color:#e65100">¥' + daishou + '</b> 款项未到账',
+          action: '建议尽快联系客户确认收款'
+        });
+      }
+      
+      if (yingshou > 0 && (daishou / yingshou) > 0.5) {
+        insights.push({
+          type: 'critical',
+          title: '⚠️ 现金流预警',
+          desc: '超半数应收款项（' + Math.round(daishou / yingshou * 100) + '%）未到账',
+          action: '需重点关注资金回笼'
+        });
+      }
+      
+      if (warrantyIn > 0) {
+        insights.push({
+          type: 'warning',
+          title: '📋 维保内工单占比',
+          desc: '维保内免费工单占 ' + Math.round(warrantyIn / total * 100) + '%',
+          action: '需评估维保合同定价策略'
+        });
+      }
+      
+      // 异常工单
+      var overdue = getOverdueOrders();
+      if (overdue.length > 0) {
+        insights.push({
+          type: 'critical',
+          title: '🚨 超期工单警告',
+          desc: '有 <b style="color:#c62828">' + overdue.length + '单</b> 工单超期未处理',
+          action: '立即跟进，避免客户投诉'
+        });
+      }
+      
+      // 待派工单
+      var daipaiCount = keys.filter(function(k) { return orderDetails[k].status === 'daipai'; }).length;
+      if (daipaiCount > 0) {
+        insights.push({
+          type: 'warning',
+          title: '⏰ 待派工单积压',
+          desc: '有 <b>' + daipaiCount + '单</b> 工单等待派发',
+          action: '考虑启用AI自动派单或增派师傅'
+        });
+      }
+      
+      // 师傅分析
+      var workerCounts = {};
+      keys.forEach(function(k) {
+        var w = orderDetails[k].worker;
+        if (w) workerCounts[w] = (workerCounts[w] || 0) + 1;
+      });
+      var zeroWorker = workers.filter(function(w) { return !workerCounts[w.name]; });
+      if (zeroWorker.length > 0) {
+        zeroWorker.forEach(function(w) {
+          insights.push({
+            type: 'warning',
+            title: '👷 师傅空闲提醒',
+            desc: w.name + ' 今日暂无工单',
+            action: '可安排更多派单任务'
+          });
+        });
+      }
+      
+      var maxWorker = Object.keys(workerCounts).reduce(function(a, b) { 
+        return workerCounts[a] > workerCounts[b] ? a : b; 
+      }, null);
+      if (maxWorker && workerCounts[maxWorker] > 0) {
+        var maxCount = workerCounts[maxWorker];
+        var totalWorkerOrders = Object.values(workerCounts).reduce(function(a, b) { return a + b; }, 0);
+        if (totalWorkerOrders > 0 && (maxCount / totalWorkerOrders) > 0.5) {
+          insights.push({
+            type: 'warning',
+            title: '⚖️ 派单不均衡',
+            desc: maxWorker + ' 单量占比 ' + Math.round(maxCount / totalWorkerOrders * 100) + '%，负荷过重',
+            action: '建议均衡派单，避免师傅疲劳'
+          });
+        }
+      }
+      
+      // 客户分析
+      var customers = {};
+      keys.forEach(function(k) {
+        var d = orderDetails[k];
+        if (!customers[d.customer]) customers[d.customer] = [];
+        customers[d.customer].push(d);
+      });
+      var hotCustomers = Object.keys(customers).filter(function(c) { return customers[c].length > 1; });
+      if (hotCustomers.length > 0) {
+        hotCustomers.forEach(function(name) {
+          insights.push({
+            type: 'good',
+            title: '⭐ 高价值客户',
+            desc: name + ' 累计 ' + customers[name].length + ' 单，是重点维护对象',
+            action: '建议提供VIP服务，提升满意度'
+          });
+        });
+      }
+      
+      var singleCustomers = Object.keys(customers).filter(function(c) { return customers[c].length === 1; });
+      if (singleCustomers.length > 0) {
+        insights.push({
+          type: 'warning',
+          title: '📈 复购机会',
+          desc: '有 ' + singleCustomers.length + ' 个客户仅1单，有复购提升空间',
+          action: '可制定回访和优惠策略促进复购'
+        });
+      }
+      
+      // 利润分析
+      var profit = yijie - totalCost;
+      if (totalCost > 0) {
+        var profitRate = Math.round(profit / totalCost * 100);
+        if (profit < 0) {
+          insights.push({
+            type: 'critical',
+            title: '💸 利润亏损',
+            desc: '当前利润率为负（' + profitRate + '%），成本过高',
+            action: '需优化成本或提高收费标准'
+          });
+        } else if (profitRate < 30) {
+          insights.push({
+            type: 'warning',
+            title: '📉 利润率偏低',
+            desc: '当前利润率仅 ' + profitRate + '%',
+            action: '建议优化成本结构或调整定价'
+          });
+        }
+      }
+      
+      // 技能覆盖分析
+      var skills = new Set();
+      keys.forEach(function(k) {
+        var svc = orderDetails[k].service;
+        if (svc.indexOf('空调') >= 0) skills.add('空调');
+        if (svc.indexOf('水电') >= 0) skills.add('水电');
+        if (svc.indexOf('管道') >= 0) skills.add('管道');
+      });
+      if (skills.size < 3) {
+        insights.push({
+          type: 'warning',
+          title: '🔧 技能覆盖不足',
+          desc: '当前仅覆盖 ' + Array.from(skills).join('/') + ' 类服务',
+          action: '建议培养综合技能师傅，拓展业务'
+        });
+      }
+      
+      return insights;
+    }
+
+    function renderInsights() {
+      var insights = generateInsights();
+      var container = document.getElementById('insightsContainer');
+      if (insights.length === 0) {
+        container.innerHTML = '<div style="text-align:center;padding:16px;color:#4CAF50;font-size:13px;">🎉 运营状况良好，暂无优化建议</div>';
+        return;
+      }
+      
+      // 按严重度排序
+      var priorityOrder = { critical: 0, warning: 1, good: 2 };
+      insights.sort(function(a, b) { return priorityOrder[a.type] - priorityOrder[b.type]; });
+      
+      // 最多显示6条
+      insights = insights.slice(0, 6);
+      
+      var html = '';
+      insights.forEach(function(ins) {
+        html += '<div class="insight-card ' + ins.type + '">';
+        html += '<div class="insight-title">' + ins.title + '</div>';
+        html += '<div class="insight-desc">' + ins.desc + '</div>';
+        html += '<div class="insight-action">💡 ' + ins.action + '</div>';
+        html += '</div>';
+      });
+      container.innerHTML = html;
+    }
+
+    // ===== 导出功能 =====
+    function showExportModal() {
+      var bodyHtml = '<div style="font-size:13px;color:#888;margin-bottom:8px;">选择导出方式：</div>';
+      bodyHtml += '<div class="export-option" onclick="exportCSV()">';
+      bodyHtml += '<div class="export-opt-left"><span class="export-opt-icon">📊</span><div><div class="export-opt-title">导出Excel(CSV)</div><div class="export-opt-desc">包含工单完整数据</div></div></div>';
+      bodyHtml += '<span style="color:#ccc;">→</span></div>';
+      bodyHtml += '<div class="export-option" onclick="doPrint()">';
+      bodyHtml += '<div class="export-opt-left"><span class="export-opt-icon">🖨️</span><div><div class="export-opt-title">打印</div><div class="export-opt-desc">仅打印数据面板</div></div></div>';
+      bodyHtml += '<span style="color:#ccc;">→</span></div>';
+      openModal('📤 导出数据', bodyHtml, '<button class="modal-btn" onclick="closeModal()" style="width:100%">取消</button>');
+    }
+
+    function exportCSV() {
+      closeModal();
+      var headers = ['工单号', '状态', '客户', '电话', '地址', '服务类型', '维保类型', '师傅', '标准收费', '实收金额', '成本', '利润', '创建时间', '派单时间', '完成时间'];
+      var rows = [headers.join(',')];
+      
+      var keys = Object.keys(orderDetails);
+      keys.forEach(function(k) {
+        var d = orderDetails[k];
+        var profit = d.warranty === 'out' ? (d.actualAmount - (d.cost || 0)) : (0 - (d.cost || 0));
+        var row = [
+          d.id,
+          d.statusText,
+          d.customer,
+          d.customerPhone,
+          d.address,
+          d.service,
+          d.warrantyText,
+          d.worker || '待派',
+          d.serviceAmount,
+          d.actualAmount,
+          d.cost || 0,
+          profit,
+          d.createTime,
+          d.assignTime || '-',
+          d.finishTime || '-'
+        ];
+        // CSV转义
+        row = row.map(function(v) {
+          var s = String(v);
+          if (s.indexOf(',') >= 0 || s.indexOf('"') >= 0 || s.indexOf('\n') >= 0) {
+            return '"' + s.replace(/"/g, '""') + '"';
+          }
+          return s;
+        });
+        rows.push(row.join(','));
+      });
+      
+      var csv = rows.join('\n');
+      var BOM = '\uFEFF';
+      var blob = new Blob([BOM + csv], { type: 'text/csv;charset=utf-8;' });
+      var link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = '工单数据_' + new Date().toISOString().substring(0, 10) + '.csv';
+      link.click();
+      showToast('✅ 导出成功');
+    }
+
+    function doPrint() {
+      closeModal();
+      window.print();
+    }
 
     // ===== 以下为原有Chat SDK认证逻辑 =====
     var ISS = '1199212001020';
