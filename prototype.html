@@ -47,6 +47,75 @@
       opacity: 0.8;
     }
 
+    /* 搜索栏 */
+    .search-bar {
+      padding: 8px 12px;
+      flex-shrink: 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .search-input-wrap {
+      display: flex;
+      align-items: center;
+      background: #f5f6f8;
+      border-radius: 8px;
+      padding: 0 10px;
+      gap: 6px;
+    }
+    .search-icon {
+      font-size: 14px;
+      color: #bbb;
+      flex-shrink: 0;
+    }
+    .search-input {
+      flex: 1;
+      border: none;
+      background: none;
+      padding: 9px 0;
+      font-size: 13px;
+      color: #333;
+      outline: none;
+    }
+    .search-input::placeholder { color: #bbb; }
+    .search-clear {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 14px;
+      color: #bbb;
+      cursor: pointer;
+      padding: 2px;
+    }
+    .search-clear.show { display: block; }
+
+    /* 筛选条 */
+    .filter-bar {
+      display: flex;
+      padding: 6px 12px 8px;
+      gap: 6px;
+      flex-shrink: 0;
+      border-bottom: 1px solid #f0f0f0;
+      overflow-x: auto;
+    }
+    .filter-bar::-webkit-scrollbar { display: none; }
+    .filter-chip {
+      padding: 4px 12px;
+      border-radius: 14px;
+      font-size: 12px;
+      border: 1px solid #e0e0e0;
+      background: #fff;
+      color: #666;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+    .filter-chip:hover { border-color: #4CAF50; color: #4CAF50; }
+    .filter-chip.active {
+      background: #4CAF50;
+      color: #fff;
+      border-color: #4CAF50;
+    }
+
     /* 标签切换 */
     .tab-bar {
       display: flex;
@@ -276,6 +345,119 @@
       font-size: 14px;
     }
 
+    /* 详情页 */
+    .detail-view {
+      display: none;
+      flex-direction: column;
+      height: 100%;
+    }
+    .detail-view.active {
+      display: flex;
+    }
+    .detail-header {
+      display: flex;
+      align-items: center;
+      padding: 14px 16px;
+      border-bottom: 1px solid #f0f0f0;
+      flex-shrink: 0;
+    }
+    .detail-back {
+      background: none;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+      padding: 4px 8px 4px 0;
+      color: #4CAF50;
+      font-weight: 600;
+    }
+    .detail-back:hover { opacity: 0.7; }
+    .detail-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #333;
+    }
+    .detail-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+    }
+    .detail-body::-webkit-scrollbar { width: 4px; }
+    .detail-body::-webkit-scrollbar-thumb { background: #ddd; border-radius: 2px; }
+    .detail-status-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .detail-id {
+      font-size: 13px;
+      color: #999;
+    }
+    .detail-section {
+      margin-bottom: 16px;
+    }
+    .detail-section-title {
+      font-size: 12px;
+      color: #999;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #f5f5f5;
+    }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-label {
+      font-size: 13px;
+      color: #888;
+    }
+    .detail-value {
+      font-size: 14px;
+      color: #333;
+      font-weight: 500;
+      text-align: right;
+      max-width: 60%;
+    }
+    .detail-desc {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 13px;
+      color: #555;
+      line-height: 1.6;
+    }
+    .detail-actions {
+      padding: 16px;
+      border-top: 1px solid #f0f0f0;
+      flex-shrink: 0;
+    }
+    .detail-btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 8px;
+      transition: all 0.15s;
+    }
+    .detail-btn:last-child { margin-bottom: 0; }
+    .btn-primary {
+      background: #4CAF50;
+      color: #fff;
+    }
+    .btn-primary:hover { background: #43a047; }
+    .btn-secondary {
+      background: #f5f5f5;
+      color: #666;
+    }
+    .btn-secondary:hover { background: #eee; }
+
     /* 隐藏推荐问题按钮 */
     [class*="suggestion"], [class*="recommended"], [class*="quick-reply"],
     [class*="question-item"], [class*="prompt-item"] { display: none !important; }
@@ -339,9 +521,28 @@
         <div class="stat-card"><div class="stat-num" id="statWancheng">1</div><div class="stat-label">已完成</div></div>
       </div>
 
+      <!-- 搜索栏 -->
+      <div class="search-bar" id="searchBar">
+        <div class="search-input-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" class="search-input" id="searchInput" placeholder="搜索工单号、客户、师傅…">
+          <button class="search-clear" id="searchClear">✕</button>
+        </div>
+      </div>
+
+      <!-- 筛选条 -->
+      <div class="filter-bar" id="filterBar">
+        <div class="filter-chip active" data-filter="all">全部</div>
+        <div class="filter-chip" data-filter="daipai">待派</div>
+        <div class="filter-chip" data-filter="yipai">已派</div>
+        <div class="filter-chip" data-filter="jinxing">进行中</div>
+        <div class="filter-chip" data-filter="wancheng">已完成</div>
+        <div class="filter-chip" data-filter="quxiao">已取消</div>
+      </div>
+
       <!-- 工单列表 -->
       <div class="list-area" id="orderList">
-        <div class="order-card" data-order="#20260616001">
+        <div class="order-card" data-order="#20260616001" data-status="daipai" data-customer="赵总" data-service="空调维修" data-worker="">
           <div class="order-top">
             <span class="order-id">#20260616001</span>
             <span class="order-status status-daipai">待派</span>
@@ -351,7 +552,7 @@
             <span>👤 赵总</span>
           </div>
         </div>
-        <div class="order-card" data-order="#20260616002">
+        <div class="order-card" data-order="#20260616002" data-status="yipai" data-customer="李总" data-service="空调维修" data-worker="陈师傅">
           <div class="order-top">
             <span class="order-id">#20260616002</span>
             <span class="order-status status-yipai">已派</span>
@@ -362,7 +563,7 @@
             <span>👤 李总</span>
           </div>
         </div>
-        <div class="order-card" data-order="#20260618001">
+        <div class="order-card" data-order="#20260618001" data-status="jinxing" data-customer="王总" data-service="水电维修" data-worker="周师傅">
           <div class="order-top">
             <span class="order-id">#20260618001</span>
             <span class="order-status status-jinxing">进行中</span>
@@ -373,7 +574,7 @@
             <span>👤 王总</span>
           </div>
         </div>
-        <div class="order-card" data-order="#20260619001">
+        <div class="order-card" data-order="#20260619001" data-status="wancheng" data-customer="孙总" data-service="管道疏通" data-worker="张师傅">
           <div class="order-top">
             <span class="order-id">#20260619001</span>
             <span class="order-status status-wancheng">已完成</span>
@@ -384,7 +585,7 @@
             <span>👤 孙总</span>
           </div>
         </div>
-        <div class="order-card" data-order="#20260620001">
+        <div class="order-card" data-order="#20260620001" data-status="daipai" data-customer="钱总" data-service="空调维修" data-worker="">
           <div class="order-top">
             <span class="order-id">#20260620001</span>
             <span class="order-status status-daipai">待派</span>
@@ -393,6 +594,20 @@
             <span>🔧 空调维修</span>
             <span>👤 钱总</span>
           </div>
+        </div>
+      </div>
+
+      <!-- 工单详情 -->
+      <div class="detail-view" id="detailView">
+        <div class="detail-header">
+          <button class="detail-back" id="detailBack">← 返回</button>
+          <span class="detail-title" id="detailTitle">工单详情</span>
+        </div>
+        <div class="detail-body" id="detailBody">
+          <!-- 动态填充 -->
+        </div>
+        <div class="detail-actions" id="detailActions">
+          <!-- 动态填充 -->
         </div>
       </div>
 
@@ -467,11 +682,79 @@
   </div>
 
   <script>
+    // ===== 工单详情数据 =====
+    var orderDetails = {
+      '#20260616001': {
+        id: '#20260616001', status: 'daipai', statusText: '待派',
+        customer: '赵总', customerPhone: '138****1001',
+        service: '空调维修', priority: '普通',
+        address: '锦绣路88号 3栋502',
+        worker: '', workerPhone: '',
+        createTime: '2026-06-16 09:30',
+        assignTime: '', finishTime: '',
+        desc: '客厅空调不制冷，开机有异响，购买3年，之前未维修过。'
+      },
+      '#20260616002': {
+        id: '#20260616002', status: 'yipai', statusText: '已派',
+        customer: '李总', customerPhone: '138****1002',
+        service: '空调维修', priority: '紧急',
+        address: '河西大街12号 A座1601',
+        worker: '陈师傅', workerPhone: '138****1002',
+        createTime: '2026-06-16 10:15', assignTime: '2026-06-16 10:22',
+        finishTime: '',
+        desc: '办公室中央空调漏水，影响办公，需要尽快处理。'
+      },
+      '#20260618001': {
+        id: '#20260618001', status: 'jinxing', statusText: '进行中',
+        customer: '王总', customerPhone: '138****1003',
+        service: '水电维修', priority: '普通',
+        address: '城东花园小区 7栋301',
+        worker: '周师傅', workerPhone: '138****1001',
+        createTime: '2026-06-18 14:00', assignTime: '2026-06-18 14:05',
+        finishTime: '',
+        desc: '厨房水龙头漏水，卫生间灯不亮。'
+      },
+      '#20260619001': {
+        id: '#20260619001', status: 'wancheng', statusText: '已完成',
+        customer: '孙总', customerPhone: '138****1004',
+        service: '管道疏通', priority: '普通',
+        address: '阳光城小区 2栋1803',
+        worker: '张师傅', workerPhone: '138****1003',
+        createTime: '2026-06-19 08:30', assignTime: '2026-06-19 08:35',
+        finishTime: '2026-06-19 11:20',
+        desc: '卫生间下水道堵塞，已疏通完毕，客户确认满意。'
+      },
+      '#20260620001': {
+        id: '#20260620001', status: 'daipai', statusText: '待派',
+        customer: '钱总', customerPhone: '138****1005',
+        service: '空调维修', priority: '紧急',
+        address: '锦绣路166号 B栋2201',
+        worker: '', workerPhone: '',
+        createTime: '2026-06-20 16:45', assignTime: '', finishTime: '',
+        desc: '卧室空调完全不启动，遥控器有电但无反应。'
+      }
+    };
+
+    var statusClassMap = {
+      daipai: 'status-daipai', yipai: 'status-yipai',
+      jinxing: 'status-jinxing', wancheng: 'status-wancheng', quxiao: 'status-quxiao'
+    };
+
     // ===== 标签切换 =====
     var tabs = document.querySelectorAll('.tab-item');
     var orderList = document.getElementById('orderList');
     var workerList = document.getElementById('workerList');
     var statsBar = document.getElementById('statsBar');
+    var searchBar = document.getElementById('searchBar');
+    var filterBar = document.getElementById('filterBar');
+    var detailView = document.getElementById('detailView');
+    var detailBack = document.getElementById('detailBack');
+    var detailTitle = document.getElementById('detailTitle');
+    var detailBody = document.getElementById('detailBody');
+    var detailActions = document.getElementById('detailActions');
+
+    // 面板子视图：list / detail
+    var currentView = 'list';
 
     tabs.forEach(function(tab) {
       tab.addEventListener('click', function() {
@@ -479,49 +762,178 @@
         this.classList.add('active');
         var target = this.getAttribute('data-tab');
         if (target === 'orders') {
-          orderList.style.display = '';
-          workerList.style.display = 'none';
-          statsBar.style.display = '';
+          showListView();
+          searchBar.style.display = '';
+          filterBar.style.display = '';
         } else {
+          showListView();
           orderList.style.display = 'none';
           workerList.style.display = '';
           statsBar.style.display = 'none';
+          searchBar.style.display = 'none';
+          filterBar.style.display = 'none';
         }
       });
     });
 
-    // ===== 工单点击 → 对话区查询 =====
+    function showListView() {
+      currentView = 'list';
+      detailView.classList.remove('active');
+      orderList.style.display = '';
+      statsBar.style.display = '';
+      searchBar.style.display = '';
+      filterBar.style.display = '';
+    }
+
+    function showDetailView(orderId) {
+      var d = orderDetails[orderId];
+      if (!d) return;
+      currentView = 'detail';
+      orderList.style.display = 'none';
+      statsBar.style.display = 'none';
+      searchBar.style.display = 'none';
+      filterBar.style.display = 'none';
+      detailView.classList.add('active');
+      detailTitle.textContent = '工单详情';
+
+      var html = '';
+      html += '<div class="detail-status-row">';
+      html += '  <span class="detail-id">' + d.id + '</span>';
+      html += '  <span class="order-status ' + statusClassMap[d.status] + '">' + d.statusText + '</span>';
+      html += '</div>';
+
+      html += '<div class="detail-section">';
+      html += '  <div class="detail-section-title">基本信息</div>';
+      html += '  <div class="detail-row"><span class="detail-label">服务类型</span><span class="detail-value">🔧 ' + d.service + '</span></div>';
+      html += '  <div class="detail-row"><span class="detail-label">优先级</span><span class="detail-value">' + d.priority + '</span></div>';
+      html += '  <div class="detail-row"><span class="detail-label">创建时间</span><span class="detail-value">' + d.createTime + '</span></div>';
+      if (d.assignTime) html += '  <div class="detail-row"><span class="detail-label">派单时间</span><span class="detail-value">' + d.assignTime + '</span></div>';
+      if (d.finishTime) html += '  <div class="detail-row"><span class="detail-label">完成时间</span><span class="detail-value">' + d.finishTime + '</span></div>';
+      html += '</div>';
+
+      html += '<div class="detail-section">';
+      html += '  <div class="detail-section-title">客户信息</div>';
+      html += '  <div class="detail-row"><span class="detail-label">客户</span><span class="detail-value">👤 ' + d.customer + '</span></div>';
+      html += '  <div class="detail-row"><span class="detail-label">电话</span><span class="detail-value">📞 ' + d.customerPhone + '</span></div>';
+      html += '  <div class="detail-row"><span class="detail-label">地址</span><span class="detail-value">📍 ' + d.address + '</span></div>';
+      html += '</div>';
+
+      if (d.worker) {
+        html += '<div class="detail-section">';
+        html += '  <div class="detail-section-title">师傅信息</div>';
+        html += '  <div class="detail-row"><span class="detail-label">师傅</span><span class="detail-value">👷 ' + d.worker + '</span></div>';
+        html += '  <div class="detail-row"><span class="detail-label">电话</span><span class="detail-value">📞 ' + d.workerPhone + '</span></div>';
+        html += '</div>';
+      }
+
+      html += '<div class="detail-section">';
+      html += '  <div class="detail-section-title">问题描述</div>';
+      html += '  <div class="detail-desc">' + d.desc + '</div>';
+      html += '</div>';
+
+      detailBody.innerHTML = html;
+
+      // 操作按钮
+      var actHtml = '';
+      if (d.status === 'daipai') {
+        actHtml += '<button class="detail-btn btn-primary" onclick="sendToChat(\'AI派单 ' + d.id + '\')">🤖 AI智能派单</button>';
+        actHtml += '<button class="detail-btn btn-secondary" onclick="sendToChat(\'手动派单 ' + d.id + '\')">✋ 手动指定师傅</button>';
+      } else if (d.status === 'yipai') {
+        actHtml += '<button class="detail-btn btn-secondary" onclick="sendToChat(\'催单 ' + d.id + '\')">📞 催单提醒</button>';
+        actHtml += '<button class="detail-btn btn-secondary" onclick="sendToChat(\'改派 ' + d.id + '\')">🔄 改派师傅</button>';
+      } else if (d.status === 'jinxing') {
+        actHtml += '<button class="detail-btn btn-primary" onclick="sendToChat(\'完成 ' + d.id + '\')">✅ 标记完成</button>';
+        actHtml += '<button class="detail-btn btn-secondary" onclick="sendToChat(\'催单 ' + d.id + '\')">📞 催单提醒</button>';
+      } else if (d.status === 'wancheng') {
+        actHtml += '<button class="detail-btn btn-secondary" onclick="sendToChat(\'回访 ' + d.id + '\')">💬 客户回访</button>';
+      }
+      detailActions.innerHTML = actHtml;
+    }
+
+    // 返回列表
+    detailBack.addEventListener('click', function() {
+      showListView();
+    });
+
+    // ===== 工单点击 → 详情页 =====
     document.querySelectorAll('.order-card').forEach(function(card) {
       card.addEventListener('click', function() {
         var orderId = this.getAttribute('data-order');
-        // 向Chat SDK发送查询消息
-        var chatInput = document.querySelector('textarea') || document.querySelector('[contenteditable="true"]');
-        if (chatInput) {
-          var msg = '查看工单 ' + orderId;
-          if (chatInput.tagName === 'TEXTAREA') {
-            var nativeSetter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value').set;
-            nativeSetter.call(chatInput, msg);
-            chatInput.dispatchEvent(new Event('input', { bubbles: true }));
-          } else {
-            chatInput.textContent = msg;
-            chatInput.dispatchEvent(new Event('input', { bubbles: true }));
-          }
-          setTimeout(function() {
-            var btns = document.querySelectorAll('button');
-            for (var j = 0; j < btns.length; j++) {
-              var btn = btns[j];
-              var label = (btn.getAttribute('aria-label') || '').toLowerCase();
-              var cls = (btn.className || '').toLowerCase();
-              if ((label.includes('send') || label.includes('发送') || cls.includes('send') || cls.includes('submit')) && btn.offsetParent && !btn.disabled) {
-                btn.click(); break;
-              }
-            }
-          }, 200);
-        }
-        // 移动端关闭面板
+        showDetailView(orderId);
         closePanel();
       });
     });
+
+    // ===== 向Chat发送消息 =====
+    function sendToChat(msg) {
+      var chatInput = document.querySelector('textarea') || document.querySelector('[contenteditable="true"]');
+      if (chatInput) {
+        if (chatInput.tagName === 'TEXTAREA') {
+          var nativeSetter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value').set;
+          nativeSetter.call(chatInput, msg);
+          chatInput.dispatchEvent(new Event('input', { bubbles: true }));
+        } else {
+          chatInput.textContent = msg;
+          chatInput.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+        setTimeout(function() {
+          var btns = document.querySelectorAll('button');
+          for (var j = 0; j < btns.length; j++) {
+            var btn = btns[j];
+            var label = (btn.getAttribute('aria-label') || '').toLowerCase();
+            var cls = (btn.className || '').toLowerCase();
+            if ((label.includes('send') || label.includes('发送') || cls.includes('send') || cls.includes('submit')) && btn.offsetParent && !btn.disabled) {
+              btn.click(); break;
+            }
+          }
+        }, 200);
+      }
+      // 详情页点击操作后返回列表
+      showListView();
+    }
+
+    // ===== 搜索 =====
+    var searchInput = document.getElementById('searchInput');
+    var searchClear = document.getElementById('searchClear');
+    var currentFilter = 'all';
+
+    searchInput.addEventListener('input', function() {
+      searchClear.classList.toggle('show', this.value.length > 0);
+      applyFilters();
+    });
+
+    searchClear.addEventListener('click', function() {
+      searchInput.value = '';
+      searchClear.classList.remove('show');
+      applyFilters();
+    });
+
+    // ===== 筛选 =====
+    document.querySelectorAll('.filter-chip').forEach(function(chip) {
+      chip.addEventListener('click', function() {
+        document.querySelectorAll('.filter-chip').forEach(function(c) { c.classList.remove('active'); });
+        this.classList.add('active');
+        currentFilter = this.getAttribute('data-filter');
+        applyFilters();
+      });
+    });
+
+    function applyFilters() {
+      var keyword = searchInput.value.trim().toLowerCase();
+      var cards = document.querySelectorAll('.order-card');
+      cards.forEach(function(card) {
+        var status = card.getAttribute('data-status');
+        var orderId = (card.getAttribute('data-order') || '').toLowerCase();
+        var customer = (card.getAttribute('data-customer') || '').toLowerCase();
+        var service = (card.getAttribute('data-service') || '').toLowerCase();
+        var worker = (card.getAttribute('data-worker') || '').toLowerCase();
+
+        var matchFilter = (currentFilter === 'all') || (status === currentFilter);
+        var matchSearch = !keyword || orderId.indexOf(keyword) >= 0 || customer.indexOf(keyword) >= 0 || service.indexOf(keyword) >= 0 || worker.indexOf(keyword) >= 0;
+
+        card.style.display = (matchFilter && matchSearch) ? '' : 'none';
+      });
+    }
 
     // ===== 移动端面板 =====
     var sidePanel = document.getElementById('sidePanel');
