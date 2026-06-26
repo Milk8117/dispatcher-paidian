@@ -485,35 +485,8 @@
       flex: 1;
       display: flex;
       flex-direction: column;
-      background: #fff;
+      background: linear-gradient(135deg, #1a2e1a 0%, #1e3e16 50%, #0f6029 100%);
       position: relative;
-      overflow: hidden;
-    }
-    .chat-area > div,
-    .chat-area > iframe {
-      flex: 1;
-      min-height: 0;
-    }
-    /* Coze Chat SDK 面板定位到右侧区域 */
-    body > .coze-chat-container,
-    body > [class*="coze-chat"],
-    body > div[id*="coze"] {
-      position: absolute !important;
-      top: 0 !important;
-      right: 0 !important;
-      bottom: 0 !important;
-      left: 0 !important;
-      width: 100% !important;
-      height: 100% !important;
-      border: none !important;
-      border-radius: 0 !important;
-      box-shadow: none !important;
-    }
-    /* 隐藏浮动气泡按钮 */
-    .coze-chat-trigger,
-    [class*="coze"][class*="trigger"],
-    [class*="coze"][class*="bubble"] {
-      display: none !important;
     }
 
     .chat-top-bar {
@@ -1325,7 +1298,10 @@
 
     <!-- 右侧对话区 -->
     <div class="chat-area" id="chatArea">
-      <!-- Chat SDK 内嵌渲染在这里 -->
+      <div class="chat-top-bar">
+        <span class="logo-small">派单助手</span>
+        <span class="logo-sub">调度端 · 创建 · 派单 · 追踪</span>
+      </div>
     </div>
   </div>
 
@@ -3079,12 +3055,12 @@
           ui: {
             base: {
               icon: 'https://lf-coze-web-cdn.coze.cn/obj/eden-cn/lm-lgvj/ljhwZthlaukjlkulzlp/coze/chatsdk-logo.png',
-              layout: 'pc', lang: 'zh-CN', zIndex: 1000,
-              isOpenByDefault: true
+              layout: 'mobile', lang: 'zh-CN', zIndex: 1000
             },
-            asstBtn: { isNeed: false },
+            header: { isShow: true, isNeedClose: true },
+            asstBtn: { isNeed: true },
             footer: { isShow: true, expressionText: '派单助手 · 调度端' },
-            chatBot: { title: '派单助手', uploadable: false }
+            chatBot: { title: '派单助手', uploadable: false, width: 390 }
           }
         });
       } catch(err) {
@@ -3094,49 +3070,6 @@
 
     // 页面加载后自动初始化
     initChat();
-
-    // 将Chat SDK DOM移到右侧chatArea内
-    (function moveChatToPanel() {
-      var maxRetry = 20;
-      var interval = setInterval(function() {
-        var chatEls = document.querySelectorAll('body > div[class*="coze"], body > div[id*="coze"]');
-        for (var i = 0; i < chatEls.length; i++) {
-          var el = chatEls[i];
-          // 排除trigger/bubble
-          if (el.querySelector('[class*="chat-bot"]') || el.querySelector('[class*="message"]') || el.querySelector('iframe')) {
-            var chatArea = document.getElementById('chatArea');
-            if (chatArea && !chatArea.contains(el)) {
-              el.style.position = 'relative';
-              el.style.top = '';
-              el.style.right = '';
-              el.style.bottom = '';
-              el.style.left = '';
-              el.style.width = '100%';
-              el.style.height = '100%';
-              el.style.borderRadius = '0';
-              el.style.boxShadow = 'none';
-              chatArea.appendChild(el);
-            }
-            clearInterval(interval);
-            return;
-          }
-        }
-        maxRetry--;
-        if (maxRetry <= 0) clearInterval(interval);
-      }, 500);
-    })();
-
-    // 隐藏所有coze浮动气泡
-    (function hideCozeTrigger() {
-      var maxRetry = 20;
-      var interval = setInterval(function() {
-        var triggers = document.querySelectorAll('[class*="coze"][class*="trigger"], [class*="coze"][class*="bubble"], [class*="coze"][class*="float"], [class*="coze"][class*="btn"]');
-        triggers.forEach(function(t) { t.style.display = 'none'; });
-        maxRetry--;
-        if (maxRetry <= 0) clearInterval(interval);
-      }, 500);
-    })();
-
     updateStats();
   </script>
 </body>
