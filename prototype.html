@@ -1001,6 +1001,25 @@
       .panel-header { background: #4CAF50 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     }
 
+
+    /* ===== Chat SDK 内嵌样式 ===== */
+    #chatSdkContainer {
+      display: flex;
+      flex-direction: column;
+    }
+    #chatSdkContainer iframe,
+    #chatSdkContainer > div {
+      width: 100% !important;
+      height: 100% !important;
+      border: none !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/jsrsasign@11.1.0/lib/jsrsasign-all-min.js"></script>
   <script src="https://lf-cdn.coze.cn/obj/unpkg/flow-platform/chat-app-sdk/1.2.0-beta.20/libs/cn/index.js"></script>
@@ -1302,6 +1321,7 @@
         <span class="logo-small">派单助手</span>
         <span class="logo-sub">调度端 · 创建 · 派单 · 追踪</span>
       </div>
+      <div id="chatSdkContainer" style="flex:1; overflow:hidden; position:relative;"></div>
     </div>
   </div>
 
@@ -3055,12 +3075,17 @@
           ui: {
             base: {
               icon: 'https://lf-coze-web-cdn.coze.cn/obj/eden-cn/lm-lgvj/ljhwZthlaukjlkulzlp/coze/chatsdk-logo.png',
-              layout: 'mobile', lang: 'zh-CN', zIndex: 1000
+              layout: 'pc', lang: 'zh-CN', zIndex: 1000
             },
-            header: { isShow: true, isNeedClose: true },
-            asstBtn: { isNeed: true },
-            footer: { isShow: true, expressionText: '派单助手 · 调度端' },
-            chatBot: { title: '派单助手', uploadable: false, width: 390 }
+            header: { isShow: false, isNeedClose: false },
+            asstBtn: { isNeed: false },
+            footer: { isShow: false },
+            chatBot: {
+              title: '派单助手',
+              uploadable: false,
+              width: 390,
+              el: document.getElementById('chatSdkContainer')
+            }
           }
         });
       } catch(err) {
