@@ -1,0 +1,3109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>派单助手 - 调度端</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%234CAF50'/><text x='50' y='72' font-size='60' text-anchor='middle' fill='white' font-weight='bold' font-family='sans-serif'>调</text></svg>">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    body {
+      background: #f5f6f8;
+      color: #333;
+    }
+
+    /* ===== 主布局 ===== */
+    .main-container {
+      display: flex;
+      width: 100%;
+      height: 100vh;
+    }
+
+    /* ===== 左侧面板 ===== */
+    .side-panel {
+      width: 320px;
+      background: #fff;
+      border-right: 1px solid #e8eaed;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 16px 20px;
+      background: #4CAF50;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .panel-header h1 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+    .panel-header .subtitle {
+      font-size: 12px;
+      opacity: 0.8;
+    }
+
+    /* 今日营收 */
+    .revenue-bar {
+      display: flex;
+      flex-direction: column;
+      padding: 10px 16px;
+      flex-shrink: 0;
+      border-bottom: 1px solid #f0f0f0;
+      background: #fafbfc;
+    }
+    .revenue-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #666;
+      margin-bottom: 6px;
+    }
+    .revenue-row {
+      display: flex;
+      gap: 4px;
+    }
+    .revenue-item {
+      flex: 1;
+      text-align: center;
+      padding: 6px 4px;
+      background: #fff;
+      border-radius: 6px;
+    }
+    .revenue-num {
+      display: block;
+      font-size: 16px;
+      font-weight: 700;
+      color: #333;
+    }
+    .revenue-green { color: #2e7d32; }
+    .revenue-orange { color: #e65100; }
+    .revenue-label {
+      display: block;
+      font-size: 10px;
+      color: #999;
+      margin-top: 2px;
+    }
+
+    /* 维保标签 */
+    .warranty-tag {
+      display: inline-block;
+      font-size: 11px;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-weight: 500;
+      margin-left: 4px;
+      vertical-align: middle;
+    }
+    .warranty-in { background: #e8f5e9; color: #2e7d32; }
+    .warranty-out { background: #fff3e0; color: #e65100; }
+
+    /* 金额高亮 */
+    .amount-highlight {
+      font-weight: 700;
+      color: #e65100;
+    }
+    .amount-free {
+      font-weight: 700;
+      color: #2e7d32;
+    }
+
+    /* 确认到账按钮 */
+    .btn-confirm-pay {
+      background: #ff9800;
+      color: #fff;
+    }
+    .btn-confirm-pay:hover { background: #f57c00; }
+
+    /* 搜索栏 */
+    .search-bar {
+      padding: 8px 12px;
+      flex-shrink: 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .search-input-wrap {
+      display: flex;
+      align-items: center;
+      background: #f5f6f8;
+      border-radius: 8px;
+      padding: 0 10px;
+      gap: 6px;
+    }
+    .search-icon {
+      font-size: 14px;
+      color: #bbb;
+      flex-shrink: 0;
+    }
+    .search-input {
+      flex: 1;
+      border: none;
+      background: none;
+      padding: 9px 0;
+      font-size: 13px;
+      color: #333;
+      outline: none;
+    }
+    .search-input::placeholder { color: #bbb; }
+    .search-clear {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 14px;
+      color: #bbb;
+      cursor: pointer;
+      padding: 2px;
+    }
+    .search-clear.show { display: block; }
+
+    /* 筛选条 */
+    .filter-bar {
+      display: flex;
+      padding: 6px 12px 8px;
+      gap: 6px;
+      flex-shrink: 0;
+      border-bottom: 1px solid #f0f0f0;
+      overflow-x: auto;
+    }
+    .filter-bar::-webkit-scrollbar { display: none; }
+    .filter-chip {
+      padding: 4px 12px;
+      border-radius: 14px;
+      font-size: 12px;
+      border: 1px solid #e0e0e0;
+      background: #fff;
+      color: #666;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+    .filter-chip:hover { border-color: #4CAF50; color: #4CAF50; }
+    .filter-chip.active {
+      background: #4CAF50;
+      color: #fff;
+      border-color: #4CAF50;
+    }
+
+    /* 日期筛选 */
+    .date-filter {
+      display: flex;
+      align-items: center;
+      padding: 6px 12px 10px;
+      gap: 6px;
+      flex-shrink: 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .date-label {
+      font-size: 12px;
+      color: #999;
+      flex-shrink: 0;
+    }
+    .date-input {
+      flex: 1;
+      min-width: 0;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      padding: 5px 8px;
+      font-size: 12px;
+      color: #333;
+      outline: none;
+      background: #fff;
+    }
+    .date-input:focus { border-color: #4CAF50; }
+    .date-sep {
+      font-size: 12px;
+      color: #ccc;
+      flex-shrink: 0;
+    }
+    .date-clear {
+      background: none;
+      border: none;
+      font-size: 12px;
+      color: #4CAF50;
+      cursor: pointer;
+      padding: 4px 6px;
+      flex-shrink: 0;
+      display: none;
+    }
+    .date-clear.show { display: block; }
+
+    /* 看板 */
+    .dashboard-view { display: none; flex-direction: column; height: 100%; }
+    .dashboard-view.active { display: flex; }
+    .dash-section {
+      padding: 14px 16px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .dash-section-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 10px;
+    }
+    .dash-scroll { flex: 1; overflow-y: auto; }
+    .dash-scroll::-webkit-scrollbar { width: 4px; }
+    .dash-scroll::-webkit-scrollbar-thumb { background: #ddd; border-radius: 2px; }
+
+    /* 状态分布条 */
+    .status-dist { display: flex; height: 24px; border-radius: 12px; overflow: hidden; margin-bottom: 8px; }
+    .status-dist-item { transition: width 0.4s ease; min-width: 2px; }
+    .dist-daipai { background: #ff9800; }
+    .dist-yipai { background: #2196f3; }
+    .dist-jinxing { background: #4caf50; }
+    .dist-wancheng { background: #bdbdbd; }
+    .dist-quxiao { background: #f44336; }
+    .status-legend { display: flex; flex-wrap: wrap; gap: 8px 14px; }
+    .legend-item { display: flex; align-items: center; gap: 4px; font-size: 12px; color: #666; }
+    .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .legend-val { font-weight: 600; color: #333; }
+
+    /* 柱状图 */
+    .bar-chart { display: flex; align-items: flex-end; gap: 6px; height: 100px; padding-top: 8px; }
+    .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .bar-fill { width: 100%; border-radius: 4px 4px 0 0; background: #4CAF50; transition: height 0.4s ease; min-height: 2px; }
+    .bar-label { font-size: 10px; color: #999; }
+    .bar-val { font-size: 11px; font-weight: 600; color: #333; }
+
+    /* 排名 */
+    .rank-item { display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid #f5f5f5; }
+    .rank-item:last-child { border-bottom: none; }
+    .rank-num { width: 22px; height: 22px; border-radius: 50%; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-right: 8px; }
+    .rank-1 { background: #ffd54f; color: #795548; }
+    .rank-2 { background: #b0bec5; color: #fff; }
+    .rank-3 { background: #a1887f; color: #fff; }
+    .rank-other { background: #e0e0e0; color: #999; }
+    .rank-name { flex: 1; font-size: 13px; font-weight: 500; color: #333; }
+    .rank-bar-wrap { width: 60px; height: 6px; background: #f0f0f0; border-radius: 3px; overflow: hidden; margin-right: 8px; }
+    .rank-bar { height: 100%; background: #4CAF50; border-radius: 3px; transition: width 0.4s ease; }
+    .rank-count { font-size: 13px; font-weight: 600; color: #4CAF50; min-width: 24px; text-align: right; }
+
+    /* 类型分布 */
+    .type-item { display: flex; align-items: center; margin-bottom: 8px; }
+    .type-label { font-size: 12px; color: #666; width: 60px; flex-shrink: 0; }
+    .type-bar-wrap { flex: 1; height: 8px; background: #f0f0f0; border-radius: 4px; overflow: hidden; margin: 0 8px; }
+    .type-bar { height: 100%; background: #2196f3; border-radius: 4px; transition: width 0.4s ease; }
+    .type-val { font-size: 12px; font-weight: 600; color: #333; min-width: 20px; text-align: right; }
+
+    /* 标签切换 */
+    .tab-bar {
+      display: flex;
+      border-bottom: 1px solid #e8eaed;
+      flex-shrink: 0;
+    }
+    .tab-item {
+      flex: 1;
+      padding: 12px 0;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 500;
+      color: #666;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+    .tab-item.active {
+      color: #4CAF50;
+      border-bottom-color: #4CAF50;
+    }
+    .tab-item:hover { color: #4CAF50; }
+    .tab-badge {
+      display: inline-block;
+      background: #ff5252;
+      color: #fff;
+      font-size: 11px;
+      padding: 1px 6px;
+      border-radius: 10px;
+      margin-left: 4px;
+      vertical-align: top;
+    }
+
+    /* 统计栏 */
+    .stats-bar {
+      display: flex;
+      padding: 12px 16px;
+      gap: 8px;
+      flex-shrink: 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .stat-card {
+      flex: 1;
+      text-align: center;
+      padding: 8px 4px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .stat-card:hover {
+      background: #e8f5e9;
+      transform: scale(1.03);
+    }
+    .stat-card.click-active {
+      background: #c8e6c9;
+    }
+    .stat-num {
+      font-size: 20px;
+      font-weight: 700;
+      color: #333;
+    }
+    .stat-label {
+      font-size: 11px;
+      color: #999;
+      margin-top: 2px;
+    }
+    /* 营收项可点击 */
+    .revenue-item {
+      flex: 1;
+      text-align: center;
+      padding: 6px 4px;
+      background: #fff;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .revenue-item:hover {
+      background: #f5f5f5;
+      transform: scale(1.02);
+    }
+    .revenue-item.click-active {
+      background: #e0e0e0;
+    }
+
+    /* 列表 */
+    .list-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+    }
+    .list-area::-webkit-scrollbar { width: 4px; }
+    .list-area::-webkit-scrollbar-thumb { background: #ddd; border-radius: 2px; }
+
+    /* 工单卡片 */
+    .order-card {
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .order-card:hover {
+      border-color: #4CAF50;
+      box-shadow: 0 2px 8px rgba(76,175,80,0.12);
+    }
+    .order-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .order-id {
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+    }
+    .order-status {
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 500;
+    }
+    .status-daipai { background: #fff3e0; color: #e65100; }
+    .status-yipai { background: #e3f2fd; color: #1565c0; }
+    .status-jinxing { background: #e8f5e9; color: #2e7d32; }
+    .status-wancheng { background: #f5f5f5; color: #999; }
+    .status-quxiao { background: #ffebee; color: #c62828; }
+    .order-info {
+      display: flex;
+      gap: 16px;
+      font-size: 13px;
+      color: #666;
+    }
+    .order-info span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* 人员卡片 */
+    .worker-card {
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 8px;
+      transition: all 0.15s;
+    }
+    .worker-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .worker-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #333;
+    }
+    .worker-status {
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 500;
+    }
+    .ws-kongxian { background: #e8f5e9; color: #2e7d32; }
+    .ws-zaitu { background: #fff3e0; color: #e65100; }
+    .ws-xiuxi { background: #f5f5f5; color: #999; }
+    .worker-detail {
+      display: flex;
+      gap: 12px;
+      font-size: 13px;
+      color: #888;
+      flex-wrap: wrap;
+    }
+    .worker-detail span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .skill-tag {
+      display: inline-block;
+      background: #f0f7f0;
+      color: #4CAF50;
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-right: 4px;
+    }
+
+    /* ===== 右侧对话区 ===== */
+    .chat-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: linear-gradient(135deg, #1a2e1a 0%, #1e3e16 50%, #0f6029 100%);
+      position: relative;
+    }
+
+    .chat-top-bar {
+      height: 52px;
+      background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      flex-shrink: 0;
+    }
+    .chat-top-bar .logo-small {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .chat-top-bar .logo-sub {
+      font-size: 12px;
+      color: rgba(255,255,255,0.5);
+      margin-left: 8px;
+    }
+
+    /* 移动端面板切换按钮 */
+    .mobile-panel-toggle {
+      display: none;
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      z-index: 1100;
+      background: #4CAF50;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      font-size: 20px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    /* 空状态 */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #bbb;
+    }
+    .empty-state .empty-icon {
+      font-size: 40px;
+      margin-bottom: 12px;
+    }
+    .empty-state .empty-text {
+      font-size: 14px;
+    }
+
+    /* 详情页 */
+    .detail-view {
+      display: none;
+      flex-direction: column;
+      height: 100%;
+    }
+    .detail-view.active {
+      display: flex;
+    }
+    .detail-header {
+      display: flex;
+      align-items: center;
+      padding: 14px 16px;
+      border-bottom: 1px solid #f0f0f0;
+      flex-shrink: 0;
+    }
+    .detail-back {
+      background: none;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+      padding: 4px 8px 4px 0;
+      color: #4CAF50;
+      font-weight: 600;
+    }
+    .detail-back:hover { opacity: 0.7; }
+    .detail-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #333;
+    }
+    .detail-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+    }
+    .detail-body::-webkit-scrollbar { width: 4px; }
+    .detail-body::-webkit-scrollbar-thumb { background: #ddd; border-radius: 2px; }
+    .detail-status-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .detail-id {
+      font-size: 13px;
+      color: #999;
+    }
+    .detail-section {
+      margin-bottom: 16px;
+    }
+    .detail-section-title {
+      font-size: 12px;
+      color: #999;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #f5f5f5;
+    }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-label {
+      font-size: 13px;
+      color: #888;
+    }
+    .detail-value {
+      font-size: 14px;
+      color: #333;
+      font-weight: 500;
+      text-align: right;
+      max-width: 60%;
+    }
+    .detail-desc {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 13px;
+      color: #555;
+      line-height: 1.6;
+    }
+    .detail-actions {
+      padding: 16px;
+      border-top: 1px solid #f0f0f0;
+      flex-shrink: 0;
+    }
+    .detail-btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 8px;
+      transition: all 0.15s;
+    }
+    .detail-btn:last-child { margin-bottom: 0; }
+    .btn-primary {
+      background: #4CAF50;
+      color: #fff;
+    }
+    .btn-primary:hover { background: #43a047; }
+    .btn-secondary {
+      background: #f5f5f5;
+      color: #666;
+    }
+    .btn-secondary:hover { background: #eee; }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-80px);
+      background: #333;
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-size: 14px;
+      z-index: 9999;
+      opacity: 0;
+      transition: all 0.3s ease;
+      pointer-events: none;
+      white-space: nowrap;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* 弹窗遮罩 */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal-box {
+      background: #fff;
+      border-radius: 14px;
+      width: 90%;
+      max-width: 320px;
+      overflow: hidden;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+    }
+    .modal-header {
+      padding: 16px 20px 8px;
+      font-size: 16px;
+      font-weight: 700;
+      color: #333;
+    }
+    .modal-body {
+      padding: 8px 20px 16px;
+      font-size: 13px;
+      color: #666;
+      line-height: 1.6;
+    }
+    .modal-body .recommend-card {
+      background: #f0f7f0;
+      border-radius: 10px;
+      padding: 12px;
+      margin-top: 8px;
+    }
+    .modal-body .recommend-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #2e7d32;
+    }
+    .modal-body .recommend-reason {
+      font-size: 12px;
+      color: #666;
+      margin-top: 4px;
+    }
+    .modal-body .worker-option {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border: 1px solid #eee;
+      border-radius: 10px;
+      margin-top: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .modal-body .worker-option:hover {
+      border-color: #4CAF50;
+      background: #f8fdf8;
+    }
+    .modal-body .wo-left { display: flex; align-items: center; gap: 8px; }
+    .modal-body .wo-name { font-size: 14px; font-weight: 600; color: #333; }
+    .modal-body .wo-info { font-size: 12px; color: #999; }
+    .modal-body .wo-status { font-size: 12px; padding: 2px 8px; border-radius: 10px; }
+    .modal-footer {
+      display: flex;
+      border-top: 1px solid #f0f0f0;
+    }
+    .modal-btn {
+      flex: 1;
+      padding: 14px;
+      border: none;
+      background: none;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .modal-btn:first-child { border-right: 1px solid #f0f0f0; color: #888; }
+    .modal-btn:last-child { color: #4CAF50; }
+    .modal-btn:hover { background: #f5f5f5; }
+
+    /* 隐藏推荐问题按钮 */
+    [class*="suggestion"], [class*="recommended"], [class*="quick-reply"],
+    [class*="question-item"], [class*="prompt-item"] { display: none !important; }
+
+    /* ===== 响应式 ===== */
+    @media (max-width: 768px) {
+      .side-panel {
+        position: fixed;
+        top: 0;
+        left: -320px;
+        z-index: 1050;
+        height: 100vh;
+        transition: left 0.3s ease;
+        box-shadow: none;
+      }
+      .side-panel.open {
+        left: 0;
+        box-shadow: 4px 0 20px rgba(0,0,0,0.2);
+      }
+      .mobile-panel-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .chat-area { width: 100%; }
+      .overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.4);
+        z-index: 1040;
+      }
+      .overlay.show { display: block; }
+    }
+
+    /* 导出按钮 */
+    .export-btn {
+      position: absolute;
+      top: 14px;
+      right: 16px;
+      background: rgba(255,255,255,0.2);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .export-btn:hover { background: rgba(255,255,255,0.3); }
+
+    /* 导出类型选项 */
+    .export-option {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px;
+      border: 1px solid #eee;
+      border-radius: 10px;
+      margin-top: 10px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .export-option:hover { border-color: #4CAF50; background: #f8fdf8; }
+    .export-option:first-child { margin-top: 0; }
+    .export-opt-left { display: flex; align-items: center; gap: 10px; }
+    .export-opt-icon { font-size: 24px; }
+    .export-opt-title { font-size: 14px; font-weight: 600; color: #333; }
+    .export-opt-desc { font-size: 12px; color: #999; }
+
+    /* 客户卡片 */
+    .customer-card {
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .customer-card:hover {
+      border-color: #4CAF50;
+      box-shadow: 0 2px 8px rgba(76,175,80,0.12);
+    }
+    .customer-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .customer-name { font-size: 15px; font-weight: 600; color: #333; }
+    .customer-reorder { font-size: 12px; padding: 2px 8px; border-radius: 10px; }
+    .reorder-hot { background: #ffebee; color: #c62828; }
+    .customer-info { font-size: 13px; color: #888; display: flex; flex-wrap: wrap; gap: 8px; }
+    .customer-info span { display: flex; align-items: center; gap: 4px; }
+    .customer-total { font-size: 16px; font-weight: 700; color: #e65100; }
+
+    /* 异常卡片高亮 */
+    .order-card.overdue {
+      border-left: 3px solid #f44336;
+      padding-left: 13px;
+    }
+    .overdue-tag {
+      display: inline-block;
+      background: #ffebee;
+      color: #c62828;
+      font-size: 11px;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
+    /* 统计栏异常 */
+    .stat-card.alert .stat-num { color: #f44336; }
+    .stat-card.alert .stat-label { color: #f44336; }
+
+    /* 运营效率指标卡片 */
+    .efficiency-cards { display: flex; gap: 8px; margin-bottom: 10px; }
+    .eff-card {
+      flex: 1;
+      background: #fff;
+      border-radius: 10px;
+      padding: 12px 8px;
+      text-align: center;
+      border: 1px solid #f0f0f0;
+    }
+    .eff-icon { font-size: 20px; margin-bottom: 4px; }
+    .eff-num { font-size: 18px; font-weight: 700; color: #333; }
+    .eff-unit { font-size: 12px; color: #999; }
+    .eff-label { font-size: 11px; color: #666; margin-top: 4px; }
+
+    /* 异常告警列表 */
+    .alert-item {
+      display: flex;
+      align-items: center;
+      padding: 10px 12px;
+      background: #fff;
+      border: 1px solid #ffebee;
+      border-radius: 8px;
+      margin-bottom: 6px;
+    }
+    .alert-icon { font-size: 18px; margin-right: 10px; flex-shrink: 0; }
+    .alert-info { flex: 1; min-width: 0; }
+    .alert-id { font-size: 13px; font-weight: 600; color: #333; }
+    .alert-reason { font-size: 11px; color: #c62828; margin-top: 2px; }
+
+    /* AI洞察卡片 */
+    .insight-card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 8px;
+      border-left: 4px solid #e0e0e0;
+    }
+    .insight-card.critical { border-left-color: #f44336; background: #fff8f8; }
+    .insight-card.warning { border-left-color: #ffc107; background: #fffef0; }
+    .insight-card.good { border-left-color: #4CAF50; background: #f0fff0; }
+    .insight-title { font-size: 13px; font-weight: 600; color: #333; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+    .insight-desc { font-size: 12px; color: #666; line-height: 1.5; }
+    .insight-action { font-size: 12px; color: #4CAF50; margin-top: 6px; font-weight: 500; }
+
+    /* 客户列表视图 */
+    #customerList { display: none; }
+    #customerList.show { display: block; }
+
+    /* 看板内子标题 */
+    .dash-section-title-clickable {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .dash-section-title-clickable:hover { color: #4CAF50; }
+    .dash-hint { font-size: 11px; color: #999; font-weight: 400; }
+
+    /* 利润显示 */
+    .profit-positive { color: #2e7d32; }
+    .profit-negative { color: #c62828; }
+
+    /* 重复报修标签 */
+    .order-card.repeat-repair {
+      border-left: 3px solid #ff9800;
+      padding-left: 13px;
+    }
+    .repeat-tag {
+      display: inline-block;
+      background: #fff3e0;
+      color: #e65100;
+      font-size: 11px;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+    
+    /* 重复报修AI分析样式 */
+    .repeat-analysis {
+      background: #fff8f0;
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 10px;
+      border: 1px solid #ffe0b2;
+    }
+    .repeat-analysis-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #e65100;
+      margin-bottom: 6px;
+    }
+    .repeat-analysis-text {
+      font-size: 13px;
+      color: #333;
+      line-height: 1.5;
+    }
+    .repeat-history {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px dashed #ffe0b2;
+    }
+    .repeat-history-title {
+      font-size: 11px;
+      color: #888;
+      margin-bottom: 4px;
+    }
+    .repeat-history-list {
+      font-size: 12px;
+      color: #666;
+    }
+
+    /* 打印样式 */
+    @media print {
+      .chat-area { display: none !important; }
+      .side-panel { width: 100% !important; border: none !important; }
+      .panel-header { background: #4CAF50 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/jsrsasign@11.1.0/lib/jsrsasign-all-min.js"></script>
+  <script src="https://lf-cdn.coze.cn/obj/unpkg/flow-platform/chat-app-sdk/1.2.0-beta.20/libs/cn/index.js"></script>
+</head>
+<body>
+
+  <button class="mobile-panel-toggle" id="panelToggle">📋</button>
+  <div class="overlay" id="overlay"></div>
+  <div class="toast" id="toast"></div>
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal-box">
+      <div class="modal-header" id="modalHeader"></div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-footer" id="modalFooter"></div>
+    </div>
+  </div>
+
+  <div class="main-container">
+    <!-- 左侧数据面板 -->
+    <div class="side-panel" id="sidePanel">
+      <div class="panel-header" style="position:relative;">
+        <h1>📋 小米派单系统</h1>
+        <div class="subtitle">数据面板 · 实时概览</div>
+        <button class="export-btn" id="exportBtn" onclick="showExportModal()">📤 导出</button>
+      </div>
+
+      <div class="tab-bar">
+        <div class="tab-item active" data-tab="orders" id="tabOrders">工单<span class="tab-badge" id="orderBadge">2</span></div>
+        <div class="tab-item" data-tab="customers" id="tabCustomers">👥 客户</div>
+        <div class="tab-item" data-tab="workers" id="tabWorkers">人员</div>
+        <div class="tab-item" data-tab="dashboard" id="tabDashboard">📊 看板</div>
+      </div>
+
+      <div class="stats-bar" id="statsBar">
+        <div class="stat-card" onclick="filterByStat('daipai')"><div class="stat-num" id="statDaipai">2</div><div class="stat-label">待派</div></div>
+        <div class="stat-card" onclick="filterByStat('yipai')"><div class="stat-num" id="statYipai">1</div><div class="stat-label">已派</div></div>
+        <div class="stat-card" onclick="filterByStat('jinxing')"><div class="stat-num" id="statJinxing">1</div><div class="stat-label">进行中</div></div>
+        <div class="stat-card" onclick="filterByStat('wancheng')"><div class="stat-num" id="statWancheng">1</div><div class="stat-label">已完成</div></div>
+        <div class="stat-card" id="statAlertCard" style="display:none;" onclick="filterByOverdue()"><div class="stat-num" id="statAlert" style="color:#f44336;">0</div><div class="stat-label">⚠️异常</div></div>
+      </div>
+      <!-- 今日营收 -->
+      <div class="revenue-bar" id="revenueBar">
+        <div class="revenue-title">💰 今日营收</div>
+        <div class="revenue-row">
+          <div class="revenue-item" onclick="filterByRevenue('yingshou')"><span class="revenue-num" id="revYingshou">¥0</span><span class="revenue-label">应收</span></div>
+          <div class="revenue-item" onclick="filterByRevenue('yijie')"><span class="revenue-num revenue-green" id="revYijie">¥0</span><span class="revenue-label">已结</span></div>
+          <div class="revenue-item" onclick="filterByRevenue('daishou')"><span class="revenue-num revenue-orange" id="revDaishou">¥0</span><span class="revenue-label">待收</span></div>
+        </div>
+
+      </div>
+
+      <!-- 搜索栏 -->
+      <div class="search-bar" id="searchBar">
+        <div class="search-input-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" class="search-input" id="searchInput" placeholder="搜索工单号、客户、师傅…">
+          <button class="search-clear" id="searchClear">✕</button>
+        </div>
+      </div>
+
+      <!-- 筛选条 -->
+      <div class="filter-bar" id="filterBar">
+        <div class="filter-chip active" data-filter="all">全部</div>
+        <div class="filter-chip" data-filter="daipai">待派</div>
+        <div class="filter-chip" data-filter="yipai">已派</div>
+        <div class="filter-chip" data-filter="jinxing">进行中</div>
+        <div class="filter-chip" data-filter="wancheng">已完成</div>
+        <div class="filter-chip" data-filter="quxiao">已取消</div>
+      </div>
+
+      <!-- 日期筛选 -->
+      <div class="date-filter" id="dateFilter">
+        <span class="date-label">📅</span>
+        <input type="date" class="date-input" id="dateStart">
+        <span class="date-sep">~</span>
+        <input type="date" class="date-input" id="dateEnd">
+        <button class="date-clear" id="dateClear">清除</button>
+      </div>
+
+      <!-- 工单列表 -->
+      <div class="list-area" id="orderList">
+        <!-- 动态渲染 -->
+      </div>
+
+      <!-- 工单详情 -->
+      <div class="detail-view" id="detailView">
+        <div class="detail-header">
+          <button class="detail-back" id="detailBack">← 返回</button>
+          <span class="detail-title" id="detailTitle">工单详情</span>
+        </div>
+        <div class="detail-body" id="detailBody">
+          <!-- 动态填充 -->
+        </div>
+        <div class="detail-actions" id="detailActions">
+          <!-- 动态填充 -->
+        </div>
+      </div>
+
+      <!-- 人员列表 -->
+      <div class="list-area" id="workerList">
+        <!-- 动态渲染 -->
+      </div>
+
+      <!-- 客户列表 -->
+      <div class="list-area" id="customerList">
+        <!-- 动态渲染 -->
+      </div>
+
+      <!-- 看板 -->
+      <div class="dashboard-view" id="dashboardView">
+        <div class="dash-scroll">
+          <div class="dash-section">
+            <div class="dash-section-title">💡 AI运营洞察</div>
+            <div id="insightsContainer"></div>
+          </div>
+          <div class="dash-section">
+            <div class="dash-section-title">💰 营收概览</div>
+            <div id="revenueOverview"></div>
+          </div>
+          <div class="dash-section">
+            <div class="dash-section-title">📈 工单状态分布</div>
+            <div class="status-dist" id="statusDist"></div>
+            <div class="status-legend" id="statusLegend"></div>
+          </div>
+          <div class="dash-section">
+            <div class="dash-section-title">⚡ 运营效率</div>
+            <div class="efficiency-cards">
+              <div class="eff-card">
+                <div class="eff-icon">⏱️</div>
+                <div class="eff-num" id="avgDispatchTime">-</div>
+                <div class="eff-label">平均派单速度</div>
+              </div>
+              <div class="eff-card">
+                <div class="eff-icon">✅</div>
+                <div class="eff-num" id="avgFinishTime">-</div>
+                <div class="eff-label">平均完成时长</div>
+              </div>
+              <div class="eff-card">
+                <div class="eff-icon">🎯</div>
+                <div class="eff-num" id="firstPassRate">-</div>
+                <div class="eff-label">一次完成率</div>
+              </div>
+            </div>
+          </div>
+          <div class="dash-section">
+            <div class="dash-section-title">📊 近7日工单趋势</div>
+            <div class="bar-chart" id="barChart"></div>
+          </div>
+          <div class="dash-section">
+            <div class="dash-section-title">🏆 师傅工单排名</div>
+            <div id="workerRank"></div>
+          </div>
+          <div class="dash-section">
+            <div class="dash-section-title">🔧 服务类型分布</div>
+            <div id="typeDist"></div>
+          </div>
+          <div class="dash-section">
+            <div class="dash-section-title">🚨 异常告警</div>
+            <div id="alertList"></div>
+          </div>
+          <div class="dash-section">
+            <div class="dash-section-title">📋 收费标准</div>
+            <div id="priceTable"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右侧对话区 -->
+    <div class="chat-area" id="chatArea">
+      <div class="chat-top-bar">
+        <span class="logo-small">派单助手</span>
+        <span class="logo-sub">调度端 · 创建 · 派单 · 追踪</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== API配置 =====
+    var API_BASE = 'https://1445653450-gwao2cewhn.ap-guangzhou.tencentscf.com';
+
+    // ===== 收费标准（预制） =====
+    var priceTable = {
+      '空调维修': 150,
+      '空调安装': 200,
+      '空调清洗': 80,
+      '水电维修': 100,
+      '管道疏通': 120,
+      '综合维修': 100,
+      '漏水处理': 150,
+      '电路检修': 100
+    };
+
+    // ===== 工单详情数据（从API加载或降级使用硬编码） =====
+    var orderDetails = {};
+    var workers = [];
+
+    // ===== 状态映射 =====
+    var statusMap = {
+      '待派': 'daipai',
+      '已派': 'yipai',
+      '进行中': 'jinxing',
+      '已完成': 'wancheng',
+      '已取消': 'quxiao'
+    };
+    var statusTextMap = {
+      'daipai': '待派',
+      'yipai': '已派',
+      'jinxing': '进行中',
+      'wancheng': '已完成',
+      'quxiao': '已取消'
+    };
+
+    // ===== API数据加载 =====
+    async function loadDataFromAPI() {
+      try {
+        // 并行加载工单和人员数据
+        var [ordersResp, personnelResp] = await Promise.all([
+          fetch(API_BASE + '/api/orders'),
+          fetch(API_BASE + '/api/personnel')
+        ]);
+        
+        var ordersData = await ordersResp.json();
+        var personnelData = await personnelResp.json();
+        
+        // 处理工单数据
+        if (ordersData && ordersData.ok && Array.isArray(ordersData.data)) {
+          orderDetails = {};
+          ordersData.data.forEach(function(item) {
+            var statusKey = statusMap[item.状态] || 'daipai';
+            var orderId = item.工单编号 || item.recordId;
+            orderDetails[orderId] = {
+              id: orderId,
+              recordId: item.recordId,
+              status: statusKey,
+              statusText: statusTextMap[statusKey] || item.状态,
+              customer: item.客户名称 || '',
+              customerPhone: item.客户电话 || '',
+              service: item.服务类型 || '',
+              priority: item.优先级 || '普通',
+              address: item.服务地址 || '',
+              worker: item.派给谁 || '',
+              workerPhone: '',
+              createTime: formatTime(item.创建时间),
+              assignTime: formatTime(item.出发时间),
+              finishTime: formatTime(item.完成时间),
+              warranty: 'out',
+              warrantyText: '维保外',
+              serviceAmount: parseFloat(item.费用) || 0,
+              actualAmount: 0,
+              paidAmount: 0,
+              cost: 0,
+              desc: (item.问题描述 || '') + (item.备注 ? '\n备注：' + item.备注 : '')
+            };
+          });
+        }
+        
+        // 处理人员数据
+        if (personnelData && personnelData.ok && Array.isArray(personnelData.data)) {
+          workers = [];
+          personnelData.data.forEach(function(item) {
+            var workerStatus = item.状态 === '空闲' ? '空闲' : (item.状态 === '在途' ? '在途' : '休息');
+            var statusCls = workerStatus === '空闲' ? 'ws-kongxian' : (workerStatus === '在途' ? 'ws-zaitu' : 'ws-xiuxi');
+            workers.push({
+              name: item.姓名 || '',
+              phone: item.电话 || '',
+              status: workerStatus,
+              cls: statusCls,
+              area: item.当前位置 || '',
+              skill: (item.技能标签 || '').replace(/\//g, '+'),
+              todayOrders: item.今日工单数 || 0,
+              totalOrders: item.累计工单数 || 0,
+              recordId: item.recordId
+            });
+          });
+        }
+        
+        console.log('API数据加载成功', { orders: Object.keys(orderDetails).length, workers: workers.length });
+      } catch (err) {
+        console.warn('API加载失败，使用降级数据:', err);
+        loadFallbackData();
+      }
+      
+      // 渲染UI
+      renderOrderList();
+      renderWorkerList();
+      renderOrderCards();
+      updateStats();
+      initOrderCardEvents();
+    }
+
+    // ===== 降级硬编码数据 =====
+    function loadFallbackData() {
+      orderDetails = {
+        '#20260616001': {
+          id: '#20260616001', status: 'daipai', statusText: '待派',
+          customer: '赵总', customerPhone: '138****1001',
+          service: '空调维修', priority: '普通',
+          address: '锦绣路88号 3栋502',
+          worker: '', workerPhone: '',
+          createTime: '2026-06-16 09:30',
+          assignTime: '', finishTime: '',
+          warranty: 'out', warrantyText: '维保外',
+          serviceAmount: 150, actualAmount: 0, paidAmount: 0,
+          cost: 80,
+          desc: '客厅空调又不制冷了，上次修过一次好了几天又出问题。'
+        },
+        '#20260616002': {
+          id: '#20260616002', status: 'yipai', statusText: '已派',
+          customer: '李总', customerPhone: '138****1002',
+          service: '空调维修', priority: '紧急',
+          address: '河西大街12号 A座1601',
+          worker: '陈师傅', workerPhone: '138****1002',
+          createTime: '2026-06-16 10:15', assignTime: '2026-06-16 10:22',
+          finishTime: '',
+          warranty: 'in', warrantyText: '维保内',
+          serviceAmount: 0, actualAmount: 0, paidAmount: 0,
+          cost: 60,
+          desc: '办公室中央空调漏水，影响办公，需要尽快处理。'
+        },
+        '#20260618001': {
+          id: '#20260618001', status: 'jinxing', statusText: '进行中',
+          customer: '王总', customerPhone: '138****1003',
+          service: '水电维修', priority: '普通',
+          address: '城东花园小区 7栋301',
+          worker: '周师傅', workerPhone: '138****1001',
+          createTime: '2026-06-18 14:00', assignTime: '2026-06-18 14:05',
+          finishTime: '',
+          warranty: 'out', warrantyText: '维保外',
+          serviceAmount: 100, actualAmount: 0, paidAmount: 0,
+          cost: 50,
+          desc: '厨房水龙头漏水，卫生间灯不亮。'
+        },
+        '#20260619001': {
+          id: '#20260619001', status: 'wancheng', statusText: '已完成',
+          customer: '孙总', customerPhone: '138****1004',
+          service: '管道疏通', priority: '普通',
+          address: '阳光城小区 2栋1803',
+          worker: '张师傅', workerPhone: '138****1003',
+          createTime: '2026-06-19 08:30', assignTime: '2026-06-19 08:35',
+          finishTime: '2026-06-19 11:20',
+          warranty: 'out', warrantyText: '维保外',
+          serviceAmount: 120, actualAmount: 120, paidAmount: 0,
+          cost: 55,
+          desc: '卫生间下水道堵塞，已疏通完毕，客户确认满意。'
+        },
+        '#20260620001': {
+          id: '#20260620001', status: 'daipai', statusText: '待派',
+          customer: '钱总', customerPhone: '138****1005',
+          service: '空调维修', priority: '紧急',
+          address: '锦绣路166号 B栋2201',
+          worker: '', workerPhone: '',
+          createTime: '2026-06-20 16:45', assignTime: '', finishTime: '',
+          warranty: 'out', warrantyText: '维保外',
+          serviceAmount: 150, actualAmount: 0, paidAmount: 0,
+          cost: 80,
+          desc: '卧室空调完全不启动，遥控器有电但无反应。'
+        },
+        '#20260625001': {
+          id: '#20260625001', status: 'wancheng', statusText: '已完成',
+          customer: '赵总', customerPhone: '138****1001',
+          service: '空调维修', priority: '普通',
+          address: '锦绣路88号 3栋502',
+          worker: '周师傅', workerPhone: '138****1001',
+          createTime: '2026-06-25 08:00', assignTime: '2026-06-25 08:05',
+          finishTime: '2026-06-25 10:30',
+          warranty: 'out', warrantyText: '维保外',
+          serviceAmount: 150, actualAmount: 150, paidAmount: 150,
+          cost: 80,
+          desc: '客厅空调又不制冷了，上次修过一次好了几天又出问题。'
+        }
+      };
+      
+      workers = [
+        { name: '周师傅', area: '锦绣路片区', skill: '空调', status: '空闲', cls: 'ws-kongxian', phone: '138****1001' },
+        { name: '陈师傅', area: '河西片区', skill: '空调+综合', status: '在途', cls: 'ws-zaitu', phone: '138****1002' },
+        { name: '张师傅', area: '城东片区', skill: '空调+综合', status: '空闲', cls: 'ws-kongxian', phone: '138****1003' },
+        { name: '李师傅', area: '城北片区', skill: '水电+管道', status: '空闲', cls: 'ws-kongxian', phone: '138****1004' }
+      ];
+    }
+
+    // ===== 时间格式化 =====
+    function formatTime(timestamp) {
+      if (!timestamp) return '';
+      var d = new Date(timestamp);
+      if (isNaN(d.getTime())) return '';
+      return d.toLocaleString('zh-CN', {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).replace(/\//g, '-');
+    }
+
+    // ===== 渲染工单列表（基于数据） =====
+    function renderOrderList() {
+      // 动态渲染工单列表
+    }
+
+    // ===== 渲染人员卡片 =====
+    function renderWorkerList() {
+      var workerListEl = document.getElementById('workerList');
+      if (!workerListEl) return;
+      
+      var html = '';
+      workers.forEach(function(w) {
+        html += '<div class="worker-card">';
+        html += '  <div class="worker-top">';
+        html += '    <span class="worker-name">👷 ' + w.name + '</span>';
+        html += '    <span class="worker-status ' + w.cls + '">' + w.status + '</span>';
+        html += '  </div>';
+        html += '  <div class="worker-detail">';
+        html += '    <span>📍 ' + w.area + '</span>';
+        html += '    <span>📞 ' + w.phone + '</span>';
+        html += '    <span>📋 今日' + w.todayOrders + '单 / 累计' + w.totalOrders + '单</span>';
+        html += '  </div>';
+        html += '  <div style="margin-top:6px;">';
+        var skills = w.skill ? w.skill.split('+') : [];
+        skills.forEach(function(s) {
+          html += '<span class="skill-tag">' + s + '</span>';
+        });
+        html += '  </div>';
+        html += '</div>';
+      });
+      workerListEl.innerHTML = html;
+    }
+
+    // ===== 渲染工单卡片列表 =====
+    function renderOrderCards() {
+      var orderListEl = document.getElementById('orderList');
+      if (!orderListEl) return;
+      
+      var html = '';
+      var keys = Object.keys(orderDetails);
+      
+      // 按创建时间倒序排列
+      keys.sort(function(a, b) {
+        var da = orderDetails[a].createTime || '';
+        var db = orderDetails[b].createTime || '';
+        return db.localeCompare(da);
+      });
+      
+      keys.forEach(function(k) {
+        var d = orderDetails[k];
+        var warrantyCls = d.warranty === 'in' ? 'warranty-in' : 'warranty-out';
+        var warrantyText = d.warranty === 'in' ? '维保内' : '维保外';
+        var amountText = d.warranty === 'in' ? '免费' : '¥' + d.serviceAmount;
+        var workerText = d.worker ? '👷 ' + d.worker : '';
+        
+        html += '<div class="order-card" data-order="' + d.id + '" data-status="' + d.status + '" data-customer="' + d.customer + '" data-service="' + d.service + '" data-worker="' + (d.worker || '') + '">';
+        html += '  <div class="order-top">';
+        html += '    <span class="order-id">' + d.id + '</span>';
+        html += '    <span class="order-status ' + statusClassMap[d.status] + '">' + d.statusText + '</span>';
+        html += '  </div>';
+        html += '  <div class="order-info">';
+        html += '    <span>🔧 ' + d.service + ' <span class="warranty-tag ' + warrantyCls + '">' + warrantyText + '</span></span>';
+        html += '    <span>💰 ' + amountText + '</span>';
+        if (workerText) html += '    <span>' + workerText + '</span>';
+        html += '    <span>👤 ' + d.customer + '</span>';
+        html += '  </div>';
+        html += '</div>';
+      });
+      
+      orderListEl.innerHTML = html;
+    }
+
+    // ===== 初始化工单卡片点击事件 =====
+    function initOrderCardEvents() {
+      document.querySelectorAll('.order-card').forEach(function(card) {
+        card.addEventListener('click', function() {
+          var orderId = this.getAttribute('data-order');
+          showDetailView(orderId);
+          closePanel();
+        });
+      });
+    }
+
+    // ===== API回写函数 =====
+    async function apiUpdateOrder(recordId, data) {
+      try {
+        var resp = await fetch(API_BASE + '/api/orders/' + recordId, {
+          method: 'PUT',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(data)
+        });
+        if (!resp.ok) throw new Error('API error');
+        console.log('API更新成功', recordId, data);
+        return true;
+      } catch (err) {
+        console.warn('API更新失败', err);
+        showToast('⚠️ 网络异常，后台同步中');
+        return false;
+      }
+    }
+
+    var statusClassMap = {
+      daipai: 'status-daipai', yipai: 'status-yipai',
+      jinxing: 'status-jinxing', wancheng: 'status-wancheng', quxiao: 'status-quxiao'
+    };
+
+    // ===== 标签切换 =====
+    var tabs = document.querySelectorAll('.tab-item');
+    var orderList = document.getElementById('orderList');
+    var workerList = document.getElementById('workerList');
+    var customerList = document.getElementById('customerList');
+    var statsBar = document.getElementById('statsBar');
+    var revenueBar = document.getElementById('revenueBar');
+    var searchBar = document.getElementById('searchBar');
+    var filterBar = document.getElementById('filterBar');
+    var dateFilter = document.getElementById('dateFilter');
+    var detailView = document.getElementById('detailView');
+    var detailBack = document.getElementById('detailBack');
+    var detailTitle = document.getElementById('detailTitle');
+    var detailBody = document.getElementById('detailBody');
+    var detailActions = document.getElementById('detailActions');
+    var dashboardView = document.getElementById('dashboardView');
+
+    // 面板子视图：list / detail
+    var currentView = 'list';
+
+    function hideAllPanels() {
+      orderList.style.display = 'none';
+      workerList.style.display = 'none';
+      customerList.style.display = 'none';
+      customerList.classList.remove('show');
+      statsBar.style.display = 'none';
+      revenueBar.style.display = 'none';
+      searchBar.style.display = 'none';
+      filterBar.style.display = 'none';
+      dateFilter.style.display = 'none';
+      detailView.classList.remove('active');
+      dashboardView.classList.remove('active');
+    }
+
+    tabs.forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        tabs.forEach(function(t) { t.classList.remove('active'); });
+        this.classList.add('active');
+        var target = this.getAttribute('data-tab');
+        hideAllPanels();
+        if (target === 'orders') {
+          showListView();
+        } else if (target === 'customers') {
+          showCustomerView();
+        } else if (target === 'workers') {
+          currentView = 'list';
+          workerList.style.display = '';
+        } else if (target === 'dashboard') {
+          currentView = 'dashboard';
+          dashboardView.classList.add('active');
+          renderDashboard();
+        }
+      });
+    });
+
+    function showListView() {
+      currentView = 'list';
+      detailView.classList.remove('active');
+      dashboardView.classList.remove('active');
+      orderList.style.display = '';
+      workerList.style.display = 'none';
+      statsBar.style.display = '';
+      revenueBar.style.display = '';
+      searchBar.style.display = '';
+      filterBar.style.display = '';
+      dateFilter.style.display = '';
+    }
+
+    function showDetailView(orderId) {
+      var d = orderDetails[orderId];
+      if (!d) return;
+      currentView = 'detail';
+      orderList.style.display = 'none';
+      statsBar.style.display = 'none';
+      revenueBar.style.display = 'none';
+      searchBar.style.display = 'none';
+      filterBar.style.display = 'none';
+      dateFilter.style.display = 'none';
+      detailView.classList.add('active');
+      detailTitle.textContent = '工单详情';
+
+      var warrantyCls = d.warranty === 'in' ? 'warranty-in' : 'warranty-out';
+      var warrantyLabel = d.warranty === 'in' ? '✅ 维保内' : '⚠️ 维保外';
+      var amountDisplay = d.warranty === 'in' ? '<span class="amount-free">免费</span>' : '<span class="amount-highlight">¥' + d.serviceAmount + '</span>';
+
+      var html = '';
+      html += '<div class="detail-status-row">';
+      html += '  <span class="detail-id">' + d.id + '</span>';
+      html += '  <span class="order-status ' + statusClassMap[d.status] + '">' + d.statusText + '</span>';
+      html += '</div>';
+
+      html += '<div class="detail-section">';
+      html += '  <div class="detail-section-title">基本信息</div>';
+      html += '  <div class="detail-row"><span class="detail-label">服务类型</span><span class="detail-value">🔧 ' + d.service + '</span></div>';
+      html += '  <div class="detail-row"><span class="detail-label">维保类型</span><span class="detail-value"><span class="warranty-tag ' + warrantyCls + '">' + warrantyLabel + '</span></span></div>';
+      html += '  <div class="detail-row"><span class="detail-label">优先级</span><span class="detail-value">' + d.priority + '</span></div>';
+      html += '  <div class="detail-row"><span class="detail-label">创建时间</span><span class="detail-value">' + d.createTime + '</span></div>';
+      if (d.assignTime) html += '  <div class="detail-row"><span class="detail-label">派单时间</span><span class="detail-value">' + d.assignTime + '</span></div>';
+      if (d.finishTime) html += '  <div class="detail-row"><span class="detail-label">完成时间</span><span class="detail-value">' + d.finishTime + '</span></div>';
+      html += '</div>';
+
+      // 费用信息
+      html += '<div class="detail-section">';
+      html += '  <div class="detail-section-title">💰 费用信息</div>';
+      html += '  <div class="detail-row"><span class="detail-label">标准收费</span><span class="detail-value">' + amountDisplay + '</span></div>';
+      if (d.warranty === 'out') {
+        html += '  <div class="detail-row"><span class="detail-label">服务金额</span><span class="detail-value">' + (d.serviceAmount > 0 ? '¥' + d.serviceAmount : '按标准') + '</span></div>';
+        if (d.status === 'wancheng') {
+          html += '  <div class="detail-row"><span class="detail-label">实收金额</span><span class="detail-value amount-highlight">¥' + d.actualAmount + '</span></div>';
+          html += '  <div class="detail-row"><span class="detail-label">到账状态</span><span class="detail-value">' + (d.paidAmount >= d.actualAmount && d.actualAmount > 0 ? '<span class="amount-free">✅ 已到账</span>' : '<span class="amount-highlight">⏳ 待收款</span>') + '</span></div>';
+        } else {
+          html += '  <div class="detail-row"><span class="detail-label">实收金额</span><span class="detail-value" style="color:#999">完成时填写</span></div>';
+        }
+      } else {
+        html += '  <div class="detail-row"><span class="detail-label">实收金额</span><span class="detail-value amount-free">¥0（维保内免费）</span></div>';
+      }
+      html += '</div>';
+
+      html += '<div class="detail-section">';
+      html += '  <div class="detail-section-title">客户信息</div>';
+      html += '  <div class="detail-row"><span class="detail-label">客户</span><span class="detail-value">👤 ' + d.customer + '</span></div>';
+      html += '  <div class="detail-row"><span class="detail-label">电话</span><span class="detail-value">📞 ' + d.customerPhone + '</span></div>';
+      html += '  <div class="detail-row"><span class="detail-label">地址</span><span class="detail-value">📍 ' + d.address + '</span></div>';
+      html += '</div>';
+
+      if (d.worker) {
+        html += '<div class="detail-section">';
+        html += '  <div class="detail-section-title">师傅信息</div>';
+        html += '  <div class="detail-row"><span class="detail-label">师傅</span><span class="detail-value">👷 ' + d.worker + '</span></div>';
+        html += '  <div class="detail-row"><span class="detail-label">电话</span><span class="detail-value">📞 ' + d.workerPhone + '</span></div>';
+        html += '</div>';
+      }
+
+      // 重复报修信息
+      if (d.repeatFlag) {
+        html += '<div class="detail-section">';
+        html += '  <div class="detail-section-title">🔁 重复报修</div>';
+        html += '  <div class="repeat-analysis">';
+        html += '    <div class="repeat-analysis-title">AI分析结论</div>';
+        html += '    <div class="repeat-analysis-text">';
+        if (d.repeatAnalysis === '师傅技术') {
+          html += '⚠️ 不同师傅处理仍报修，建议排查首位师傅维修质量';
+        } else if (d.repeatAnalysis === '设备问题') {
+          html += '⚠️ 同一师傅多次维修仍报修，建议评估设备是否需要更换';
+        } else {
+          html += '⚠️ 重复报修，待派单后跟踪';
+        }
+        html += '    </div>';
+        if (d.relatedOrders && d.relatedOrders.length > 0) {
+          html += '    <div class="repeat-history">';
+          html += '      <div class="repeat-history-title">历史工单</div>';
+          html += '      <div class="repeat-history-list">' + d.relatedOrders.join(', ') + '</div>';
+          html += '    </div>';
+        }
+        html += '  </div>';
+        html += '</div>';
+      }
+
+      html += '<div class="detail-section">';
+      html += '  <div class="detail-section-title">问题描述</div>';
+      html += '  <div class="detail-desc">' + d.desc + '</div>';
+      html += '</div>';
+
+      detailBody.innerHTML = html;
+
+      // 操作按钮 - 根据当前状态精确渲染，防止重复操作
+      var actHtml = '';
+      if (d.status === 'daipai') {
+        // 只有待派状态可以派单
+        actHtml += '<button class="detail-btn btn-primary" onclick="doAIDispatch(\'' + d.id + '\')">🤖 AI智能派单</button>';
+        actHtml += '<button class="detail-btn btn-secondary" onclick="doManualDispatch(\'' + d.id + '\')">✋ 手动指定师傅</button>';
+      } else if (d.status === 'yipai') {
+        // 已派状态：可催单、可改派
+        if (d.worker) {
+          actHtml += '<button class="detail-btn btn-primary" onclick="doRemind(\'' + d.id + '\')">📞 催单提醒</button>';
+        }
+        actHtml += '<button class="detail-btn btn-secondary" onclick="doReassign(\'' + d.id + '\')">🔄 改派师傅</button>';
+        // 已派状态不能标记完成（师傅还没开始）
+        actHtml += '<div style="text-align:center;font-size:12px;color:#999;padding:8px 0;">⏳ 待师傅接单后开始服务</div>';
+      } else if (d.status === 'jinxing') {
+        // 进行中状态：可标记完成、可催单
+        actHtml += '<button class="detail-btn btn-primary" onclick="doFinish(\'' + d.id + '\')">✅ 标记完成</button>';
+        if (d.worker) {
+          actHtml += '<button class="detail-btn btn-secondary" onclick="doRemind(\'' + d.id + '\')">📞 催单提醒</button>';
+        }
+      } else if (d.status === 'wancheng') {
+        // 已完成状态：可确认到账(维保外+未到账)、可回访
+        if (d.warranty === 'out' && d.actualAmount > 0 && d.paidAmount < d.actualAmount) {
+          actHtml += '<button class="detail-btn btn-confirm-pay" onclick="doConfirmPay(\'' + d.id + '\')">💰 确认到账 ¥' + d.actualAmount + '</button>';
+        } else if (d.warranty === 'out' && d.actualAmount > 0 && d.paidAmount >= d.actualAmount) {
+          // 已到账，显示已确认状态
+          actHtml += '<div style="text-align:center;font-size:13px;color:#2e7d32;padding:12px 0;background:#e8f5e9;border-radius:10px;margin-bottom:8px;">✅ 已确认到账 ¥' + d.paidAmount + '</div>';
+        }
+        actHtml += '<button class="detail-btn btn-secondary" onclick="doCallback(\'' + d.id + '\')">💬 客户回访</button>';
+      } else if (d.status === 'quxiao') {
+        // 已取消状态：无操作
+        actHtml += '<div style="text-align:center;font-size:13px;color:#c62828;padding:12px 0;background:#ffebee;border-radius:10px;">❌ 已取消工单</div>';
+      }
+      detailActions.innerHTML = actHtml;
+    }
+
+    // 返回列表
+    detailBack.addEventListener('click', function() {
+      showListView();
+    });
+
+    // ===== 工单点击 → 详情页（由initOrderCardEvents统一处理） =====
+
+    // ===== 向Chat发送消息 =====
+    function sendToChat(msg) {
+      var chatInput = document.querySelector('textarea') || document.querySelector('[contenteditable="true"]');
+      if (chatInput) {
+        if (chatInput.tagName === 'TEXTAREA') {
+          var nativeSetter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value').set;
+          nativeSetter.call(chatInput, msg);
+          chatInput.dispatchEvent(new Event('input', { bubbles: true }));
+        } else {
+          chatInput.textContent = msg;
+          chatInput.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+        setTimeout(function() {
+          var btns = document.querySelectorAll('button');
+          for (var j = 0; j < btns.length; j++) {
+            var btn = btns[j];
+            var label = (btn.getAttribute('aria-label') || '').toLowerCase();
+            var cls = (btn.className || '').toLowerCase();
+            if ((label.includes('send') || label.includes('发送') || cls.includes('send') || cls.includes('submit')) && btn.offsetParent && !btn.disabled) {
+              btn.click(); break;
+            }
+          }
+        }, 200);
+      }
+    }
+
+    // ===== Toast =====
+    var toastEl = document.getElementById('toast');
+    var toastTimer;
+    function showToast(msg) {
+      clearTimeout(toastTimer);
+      toastEl.textContent = msg;
+      toastEl.classList.add('show');
+      toastTimer = setTimeout(function() { toastEl.classList.remove('show'); }, 2200);
+    }
+
+    // ===== Modal =====
+    var modalOverlay = document.getElementById('modalOverlay');
+    var modalHeader = document.getElementById('modalHeader');
+    var modalBody = document.getElementById('modalBody');
+    var modalFooter = document.getElementById('modalFooter');
+
+    function openModal(title, bodyHtml, footerHtml) {
+      modalHeader.textContent = title;
+      modalBody.innerHTML = bodyHtml;
+      modalFooter.innerHTML = footerHtml;
+      modalOverlay.classList.add('show');
+    }
+    function closeModal() {
+      modalOverlay.classList.remove('show');
+    }
+    modalOverlay.addEventListener('click', function(e) {
+      if (e.target === modalOverlay) closeModal();
+    });
+
+    // ===== 师傅数据（从API加载） =====
+
+    // ===== 操作函数 - 带状态校验 =====
+
+    // AI智能派单
+    function doAIDispatch(orderId) {
+      var d = orderDetails[orderId];
+      if (!d) return;
+      // 状态校验：只有待派状态可以派单
+      if (d.status !== 'daipai') {
+        showToast('⚠️ 该工单已派单，无法重复派发');
+        showDetailView(orderId);
+        return;
+      }
+      // 模拟AI推荐：根据服务类型选最合适的空闲师傅
+      var recommended = '陈师傅';
+      var reason = '';
+      if (d.service.indexOf('空调') >= 0) {
+        recommended = '周师傅';
+        reason = '周师傅专精空调维修，当前空闲，距客户最近（锦绣路片区），今日仅2单负荷轻，预计15分钟到达。';
+      } else if (d.service.indexOf('水电') >= 0) {
+        recommended = '李师傅';
+        reason = '李师傅专精水电维修，当前空闲，今日0单，可立即出发。';
+      } else {
+        recommended = '张师傅';
+        reason = '张师傅综合技能强，当前空闲，今日3单经验丰富。';
+      }
+
+      var bodyHtml = '<div style="font-size:13px;color:#888;margin-bottom:4px;">工单 ' + orderId + '</div>';
+      bodyHtml += '<div class="recommend-card">';
+      bodyHtml += '  <div class="recommend-name">👷 推荐师傅：' + recommended + '</div>';
+      bodyHtml += '  <div class="recommend-reason">' + reason + '</div>';
+      bodyHtml += '</div>';
+
+      var footerHtml = '<button class="modal-btn" onclick="closeModal()">取消</button>';
+      footerHtml += '<button class="modal-btn" onclick="confirmDispatch(\'' + orderId + '\',\'' + recommended + '\')">确认派单</button>';
+
+      openModal('🤖 AI智能派单', bodyHtml, footerHtml);
+    }
+
+    // 手动指定师傅
+    function doManualDispatch(orderId) {
+      var d = orderDetails[orderId];
+      if (!d) return;
+      // 状态校验：只有待派状态可以派单
+      if (d.status !== 'daipai') {
+        showToast('⚠️ 该工单已派单，无法重复派发');
+        showDetailView(orderId);
+        return;
+      }
+      var bodyHtml = '<div style="font-size:13px;color:#888;margin-bottom:8px;">选择要派给的师傅：</div>';
+      workers.forEach(function(w) {
+        bodyHtml += '<div class="worker-option" onclick="confirmDispatch(\'' + orderId + '\',\'' + w.name + '\')">';
+        bodyHtml += '  <div class="wo-left"><span class="wo-name">👷 ' + w.name + '</span><span class="wo-info">' + w.area + ' · ' + w.skill + '</span></div>';
+        bodyHtml += '  <span class="wo-status ' + w.cls + '">' + w.status + '</span>';
+        bodyHtml += '</div>';
+      });
+      openModal('✋ 手动指定师傅', bodyHtml, '<button class="modal-btn" onclick="closeModal()" style="width:100%">取消</button>');
+    }
+
+    // 确认派单
+    function confirmDispatch(orderId, workerName) {
+      var d = orderDetails[orderId];
+      if (!d) return;
+      // 双重校验：防止重复派单
+      if (d.status !== 'daipai') {
+        closeModal();
+        showToast('⚠️ 该工单已派单，无法重复派发');
+        showDetailView(orderId);
+        return;
+      }
+      closeModal();
+      // 更新状态
+      d.status = 'yipai';
+      d.statusText = '已派';
+      d.worker = workerName;
+      var now = new Date().toLocaleString('zh-CN', {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).replace(/\//g, '-');
+      d.assignTime = now;
+      // 查找并更新师傅电话
+      var w = workers.find(function(x) { return x.name === workerName; });
+      if (w) d.workerPhone = w.phone;
+      // 重新渲染工单列表
+      renderOrderCards();
+      initOrderCardEvents();
+      // 立即刷新详情页按钮区（根据新状态渲染）
+      showDetailView(orderId);
+      showToast('✅ 已派给 ' + workerName);
+      sendToChat('派单 ' + orderId + ' 给 ' + workerName);
+      updateStats();
+      
+      // API回写（静默执行，不阻塞UI）
+      if (d.recordId) {
+        apiUpdateOrder(d.recordId, {
+          '状态': '已派',
+          '派给谁': workerName,
+          '出发时间': Date.now()
+        });
+      }
+    }
+
+    // 催单提醒
+    function doRemind(orderId) {
+      var d = orderDetails[orderId];
+      if (!d) return;
+      // 状态校验：只有已派/进行中状态可以催单
+      if (d.status !== 'yipai' && d.status !== 'jinxing') {
+        if (d.status === 'daipai') {
+          showToast('⚠️ 该工单尚未派单，请先派单');
+        } else if (d.status === 'wancheng') {
+          showToast('⚠️ 该工单已完成，无需催单');
+        } else {
+          showToast('⚠️ 当前状态无法催单');
+        }
+        showDetailView(orderId);
+        return;
+      }
+      // 必须有师傅才能催单
+      if (!d.worker) {
+        showToast('⚠️ 该工单尚未分配师傅，无法催单');
+        showDetailView(orderId);
+        return;
+      }
+      showToast('📞 已通知 ' + d.worker + ' 尽快处理');
+      sendToChat('催单 ' + orderId);
+    }
+
+    // 改派师傅
+    function doReassign(orderId) {
+      var d = orderDetails[orderId];
+      if (!d) return;
+      // 状态校验：只有已派/进行中状态可以改派
+      if (d.status !== 'yipai' && d.status !== 'jinxing') {
+        showToast('⚠️ 当前状态无法改派');
+        showDetailView(orderId);
+        return;
+      }
+      doManualDispatch(orderId);
+    }
+
+    // 标记完成
+    function doFinish(orderId) {
+      var d = orderDetails[orderId];
+      if (!d) return;
+      // 状态校验：只有进行中状态可以标记完成（已派状态需先转为进行中）
+      if (d.status !== 'jinxing') {
+        if (d.status === 'daipai') {
+          showToast('⚠️ 该工单尚未派单，请先派单');
+        } else if (d.status === 'yipai') {
+          showToast('⚠️ 师傅尚未开始服务，请等待');
+        } else if (d.status === 'wancheng') {
+          showToast('⚠️ 该工单已完成，无法重复标记');
+        } else if (d.status === 'quxiao') {
+          showToast('⚠️ 该工单已取消，无法标记完成');
+        } else {
+          showToast('⚠️ 当前状态无法标记完成');
+        }
+        showDetailView(orderId);
+        return;
+      }
+
+      // 维保内直接完成，维保外需填实收金额
+      if (d.warranty === 'out') {
+        var defaultAmt = d.serviceAmount || priceTable[d.service] || 0;
+        var inputHtml = '<div style="font-size:13px;color:#888;margin-bottom:8px;">工单 ' + orderId + ' · ' + d.service + '</div>';
+        inputHtml += '<div style="font-size:13px;color:#666;margin-bottom:4px;">标准收费：<b>¥' + defaultAmt + '</b></div>';
+        inputHtml += '<div style="margin-top:8px;"><label style="font-size:13px;color:#666;">实收金额（元）</label>';
+        inputHtml += '<input type="number" id="finishActualAmt" value="' + defaultAmt + '" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:18px;font-weight:700;color:#e65100;margin-top:4px;" min="0" step="1"></div>';
+        inputHtml += '<div style="font-size:11px;color:#999;margin-top:6px;">* 不填实收金额无法完成工单</div>';
+        var footerHtml = '<button class="modal-btn" onclick="closeModal()">取消</button>';
+        footerHtml += '<button class="modal-btn" onclick="confirmFinish(\'' + orderId + '\')">确认完成</button>';
+        openModal('✅ 确认完成 - 填写实收金额', inputHtml, footerHtml);
+      } else {
+        // 维保内免费，直接完成
+        d.actualAmount = 0;
+        d.paidAmount = 0;
+        doFinishComplete(orderId);
+      }
+    }
+
+    function confirmFinish(orderId) {
+      var amtInput = document.getElementById('finishActualAmt');
+      var amt = amtInput ? parseInt(amtInput.value) : 0;
+      if (isNaN(amt) || amt < 0) {
+        showToast('⚠️ 请输入有效的实收金额');
+        return;
+      }
+      closeModal();
+      var d = orderDetails[orderId];
+      if (d) {
+        d.actualAmount = amt;
+        d.paidAmount = 0; // 刚完成还没到账
+      }
+      doFinishComplete(orderId);
+    }
+
+    function doFinishComplete(orderId) {
+      var d = orderDetails[orderId];
+      if (!d) return;
+      // 双重校验：防止重复完成
+      if (d.status !== 'jinxing') {
+        showToast('⚠️ 该工单已完成，无法重复标记');
+        showDetailView(orderId);
+        return;
+      }
+      d.status = 'wancheng';
+      d.statusText = '已完成';
+      d.finishTime = new Date().toLocaleString('zh-CN', {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).replace(/\//g, '-');
+      // 重新渲染工单列表
+      renderOrderCards();
+      initOrderCardEvents();
+      // 立即刷新详情页按钮区
+      showDetailView(orderId);
+      showToast('✅ 工单已标记完成');
+      sendToChat('完成 ' + orderId);
+      updateStats();
+      
+      // API回写（静默执行，不阻塞UI）
+      if (d.recordId) {
+        apiUpdateOrder(d.recordId, {
+          '状态': '已完成',
+          '完成时间': Date.now(),
+          '费用': d.actualAmount
+        });
+      }
+    }
+
+    // 确认到账
+    function doConfirmPay(orderId) {
+      var d = orderDetails[orderId];
+      if (!d) return;
+      // 状态校验：只有已完成+维保外+未到账可以确认
+      if (d.status !== 'wancheng') {
+        showToast('⚠️ 该工单尚未完成，无法确认到账');
+        showDetailView(orderId);
+        return;
+      }
+      if (d.warranty === 'in') {
+        showToast('⚠️ 维保内工单无需确认到账');
+        showDetailView(orderId);
+        return;
+      }
+      if (d.actualAmount <= 0) {
+        showToast('⚠️ 该工单无应收金额');
+        showDetailView(orderId);
+        return;
+      }
+      if (d.paidAmount >= d.actualAmount) {
+        showToast('⚠️ 该工单已确认到账');
+        showDetailView(orderId);
+        return;
+      }
+      var bodyHtml = '<div style="font-size:13px;color:#888;margin-bottom:4px;">工单 ' + orderId + '</div>';
+      bodyHtml += '<div style="margin-top:8px;font-size:14px;">实收金额：<b style="color:#e65100;font-size:18px;">¥' + d.actualAmount + '</b></div>';
+      bodyHtml += '<div style="font-size:13px;color:#666;margin-top:8px;">确认该笔款项已到账？</div>';
+      var footerHtml = '<button class="modal-btn" onclick="closeModal()">取消</button>';
+      footerHtml += '<button class="modal-btn" onclick="confirmPay(\'' + orderId + '\')">✅ 确认到账</button>';
+      openModal('💰 确认到账', bodyHtml, footerHtml);
+    }
+
+    function confirmPay(orderId) {
+      var d = orderDetails[orderId];
+      if (!d) return;
+      // 双重校验：防止重复确认到账
+      if (d.paidAmount >= d.actualAmount) {
+        closeModal();
+        showToast('⚠️ 该工单已确认到账');
+        showDetailView(orderId);
+        return;
+      }
+      closeModal();
+      d.paidAmount = d.actualAmount;
+      // 立即刷新详情页按钮区
+      showDetailView(orderId);
+      showToast('✅ ¥' + d.actualAmount + ' 已确认到账');
+      updateStats();
+      
+      // API回写：在备注字段记录到账信息
+      if (d.recordId) {
+        apiUpdateOrder(d.recordId, {
+          '备注': (d.desc || '') + ' [已到账 ' + new Date().toLocaleDateString() + ']'
+        });
+      }
+    }
+
+    // 客户回访
+    function doCallback(orderId) {
+      var d = orderDetails[orderId];
+      if (!d) return;
+      // 状态校验：只有已完成状态可以回访
+      if (d.status !== 'wancheng') {
+        showToast('⚠️ 该工单尚未完成，无法回访');
+        showDetailView(orderId);
+        return;
+      }
+      showToast('💬 已发起客户回访');
+      sendToChat('回访 ' + orderId);
+    }
+
+    // 更新统计
+    function updateStats() {
+      var cards = document.querySelectorAll('.order-card');
+      var counts = { daipai: 0, yipai: 0, jinxing: 0, wancheng: 0, quxiao: 0 };
+      cards.forEach(function(c) {
+        var s = c.getAttribute('data-status');
+        if (counts[s] !== undefined) counts[s]++;
+      });
+      document.getElementById('statDaipai').textContent = counts.daipai;
+      document.getElementById('statYipai').textContent = counts.yipai;
+      document.getElementById('statJinxing').textContent = counts.jinxing;
+      document.getElementById('statWancheng').textContent = counts.wancheng;
+      var badge = document.getElementById('orderBadge');
+      if (badge) badge.textContent = counts.daipai;
+
+      // 异常工单统计
+      var overdueCount = getOverdueOrders().length;
+      var alertCard = document.getElementById('statAlertCard');
+      if (alertCard) {
+        alertCard.style.display = overdueCount > 0 ? '' : 'none';
+        document.getElementById('statAlert').textContent = overdueCount;
+      }
+
+      // 修正后的营收计算
+      // 成本 = 所有非待派/非取消工单的cost之和（已派+进行中+已完成）
+      // 毛利 = 应收 - 成本
+      // 净利 = 已结 - 成本
+      var keys = Object.keys(orderDetails);
+      var yingshou = 0, yijie = 0, totalCost = 0;
+      keys.forEach(function(k) {
+        var d = orderDetails[k];
+        // 成本：非待派、非取消的工单
+        if (d.status !== 'daipai' && d.status !== 'quxiao' && d.cost) {
+          totalCost += d.cost;
+        }
+        if (d.status === 'wancheng' && d.warranty === 'out') {
+          yingshou += d.actualAmount;
+          yijie += d.paidAmount;
+        }
+      });
+      // 防空处理：确保金额为数字，避免NaN
+      var daishou = isNaN(yingshou - yijie) ? 0 : yingshou - yijie;
+      var maoli = isNaN(yingshou - totalCost) ? 0 : yingshou - totalCost; // 毛利
+      var jingli = isNaN(yijie - totalCost) ? 0 : yijie - totalCost; // 净利
+      
+      document.getElementById('revYingshou').textContent = '¥' + (isNaN(yingshou) ? 0 : yingshou);
+      document.getElementById('revYijie').textContent = '¥' + (isNaN(yijie) ? 0 : yijie);
+      document.getElementById('revDaishou').textContent = '¥' + daishou;
+      
+      // 成本/利润数据仍保留计算，供看板和AI洞察使用
+
+      // 检测重复报修
+      detectRepeatRepairs();
+      
+      // 更新超期高亮
+      updateOverdueHighlights();
+    }
+
+    // ===== 重复报修检测 =====
+    function detectRepeatRepairs() {
+      var keys = Object.keys(orderDetails);
+      var groups = {}; // 按 (customer + service) 分组
+      
+      // 分组
+      keys.forEach(function(k) {
+        var d = orderDetails[k];
+        var key = d.customer + '|' + d.service;
+        if (!groups[key]) groups[key] = [];
+        groups[key].push(d);
+      });
+      
+      // 清除之前的重复标记
+      keys.forEach(function(k) {
+        orderDetails[k].repeatFlag = false;
+        orderDetails[k].repeatCount = 0;
+        orderDetails[k].repeatAnalysis = null;
+        orderDetails[k].relatedOrders = [];
+      });
+      
+      // 检测重复
+      Object.keys(groups).forEach(function(key) {
+        var items = groups[key];
+        if (items.length > 1) {
+          // 获取处理的师傅列表
+          var workers = items.map(function(item) { return item.worker; }).filter(function(w) { return w; });
+          var uniqueWorkers = [...new Set(workers)];
+          
+          // 分析原因
+          var analysis = '待确认';
+          if (workers.length > 0) {
+            if (uniqueWorkers.length > 1) {
+              analysis = '师傅技术';
+            } else if (uniqueWorkers.length === 1 && workers.length > 1) {
+              analysis = '设备问题';
+            }
+          }
+          
+          // 标记每个工单
+          items.forEach(function(item) {
+            item.repeatFlag = true;
+            item.repeatCount = items.length;
+            item.repeatAnalysis = analysis;
+            item.relatedOrders = items.filter(function(i) { return i.id !== item.id; }).map(function(i) { return i.id; });
+          });
+        }
+      });
+      
+      // 更新工单卡片显示
+      updateRepeatTags();
+    }
+    
+    function updateRepeatTags() {
+      var keys = Object.keys(orderDetails);
+      document.querySelectorAll('.order-card').forEach(function(card) {
+        var orderId = card.getAttribute('data-order');
+        var d = orderDetails[orderId];
+        if (d && d.repeatFlag) {
+          card.classList.add('repeat-repair');
+          // 添加/更新标签
+          var topRow = card.querySelector('.order-top');
+          if (topRow) {
+            var existingTag = topRow.querySelector('.repeat-tag');
+            if (!existingTag) {
+              var tag = document.createElement('span');
+              tag.className = 'repeat-tag';
+              tag.textContent = '🔁重复(' + d.repeatCount + '次)';
+              topRow.appendChild(tag);
+            } else {
+              existingTag.textContent = '🔁重复(' + d.repeatCount + '次)';
+            }
+          }
+        } else {
+          card.classList.remove('repeat-repair');
+          var existingTag = card.querySelector('.repeat-tag');
+          if (existingTag) existingTag.remove();
+        }
+      });
+    }
+
+    // ===== 统计数字点击筛选 =====
+    function filterByStat(filterValue) {
+      // 切换到工单标签
+      document.querySelector('[data-tab="orders"]').click();
+      
+      // 重置营收项的点击高亮
+      document.querySelectorAll('.revenue-item').forEach(function(el) { el.classList.remove('click-active'); });
+      document.querySelectorAll('.stat-card').forEach(function(el) { el.classList.remove('click-active'); });
+      
+      // 设置筛选
+      document.querySelectorAll('.filter-chip').forEach(function(chip) {
+        chip.classList.remove('active');
+        if (chip.getAttribute('data-filter') === filterValue) {
+          chip.classList.add('active');
+          // 高亮点击的统计卡片
+          var statCards = document.querySelectorAll('.stat-card');
+          statCards.forEach(function(sc) {
+            if (sc.onclick && sc.getAttribute('onclick').indexOf("filterByStat('" + filterValue + "')") >= 0) {
+              sc.classList.add('click-active');
+            }
+          });
+        }
+      });
+      
+      currentFilter = filterValue;
+      applyFilters();
+      
+      var filterNames = { all: '全部', daipai: '待派', yipai: '已派', jinxing: '进行中', wancheng: '已完成', quxiao: '已取消' };
+      showToast('已筛选：' + (filterNames[filterValue] || filterValue));
+    }
+    
+    function filterByOverdue() {
+      // 切换到工单标签
+      document.querySelector('[data-tab="orders"]').click();
+      
+      // 获取超期工单ID
+      var overdueIds = getOverdueOrders().map(function(o) { return o.id; });
+      
+      // 重置筛选
+      document.querySelectorAll('.filter-chip').forEach(function(c) { c.classList.remove('active'); });
+      document.querySelectorAll('.stat-card').forEach(function(el) { el.classList.remove('click-active'); });
+      document.querySelectorAll('.revenue-item').forEach(function(el) { el.classList.remove('click-active'); });
+      document.getElementById('statAlertCard').classList.add('click-active');
+      
+      // 只显示超期工单
+      var cards = document.querySelectorAll('.order-card');
+      cards.forEach(function(card) {
+        var orderId = card.getAttribute('data-order');
+        card.style.display = overdueIds.indexOf(orderId) >= 0 ? '' : 'none';
+      });
+      
+      showToast('已筛选：异常工单（' + overdueIds.length + '单）');
+    }
+
+    // ===== 营收数字点击筛选 =====
+    function filterByRevenue(type) {
+      // 切换到工单标签
+      document.querySelector('[data-tab="orders"]').click();
+      
+      // 重置筛选高亮
+      document.querySelectorAll('.filter-chip').forEach(function(c) { c.classList.remove('active'); });
+      document.querySelectorAll('.stat-card').forEach(function(el) { el.classList.remove('click-active'); });
+      document.querySelectorAll('.revenue-item').forEach(function(el) { el.classList.remove('click-active'); });
+      
+      var keys = Object.keys(orderDetails);
+      var cards = document.querySelectorAll('.order-card');
+      
+      // 应收 → 已完成+维保外的工单
+      // 已结 → 已确认到账的工单
+      // 待收 → 未到账的已完成工单
+      cards.forEach(function(card) {
+        var orderId = card.getAttribute('data-order');
+        var d = orderDetails[orderId];
+        var show = false;
+        
+        if (type === 'yingshou') {
+          // 应收：已完成+维保外
+          show = (d.status === 'wancheng' && d.warranty === 'out');
+        } else if (type === 'yijie') {
+          // 已结：已到账
+          show = (d.paidAmount >= d.actualAmount && d.actualAmount > 0);
+        } else if (type === 'daishou') {
+          // 待收：未到账的已完成工单
+          show = (d.status === 'wancheng' && d.warranty === 'out' && d.paidAmount < d.actualAmount);
+        }
+        
+        card.style.display = show ? '' : 'none';
+        
+        // 高亮对应的营收项
+        if (show) {
+          card.setAttribute('data-temp-show', 'true');
+        } else {
+          card.removeAttribute('data-temp-show');
+        }
+      });
+      
+      // 高亮点击的营收项
+      var revenueItems = document.querySelectorAll('.revenue-item');
+      revenueItems.forEach(function(ri) {
+        if (ri.getAttribute('onclick') && ri.getAttribute('onclick').indexOf("filterByRevenue('" + type + "')") >= 0) {
+          ri.classList.add('click-active');
+        }
+      });
+      
+      var typeNames = { yingshou: '应收', yijie: '已结', daishou: '待收' };
+      var shownCount = document.querySelectorAll('.order-card[data-temp-show="true"]').length;
+      showToast('已筛选：' + typeNames[type] + '（' + shownCount + '单）');
+    }
+
+    // ===== 搜索 =====
+    var searchInput = document.getElementById('searchInput');
+    var searchClear = document.getElementById('searchClear');
+    var currentFilter = 'all';
+
+    searchInput.addEventListener('input', function() {
+      searchClear.classList.toggle('show', this.value.length > 0);
+      applyFilters();
+    });
+
+    searchClear.addEventListener('click', function() {
+      searchInput.value = '';
+      searchClear.classList.remove('show');
+      applyFilters();
+    });
+
+    // ===== 筛选 =====
+    document.querySelectorAll('.filter-chip').forEach(function(chip) {
+      chip.addEventListener('click', function() {
+        document.querySelectorAll('.filter-chip').forEach(function(c) { c.classList.remove('active'); });
+        this.classList.add('active');
+        currentFilter = this.getAttribute('data-filter');
+        applyFilters();
+      });
+    });
+
+    function applyFilters() {
+      var keyword = searchInput.value.trim().toLowerCase();
+      var dateStart = document.getElementById('dateStart').value;
+      var dateEnd = document.getElementById('dateEnd').value;
+      var cards = document.querySelectorAll('.order-card');
+      var visibleCount = 0;
+      cards.forEach(function(card) {
+        var status = card.getAttribute('data-status');
+        var orderId = (card.getAttribute('data-order') || '').toLowerCase();
+        var customer = (card.getAttribute('data-customer') || '').toLowerCase();
+        var service = (card.getAttribute('data-service') || '').toLowerCase();
+        var worker = (card.getAttribute('data-worker') || '').toLowerCase();
+
+        var matchFilter = (currentFilter === 'all') || (status === currentFilter);
+        var matchSearch = !keyword || orderId.indexOf(keyword) >= 0 || customer.indexOf(keyword) >= 0 || service.indexOf(keyword) >= 0 || worker.indexOf(keyword) >= 0;
+
+        // 日期筛选
+        var matchDate = true;
+        if (dateStart || dateEnd) {
+          var d = orderDetails[card.getAttribute('data-order')];
+          if (d && d.createTime) {
+            var createDate = d.createTime.substring(0, 10);
+            if (dateStart && createDate < dateStart) matchDate = false;
+            if (dateEnd && createDate > dateEnd) matchDate = false;
+          }
+        }
+
+        var isVisible = matchFilter && matchSearch && matchDate;
+        card.style.display = isVisible ? '' : 'none';
+        if (isVisible) visibleCount++;
+      });
+      
+      // 空状态提示
+      var existingEmpty = document.getElementById('emptyFilterResult');
+      if (visibleCount === 0) {
+        if (!existingEmpty) {
+          var emptyDiv = document.createElement('div');
+          emptyDiv.id = 'emptyFilterResult';
+          emptyDiv.className = 'empty-state';
+          emptyDiv.innerHTML = '<div class="empty-icon">📋</div><div class="empty-text">暂无匹配工单</div>';
+          orderList.appendChild(emptyDiv);
+        }
+      } else {
+        if (existingEmpty) existingEmpty.remove();
+      }
+    }
+
+    // 日期筛选
+    var dateStartEl = document.getElementById('dateStart');
+    var dateEndEl = document.getElementById('dateEnd');
+    var dateClearEl = document.getElementById('dateClear');
+
+    function checkDateClear() {
+      var show = dateStartEl.value || dateEndEl.value;
+      dateClearEl.classList.toggle('show', !!show);
+    }
+    dateStartEl.addEventListener('change', function() { checkDateClear(); applyFilters(); });
+    dateEndEl.addEventListener('change', function() { checkDateClear(); applyFilters(); });
+    dateClearEl.addEventListener('click', function() {
+      dateStartEl.value = '';
+      dateEndEl.value = '';
+      dateClearEl.classList.remove('show');
+      applyFilters();
+    });
+
+    // ===== 看板渲染 =====
+    function renderDashboard() {
+      var keys = Object.keys(orderDetails);
+      var total = keys.length;
+
+      // AI运营洞察
+      renderInsights();
+
+      // 0. 营收概览
+      var revenueOverview = document.getElementById('revenueOverview');
+      var totalYingshou = 0, totalYijie = 0, totalFree = 0, totalCost = 0;
+      keys.forEach(function(k) {
+        var d = orderDetails[k];
+        // 成本：非待派、非取消的工单
+        if (d.status !== 'daipai' && d.status !== 'quxiao' && d.cost) {
+          totalCost += d.cost;
+        }
+        if (d.status === 'wancheng') {
+          if (d.warranty === 'out') {
+            totalYingshou += d.actualAmount;
+            totalYijie += d.paidAmount;
+          } else {
+            totalFree++;
+          }
+        }
+      });
+      var totalDaishou = isNaN(totalYingshou - totalYijie) ? 0 : totalYingshou - totalYijie;
+      var totalMaoli = isNaN(totalYingshou - totalCost) ? 0 : totalYingshou - totalCost; // 毛利
+      var totalJingli = isNaN(totalYijie - totalCost) ? 0 : totalYijie - totalCost; // 净利
+      var revHtml = '<div style="display:flex;gap:6px;margin-bottom:10px;">';
+      revHtml += '<div style="flex:1;background:#fff8e1;border-radius:8px;padding:10px;text-align:center;">';
+      revHtml += '<div style="font-size:20px;font-weight:700;color:#e65100;">¥' + (isNaN(totalYingshou) ? 0 : totalYingshou) + '</div>';
+      revHtml += '<div style="font-size:11px;color:#999;">应收总额</div></div>';
+      revHtml += '<div style="flex:1;background:#e8f5e9;border-radius:8px;padding:10px;text-align:center;">';
+      revHtml += '<div style="font-size:20px;font-weight:700;color:#2e7d32;">¥' + (isNaN(totalYijie) ? 0 : totalYijie) + '</div>';
+      revHtml += '<div style="font-size:11px;color:#999;">已结</div></div>';
+      revHtml += '<div style="flex:1;background:#fff3e0;border-radius:8px;padding:10px;text-align:center;">';
+      revHtml += '<div style="font-size:20px;font-weight:700;color:#ff9800;">¥' + totalDaishou + '</div>';
+      revHtml += '<div style="font-size:11px;color:#999;">待收</div></div>';
+      revHtml += '</div>';
+      if (totalFree > 0) {
+        revHtml += '<div style="font-size:12px;color:#888;">✅ 维保内免费工单 ' + totalFree + ' 单（不产生费用）</div>';
+      }
+      // 成本、毛利、净利
+      revHtml += '<div style="display:flex;gap:6px;margin-top:8px;">';
+      revHtml += '<div style="flex:1;background:#ffebee;border-radius:8px;padding:8px;text-align:center;">';
+      revHtml += '<div style="font-size:16px;font-weight:700;color:#c62828;">¥' + (isNaN(totalCost) ? 0 : totalCost) + '</div>';
+      revHtml += '<div style="font-size:10px;color:#999;">成本</div></div>';
+      revHtml += '<div style="flex:1;background:#e3f2fd;border-radius:8px;padding:8px;text-align:center;">';
+      revHtml += '<div style="font-size:16px;font-weight:700;color:' + (totalMaoli >= 0 ? '#1565c0' : '#c62828') + ';">' + (totalMaoli >= 0 ? '¥' : '-¥') + Math.abs(totalMaoli) + '</div>';
+      revHtml += '<div style="font-size:10px;color:#999;">毛利</div></div>';
+      revHtml += '<div style="flex:1;background:' + (totalJingli >= 0 ? '#e8f5e9' : '#ffebee') + ';border-radius:8px;padding:8px;text-align:center;">';
+      revHtml += '<div style="font-size:16px;font-weight:700;color:' + (totalJingli >= 0 ? '#2e7d32' : '#c62828') + ';">' + (totalJingli >= 0 ? '¥' : '-¥') + Math.abs(totalJingli) + '</div>';
+      revHtml += '<div style="font-size:10px;color:#999;">净利</div></div>';
+      revHtml += '</div>';
+      revenueOverview.innerHTML = revHtml;
+
+      // 1. 状态分布
+      var counts = { daipai: 0, yipai: 0, jinxing: 0, wancheng: 0, quxiao: 0 };
+      keys.forEach(function(k) { var s = orderDetails[k].status; if (counts[s] !== undefined) counts[s]++; });
+
+      var statusDist = document.getElementById('statusDist');
+      var statusLegend = document.getElementById('statusLegend');
+      var distHtml = '';
+      var legendHtml = '';
+      var statusInfo = [
+        { key: 'daipai', label: '待派', cls: 'dist-daipai', color: '#ff9800' },
+        { key: 'yipai', label: '已派', cls: 'dist-yipai', color: '#2196f3' },
+        { key: 'jinxing', label: '进行中', cls: 'dist-jinxing', color: '#4caf50' },
+        { key: 'wancheng', label: '已完成', cls: 'dist-wancheng', color: '#bdbdbd' },
+        { key: 'quxiao', label: '已取消', cls: 'dist-quxiao', color: '#f44336' }
+      ];
+      statusInfo.forEach(function(si) {
+        var pct = total > 0 ? (counts[si.key] / total * 100) : 0;
+        distHtml += '<div class="status-dist-item ' + si.cls + '" style="width:' + pct + '%"></div>';
+        legendHtml += '<div class="legend-item"><span class="legend-dot" style="background:' + si.color + '"></span>' + si.label + ' <span class="legend-val">' + counts[si.key] + '</span></div>';
+      });
+      statusDist.innerHTML = distHtml;
+      statusLegend.innerHTML = legendHtml;
+
+      // 运营效率指标
+      renderEfficiencyMetrics();
+
+      // 2. 近7日趋势
+      var barChart = document.getElementById('barChart');
+      var days = [];
+      var dayCounts = {};
+      for (var i = 6; i >= 0; i--) {
+        var d = new Date();
+        d.setDate(d.getDate() - i);
+        var ds = d.toISOString().substring(0, 10);
+        days.push(ds);
+        dayCounts[ds] = 0;
+      }
+      // 模拟数据：给每天随机1-3单
+      days.forEach(function(ds) { dayCounts[ds] = Math.floor(Math.random() * 3) + 1; });
+      // 用真实数据覆盖
+      keys.forEach(function(k) {
+        var ct = orderDetails[k].createTime;
+        if (ct) {
+          var cd = ct.substring(0, 10);
+          if (dayCounts[cd] !== undefined) dayCounts[cd]++;
+        }
+      });
+      var maxDay = Math.max.apply(null, Object.values(dayCounts));
+      if (maxDay === 0) maxDay = 1;
+      var barHtml = '';
+      days.forEach(function(ds) {
+        var h = (dayCounts[ds] / maxDay * 80);
+        var label = ds.substring(5).replace('-', '/');
+        barHtml += '<div class="bar-col"><div class="bar-val">' + dayCounts[ds] + '</div><div class="bar-fill" style="height:' + h + 'px"></div><div class="bar-label">' + label + '</div></div>';
+      });
+      barChart.innerHTML = barHtml;
+
+      // 3. 师傅排名
+      var workerRank = document.getElementById('workerRank');
+      var workerCounts = {};
+      keys.forEach(function(k) {
+        var w = orderDetails[k].worker;
+        if (w) workerCounts[w] = (workerCounts[w] || 0) + 1;
+      });
+      workers.forEach(function(w) { if (!workerCounts[w.name]) workerCounts[w.name] = 0; });
+      var sorted = Object.keys(workerCounts).sort(function(a, b) { return workerCounts[b] - workerCounts[a]; });
+      var maxW = sorted.length > 0 ? workerCounts[sorted[0]] : 1;
+      if (maxW === 0) maxW = 1;
+      var rankHtml = '';
+      sorted.forEach(function(name, idx) {
+        var cls = idx < 3 ? 'rank-' + (idx + 1) : 'rank-other';
+        var pct = (workerCounts[name] / maxW * 100);
+        rankHtml += '<div class="rank-item">';
+        rankHtml += '  <div class="rank-num ' + cls + '">' + (idx + 1) + '</div>';
+        rankHtml += '  <div class="rank-name">' + name + '</div>';
+        rankHtml += '  <div class="rank-bar-wrap"><div class="rank-bar" style="width:' + pct + '%"></div></div>';
+        rankHtml += '  <div class="rank-count">' + workerCounts[name] + '单</div>';
+        rankHtml += '</div>';
+      });
+      workerRank.innerHTML = rankHtml;
+
+      // 4. 服务类型分布
+      var typeDist = document.getElementById('typeDist');
+      var typeCounts = {};
+      keys.forEach(function(k) {
+        var svc = orderDetails[k].service;
+        if (svc) typeCounts[svc] = (typeCounts[svc] || 0) + 1;
+      });
+      var maxT = Math.max.apply(null, Object.values(typeCounts));
+      if (maxT === 0) maxT = 1;
+      var typeHtml = '';
+      Object.keys(typeCounts).forEach(function(svc) {
+        var pct = (typeCounts[svc] / maxT * 100);
+        typeHtml += '<div class="type-item">';
+        typeHtml += '  <div class="type-label">' + svc + '</div>';
+        typeHtml += '  <div class="type-bar-wrap"><div class="type-bar" style="width:' + pct + '%"></div></div>';
+        typeHtml += '  <div class="type-val">' + typeCounts[svc] + '</div>';
+        typeHtml += '</div>';
+      });
+      typeDist.innerHTML = typeHtml;
+
+      // 5. 收费标准
+      var priceTableEl = document.getElementById('priceTable');
+      var ptHtml = '';
+      Object.keys(priceTable).forEach(function(svc) {
+        ptHtml += '<div class="detail-row" style="padding:6px 0;">';
+        ptHtml += '  <span class="detail-label" style="font-size:12px;">' + svc + '</span>';
+        ptHtml += '  <span class="detail-value" style="font-size:13px;font-weight:600;color:#e65100;">¥' + priceTable[svc] + '</span>';
+        ptHtml += '</div>';
+      });
+      ptHtml += '<div style="font-size:11px;color:#999;margin-top:6px;">💡 维保范围内免费，维保范围外按标准收费</div>';
+      priceTableEl.innerHTML = ptHtml;
+
+      // 异常告警
+      renderAlerts();
+    }
+
+    // ===== 移动端面板 =====
+    var sidePanel = document.getElementById('sidePanel');
+    var overlay = document.getElementById('overlay');
+    var panelToggle = document.getElementById('panelToggle');
+
+    function closePanel() {
+      sidePanel.classList.remove('open');
+      overlay.classList.remove('show');
+    }
+    panelToggle.addEventListener('click', function() {
+      sidePanel.classList.toggle('open');
+      overlay.classList.toggle('show');
+    });
+    overlay.addEventListener('click', closePanel);
+
+    // ===== 异常检测函数 =====
+    function getOverdueOrders() {
+      var now = new Date();
+      var overdue = [];
+      var keys = Object.keys(orderDetails);
+      keys.forEach(function(k) {
+        var d = orderDetails[k];
+        var createTime = new Date(d.createTime.replace(/-/g, '/'));
+        var hoursSinceCreate = (now - createTime) / (1000 * 60 * 60);
+        
+        if (d.status === 'yipai' && hoursSinceCreate > 24) {
+          overdue.push({ id: d.id, reason: '已派超24小时', hours: Math.floor(hoursSinceCreate) });
+        } else if (d.status === 'jinxing' && hoursSinceCreate > 48) {
+          overdue.push({ id: d.id, reason: '进行中超48小时', hours: Math.floor(hoursSinceCreate) });
+        }
+      });
+      return overdue;
+    }
+
+    function updateOverdueHighlights() {
+      var overdueIds = getOverdueOrders().map(function(o) { return o.id; });
+      document.querySelectorAll('.order-card').forEach(function(card) {
+        var orderId = card.getAttribute('data-order');
+        var isOverdue = overdueIds.indexOf(orderId) >= 0;
+        card.classList.toggle('overdue', isOverdue);
+        // 更新标签
+        var existingTag = card.querySelector('.overdue-tag');
+        if (isOverdue && !existingTag) {
+          var topRow = card.querySelector('.order-top');
+          if (topRow) {
+            var tag = document.createElement('span');
+            tag.className = 'overdue-tag';
+            tag.textContent = '⚠️超期';
+            topRow.appendChild(tag);
+          }
+        } else if (!isOverdue && existingTag) {
+          existingTag.remove();
+        }
+      });
+    }
+
+    function renderAlerts() {
+      var alertList = document.getElementById('alertList');
+      var overdue = getOverdueOrders();
+      if (overdue.length === 0) {
+        alertList.innerHTML = '<div style="text-align:center;padding:20px;color:#4CAF50;font-size:13px;">🎉 当前无异常工单</div>';
+        return;
+      }
+      var html = '';
+      overdue.forEach(function(o) {
+        html += '<div class="alert-item">';
+        html += '<span class="alert-icon">⚠️</span>';
+        html += '<div class="alert-info">';
+        html += '<div class="alert-id">' + o.id + '</div>';
+        html += '<div class="alert-reason">' + o.reason + '（已' + o.hours + '小时）</div>';
+        html += '</div></div>';
+      });
+      alertList.innerHTML = html;
+    }
+
+    // ===== 运营效率指标 =====
+    function renderEfficiencyMetrics() {
+      var keys = Object.keys(orderDetails);
+      var total = keys.length;
+      var completed = keys.filter(function(k) { return orderDetails[k].status === 'wancheng'; }).length;
+      
+      // 平均派单速度（已派工单的assignTime-createTime平均）
+      var dispatchTimes = [];
+      keys.forEach(function(k) {
+        var d = orderDetails[k];
+        if (d.assignTime && d.createTime) {
+          var create = new Date(d.createTime.replace(/-/g, '/'));
+          var assign = new Date(d.assignTime.replace(/-/g, '/'));
+          var mins = (assign - create) / (1000 * 60);
+          if (mins > 0) dispatchTimes.push(mins);
+        }
+      });
+      var avgDispatch = dispatchTimes.length > 0 ? Math.round(dispatchTimes.reduce(function(a, b) { return a + b; }, 0) / dispatchTimes.length) : 0;
+      
+      // 平均完成时长
+      var finishTimes = [];
+      keys.forEach(function(k) {
+        var d = orderDetails[k];
+        if (d.finishTime && d.assignTime) {
+          var assign = new Date(d.assignTime.replace(/-/g, '/'));
+          var finish = new Date(d.finishTime.replace(/-/g, '/'));
+          var hours = (finish - assign) / (1000 * 60 * 60);
+          if (hours > 0) finishTimes.push(hours);
+        }
+      });
+      var avgFinish = finishTimes.length > 0 ? (finishTimes.reduce(function(a, b) { return a + b; }, 0) / finishTimes.length).toFixed(1) : 0;
+      
+      // 一次完成率
+      var firstPassRate = total > 0 ? Math.round((completed / total) * 100) : 0;
+      
+      document.getElementById('avgDispatchTime').textContent = avgDispatch + '分钟';
+      document.getElementById('avgFinishTime').textContent = avgFinish + '小时';
+      document.getElementById('firstPassRate').textContent = firstPassRate + '%';
+    }
+
+    // ===== 客户视图 =====
+    function showCustomerView() {
+      currentView = 'customer';
+      detailView.classList.remove('active');
+      dashboardView.classList.remove('active');
+      workerList.style.display = 'none';
+      orderList.style.display = 'none';
+      customerList.style.display = '';
+      customerList.classList.add('show');
+      statsBar.style.display = 'none';
+      revenueBar.style.display = 'none';
+      searchBar.style.display = 'none';
+      filterBar.style.display = 'none';
+      dateFilter.style.display = 'none';
+      renderCustomerList();
+    }
+
+    function renderCustomerList() {
+      var customers = {};
+      var keys = Object.keys(orderDetails);
+      keys.forEach(function(k) {
+        var d = orderDetails[k];
+        if (!customers[d.customer]) {
+          customers[d.customer] = {
+            name: d.customer,
+            phone: d.customerPhone,
+            orders: [],
+            totalAmount: 0
+          };
+        }
+        customers[d.customer].orders.push(d);
+        if (d.actualAmount > 0) customers[d.customer].totalAmount += d.actualAmount;
+      });
+
+      var html = '';
+      var customerCount = Object.keys(customers).length;
+      if (customerCount === 0) {
+        html = '<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-text">暂无客户数据</div></div>';
+      } else {
+        Object.keys(customers).forEach(function(name) {
+          var c = customers[name];
+          var orderCount = c.orders.length;
+          var lastOrder = c.orders[c.orders.length - 1];
+          var isHot = orderCount > 1;
+          
+          html += '<div class="customer-card" onclick="filterByCustomer(\'' + name + '\')">';
+          html += '<div class="customer-top">';
+          html += '<span class="customer-name">👤 ' + name + '</span>';
+          if (isHot) html += '<span class="customer-reorder reorder-hot">🔥 复购</span>';
+          html += '</div>';
+          html += '<div class="customer-info">';
+          html += '<span>📞 ' + c.phone + '</span>';
+          html += '<span>📋 累计' + orderCount + '单</span>';
+          html += '<span>最近: ' + lastOrder.id + '</span>';
+          html += '</div>';
+          html += '<div style="margin-top:6px;display:flex;justify-content:space-between;align-items:center;">';
+          html += '<span style="font-size:12px;color:#888;">累计消费</span>';
+          html += '<span class="customer-total">¥' + c.totalAmount + '</span>';
+          html += '</div></div>';
+        });
+      }
+      customerList.innerHTML = html;
+    }
+
+    function filterByCustomer(customerName) {
+      // 切换到工单标签并筛选
+      document.querySelector('[data-tab="orders"]').click();
+      document.getElementById('searchInput').value = customerName;
+      document.getElementById('searchInput').dispatchEvent(new Event('input'));
+      showToast('已筛选 ' + customerName + ' 的工单');
+    }
+
+    // ===== AI运营洞察 =====
+    function generateInsights() {
+      var insights = [];
+      var keys = Object.keys(orderDetails);
+      var total = keys.length;
+      
+      // 营收分析
+      var yingshou = 0, yijie = 0, totalCost = 0, warrantyIn = 0;
+      keys.forEach(function(k) {
+        var d = orderDetails[k];
+        if (d.status === 'wancheng') {
+          if (d.warranty === 'out') {
+            yingshou += d.actualAmount;
+            yijie += d.paidAmount;
+          } else {
+            warrantyIn++;
+          }
+          if (d.cost) totalCost += d.cost;
+        }
+      });
+      
+      var daishou = isNaN(yingshou - yijie) ? 0 : yingshou - yijie;
+      if (daishou > 0) {
+        insights.push({
+          type: 'critical',
+          title: '⚠️ 待收款提醒',
+          desc: '当前有 <b style="color:#e65100">¥' + daishou + '</b> 款项未到账',
+          action: '建议尽快联系客户确认收款'
+        });
+      }
+      
+      var daishouRate = isNaN(yingshou) || yingshou === 0 ? 0 : Math.round(daishou / yingshou * 100);
+      if (yingshou > 0 && daishouRate > 50) {
+        insights.push({
+          type: 'critical',
+          title: '⚠️ 现金流预警',
+          desc: '超半数应收款项（' + daishouRate + '%）未到账',
+          action: '需重点关注资金回笼'
+        });
+      }
+      
+      var warrantyInRate = isNaN(total) || total === 0 ? 0 : Math.round(warrantyIn / total * 100);
+      if (warrantyIn > 0) {
+        insights.push({
+          type: 'warning',
+          title: '📋 维保内工单占比',
+          desc: '维保内免费工单占 ' + warrantyInRate + '%',
+          action: '需评估维保合同定价策略'
+        });
+      }
+      
+      // 异常工单
+      var overdue = getOverdueOrders();
+      if (overdue.length > 0) {
+        insights.push({
+          type: 'critical',
+          title: '🚨 超期工单警告',
+          desc: '有 <b style="color:#c62828">' + overdue.length + '单</b> 工单超期未处理',
+          action: '立即跟进，避免客户投诉'
+        });
+      }
+      
+      // 待派工单
+      var daipaiCount = keys.filter(function(k) { return orderDetails[k].status === 'daipai'; }).length;
+      if (daipaiCount > 0) {
+        insights.push({
+          type: 'warning',
+          title: '⏰ 待派工单积压',
+          desc: '有 <b>' + daipaiCount + '单</b> 工单等待派发',
+          action: '考虑启用AI自动派单或增派师傅'
+        });
+      }
+      
+      // 师傅分析
+      var workerCounts = {};
+      keys.forEach(function(k) {
+        var w = orderDetails[k].worker;
+        if (w) workerCounts[w] = (workerCounts[w] || 0) + 1;
+      });
+      var zeroWorker = workers.filter(function(w) { return !workerCounts[w.name]; });
+      if (zeroWorker.length > 0) {
+        zeroWorker.forEach(function(w) {
+          insights.push({
+            type: 'warning',
+            title: '👷 师傅空闲提醒',
+            desc: w.name + ' 今日暂无工单',
+            action: '可安排更多派单任务'
+          });
+        });
+      }
+      
+      var maxWorker = Object.keys(workerCounts).reduce(function(a, b) { 
+        return workerCounts[a] > workerCounts[b] ? a : b; 
+      }, null);
+      if (maxWorker && workerCounts[maxWorker] > 0) {
+        var maxCount = workerCounts[maxWorker];
+        var totalWorkerOrders = Object.values(workerCounts).reduce(function(a, b) { return a + b; }, 0);
+        var workerRatio = isNaN(totalWorkerOrders) || totalWorkerOrders === 0 ? 0 : Math.round(maxCount / totalWorkerOrders * 100);
+        if (totalWorkerOrders > 0 && workerRatio > 50) {
+          insights.push({
+            type: 'warning',
+            title: '⚖️ 派单不均衡',
+            desc: maxWorker + ' 单量占比 ' + workerRatio + '%，负荷过重',
+            action: '建议均衡派单，避免师傅疲劳'
+          });
+        }
+      }
+      
+      // 客户分析
+      var customers = {};
+      keys.forEach(function(k) {
+        var d = orderDetails[k];
+        if (!customers[d.customer]) customers[d.customer] = [];
+        customers[d.customer].push(d);
+      });
+      var hotCustomers = Object.keys(customers).filter(function(c) { return customers[c].length > 1; });
+      if (hotCustomers.length > 0) {
+        hotCustomers.forEach(function(name) {
+          insights.push({
+            type: 'good',
+            title: '⭐ 高价值客户',
+            desc: name + ' 累计 ' + customers[name].length + ' 单，是重点维护对象',
+            action: '建议提供VIP服务，提升满意度'
+          });
+        });
+      }
+      
+      var singleCustomers = Object.keys(customers).filter(function(c) { return customers[c].length === 1; });
+      if (singleCustomers.length > 0) {
+        insights.push({
+          type: 'warning',
+          title: '📈 复购机会',
+          desc: '有 ' + singleCustomers.length + ' 个客户仅1单，有复购提升空间',
+          action: '可制定回访和优惠策略促进复购'
+        });
+      }
+      
+      // 毛利/净利分析
+      // 重新计算（因为上面的计算可能不一致）
+      var calcKeys = Object.keys(orderDetails);
+      var calcYingshou = 0, calcYijie = 0, calcCost = 0;
+      calcKeys.forEach(function(k) {
+        var d = orderDetails[k];
+        if (d.status !== 'daipai' && d.status !== 'quxiao' && d.cost) {
+          calcCost += d.cost;
+        }
+        if (d.status === 'wancheng' && d.warranty === 'out') {
+          calcYingshou += d.actualAmount;
+          calcYijie += d.paidAmount;
+        }
+      });
+      var calcMaoli = isNaN(calcYingshou - calcCost) ? 0 : calcYingshou - calcCost;
+      var calcJingli = isNaN(calcYijie - calcCost) ? 0 : calcYijie - calcCost;
+      var maoliRate = isNaN(calcCost) || calcCost === 0 ? 0 : Math.round(calcMaoli / calcCost * 100);
+      if (calcCost > 0) {
+        if (calcMaoli < 0) {
+          insights.push({
+            type: 'critical',
+            title: '💸 毛利亏损',
+            desc: '当前毛利为负（' + maoliRate + '%），含未收款',
+            action: '需优化成本结构或加快回款'
+          });
+        } else if (maoliRate < 30) {
+          insights.push({
+            type: 'warning',
+            title: '📉 毛利率偏低',
+            desc: '当前毛利率仅 ' + maoliRate + '%',
+            action: '建议优化成本结构或调整定价'
+          });
+        }
+      }
+      var jingliRate = isNaN(calcCost) || calcCost === 0 ? 0 : Math.round(calcJingli / calcCost * 100);
+      if (calcJingli < 0) {
+        insights.push({
+          type: 'critical',
+          title: '💰 净利亏损',
+          desc: '已结款项不足以覆盖成本，亏损 ¥' + Math.abs(calcJingli),
+          action: '立即优化成本，严控支出'
+        });
+      } else if (jingliRate < 30) {
+        insights.push({
+          type: 'warning',
+          title: '📊 净利率偏低',
+          desc: '当前净利率仅 ' + jingliRate + '%',
+          action: '建议提升收款速度或优化成本'
+        });
+      }
+      
+      // 技能覆盖分析
+      var skills = new Set();
+      keys.forEach(function(k) {
+        var svc = orderDetails[k].service;
+        if (svc.indexOf('空调') >= 0) skills.add('空调');
+        if (svc.indexOf('水电') >= 0) skills.add('水电');
+        if (svc.indexOf('管道') >= 0) skills.add('管道');
+      });
+      if (skills.size < 3) {
+        insights.push({
+          type: 'warning',
+          title: '🔧 技能覆盖不足',
+          desc: '当前仅覆盖 ' + Array.from(skills).join('/') + ' 类服务',
+          action: '建议培养综合技能师傅，拓展业务'
+        });
+      }
+      
+      // 重复报修分析
+      var repeatOrders = keys.filter(function(k) { return orderDetails[k].repeatFlag; });
+      if (repeatOrders.length > 0) {
+        repeatOrders.forEach(function(k) {
+          var d = orderDetails[k];
+          var suggestion = '';
+          if (d.repeatAnalysis === '师傅技术') {
+            suggestion = '建议加强师傅技能培训或派更高水平师傅处理';
+          } else if (d.repeatAnalysis === '设备问题') {
+            suggestion = '建议评估设备状况，必要时建议客户更换';
+          } else {
+            suggestion = '持续跟踪，确定原因后针对性解决';
+          }
+          insights.push({
+            type: 'critical',
+            title: '🔁 重复报修警告',
+            desc: d.customer + '的' + d.service + '重复报修' + d.repeatCount + '次，可能是【' + d.repeatAnalysis + '】',
+            action: suggestion
+          });
+        });
+      }
+      
+      return insights;
+    }
+
+    function renderInsights() {
+      var insights = generateInsights();
+      var container = document.getElementById('insightsContainer');
+      if (insights.length === 0) {
+        container.innerHTML = '<div style="text-align:center;padding:16px;color:#4CAF50;font-size:13px;">🎉 运营状况良好，暂无优化建议</div>';
+        return;
+      }
+      
+      // 按严重度排序
+      var priorityOrder = { critical: 0, warning: 1, good: 2 };
+      insights.sort(function(a, b) { return priorityOrder[a.type] - priorityOrder[b.type]; });
+      
+      // 最多显示6条
+      insights = insights.slice(0, 6);
+      
+      var html = '';
+      insights.forEach(function(ins) {
+        html += '<div class="insight-card ' + ins.type + '">';
+        html += '<div class="insight-title">' + ins.title + '</div>';
+        html += '<div class="insight-desc">' + ins.desc + '</div>';
+        html += '<div class="insight-action">💡 ' + ins.action + '</div>';
+        html += '</div>';
+      });
+      container.innerHTML = html;
+    }
+
+    // ===== 导出功能 =====
+    function showExportModal() {
+      var bodyHtml = '<div style="font-size:13px;color:#888;margin-bottom:8px;">选择导出方式：</div>';
+      bodyHtml += '<div class="export-option" onclick="exportCSV()">';
+      bodyHtml += '<div class="export-opt-left"><span class="export-opt-icon">📊</span><div><div class="export-opt-title">导出Excel(CSV)</div><div class="export-opt-desc">包含工单完整数据</div></div></div>';
+      bodyHtml += '<span style="color:#ccc;">→</span></div>';
+      bodyHtml += '<div class="export-option" onclick="doPrint()">';
+      bodyHtml += '<div class="export-opt-left"><span class="export-opt-icon">🖨️</span><div><div class="export-opt-title">打印</div><div class="export-opt-desc">仅打印数据面板</div></div></div>';
+      bodyHtml += '<span style="color:#ccc;">→</span></div>';
+      openModal('📤 导出数据', bodyHtml, '<button class="modal-btn" onclick="closeModal()" style="width:100%">取消</button>');
+    }
+
+    function exportCSV() {
+      closeModal();
+      var headers = ['工单号', '状态', '客户', '电话', '地址', '服务类型', '维保类型', '师傅', '标准收费', '实收金额', '成本', '利润', '创建时间', '派单时间', '完成时间'];
+      var rows = [headers.join(',')];
+      
+      var keys = Object.keys(orderDetails);
+      keys.forEach(function(k) {
+        var d = orderDetails[k];
+        var profit = d.warranty === 'out' ? (d.actualAmount - (d.cost || 0)) : (0 - (d.cost || 0));
+        var row = [
+          d.id,
+          d.statusText,
+          d.customer,
+          d.customerPhone,
+          d.address,
+          d.service,
+          d.warrantyText,
+          d.worker || '待派',
+          d.serviceAmount,
+          d.actualAmount,
+          d.cost || 0,
+          profit,
+          d.createTime,
+          d.assignTime || '-',
+          d.finishTime || '-'
+        ];
+        // CSV转义
+        row = row.map(function(v) {
+          var s = String(v);
+          if (s.indexOf(',') >= 0 || s.indexOf('"') >= 0 || s.indexOf('\n') >= 0) {
+            return '"' + s.replace(/"/g, '""') + '"';
+          }
+          return s;
+        });
+        rows.push(row.join(','));
+      });
+      
+      var csv = rows.join('\n');
+      var BOM = '\uFEFF';
+      var blob = new Blob([BOM + csv], { type: 'text/csv;charset=utf-8;' });
+      var link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = '工单数据_' + new Date().toISOString().substring(0, 10) + '.csv';
+      link.click();
+      showToast('✅ 导出成功');
+    }
+
+    function doPrint() {
+      closeModal();
+      window.print();
+    }
+
+    // ===== 以下为原有Chat SDK认证逻辑 =====
+    var ISS = '1199212001020';
+    var KID = 'tsfTukA85NQ4TDqx3uGim2L_CfxqtwWtQXguJGaEsJU';
+    var BOT_ID = '7651958131505283107';
+    var PRIVATE_KEY = '-----BEGIN PRIVATE KEY-----\n' +
+      'MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCxZgtRZP6wS2oy\n' +
+      '8iz5U/y+BKa3dGb2fiBJoTqKzfVwvnGGRLTcFptaTUri3jUrCSE9RNaeCrePjwKE\n' +
+      'L9O3R/wqxDRns/Z0C0/bUBuVDSUhaz1ZWNukvmIWT8L+ENhf9V2f1uEAzYvezAQ9\n' +
+      'tHCeYkExgZeO2EMeIk9bp+GioxC4D12mlHZZxhEfmOxQPka6UFuIIZG8a4xnPVVW\n' +
+      'uVOOmizRBeoYxAIdbLukKBJgmRWjhbXdVElGLuZSoEDEuy1laFMuhPwUmMne9VBM\n' +
+      'o8iDoT6bF+TD3hu86bqwhnG8M/p5ycqaeMaDlsq/xhLaFuvzGI/QOlYsYGm/Ax+h\n' +
+      'nE1I+63RAgMBAAECggEAA0zeQmjpfFJYhEsT4z2mJ2s+8QLS+MxaREu8ovkPjds2\n' +
+      '0arg7hHZWRPpqWMdXFAUsJ8BireGiFQeivgjD/SF0bjxruQhePw+I5rNGuVKMDHJ\n' +
+      'G+q6rNkfdOdDWIPL67aXo8iXtLgDjXJlvze2deWG7WwUq6CU4z2mX21ApfcocX0h\n' +
+      '7h0AHVWZna5960DA8+HJMBaPN4L60ES3Py1ojr+yD6sPeL62Oq6lGe3ZhZiNaVJI\n' +
+      '1UFatQV0iKqwGAXLyRpI+V4hCxnbtPaYusy6jkxwULrB8sdt5HM7lU4aj6hGgLTD\n' +
+      'A645cde3LWSb9prkMZIZ9VIlt6ulN8EHulEaWlF3QQKBgQDVI90qJNINiKFEXdrA\n' +
+      'jJ3RDtNzoYqG2UQ2AHLs2TBLM8Iwr+Suah10T4JT026jYhcincQ5EMCncpQtx86h\n' +
+      'sQyaF7i0ovG3jMPzBnp+FRdw6dp6sZWv4vA50yU4DEIRKZmKbUbm8oTq48Y0V4hd\n' +
+      'fgdpRmB3yiMeEt8g7qkp9r6ekQKBgQDVEkL/RT8No8L43nZcU62MWcREFe4AiZ+M\n' +
+      '0HvMMyvL9HRrtsam/QffnMgwg77QXZZ9Q2GvhJpXMD5ggEB/xmsUDnpo8mfu5Uy4\n' +
+      'avrsH7R1x92/1gD6ewVGyHCcnGC5SEtKVS/+BjmX/gY1CInmk+fLMk+wJm+WzRWR\n' +
+      'WJ/XTGo7QQKBgCT7GwWT6+ozOZ/uFOVxwHQkeWXHsoxhKCeifk5ABNQXf+sIqcnl\n' +
+      'WYTzwq4eskSg4Vi9PO2VzYeAJtumnmCJoqEd2otk9kGdp+YDyr8Tk8SgnqrJIyqo\n' +
+      'Wnv9+ag24EOwDxbojPPHQm6q5JnyUhO+qTSH5HcEWIGATrydDDbevAYxAoGALKHG\n' +
+      'pvI6YwEKtlbjNDPTBrNHCXwOfs5VPYnuZLfTVMXAHVAMDK60F4Mf7AmszrjL7TFQ\n' +
+      'JRQBwIG6jzxORnWpuGnP+mvMmZ4uk/LU3OFHS+Sx7p1FVzKtyEX0UNnw6N7b5pYx\n' +
+      'l2R2bAAqDLHdMQ+KXmYLizqB5XTQL8IAuXioSAECgYEAspZtT4rWB+g44EOPqgTQ\n' +
+      'f+oajUAFO+5fr7hKrroXbZ5nbmzphUW9iCq1XIbAXXEwZ26OhoYFX73J7MXdD9QH\n' +
+      'UE5x40plpip9kpytqNFWqWRNDbVuT7Bl554y5ItGlwUmItMG3Fg3kNZv
