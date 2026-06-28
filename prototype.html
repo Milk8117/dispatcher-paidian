@@ -3059,11 +3059,16 @@
     // 自动登录（直接用默认调度员身份）
     async function initChat() {
       var dispName = '小米';
+      var container = document.getElementById('chatSdkContainer');
+      var dbg = function(msg) { console.log('[ChatSDK]', msg); if(container) container.innerHTML = '<div style="padding:20px;color:#fff;font-size:13px;background:#1a1a2e;height:100%;">' + msg + '</div>'; };
       try {
-        if (typeof KJUR === 'undefined') throw new Error('加密库未加载');
+        if (typeof CozeWebSDK === 'undefined') { dbg('❌ CozeWebSDK 未加载'); return; }
+        if (typeof KJUR === 'undefined') { dbg('❌ 加密库(jsrsasign)未加载'); return; }
+        dbg('✅ SDK库已加载<br>🔄 正在获取Token...');
         var sessionName = 'disp_' + dispName + '_' + Date.now();
         var jwt = signJWT(sessionName);
         var accessToken = await getAccessToken(jwt);
+        dbg('✅ Token获取成功<br>🔄 正在初始化Chat...');
 
         new CozeWebSDK.WebChatClient({
           config: { type: 'bot', bot_id: BOT_ID },
@@ -3089,7 +3094,7 @@
           }
         });
       } catch(err) {
-        console.error('Auth failed:', err);
+        dbg('❌ 初始化失败: ' + err.message);
       }
     }
 
