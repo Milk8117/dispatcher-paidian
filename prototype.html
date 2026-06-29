@@ -3071,6 +3071,8 @@
         dbg('✅ Token获取成功<br>🔄 正在初始化Chat...');
 
         new CozeWebSDK.WebChatClient({
+          mode: 'inlay',
+          getContainer: function() { return document.getElementById('chatSdkContainer'); },
           config: { type: 'bot', bot_id: BOT_ID },
           auth: {
             type: 'token', token: accessToken,
@@ -3080,16 +3082,7 @@
           ui: {
             base: {
               icon: 'https://lf-coze-web-cdn.coze.cn/obj/eden-cn/lm-lgvj/ljhwZthlaukjlkulzlp/coze/chatsdk-logo.png',
-              layout: 'pc', lang: 'zh-CN', zIndex: 1000
-            },
-            header: { isShow: false, isNeedClose: false },
-            asstBtn: { isNeed: false },
-            footer: { isShow: false },
-            chatBot: {
-              title: '派单助手',
-              uploadable: false,
-              width: 390,
-              el: document.getElementById('chatSdkContainer')
+              lang: 'zh-CN', zIndex: 1000
             }
           }
         });
