@@ -2085,6 +2085,8 @@
       var cards = document.querySelectorAll('.order-card');
       var counts = { daipai: 0, yipai: 0, jinxing: 0, wancheng: 0, quxiao: 0 };
       cards.forEach(function(c) {
+        // 只统计可见卡片（未被筛选隐藏的）
+        if (c.style.display === 'none') return;
         var s = c.getAttribute('data-status');
         if (counts[s] !== undefined) counts[s]++;
       });
@@ -2115,7 +2117,7 @@
         if (d.status !== 'daipai' && d.status !== 'quxiao' && d.cost) {
           totalCost += d.cost;
         }
-        if (d.status === 'wancheng' && d.warranty === 'out') {
+        if (d.status !== 'daipai' && d.status !== 'quxiao' && d.warranty === 'out') {
           yingshou += d.actualAmount;
           yijie += d.paidAmount;
         }
@@ -2926,7 +2928,7 @@
         if (d.status !== 'daipai' && d.status !== 'quxiao' && d.cost) {
           calcCost += d.cost;
         }
-        if (d.status === 'wancheng' && d.warranty === 'out') {
+        if (d.status !== 'daipai' && d.status !== 'quxiao' && d.warranty === 'out') {
           calcYingshou += d.actualAmount;
           calcYijie += d.paidAmount;
         }
