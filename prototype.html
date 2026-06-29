@@ -1001,7 +1001,7 @@
       .panel-header { background: #4CAF50 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     }
 
-
+  
     /* ===== Chat SDK 内嵌样式 ===== */
     #chatSdkContainer {
       display: flex;
@@ -1020,7 +1020,7 @@
       right: 0 !important;
       bottom: 0 !important;
     }
-  </style>
+</style>
   <script src="https://cdn.jsdelivr.net/npm/jsrsasign@11.1.0/lib/jsrsasign-all-min.js"></script>
   <script src="https://lf-cdn.coze.cn/obj/unpkg/flow-platform/chat-app-sdk/1.2.0-beta.20/libs/cn/index.js"></script>
 </head>
@@ -1101,76 +1101,7 @@
 
       <!-- 工单列表 -->
       <div class="list-area" id="orderList">
-        <div class="order-card" data-order="#20260616001" data-status="daipai" data-customer="赵总" data-service="空调维修" data-worker="">
-          <div class="order-top">
-            <span class="order-id">#20260616001</span>
-            <span class="order-status status-daipai">待派</span>
-          </div>
-          <div class="order-info">
-            <span>🔧 空调维修 <span class="warranty-tag warranty-out">维保外</span></span>
-            <span>💰 ¥150</span>
-            <span>👤 赵总</span>
-          </div>
-        </div>
-        <div class="order-card" data-order="#20260616002" data-status="yipai" data-customer="李总" data-service="空调维修" data-worker="陈师傅">
-          <div class="order-top">
-            <span class="order-id">#20260616002</span>
-            <span class="order-status status-yipai">已派</span>
-          </div>
-          <div class="order-info">
-            <span>🔧 空调维修 <span class="warranty-tag warranty-in">维保内</span></span>
-            <span>💰 免费</span>
-            <span>👷 陈师傅</span>
-            <span>👤 李总</span>
-          </div>
-        </div>
-        <div class="order-card" data-order="#20260618001" data-status="jinxing" data-customer="王总" data-service="水电维修" data-worker="周师傅">
-          <div class="order-top">
-            <span class="order-id">#20260618001</span>
-            <span class="order-status status-jinxing">进行中</span>
-          </div>
-          <div class="order-info">
-            <span>🔧 水电维修 <span class="warranty-tag warranty-out">维保外</span></span>
-            <span>💰 ¥100</span>
-            <span>👷 周师傅</span>
-            <span>👤 王总</span>
-          </div>
-        </div>
-        <div class="order-card" data-order="#20260619001" data-status="wancheng" data-customer="孙总" data-service="管道疏通" data-worker="张师傅">
-          <div class="order-top">
-            <span class="order-id">#20260619001</span>
-            <span class="order-status status-wancheng">已完成</span>
-          </div>
-          <div class="order-info">
-            <span>🔧 管道疏通 <span class="warranty-tag warranty-out">维保外</span></span>
-            <span>💰 ¥120</span>
-            <span>👷 张师傅</span>
-            <span>👤 孙总</span>
-          </div>
-        </div>
-        <div class="order-card" data-order="#20260620001" data-status="daipai" data-customer="钱总" data-service="空调维修" data-worker="">
-          <div class="order-top">
-            <span class="order-id">#20260620001</span>
-            <span class="order-status status-daipai">待派</span>
-          </div>
-          <div class="order-info">
-            <span>🔧 空调维修 <span class="warranty-tag warranty-out">维保外</span></span>
-            <span>💰 ¥150</span>
-            <span>👤 钱总</span>
-          </div>
-        </div>
-        <div class="order-card" data-order="#20260625001" data-status="wancheng" data-customer="赵总" data-service="空调维修" data-worker="周师傅">
-          <div class="order-top">
-            <span class="order-id">#20260625001</span>
-            <span class="order-status status-wancheng">已完成</span>
-          </div>
-          <div class="order-info">
-            <span>🔧 空调维修 <span class="warranty-tag warranty-out">维保外</span></span>
-            <span>💰 ¥150</span>
-            <span>👷 周师傅</span>
-            <span>👤 赵总</span>
-          </div>
-        </div>
+        <!-- 动态渲染 -->
       </div>
 
       <!-- 工单详情 -->
@@ -1188,66 +1119,8 @@
       </div>
 
       <!-- 人员列表 -->
-      <div class="list-area" id="workerList" style="display:none;">
-        <div class="worker-card">
-          <div class="worker-top">
-            <span class="worker-name">👷 周师傅</span>
-            <span class="worker-status ws-kongxian">空闲</span>
-          </div>
-          <div class="worker-detail">
-            <span>📍 锦绣路片区</span>
-            <span>📞 13800001001</span>
-            <span>📋 今日2单 / 累计21单</span>
-          </div>
-          <div style="margin-top:6px;">
-            <span class="skill-tag">空调</span>
-          </div>
-        </div>
-        <div class="worker-card">
-          <div class="worker-top">
-            <span class="worker-name">👷 陈师傅</span>
-            <span class="worker-status ws-zaitu">在途</span>
-          </div>
-          <div class="worker-detail">
-            <span>📍 河西片区</span>
-            <span>📞 13800001002</span>
-            <span>📋 今日1单 / 累计16单</span>
-          </div>
-          <div style="margin-top:6px;">
-            <span class="skill-tag">空调</span>
-            <span class="skill-tag">综合</span>
-          </div>
-        </div>
-        <div class="worker-card">
-          <div class="worker-top">
-            <span class="worker-name">👷 张师傅</span>
-            <span class="worker-status ws-kongxian">空闲</span>
-          </div>
-          <div class="worker-detail">
-            <span>📍 城东片区</span>
-            <span>📞 13800001003</span>
-            <span>📋 今日3单 / 累计18单</span>
-          </div>
-          <div style="margin-top:6px;">
-            <span class="skill-tag">空调</span>
-            <span class="skill-tag">综合</span>
-          </div>
-        </div>
-        <div class="worker-card">
-          <div class="worker-top">
-            <span class="worker-name">👷 李师傅</span>
-            <span class="worker-status ws-kongxian">空闲</span>
-          </div>
-          <div class="worker-detail">
-            <span>📍 城北片区</span>
-            <span>📞 13800001004</span>
-            <span>📋 今日0单 / 累计8单</span>
-          </div>
-          <div style="margin-top:6px;">
-            <span class="skill-tag">水电</span>
-            <span class="skill-tag">管道</span>
-          </div>
-        </div>
+      <div class="list-area" id="workerList">
+        <!-- 动态渲染 -->
       </div>
 
       <!-- 客户列表 -->
@@ -1326,6 +1199,9 @@
   </div>
 
   <script>
+    // ===== API配置 =====
+    var API_BASE = 'https://1445653450-gwao2cewhn.ap-guangzhou.tencentscf.com';
+
     // ===== 收费标准（预制） =====
     var priceTable = {
       '空调维修': 150,
@@ -1338,87 +1214,302 @@
       '电路检修': 100
     };
 
-    // ===== 工单详情数据 =====
-    var orderDetails = {
-      '#20260616001': {
-        id: '#20260616001', status: 'daipai', statusText: '待派',
-        customer: '赵总', customerPhone: '138****1001',
-        service: '空调维修', priority: '普通',
-        address: '锦绣路88号 3栋502',
-        worker: '', workerPhone: '',
-        createTime: '2026-06-16 09:30',
-        assignTime: '', finishTime: '',
-        warranty: 'out', warrantyText: '维保外',
-        serviceAmount: 150, actualAmount: 0, paidAmount: 0,
-        cost: 80,
-        desc: '客厅空调又不制冷了，上次修过一次好了几天又出问题。'
-      },
-      '#20260616002': {
-        id: '#20260616002', status: 'yipai', statusText: '已派',
-        customer: '李总', customerPhone: '138****1002',
-        service: '空调维修', priority: '紧急',
-        address: '河西大街12号 A座1601',
-        worker: '陈师傅', workerPhone: '138****1002',
-        createTime: '2026-06-16 10:15', assignTime: '2026-06-16 10:22',
-        finishTime: '',
-        warranty: 'in', warrantyText: '维保内',
-        serviceAmount: 0, actualAmount: 0, paidAmount: 0,
-        cost: 60,
-        desc: '办公室中央空调漏水，影响办公，需要尽快处理。'
-      },
-      '#20260618001': {
-        id: '#20260618001', status: 'jinxing', statusText: '进行中',
-        customer: '王总', customerPhone: '138****1003',
-        service: '水电维修', priority: '普通',
-        address: '城东花园小区 7栋301',
-        worker: '周师傅', workerPhone: '138****1001',
-        createTime: '2026-06-18 14:00', assignTime: '2026-06-18 14:05',
-        finishTime: '',
-        warranty: 'out', warrantyText: '维保外',
-        serviceAmount: 100, actualAmount: 0, paidAmount: 0,
-        cost: 50,
-        desc: '厨房水龙头漏水，卫生间灯不亮。'
-      },
-      '#20260619001': {
-        id: '#20260619001', status: 'wancheng', statusText: '已完成',
-        customer: '孙总', customerPhone: '138****1004',
-        service: '管道疏通', priority: '普通',
-        address: '阳光城小区 2栋1803',
-        worker: '张师傅', workerPhone: '138****1003',
-        createTime: '2026-06-19 08:30', assignTime: '2026-06-19 08:35',
-        finishTime: '2026-06-19 11:20',
-        warranty: 'out', warrantyText: '维保外',
-        serviceAmount: 120, actualAmount: 120, paidAmount: 0,
-        cost: 55,
-        desc: '卫生间下水道堵塞，已疏通完毕，客户确认满意。'
-      },
-      '#20260620001': {
-        id: '#20260620001', status: 'daipai', statusText: '待派',
-        customer: '钱总', customerPhone: '138****1005',
-        service: '空调维修', priority: '紧急',
-        address: '锦绣路166号 B栋2201',
-        worker: '', workerPhone: '',
-        createTime: '2026-06-20 16:45', assignTime: '', finishTime: '',
-        warranty: 'out', warrantyText: '维保外',
-        serviceAmount: 150, actualAmount: 0, paidAmount: 0,
-        cost: 80,
-        desc: '卧室空调完全不启动，遥控器有电但无反应。'
-      },
-      // 赵总第1次空调维修（已完成）- 与#20260616001构成重复报修
-      '#20260625001': {
-        id: '#20260625001', status: 'wancheng', statusText: '已完成',
-        customer: '赵总', customerPhone: '138****1001',
-        service: '空调维修', priority: '普通',
-        address: '锦绣路88号 3栋502',
-        worker: '周师傅', workerPhone: '138****1001',
-        createTime: '2026-06-25 08:00', assignTime: '2026-06-25 08:05',
-        finishTime: '2026-06-25 10:30',
-        warranty: 'out', warrantyText: '维保外',
-        serviceAmount: 150, actualAmount: 150, paidAmount: 150,
-        cost: 80,
-        desc: '客厅空调又不制冷了，上次修过一次好了几天又出问题。'
-      }
+    // ===== 工单详情数据（从API加载或降级使用硬编码） =====
+    var orderDetails = {};
+    var workers = [];
+
+    // ===== 状态映射 =====
+    var statusMap = {
+      '待派': 'daipai',
+      '已派': 'yipai',
+      '进行中': 'jinxing',
+      '已完成': 'wancheng',
+      '已取消': 'quxiao'
     };
+    var statusTextMap = {
+      'daipai': '待派',
+      'yipai': '已派',
+      'jinxing': '进行中',
+      'wancheng': '已完成',
+      'quxiao': '已取消'
+    };
+
+    // ===== API数据加载 =====
+    async function loadDataFromAPI() {
+      try {
+        // 并行加载工单和人员数据
+        var [ordersResp, personnelResp] = await Promise.all([
+          fetch(API_BASE + '/api/orders'),
+          fetch(API_BASE + '/api/personnel')
+        ]);
+        
+        var ordersData = await ordersResp.json();
+        var personnelData = await personnelResp.json();
+        
+        // 处理工单数据
+        if (ordersData && ordersData.ok && Array.isArray(ordersData.data)) {
+          orderDetails = {};
+          ordersData.data.forEach(function(item) {
+            var statusKey = statusMap[item.状态] || 'daipai';
+            var orderId = item.工单编号 || item.recordId;
+            orderDetails[orderId] = {
+              id: orderId,
+              recordId: item.recordId,
+              status: statusKey,
+              statusText: statusTextMap[statusKey] || item.状态,
+              customer: item.客户名称 || '',
+              customerPhone: item.客户电话 || '',
+              service: item.服务类型 || '',
+              priority: item.优先级 || '普通',
+              address: item.服务地址 || '',
+              worker: item.派给谁 || '',
+              workerPhone: '',
+              createTime: formatTime(item.创建时间),
+              assignTime: formatTime(item.出发时间),
+              finishTime: formatTime(item.完成时间),
+              warranty: 'out',
+              warrantyText: '维保外',
+              serviceAmount: parseFloat(item.费用) || 0,
+              actualAmount: 0,
+              paidAmount: 0,
+              cost: 0,
+              desc: (item.问题描述 || '') + (item.备注 ? '\n备注：' + item.备注 : '')
+            };
+          });
+        }
+        
+        // 处理人员数据
+        if (personnelData && personnelData.ok && Array.isArray(personnelData.data)) {
+          workers = [];
+          personnelData.data.forEach(function(item) {
+            var workerStatus = item.状态 === '空闲' ? '空闲' : (item.状态 === '在途' ? '在途' : '休息');
+            var statusCls = workerStatus === '空闲' ? 'ws-kongxian' : (workerStatus === '在途' ? 'ws-zaitu' : 'ws-xiuxi');
+            workers.push({
+              name: item.姓名 || '',
+              phone: item.电话 || '',
+              status: workerStatus,
+              cls: statusCls,
+              area: item.当前位置 || '',
+              skill: (item.技能标签 || '').replace(/\//g, '+'),
+              todayOrders: item.今日工单数 || 0,
+              totalOrders: item.累计工单数 || 0,
+              recordId: item.recordId
+            });
+          });
+        }
+        
+        console.log('API数据加载成功', { orders: Object.keys(orderDetails).length, workers: workers.length });
+      } catch (err) {
+        console.warn('API加载失败，使用降级数据:', err);
+        loadFallbackData();
+      }
+      
+      // 渲染UI
+      renderOrderList();
+      renderWorkerList();
+      renderOrderCards();
+      updateStats();
+      initOrderCardEvents();
+    }
+
+    // ===== 降级硬编码数据 =====
+    function loadFallbackData() {
+      orderDetails = {
+        '#20260616001': {
+          id: '#20260616001', status: 'daipai', statusText: '待派',
+          customer: '赵总', customerPhone: '138****1001',
+          service: '空调维修', priority: '普通',
+          address: '锦绣路88号 3栋502',
+          worker: '', workerPhone: '',
+          createTime: '2026-06-16 09:30',
+          assignTime: '', finishTime: '',
+          warranty: 'out', warrantyText: '维保外',
+          serviceAmount: 150, actualAmount: 0, paidAmount: 0,
+          cost: 80,
+          desc: '客厅空调又不制冷了，上次修过一次好了几天又出问题。'
+        },
+        '#20260616002': {
+          id: '#20260616002', status: 'yipai', statusText: '已派',
+          customer: '李总', customerPhone: '138****1002',
+          service: '空调维修', priority: '紧急',
+          address: '河西大街12号 A座1601',
+          worker: '陈师傅', workerPhone: '138****1002',
+          createTime: '2026-06-16 10:15', assignTime: '2026-06-16 10:22',
+          finishTime: '',
+          warranty: 'in', warrantyText: '维保内',
+          serviceAmount: 0, actualAmount: 0, paidAmount: 0,
+          cost: 60,
+          desc: '办公室中央空调漏水，影响办公，需要尽快处理。'
+        },
+        '#20260618001': {
+          id: '#20260618001', status: 'jinxing', statusText: '进行中',
+          customer: '王总', customerPhone: '138****1003',
+          service: '水电维修', priority: '普通',
+          address: '城东花园小区 7栋301',
+          worker: '周师傅', workerPhone: '138****1001',
+          createTime: '2026-06-18 14:00', assignTime: '2026-06-18 14:05',
+          finishTime: '',
+          warranty: 'out', warrantyText: '维保外',
+          serviceAmount: 100, actualAmount: 0, paidAmount: 0,
+          cost: 50,
+          desc: '厨房水龙头漏水，卫生间灯不亮。'
+        },
+        '#20260619001': {
+          id: '#20260619001', status: 'wancheng', statusText: '已完成',
+          customer: '孙总', customerPhone: '138****1004',
+          service: '管道疏通', priority: '普通',
+          address: '阳光城小区 2栋1803',
+          worker: '张师傅', workerPhone: '138****1003',
+          createTime: '2026-06-19 08:30', assignTime: '2026-06-19 08:35',
+          finishTime: '2026-06-19 11:20',
+          warranty: 'out', warrantyText: '维保外',
+          serviceAmount: 120, actualAmount: 120, paidAmount: 0,
+          cost: 55,
+          desc: '卫生间下水道堵塞，已疏通完毕，客户确认满意。'
+        },
+        '#20260620001': {
+          id: '#20260620001', status: 'daipai', statusText: '待派',
+          customer: '钱总', customerPhone: '138****1005',
+          service: '空调维修', priority: '紧急',
+          address: '锦绣路166号 B栋2201',
+          worker: '', workerPhone: '',
+          createTime: '2026-06-20 16:45', assignTime: '', finishTime: '',
+          warranty: 'out', warrantyText: '维保外',
+          serviceAmount: 150, actualAmount: 0, paidAmount: 0,
+          cost: 80,
+          desc: '卧室空调完全不启动，遥控器有电但无反应。'
+        },
+        '#20260625001': {
+          id: '#20260625001', status: 'wancheng', statusText: '已完成',
+          customer: '赵总', customerPhone: '138****1001',
+          service: '空调维修', priority: '普通',
+          address: '锦绣路88号 3栋502',
+          worker: '周师傅', workerPhone: '138****1001',
+          createTime: '2026-06-25 08:00', assignTime: '2026-06-25 08:05',
+          finishTime: '2026-06-25 10:30',
+          warranty: 'out', warrantyText: '维保外',
+          serviceAmount: 150, actualAmount: 150, paidAmount: 150,
+          cost: 80,
+          desc: '客厅空调又不制冷了，上次修过一次好了几天又出问题。'
+        }
+      };
+      
+      workers = [
+        { name: '周师傅', area: '锦绣路片区', skill: '空调', status: '空闲', cls: 'ws-kongxian', phone: '138****1001' },
+        { name: '陈师傅', area: '河西片区', skill: '空调+综合', status: '在途', cls: 'ws-zaitu', phone: '138****1002' },
+        { name: '张师傅', area: '城东片区', skill: '空调+综合', status: '空闲', cls: 'ws-kongxian', phone: '138****1003' },
+        { name: '李师傅', area: '城北片区', skill: '水电+管道', status: '空闲', cls: 'ws-kongxian', phone: '138****1004' }
+      ];
+    }
+
+    // ===== 时间格式化 =====
+    function formatTime(timestamp) {
+      if (!timestamp) return '';
+      var d = new Date(timestamp);
+      if (isNaN(d.getTime())) return '';
+      return d.toLocaleString('zh-CN', {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).replace(/\//g, '-');
+    }
+
+    // ===== 渲染工单列表（基于数据） =====
+    function renderOrderList() {
+      // 动态渲染工单列表
+    }
+
+    // ===== 渲染人员卡片 =====
+    function renderWorkerList() {
+      var workerListEl = document.getElementById('workerList');
+      if (!workerListEl) return;
+      
+      var html = '';
+      workers.forEach(function(w) {
+        html += '<div class="worker-card">';
+        html += '  <div class="worker-top">';
+        html += '    <span class="worker-name">👷 ' + w.name + '</span>';
+        html += '    <span class="worker-status ' + w.cls + '">' + w.status + '</span>';
+        html += '  </div>';
+        html += '  <div class="worker-detail">';
+        html += '    <span>📍 ' + w.area + '</span>';
+        html += '    <span>📞 ' + w.phone + '</span>';
+        html += '    <span>📋 今日' + w.todayOrders + '单 / 累计' + w.totalOrders + '单</span>';
+        html += '  </div>';
+        html += '  <div style="margin-top:6px;">';
+        var skills = w.skill ? w.skill.split('+') : [];
+        skills.forEach(function(s) {
+          html += '<span class="skill-tag">' + s + '</span>';
+        });
+        html += '  </div>';
+        html += '</div>';
+      });
+      workerListEl.innerHTML = html;
+    }
+
+    // ===== 渲染工单卡片列表 =====
+    function renderOrderCards() {
+      var orderListEl = document.getElementById('orderList');
+      if (!orderListEl) return;
+      
+      var html = '';
+      var keys = Object.keys(orderDetails);
+      
+      // 按创建时间倒序排列
+      keys.sort(function(a, b) {
+        var da = orderDetails[a].createTime || '';
+        var db = orderDetails[b].createTime || '';
+        return db.localeCompare(da);
+      });
+      
+      keys.forEach(function(k) {
+        var d = orderDetails[k];
+        var warrantyCls = d.warranty === 'in' ? 'warranty-in' : 'warranty-out';
+        var warrantyText = d.warranty === 'in' ? '维保内' : '维保外';
+        var amountText = d.warranty === 'in' ? '免费' : '¥' + d.serviceAmount;
+        var workerText = d.worker ? '👷 ' + d.worker : '';
+        
+        html += '<div class="order-card" data-order="' + d.id + '" data-status="' + d.status + '" data-customer="' + d.customer + '" data-service="' + d.service + '" data-worker="' + (d.worker || '') + '">';
+        html += '  <div class="order-top">';
+        html += '    <span class="order-id">' + d.id + '</span>';
+        html += '    <span class="order-status ' + statusClassMap[d.status] + '">' + d.statusText + '</span>';
+        html += '  </div>';
+        html += '  <div class="order-info">';
+        html += '    <span>🔧 ' + d.service + ' <span class="warranty-tag ' + warrantyCls + '">' + warrantyText + '</span></span>';
+        html += '    <span>💰 ' + amountText + '</span>';
+        if (workerText) html += '    <span>' + workerText + '</span>';
+        html += '    <span>👤 ' + d.customer + '</span>';
+        html += '  </div>';
+        html += '</div>';
+      });
+      
+      orderListEl.innerHTML = html;
+    }
+
+    // ===== 初始化工单卡片点击事件 =====
+    function initOrderCardEvents() {
+      document.querySelectorAll('.order-card').forEach(function(card) {
+        card.addEventListener('click', function() {
+          var orderId = this.getAttribute('data-order');
+          showDetailView(orderId);
+          closePanel();
+        });
+      });
+    }
+
+    // ===== API回写函数 =====
+    async function apiUpdateOrder(recordId, data) {
+      try {
+        var resp = await fetch(API_BASE + '/api/orders/' + recordId, {
+          method: 'PUT',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(data)
+        });
+        if (!resp.ok) throw new Error('API error');
+        console.log('API更新成功', recordId, data);
+        return true;
+      } catch (err) {
+        console.warn('API更新失败', err);
+        showToast('⚠️ 网络异常，后台同步中');
+        return false;
+      }
+    }
 
     var statusClassMap = {
       daipai: 'status-daipai', yipai: 'status-yipai',
@@ -1631,14 +1722,7 @@
       showListView();
     });
 
-    // ===== 工单点击 → 详情页 =====
-    document.querySelectorAll('.order-card').forEach(function(card) {
-      card.addEventListener('click', function() {
-        var orderId = this.getAttribute('data-order');
-        showDetailView(orderId);
-        closePanel();
-      });
-    });
+    // ===== 工单点击 → 详情页（由initOrderCardEvents统一处理） =====
 
     // ===== 向Chat发送消息 =====
     function sendToChat(msg) {
@@ -1695,13 +1779,7 @@
       if (e.target === modalOverlay) closeModal();
     });
 
-    // 师傅数据
-    var workers = [
-      { name: '周师傅', area: '锦绣路片区', skill: '空调', status: '空闲', cls: 'ws-kongxian', phone: '138****1001' },
-      { name: '陈师傅', area: '河西片区', skill: '空调+综合', status: '在途', cls: 'ws-zaitu', phone: '138****1002' },
-      { name: '张师傅', area: '城东片区', skill: '空调+综合', status: '空闲', cls: 'ws-kongxian', phone: '138****1003' },
-      { name: '李师傅', area: '城北片区', skill: '水电+管道', status: '空闲', cls: 'ws-kongxian', phone: '138****1004' }
-    ];
+    // ===== 师傅数据（从API加载） =====
 
     // ===== 操作函数 - 带状态校验 =====
 
@@ -1777,22 +1855,28 @@
       d.status = 'yipai';
       d.statusText = '已派';
       d.worker = workerName;
+      var now = new Date().toLocaleString('zh-CN', {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).replace(/\//g, '-');
+      d.assignTime = now;
       // 查找并更新师傅电话
       var w = workers.find(function(x) { return x.name === workerName; });
       if (w) d.workerPhone = w.phone;
-      // 更新卡片
-      var card = document.querySelector('.order-card[data-order="' + orderId + '"]');
-      if (card) {
-        card.setAttribute('data-status', 'yipai');
-        card.setAttribute('data-worker', workerName);
-        var statusEl = card.querySelector('.order-status');
-        if (statusEl) { statusEl.className = 'order-status status-yipai'; statusEl.textContent = '已派'; }
-      }
+      // 重新渲染工单列表
+      renderOrderCards();
+      initOrderCardEvents();
       // 立即刷新详情页按钮区（根据新状态渲染）
       showDetailView(orderId);
       showToast('✅ 已派给 ' + workerName);
       sendToChat('派单 ' + orderId + ' 给 ' + workerName);
       updateStats();
+      
+      // API回写（静默执行，不阻塞UI）
+      if (d.recordId) {
+        apiUpdateOrder(d.recordId, {
+          '状态': '已派',
+          '派给谁': workerName,
+          '出发时间': Date.now()
+        });
+      }
     }
 
     // 催单提醒
@@ -1902,17 +1986,23 @@
       d.status = 'wancheng';
       d.statusText = '已完成';
       d.finishTime = new Date().toLocaleString('zh-CN', {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).replace(/\//g, '-');
-      var card = document.querySelector('.order-card[data-order="' + orderId + '"]');
-      if (card) {
-        card.setAttribute('data-status', 'wancheng');
-        var statusEl = card.querySelector('.order-status');
-        if (statusEl) { statusEl.className = 'order-status status-wancheng'; statusEl.textContent = '已完成'; }
-      }
+      // 重新渲染工单列表
+      renderOrderCards();
+      initOrderCardEvents();
       // 立即刷新详情页按钮区
       showDetailView(orderId);
       showToast('✅ 工单已标记完成');
       sendToChat('完成 ' + orderId);
       updateStats();
+      
+      // API回写（静默执行，不阻塞UI）
+      if (d.recordId) {
+        apiUpdateOrder(d.recordId, {
+          '状态': '已完成',
+          '完成时间': Date.now(),
+          '费用': d.actualAmount
+        });
+      }
     }
 
     // 确认到账
@@ -1964,6 +2054,13 @@
       showDetailView(orderId);
       showToast('✅ ¥' + d.actualAmount + ' 已确认到账');
       updateStats();
+      
+      // API回写：在备注字段记录到账信息
+      if (d.recordId) {
+        apiUpdateOrder(d.recordId, {
+          '备注': (d.desc || '') + ' [已到账 ' + new Date().toLocaleDateString() + ']'
+        });
+      }
     }
 
     // 客户回访
@@ -3056,19 +3153,17 @@
       return token;
     }
 
-    // 自动登录（直接用默认调度员身份）
+    // 页面加载后自动加载API数据
+    loadDataFromAPI();
+    
+    // 自动登录Chat（直接用默认调度员身份）
     async function initChat() {
       var dispName = '小米';
-      var container = document.getElementById('chatSdkContainer');
-      var dbg = function(msg) { console.log('[ChatSDK]', msg); if(container) container.innerHTML = '<div style="padding:20px;color:#fff;font-size:13px;background:#1a1a2e;height:100%;">' + msg + '</div>'; };
       try {
-        if (typeof CozeWebSDK === 'undefined') { dbg('❌ CozeWebSDK 未加载'); return; }
-        if (typeof KJUR === 'undefined') { dbg('❌ 加密库(jsrsasign)未加载'); return; }
-        dbg('✅ SDK库已加载<br>🔄 正在获取Token...');
+        if (typeof KJUR === 'undefined') throw new Error('加密库未加载');
         var sessionName = 'disp_' + dispName + '_' + Date.now();
         var jwt = signJWT(sessionName);
         var accessToken = await getAccessToken(jwt);
-        dbg('✅ Token获取成功<br>🔄 正在初始化Chat...');
 
         new CozeWebSDK.WebChatClient({
           mode: 'inlay',
@@ -3087,13 +3182,17 @@
           }
         });
       } catch(err) {
-        dbg('❌ 初始化失败: ' + err.message);
+        console.error('Auth failed:', err);
       }
     }
 
     // 页面加载后自动初始化
     initChat();
-    updateStats();
+    
+    // 每30秒自动刷新数据（代理写入飞书后看板自动同步）
+    setInterval(function() {
+      if (typeof loadDataFromAPI === 'function') loadDataFromAPI();
+    }, 30000);
   </script>
 </body>
 </html>
