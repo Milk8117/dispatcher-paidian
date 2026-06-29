@@ -1267,10 +1267,10 @@
               createTime: formatTime(item.创建时间),
               assignTime: formatTime(item.出发时间),
               finishTime: formatTime(item.完成时间),
-              warranty: 'out',
-              warrantyText: '维保外',
+              warranty: (item.维保状态 === '维保内' ? 'in' : 'out'),
+              warrantyText: item.维保状态 || '维保外',
               serviceAmount: parseFloat(item.费用) || 0,
-              actualAmount: 0,
+              actualAmount: parseFloat(item.费用) || 0,
               paidAmount: 0,
               cost: 0,
               desc: (item.问题描述 || '') + (item.备注 ? '\n备注：' + item.备注 : '')
