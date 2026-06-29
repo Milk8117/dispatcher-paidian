@@ -1310,6 +1310,7 @@
       renderOrderCards();
       updateStats();
       initOrderCardEvents();
+      applyFilters();
     }
 
     // ===== 降级硬编码数据 =====
@@ -1863,6 +1864,7 @@
       // 重新渲染工单列表
       renderOrderCards();
       initOrderCardEvents();
+      applyFilters();
       // 立即刷新详情页按钮区（根据新状态渲染）
       showDetailView(orderId);
       showToast('✅ 已派给 ' + workerName);
@@ -1989,6 +1991,7 @@
       // 重新渲染工单列表
       renderOrderCards();
       initOrderCardEvents();
+      applyFilters();
       // 立即刷新详情页按钮区
       showDetailView(orderId);
       showToast('✅ 工单已标记完成');
