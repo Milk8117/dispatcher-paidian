@@ -1080,9 +1080,6 @@ body {
 
   // ==================== Event ====================
   btnSubmit.addEventListener('click', function() {
-    // Hide debug bar on first click
-    var dbgEl = document.getElementById('jsDebug');
-    if (dbgEl) dbgEl.style.display = 'none';
     try {
     if (!validate()) return;
 
