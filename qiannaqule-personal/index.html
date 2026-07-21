@@ -463,10 +463,18 @@ body {
       <div class="form-error">请输入有效的存款金额</div>
     </div>
 
-    <div class="form-group" id="grpInvestment">
-      <label class="form-label">投资持仓市值 <span class="optional">（股票、基金、债券等，无则留 0）</span></label>
+    <div class="form-group" id="grpEquityInvest">
+      <label class="form-label">权益投资市值 <span class="optional">（股票、股票型基金、混合基金等，无则留 0）</span></label>
       <div class="form-row">
-        <input type="number" class="form-input" id="investment" placeholder="例如 50000" min="0" step="1">
+        <input type="number" class="form-input" id="equityInvest" placeholder="例如 30000" min="0" step="1">
+        <span class="form-unit">元</span>
+      </div>
+    </div>
+
+    <div class="form-group" id="grpStableInvest">
+      <label class="form-label">稳健投资市值 <span class="optional">（债券基金、货币基金、定期理财等，无则留 0）</span></label>
+      <div class="form-row">
+        <input type="number" class="form-input" id="stableInvest" placeholder="例如 20000" min="0" step="1">
         <span class="form-unit">元</span>
       </div>
     </div>
@@ -613,7 +621,7 @@ body {
   // ==================== Scoring Engine ====================
   /**
    * @param {Object} data
-   *   income, expense, savings, investment, property, debt, monthlyPay, annualPremium, lifeInsurance(万元), ageGroup(1-5)
+   *   income, expense, savings, equityInvest, stableInvest, property, debt, monthlyPay, annualPremium, lifeInsurance(万元), ageGroup(1-5)
    * @returns {Object} { total, grade, gradeLabel, gradeDesc, dimensions, diagnosis, suggestions, insuranceTip }
    */
     function scoringEngine(data) {
@@ -621,7 +629,9 @@ body {
     var otherIncome = data.otherIncome;     // 月其他收入
     var expense = data.expense;
     var savings = data.savings;
-    var investment = data.investment;
+    var equityInvest = data.equityInvest;   // 权益投资（股票、股票型基金、混合基金）
+    var stableInvest = data.stableInvest;   // 稳健投资（债券基金、货基、定期理财）
+    var investment = equityInvest + stableInvest; // 投资总额（兼容后续计算）
     var prop = data.property;
     var bankDebt = data.bankDebt;
     var otherDebt = data.otherDebt;
@@ -720,7 +730,18 @@ body {
     else if (investNonPropRatio >= 0.15) score5b = 70;
     else score5b = 40;
 
-    var dim5Score = Math.round((score5a + score5b) / 2);
+    // 5c. 权益与稳健配比（权益占比30%-60%为优）
+    var score5c;
+    if (investment === 0) {
+      score5c = 40; // 无任何投资
+    } else {
+      var equityRatio = equityInvest / investment;
+      if (equityRatio >= 0.3 && equityRatio <= 0.6) score5c = 100;
+      else if (equityRatio >= 0.15 && equityRatio <= 0.75) score5c = 70;
+      else score5c = 40;
+    }
+
+    var dim5Score = Math.round((score5a + score5b + score5c) / 3);
 
     // ---- Dimension 6: 风险保障充足度 (10%) ----
     var annualIncome = income * 12;
@@ -934,7 +955,8 @@ body {
       { id: 'otherIncome', grp: 'grpOtherIncome', required: false },
       { id: 'expense', grp: 'grpExpense', required: true },
       { id: 'savings', grp: 'grpSavings', required: true },
-      { id: 'investment', grp: 'grpInvestment', required: false },
+      { id: 'equityInvest', grp: 'grpEquityInvest', required: false },
+      { id: 'stableInvest', grp: 'grpStableInvest', required: false },
       { id: 'property', grp: 'grpProperty', required: false },
       { id: 'bankDebt', grp: 'grpBankDebt', required: false },
       { id: 'otherDebt', grp: 'grpOtherDebt', required: false },
@@ -1084,7 +1106,8 @@ body {
       otherIncome: Number($('otherIncome').value) || 0,
       expense: Number($('expense').value) || 0,
       savings: Number($('savings').value) || 0,
-      investment: Number($('investment').value) || 0,
+      equityInvest: Number($('equityInvest').value) || 0,
+      stableInvest: Number($('stableInvest').value) || 0,
       property: Number($('property').value) || 0,
       bankDebt: Number($('bankDebt').value) || 0,
       otherDebt: Number($('otherDebt').value) || 0,
