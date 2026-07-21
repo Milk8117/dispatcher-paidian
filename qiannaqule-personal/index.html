@@ -965,11 +965,7 @@ body {
           valid = false;
         }
       }
-      // 必填数字字段不允许为0
-      if (!r.isSelect && r.required && val !== '' && Number(val) === 0) {
-        grp.classList.add('has-error');
-        valid = false;
-      }
+      // 0是合法值（失业/创业/退休等场景），不拦截
     });
 
     return valid;
