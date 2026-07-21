@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>钱去哪了·个人版 — AI财务体检</title>
+<style>
+/* ========== Reset & Base ========== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  background: #f0f4f8;
+  color: #1a2a3a;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ========== Container ========== */
+.container {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 20px 16px 40px;
+}
+
+/* ========== Header ========== */
+.header {
+  text-align: center;
+  padding: 32px 0 24px;
+}
+.header-icon {
+  width: 56px; height: 56px;
+  background: linear-gradient(135deg, #2563eb, #1e40af);
+  border-radius: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 14px rgba(37,99,235,0.3);
+}
+.header-icon svg { width: 30px; height: 30px; fill: #fff; }
+.header h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 6px;
+}
+.header h1 span { color: #2563eb; }
+.header p {
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+/* ========== Form ========== */
+.form-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 28px 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.04);
+  margin-bottom: 24px;
+}
+.form-group {
+  margin-bottom: 18px;
+}
+.form-group:last-child { margin-bottom: 0; }
+.form-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 6px;
+}
+.form-label .optional {
+  font-weight: 400;
+  color: #94a3b8;
+  font-size: 0.8rem;
+  margin-left: 4px;
+}
+.form-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.form-input {
+  flex: 1;
+  height: 44px;
+  padding: 0 14px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 1rem;
+  color: #1a2a3a;
+  background: #f8fafc;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+  -webkit-appearance: none;
+}
+.form-input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+  background: #fff;
+}
+.form-input::placeholder { color: #94a3b8; font-size: 0.875rem; }
+.form-unit {
+  font-size: 0.85rem;
+  color: #64748b;
+  white-space: nowrap;
+  min-width: 22px;
+}
+.form-select {
+  flex: 1;
+  height: 44px;
+  padding: 0 14px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 1rem;
+  color: #1a2a3a;
+  background: #f8fafc;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+  cursor: pointer;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2394a3b8' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+}
+.form-select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+  background-color: #fff;
+}
+.form-error {
+  font-size: 0.78rem;
+  color: #ef4444;
+  margin-top: 4px;
+  display: none;
+}
+.form-group.has-error .form-input,
+.form-group.has-error .form-select {
+  border-color: #ef4444;
+}
+.form-group.has-error .form-error { display: block; }
+
+/* ========== Submit Button ========== */
+.btn-submit {
+  display: block;
+  width: 100%;
+  height: 50px;
+  margin-top: 24px;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #fff;
+  font-size: 1.05rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+  box-shadow: 0 4px 14px rgba(37,99,235,0.3);
+  letter-spacing: 0.5px;
+}
+.btn-submit:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(37,99,235,0.35); }
+.btn-submit:active { transform: translateY(0); box-shadow: 0 2px 8px rgba(37,99,235,0.3); }
+
+/* ========== Result Section ========== */
+.result-section {
+  display: none;
+  animation: fadeInUp 0.5s ease;
+}
+.result-section.visible { display: block; }
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Score Ring --- */
+.score-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 32px 24px 28px;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.04);
+  margin-bottom: 16px;
+}
+.score-ring-wrapper {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  margin: 0 auto 16px;
+}
+.score-ring-svg {
+  width: 180px;
+  height: 180px;
+  transform: rotate(-90deg);
+}
+.ring-bg { fill: none; stroke: #e2e8f0; stroke-width: 10; }
+.ring-progress {
+  fill: none;
+  stroke-width: 10;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1.2s ease;
+}
+.score-value {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 3rem;
+  font-weight: 800;
+  color: #1e293b;
+  line-height: 1;
+}
+.score-value small {
+  font-size: 1rem;
+  font-weight: 400;
+  color: #64748b;
+}
+.score-grade {
+  display: inline-block;
+  padding: 4px 16px;
+  border-radius: 20px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.score-grade-text {
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+/* Grade Colors */
+.grade-A { background: #dcfce7; color: #15803d; }
+.grade-B { background: #dbeafe; color: #1d4ed8; }
+.grade-C { background: #fef9c3; color: #a16207; }
+.grade-D { background: #fed7aa; color: #c2410c; }
+.grade-F { background: #fecaca; color: #b91c1c; }
+
+.ring-A { stroke: #22c55e; }
+.ring-B { stroke: #3b82f6; }
+.ring-C { stroke: #eab308; }
+.ring-D { stroke: #f97316; }
+.ring-F { stroke: #ef4444; }
+
+/* --- Dimensions --- */
+.dim-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.04);
+  margin-bottom: 16px;
+}
+.dim-card h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 16px;
+}
+.dim-item {
+  margin-bottom: 14px;
+}
+.dim-item:last-child { margin-bottom: 0; }
+.dim-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.dim-name {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #475569;
+}
+.dim-score {
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+.dim-bar {
+  height: 8px;
+  background: #f1f5f9;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.dim-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  width: 0;
+  transition: width 1s ease;
+}
+.bar-good { background: linear-gradient(90deg, #22c55e, #4ade80); }
+.bar-ok { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+.bar-warn { background: linear-gradient(90deg, #eab308, #facc15); }
+.bar-bad { background: linear-gradient(90deg, #f97316, #fb923c); }
+.bar-danger { background: linear-gradient(90deg, #ef4444, #f87171); }
+
+.score-good { color: #15803d; }
+.score-ok { color: #1d4ed8; }
+.score-warn { color: #a16207; }
+.score-bad { color: #c2410c; }
+.score-danger { color: #b91c1c; }
+
+/* --- Diagnosis --- */
+.diag-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.04);
+  margin-bottom: 16px;
+}
+.diag-card h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 12px;
+}
+.diag-text {
+  font-size: 0.9rem;
+  color: #475569;
+  line-height: 1.7;
+}
+
+/* --- Suggestions --- */
+.suggest-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.04);
+  margin-bottom: 16px;
+}
+.suggest-card h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 14px;
+}
+.suggest-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 14px;
+  background: #f8fafc;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+.suggest-item:last-child { margin-bottom: 0; }
+.suggest-icon {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+.suggest-text {
+  font-size: 0.875rem;
+  color: #334155;
+  line-height: 1.6;
+}
+
+/* --- Insurance Tip --- */
+.insurance-tip {
+  background: linear-gradient(135deg, #eff6ff, #f0f9ff);
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  font-size: 0.85rem;
+  color: #1e40af;
+  line-height: 1.6;
+}
+.insurance-tip strong { color: #1e3a8a; }
+
+/* ========== Footer ========== */
+.footer {
+  text-align: center;
+  padding: 20px 0 12px;
+  font-size: 0.78rem;
+  color: #94a3b8;
+}
+.footer svg {
+  vertical-align: middle;
+  margin-right: 4px;
+}
+
+/* ========== Responsive ========== */
+@media (max-width: 480px) {
+  .container { padding: 12px 12px 32px; }
+  .header { padding: 20px 0 16px; }
+  .header h1 { font-size: 1.3rem; }
+  .form-card { padding: 20px 16px; }
+  .form-input, .form-select { height: 42px; font-size: 0.95rem; }
+  .score-ring-wrapper { width: 150px; height: 150px; }
+  .score-ring-svg { width: 150px; height: 150px; }
+  .score-value { font-size: 2.5rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-icon">
+      <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    </div>
+    <h1>钱去哪了·<span>个人版</span></h1>
+    <p>AI 财务体检 — 5 分钟看清你的财务健康度</p>
+  </div>
+
+  <!-- Form -->
+  <div class="form-card" id="formCard">
+    <div class="form-group" id="grpIncome">
+      <label class="form-label">月收入</label>
+      <div class="form-row">
+        <input type="number" class="form-input" id="income" placeholder="例如 15000" min="0" step="1">
+        <span class="form-unit">元</span>
+      </div>
+      <div class="form-error">请输入有效的月收入</div>
+    </div>
+
+    <div class="form-group" id="grpExpense">
+      <label class="form-label">月支出</label>
+      <div class="form-row">
+        <input type="number" class="form-input" id="expense" placeholder="例如 8000" min="0" step="1">
+        <span class="form-unit">元</span>
+      </div>
+      <div class="form-error">请输入有效的月支出</div>
+    </div>
+
+    <div class="form-group" id="grpSavings">
+      <label class="form-label">存款 / 现金</label>
+      <div class="form-row">
+        <input type="number" class="form-input" id="savings" placeholder="例如 100000" min="0" step="1">
+        <span class="form-unit">元</span>
+      </div>
+      <div class="form-error">请输入有效的存款金额</div>
+    </div>
+
+    <div class="form-group" id="grpInvestment">
+      <label class="form-label">投资持仓市值（含股票/基金/债券等）<span class="optional">（选填，无则留 0）</span></label>
+      <div class="form-row">
+        <input type="number" class="form-input" id="investment" placeholder="例如 50000" min="0" step="1">
+        <span class="form-unit">元</span>
+      </div>
+      <div class="form-error">请输入有效的投资市值</div>
+    </div>
+
+    <div class="form-group" id="grpProperty">
+      <label class="form-label">房产市值 <span class="optional">（选填，无则留 0）</span></label>
+      <div class="form-row">
+        <input type="number" class="form-input" id="property" placeholder="例如 2000000" min="0" step="1">
+        <span class="form-unit">元</span>
+      </div>
+    </div>
+
+    <div class="form-group" id="grpDebt">
+      <label class="form-label">负债总额</label>
+      <div class="form-row">
+        <input type="number" class="form-input" id="debt" placeholder="例如 500000" min="0" step="1">
+        <span class="form-unit">元</span>
+      </div>
+      <div class="form-error">请输入有效的负债金额</div>
+    </div>
+
+    <div class="form-group" id="grpMonthlyPay">
+      <label class="form-label">月供金额 <span class="optional">（选填，无房贷则留 0）</span></label>
+      <div class="form-row">
+        <input type="number" class="form-input" id="monthlyPay" placeholder="例如 3000" min="0" step="1">
+        <span class="form-unit">元</span>
+      </div>
+      <div class="form-error">请输入有效的月供金额</div>
+    </div>
+
+    <div class="form-group" id="grpAnnualPremium">
+      <label class="form-label">年缴保费总额 <span class="optional">（选填，含社保+商保，无则留 0）</span></label>
+      <div class="form-row">
+        <input type="number" class="form-input" id="annualPremium" placeholder="例如 12000" min="0" step="1">
+        <span class="form-unit">元/年</span>
+      </div>
+      <div class="form-error">请输入有效的保费金额</div>
+    </div>
+
+    <div class="form-group" id="grpLifeInsurance">
+      <label class="form-label">人寿保险保额 <span class="optional">（选填，身故/全残保额，无则留 0）</span></label>
+      <div class="form-row">
+        <input type="number" class="form-input" id="lifeInsurance" placeholder="例如 50" min="0" step="1">
+        <span class="form-unit">万元</span>
+      </div>
+      <div class="form-error">请输入有效的保额</div>
+    </div>
+
+    <div class="form-group" id="grpAge">
+      <label class="form-label">年龄段</label>
+      <div class="form-row">
+        <select class="form-select" id="ageGroup">
+          <option value="">请选择年龄段</option>
+          <option value="1">25 岁以下</option>
+          <option value="2">25 - 35 岁</option>
+          <option value="3">35 - 45 岁</option>
+          <option value="4">45 - 55 岁</option>
+          <option value="5">55 岁以上</option>
+        </select>
+      </div>
+      <div class="form-error">请选择年龄段</div>
+    </div>
+
+    <button class="btn-submit" id="btnSubmit" type="button">开始体检</button>
+  </div>
+
+  <!-- Result Section -->
+  <div class="result-section" id="resultSection">
+
+    <!-- Score Ring -->
+    <div class="score-card">
+      <div class="score-ring-wrapper">
+        <svg class="score-ring-svg" viewBox="0 0 180 180">
+          <circle class="ring-bg" cx="90" cy="90" r="75"/>
+          <circle class="ring-progress" id="ringProgress" cx="90" cy="90" r="75"/>
+        </svg>
+        <div class="score-value" id="scoreValue">0<small>/100</small></div>
+      </div>
+      <div class="score-grade" id="scoreGrade"></div>
+      <div class="score-grade-text" id="scoreGradeText"></div>
+    </div>
+
+    <!-- Dimensions -->
+    <div class="dim-card">
+      <h3>六维财务体检</h3>
+      <div id="dimList"></div>
+    </div>
+
+    <!-- Insurance Tip -->
+    <div class="insurance-tip" id="insuranceTip" style="display:none;"></div>
+
+    <!-- Diagnosis -->
+    <div class="diag-card">
+      <h3>诊断结论</h3>
+      <div class="diag-text" id="diagText"></div>
+    </div>
+
+    <!-- Suggestions -->
+    <div class="suggest-card">
+      <h3>改善建议</h3>
+      <div id="suggestList"></div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+    数据完全存储在您的本地设备，不会上传至任何服务器
+  </div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  // Debug: confirm JS is running
+  var dbg = document.createElement('div');
+  dbg.id = 'jsDebug';
+  dbg.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#22c55e;color:#fff;padding:8px 12px;z-index:99999;font-size:13px;text-align:center;';
+  dbg.textContent = '✅ JS已加载，点击"开始体检"后将自动隐藏';
+  document.body.insertBefore(dbg, document.body.firstChild);
+
+  // ==================== DOM ====================
+  var $ = function(id) { return document.getElementById(id); };
+  var btnSubmit = $('btnSubmit');
+  var resultSection = $('resultSection');
+
+  // ==================== Scoring Engine ====================
+  /**
+   * @param {Object} data
+   *   income, expense, savings, investment, property, debt, monthlyPay, annualPremium, lifeInsurance(万元), ageGroup(1-5)
+   * @returns {Object} { total, grade, gradeLabel, gradeDesc, dimensions, diagnosis, suggestions, insuranceTip }
+   */
+  function scoringEngine(data) {
+    var income = data.income;
+    var expense = data.expense;
+    var savings = data.savings;
+    var investment = data.investment;
+    var prop = data.property;
+    var debt = data.debt;
+    var monthlyPay = data.monthlyPay;
+    var annualPremium = data.annualPremium;
+    var lifeInsurance = data.lifeInsurance; // 万元
+    var ageGroup = data.ageGroup;
+
+    // Total assets = savings + investment + property
+    var totalAssets = savings + investment + prop;
+    if (totalAssets === 0) totalAssets = 1; // avoid div-by-zero
+
+    // ---- Dimension 1: Asset-Liability Health (20%) ----
+    var monthlyPayRatio = income > 0 ? monthlyPay / income : 0;
+    var debtAssetRatio = totalAssets > 0 ? debt / totalAssets : 0;
+
+    var score1a, score1b;
+    if (monthlyPayRatio <= 0.3) score1a = 100;
+    else if (monthlyPayRatio <= 0.5) score1a = 60;
+    else score1a = 0;
+
+    if (debtAssetRatio <= 0.3) score1b = 100;
+    else if (debtAssetRatio <= 0.5) score1b = 60;
+    else score1b = 0;
+
+    var dim1Score = Math.round((score1a + score1b) / 2);
+
+    // ---- Dimension 2: Liquidity Safety (15%) ----
+    var savingsMonthRatio = expense > 0 ? savings / expense : (savings > 0 ? 999 : 0);
+    var dim2Score;
+    if (savingsMonthRatio >= 12) dim2Score = 100;
+    else if (savingsMonthRatio >= 6) dim2Score = 70;
+    else if (savingsMonthRatio >= 3) dim2Score = 40;
+    else dim2Score = 0;
+
+    // ---- Dimension 3: Income Structure (20%) ----
+    var investRatio = totalAssets > 0 ? investment / totalAssets : 0;
+    var dim3Score;
+    if (investRatio >= 0.3) dim3Score = 100;
+    else if (investRatio >= 0.15) dim3Score = 70;
+    else if (investRatio >= 0.05) dim3Score = 40;
+    else dim3Score = 0;
+
+    // ---- Dimension 4: Savings Rate (15%) ----
+    var savingsRate = income > 0 ? (income - expense) / income : 0;
+    var dim4Score;
+    if (savingsRate >= 0.3) dim4Score = 100;
+    else if (savingsRate >= 0.2) dim4Score = 70;
+    else if (savingsRate >= 0.1) dim4Score = 40;
+    else dim4Score = 0;
+
+    // ---- Dimension 5: Asset Allocation Balance (20%) ----
+    var propRatio = totalAssets > 0 ? prop / totalAssets : 0;
+    // Investment ratio among non-property assets
+    var investNonPropRatio = (savings + investment) > 0
+      ? investment / (savings + investment)
+      : 0;
+
+    var score5a, score5b;
+    if (propRatio <= 0.4) score5a = 100;
+    else if (propRatio <= 0.55) score5a = 60;
+    else score5a = 0;
+
+    if (investNonPropRatio >= 0.3) score5b = 100;
+    else if (investNonPropRatio >= 0.15) score5b = 70;
+    else score5b = 40;
+
+    var dim5Score = Math.round((score5a + score5b) / 2);
+
+    // ---- Dimension 6: Risk Protection (10%) ----
+    var annualIncome = income * 12;
+    var annualExpense = expense * 12;
+    var premiumRatio = annualIncome > 0 ? annualPremium / annualIncome : 0;
+    var lifeInsuranceAmount = lifeInsurance * 10000; // 万元转元
+    var coverageRatio = annualExpense > 0 ? lifeInsuranceAmount / annualExpense : 0;
+
+    // 保费充足度（50%）
+    var premiumScore;
+    if (annualPremium === 0) {
+      premiumScore = 0;
+    } else if (premiumRatio < 0.03) {
+      premiumScore = 20;
+    } else if (premiumRatio <= 0.08) {
+      premiumScore = 60;
+    } else if (premiumRatio <= 0.12) {
+      premiumScore = 90;
+    } else {
+      premiumScore = 70; // 偏高，影响现金流
+    }
+
+    // 保额充足度（50%）
+    var coverageScore;
+    if (lifeInsurance === 0) {
+      coverageScore = 0;
+    } else if (coverageRatio < 3) {
+      coverageScore = 20;
+    } else if (coverageRatio < 5) {
+      coverageScore = 60;
+    } else if (coverageRatio <= 10) {
+      coverageScore = 90;
+    } else {
+      coverageScore = 100;
+    }
+
+    var dim6Score = Math.round((premiumScore + coverageScore) / 2);
+
+    // 保险建议（基于实际数据）
+    var insuranceAdvice = '';
+    if (annualPremium === 0 && lifeInsurance === 0) {
+      insuranceAdvice = '保险配置严重不足，风险敞口极大。课程指出"中产家庭保险配置严重不足"是典型理财困境。建议立即行动：配置基础寿险和医疗险，建立防守型资产底线。';
+    } else if (annualPremium === 0) {
+      insuranceAdvice = '有人寿保险但无持续保费投入，保障可能不足。建议增加保费投入，优化保障结构。';
+    } else if (lifeInsurance === 0) {
+      insuranceAdvice = '有保费投入但缺乏足额人寿保险。课程强调"是否配置了足够的人寿保险"是关键诊断问题。建议配置定期寿险或终身寿险，保额应覆盖家庭至少5年支出。';
+    } else if (premiumScore < 60) {
+      insuranceAdvice = '保费投入偏低（仅占年收入' + Math.round(premiumRatio * 100) + '%），保障可能不足。建议适当增加保费投入，目标为年收入的8-12%。';
+    } else if (coverageScore < 60) {
+      insuranceAdvice = '人寿保险保额偏低（仅为年支出的' + Math.round(coverageRatio) + '倍），保障不足。建议提高保额至年支出的5-10倍。';
+    } else if (premiumScore >= 90 && coverageScore >= 90) {
+      insuranceAdvice = '保险配置完善，保费占比合理（' + Math.round(premiumRatio * 100) + '%），保额充足（' + Math.round(coverageRatio) + '倍年支出）。建议定期检视保单，确保与家庭责任匹配。';
+    } else {
+      insuranceAdvice = '保险配置基本合理，可根据家庭责任变化适当调整。';
+    }
+
+    // ---- Total Score ----
+    var weights = [0.20, 0.15, 0.20, 0.15, 0.20, 0.10];
+    var dimScores = [dim1Score, dim2Score, dim3Score, dim4Score, dim5Score, dim6Score];
+    var totalScore = 0;
+    for (var i = 0; i < 6; i++) {
+      totalScore += dimScores[i] * weights[i];
+    }
+    totalScore = Math.round(totalScore);
+
+    // ---- Grade ----
+    var grade, gradeLabel, gradeDesc;
+    if (totalScore >= 90) { grade = 'A'; gradeLabel = 'A 财务健康'; gradeDesc = '持续优化，保持良好习惯'; }
+    else if (totalScore >= 75) { grade = 'B'; gradeLabel = 'B 基本健康'; gradeDesc = '局部调整，更上一层楼'; }
+    else if (totalScore >= 60) { grade = 'C'; gradeLabel = 'C 需要改善'; gradeDesc = '重点优化，提升空间较大'; }
+    else if (totalScore >= 40) { grade = 'D'; gradeLabel = 'D 风险较高'; gradeDesc = '急需调整，避免财务危机'; }
+    else { grade = 'F'; gradeLabel = 'F 财务危险'; gradeDesc = '立即行动，扭转被动局面'; }
+
+    // ---- Dimensions Info ----
+    var dimNames = [
+      '资产负债健康度',
+      '流动性安全度',
+      '收入结构合理性',
+      '支出与储蓄率',
+      '资产配置均衡度',
+      '风险保障充足度'
+    ];
+    var dimensions = [];
+    for (var j = 0; j < 6; j++) {
+      dimensions.push({
+        name: dimNames[j],
+        score: dimScores[j],
+        weight: Math.round(weights[j] * 100)
+      });
+    }
+
+    // ---- Suggestions (pick 2-3 weakest) ----
+    var suggestionMap = {
+      0: '负债压力较大，月供占比或负债率超过安全线。建议考虑延长贷款期限降低月供，或优先偿还高息负债，同时增加收入来源。',
+      1: '流动性不足，应急储备金偏少。建议优先建立 6-12 个月支出的应急储备金，存入货币基金随时可取。',
+      2: '财产性收入占比过低，收入结构单一。建议学习基金定投，逐步建立"钱生钱"能力，从宽基指数基金开始。',
+      3: '储蓄率偏低，入不敷出或所剩无几。建议设定自动转账，每月工资到账后先存后花，至少留存收入的 20%。',
+      4: '资产配置不均衡，不动产占比过大或投资不足。非必须不建议继续购房，建议逐步将储蓄转化为基金定投，提升金融资产占比。',
+      5: '保险保障不充分，一旦发生意外将严重影响财务状况。建议尽快配置基础保险，花小钱防大风险。'
+    };
+
+    // sort dimensions by score ascending
+    var sorted = dimensions.slice().sort(function(a, b) { return a.score - b.score; });
+    var suggestions = [];
+    // take weakest 2-3 (score < 70)
+    for (var k = 0; k < sorted.length && suggestions.length < 3; k++) {
+      if (sorted[k].score < 70) {
+        var idx = dimNames.indexOf(sorted[k].name);
+        suggestions.push({ text: suggestionMap[idx], dim: sorted[k].name, score: sorted[k].score });
+      }
+    }
+    // if all >= 70, still give 2 optimization tips
+    if (suggestions.length === 0) {
+      suggestions.push({ text: '整体财务状况良好，建议继续保持当前储蓄和投资习惯。', dim: '维持', score: 100 });
+      suggestions.push({ text: '可考虑适当增加权益类资产配置，提升长期收益潜力。', dim: '优化', score: 100 });
+    }
+    // ensure at least 2
+    if (suggestions.length < 2) {
+      for (var m = 0; m < sorted.length && suggestions.length < 2; m++) {
+        var idx2 = dimNames.indexOf(sorted[m].name);
+        var already = suggestions.some(function(s) { return s.dim === sorted[m].name; });
+        if (!already) {
+          suggestions.push({ text: suggestionMap[idx2], dim: sorted[m].name, score: sorted[m].score });
+        }
+      }
+    }
+
+    // ---- Diagnosis ----
+    var diagParts = [];
+    if (totalScore >= 90) {
+      diagParts.push('您的财务状况非常健康，资产负债、流动性、储蓄率和资产配置均表现优秀。');
+      diagParts.push('当前最重要的是坚持好习惯，同时关注保险保障和收入多元化，追求长期稳健增长。');
+    } else if (totalScore >= 75) {
+      diagParts.push('您的财务基本面良好，大部分指标处于健康区间，少数维度有优化空间。');
+      var weakNames = sorted.filter(function(d) { return d.score < 70; }).map(function(d) { return d.name; });
+      if (weakNames.length > 0) {
+        diagParts.push('重点关注：' + weakNames.join('、') + '，针对性改善即可显著提升整体评分。');
+      }
+    } else if (totalScore >= 60) {
+      diagParts.push('您的财务状况存在明显短板，' + sorted[0].name + '得分仅 ' + sorted[0].score + ' 分，是需要优先解决的问题。');
+      if (sorted[1].score < 60) {
+        diagParts.push(sorted[1].name + '同样偏低（' + sorted[1].score + ' 分），建议制定分步改善计划。');
+      }
+      diagParts.push('好消息是：只要聚焦最弱 2 个维度改善，整体评分可快速提升至 B 级以上。');
+    } else if (totalScore >= 40) {
+      diagParts.push('您的财务风险较高，多个维度处于警戒区间，需要尽快采取行动。');
+      diagParts.push('最紧迫的是：' + sorted[0].name + '（' + sorted[0].score + ' 分）和 ' + sorted[1].name + '（' + sorted[1].score + ' 分），这两项不改善将可能引发连锁财务危机。');
+    } else {
+      diagParts.push('您的财务状况处于危险状态，多个核心指标严重不达标，需要立即采取纠偏行动。');
+      diagParts.push('当务之急：先稳住流动性（确保有应急储备金），再逐步降低负债、提升储蓄率。不要试图一步到位，先从最紧急的一项开始。');
+    }
+
+    return {
+      total: totalScore,
+      grade: grade,
+      gradeLabel: gradeLabel,
+      gradeDesc: gradeDesc,
+      dimensions: dimensions,
+      diagnosis: diagParts.join(''),
+      suggestions: suggestions,
+      insuranceTip: insuranceAdvice
+    };
+  }
+
+  // ==================== Validation ====================
+  function validate() {
+    var rules = [
+      { id: 'income', grp: 'grpIncome', required: true },
+      { id: 'expense', grp: 'grpExpense', required: true },
+      { id: 'savings', grp: 'grpSavings', required: true },
+      { id: 'investment', grp: 'grpInvestment', required: false },
+      { id: 'debt', grp: 'grpDebt', required: true },
+      { id: 'monthlyPay', grp: 'grpMonthlyPay', required: false },
+      { id: 'annualPremium', grp: 'grpAnnualPremium', required: false },
+      { id: 'lifeInsurance', grp: 'grpLifeInsurance', required: false },
+      { id: 'ageGroup', grp: 'grpAge', required: true, isSelect: true }
+    ];
+
+    var valid = true;
+    rules.forEach(function(r) {
+      var el = $(r.id);
+      var grp = $(r.grp);
+      var val = el.value;
+      grp.classList.remove('has-error');
+
+      if (r.required && (val === '' || val === null)) {
+        grp.classList.add('has-error');
+        valid = false;
+        return;
+      }
+      if (!r.isSelect && val !== '') {
+        var num = Number(val);
+        if (isNaN(num) || num < 0) {
+          grp.classList.add('has-error');
+          valid = false;
+        }
+      }
+      // 必填数字字段不允许为0（收入/支出/存款等为0会导致评分引擎NaN→全0）
+      if (!r.isSelect && r.required && val !== '' && Number(val) === 0) {
+        grp.classList.add('has-error');
+        valid = false;
+      }
+    });
+
+    return valid;
+  }
+
+  // ==================== Render Results ====================
+  function renderResults(result) {
+    resultSection.classList.add('visible');
+
+    // Scroll to result
+    setTimeout(function() {
+      resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+
+    // --- Ring ---
+    var circumference = 2 * Math.PI * 75;
+    var ring = $('ringProgress');
+    ring.style.strokeDasharray = circumference;
+    ring.style.strokeDashoffset = circumference;
+
+    // Set ring color
+    ring.setAttribute('class', 'ring-progress ring-' + result.grade);
+
+    // Animate ring
+    setTimeout(function() {
+      var offset = circumference - (result.total / 100) * circumference;
+      ring.style.strokeDashoffset = offset;
+    }, 50);
+
+    // Animate score number
+    var scoreEl = $('scoreValue');
+    animateNumber(scoreEl, 0, result.total, 1000);
+
+    // Grade
+    var gradeEl = $('scoreGrade');
+    gradeEl.setAttribute('class', 'score-grade grade-' + result.grade);
+    gradeEl.textContent = result.gradeLabel;
+
+    var gradeTextEl = $('scoreGradeText');
+    gradeTextEl.textContent = result.gradeDesc;
+
+    // --- Dimensions ---
+    var dimList = $('dimList');
+    dimList.innerHTML = '';
+    result.dimensions.forEach(function(dim, idx) {
+      var barClass = getBarClass(dim.score);
+      var scoreClass = getScoreClass(dim.score);
+      var html = '<div class="dim-item">' +
+        '<div class="dim-header">' +
+          '<span class="dim-name">' + dim.name + '（权重 ' + dim.weight + '%）</span>' +
+          '<span class="dim-score ' + scoreClass + '">' + dim.score + ' 分</span>' +
+        '</div>' +
+        '<div class="dim-bar"><div class="dim-bar-fill ' + barClass + '" id="bar' + idx + '"></div></div>' +
+      '</div>';
+      dimList.insertAdjacentHTML('beforeend', html);
+
+      // Animate bar
+      setTimeout(function() {
+        var bar = $('bar' + idx);
+        bar.style.width = dim.score + '%';
+      }, 200 + idx * 100);
+    });
+
+    // --- Diagnosis ---
+    $('diagText').textContent = result.diagnosis;
+
+    // --- Insurance Tip ---
+    var insEl = $('insuranceTip');
+    insEl.innerHTML = '<strong>保险建议：</strong>' + result.insuranceTip;
+    insEl.style.display = 'block';
+
+    // --- Suggestions ---
+    var sugList = $('suggestList');
+    sugList.innerHTML = '';
+    result.suggestions.forEach(function(sug, idx) {
+      var html = '<div class="suggest-item">' +
+        '<div class="suggest-icon">' + (idx + 1) + '</div>' +
+        '<div class="suggest-text">' + sug.text + '</div>' +
+      '</div>';
+      sugList.insertAdjacentHTML('beforeend', html);
+    });
+  }
+
+  function getBarClass(score) {
+    if (score >= 80) return 'bar-good';
+    if (score >= 60) return 'bar-ok';
+    if (score >= 40) return 'bar-warn';
+    if (score >= 20) return 'bar-bad';
+    return 'bar-danger';
+  }
+
+  function getScoreClass(score) {
+    if (score >= 80) return 'score-good';
+    if (score >= 60) return 'score-ok';
+    if (score >= 40) return 'score-warn';
+    if (score >= 20) return 'score-bad';
+    return 'score-danger';
+  }
+
+  function animateNumber(el, from, to, duration) {
+    var start = performance.now();
+    function tick(now) {
+      var elapsed = now - start;
+      var progress = Math.min(elapsed / duration, 1);
+      // ease-out cubic
+      var eased = 1 - Math.pow(1 - progress, 3);
+      var current = Math.round(from + (to - from) * eased);
+      el.innerHTML = current + '<small>/100</small>';
+      if (progress < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  // ==================== Event ====================
+  btnSubmit.addEventListener('click', function() {
+    // Hide debug bar on first click
+    var dbgEl = document.getElementById('jsDebug');
+    if (dbgEl) dbgEl.style.display = 'none';
+    try {
+    if (!validate()) return;
+
+    var data = {
+      income: Number($('income').value) || 0,
+      expense: Number($('expense').value) || 0,
+      savings: Number($('savings').value) || 0,
+      investment: Number($('investment').value) || 0,
+      property: Number($('property').value) || 0,
+      debt: Number($('debt').value) || 0,
+      monthlyPay: Number($('monthlyPay').value) || 0,
+      annualPremium: Number($('annualPremium').value) || 0,
+      lifeInsurance: Number($('lifeInsurance').value) || 0,
+      ageGroup: Number($('ageGroup').value) || 1
+    };
+
+    var result = scoringEngine(data);
+    renderResults(result);
+    } catch(e) {
+      document.body.insertAdjacentHTML('beforeend',
+        '<div style="position:fixed;top:0;left:0;right:0;background:red;color:#fff;padding:12px;z-index:99999;font-size:14px;">❌ 错误: ' + e.message + '</div>');
+    }
+  });
+
+  // Clear error on input
+  document.querySelectorAll('.form-input, .form-select').forEach(function(el) {
+    el.addEventListener('input', function() {
+      var grp = el.closest('.form-group');
+      if (grp) grp.classList.remove('has-error');
+    });
+    el.addEventListener('change', function() {
+      var grp = el.closest('.form-group');
+      if (grp) grp.classList.remove('has-error');
+    });
+  });
+
+})();
+</script>
+</body>
+</html>
