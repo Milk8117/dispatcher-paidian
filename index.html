@@ -2105,17 +2105,22 @@
         document.getElementById('statAlert').textContent = overdueCount;
       }
 
-      // 营收总额计算（所有订单）
+      // 营收总额计算（仅今日订单）
       var keys = Object.keys(orderDetails);
       var yingshou = 0, yijie = 0, totalCost = 0;
+      var todayStr = new Date().toLocaleDateString('zh-CN', {timeZone: 'Asia/Shanghai'});
       keys.forEach(function(k) {
         var d = orderDetails[k];
-        // 成本：非待派、非取消的工单
-        if (d.status !== 'daipai' && d.status !== 'quxiao' && d.cost) {
+        // 判断是否为今日工单（已完成的看完成时间，其余看创建时间）
+        var ts = (d.status === 'wancheng' && d.completionTime) ? d.completionTime : d.creationTime;
+        var dStr = new Date(ts).toLocaleDateString('zh-CN', {timeZone: 'Asia/Shanghai'});
+        var isToday = (dStr === todayStr);
+        // 成本：今日、非待派、非取消的工单
+        if (isToday && d.status !== 'daipai' && d.status !== 'quxiao' && d.cost) {
           totalCost += d.cost;
         }
-        // 应收：所有已派+进行中+已完成（维保外）的订单
-        if (d.status !== 'daipai' && d.status !== 'quxiao' && d.warranty === 'out') {
+        // 应收：今日、已派+进行中+已完成（维保外）的订单
+        if (isToday && d.status !== 'daipai' && d.status !== 'quxiao' && d.warranty === 'out') {
           yingshou += d.actualAmount;
           yijie += d.paidAmount;
         }
