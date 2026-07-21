@@ -2525,12 +2525,15 @@
           ui: {
             base: {
               icon: 'https://lf-coze-web-cdn.coze.cn/obj/eden-cn/lm-lgvj/ljhwZthlaukjlkulzlp/coze/chatsdk-logo.png',
-              layout: 'mobile', lang: 'zh-CN', zIndex: 1000
+              layout: 'pc', lang: 'zh-CN', zIndex: 1000
             },
             header: { isShow: true, isNeedClose: true },
-            asstBtn: { isNeed: true },
+            asstBtn: { isNeed: false },
             footer: { isShow: true, expressionText: '派单助手 · 调度端' },
-            chatBot: { title: '派单助手', uploadable: false, width: 390 }
+            chatBot: {
+              title: '派单助手', uploadable: false, width: 390,
+              el: document.getElementById('chatArea')
+            }
           }
         });
       } catch(err) {
