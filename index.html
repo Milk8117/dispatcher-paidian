@@ -2528,11 +2528,20 @@
               layout: 'pc', lang: 'zh-CN', zIndex: 1000
             },
             header: { isShow: true, isNeedClose: true },
-            asstBtn: { isNeed: false },
+            asstBtn: { isNeed: true },
             footer: { isShow: true, expressionText: '派单助手 · 调度端' },
             chatBot: {
               title: '派单助手', uploadable: false, width: 390,
-              el: document.getElementById('chatArea')
+              el: document.getElementById('chatArea'),
+              onShow: function() {
+                // SDK弹出时隐藏右侧顶部栏
+                var topBar = document.querySelector('.chat-top-bar');
+                if (topBar) topBar.style.display = 'none';
+              },
+              onHide: function() {
+                var topBar = document.querySelector('.chat-top-bar');
+                if (topBar) topBar.style.display = '';
+              }
             }
           }
         });
