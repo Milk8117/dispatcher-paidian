@@ -2462,18 +2462,7 @@
       if (totalFree > 0) {
         revHtml += '<div style="font-size:12px;color:#888;">✅ 维保内免费工单 ' + totalFree + ' 单（不产生费用）</div>';
       }
-      // 成本、毛利、净利
-      revHtml += '<div style="display:flex;gap:6px;margin-top:8px;">';
-      revHtml += '<div style="flex:1;background:#ffebee;border-radius:8px;padding:8px;text-align:center;">';
-      revHtml += '<div style="font-size:16px;font-weight:700;color:#c62828;">¥' + (isNaN(totalCost) ? 0 : totalCost) + '</div>';
-      revHtml += '<div style="font-size:10px;color:#999;">成本</div></div>';
-      revHtml += '<div style="flex:1;background:#e3f2fd;border-radius:8px;padding:8px;text-align:center;">';
-      revHtml += '<div style="font-size:16px;font-weight:700;color:' + (totalMaoli >= 0 ? '#1565c0' : '#c62828') + ';">' + (totalMaoli >= 0 ? '¥' : '-¥') + Math.abs(totalMaoli) + '</div>';
-      revHtml += '<div style="font-size:10px;color:#999;">毛利</div></div>';
-      revHtml += '<div style="flex:1;background:' + (totalJingli >= 0 ? '#e8f5e9' : '#ffebee') + ';border-radius:8px;padding:8px;text-align:center;">';
-      revHtml += '<div style="font-size:16px;font-weight:700;color:' + (totalJingli >= 0 ? '#2e7d32' : '#c62828') + ';">' + (totalJingli >= 0 ? '¥' : '-¥') + Math.abs(totalJingli) + '</div>';
-      revHtml += '<div style="font-size:10px;color:#999;">净利</div></div>';
-      revHtml += '</div>';
+      // 成本和利润：客户可见的调度端不展示内部成本/利润数据
       revenueOverview.innerHTML = revHtml;
 
       // 1. 状态分布
