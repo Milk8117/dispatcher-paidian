@@ -369,6 +369,9 @@ body {
 .sug-principle .sug-label { color: #2563eb; }
 .sug-action .sug-label { color: #16a34a; }
 .sug-benefit .sug-label { color: #d97706; }
+.sug-target { background: #f5f3ff; border-left: 3px solid #8b5cf6; padding: 8px 12px; border-radius: 0 6px 6px 0; margin-bottom: 8px; }
+.sug-target .sug-label { color: #7c3aed; }
+.dim-target { font-size: 0.78rem; color: #7c3aed; margin-top: 4px; font-weight: 600; padding: 3px 8px; background: #f5f3ff; border-radius: 4px; display: inline-block; }
 
 /* --- Insurance Tip --- */
 .insurance-tip {
@@ -421,6 +424,43 @@ body {
   margin-top: 2px;
   text-align: right;
 }
+/* --- Loan Section --- */
+.loans-section { margin-top: 12px; }
+.loan-entry {
+  background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px;
+  padding: 14px; margin-bottom: 10px; position: relative;
+}
+.loan-entry-header {
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
+}
+.loan-entry-title { font-weight: 700; font-size: 0.85rem; color: #334155; }
+.loan-remove {
+  background: none; border: none; color: #ef4444; cursor: pointer;
+  font-size: 0.8rem; padding: 2px 8px; border-radius: 4px;
+}
+.loan-remove:hover { background: #fef2f2; }
+.loan-row { display: flex; gap: 10px; align-items: flex-end; margin-bottom: 8px; }
+.loan-field { flex: 1; }
+.loan-field label { display: block; font-size: 0.75rem; color: #64748b; margin-bottom: 3px; }
+.loan-field input, .loan-field select {
+  width: 100%; padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 6px;
+  font-size: 0.85rem; background: #fff;
+}
+.loan-field input:focus, .loan-field select:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.15); }
+.loan-summary {
+  margin-top: 10px; padding: 10px 14px; background: #eff6ff; border-radius: 8px;
+  font-size: 0.82rem; color: #1e40af; line-height: 1.8;
+}
+.loan-summary strong { color: #1e3a8a; }
+.loan-summary .loan-warn { color: #dc2626; font-weight: 600; }
+.btn-add-loan {
+  background: #f1f5f9; border: 1px dashed #94a3b8; border-radius: 8px;
+  padding: 10px; width: 100%; cursor: pointer; color: #64748b;
+  font-size: 0.85rem; text-align: center; transition: all 0.2s;
+}
+.btn-add-loan:hover { background: #e2e8f0; color: #334155; border-color: #64748b; }
+.loan-transition { background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 10px; margin-top: 8px; }
+.loan-transition-title { font-size: 0.78rem; color: #92400e; font-weight: 600; margin-bottom: 6px; }
 </style>
 </head>
 <body>
@@ -448,15 +488,31 @@ body {
     </div>
 
     <div class="form-group" id="grpOtherIncome">
-      <label class="form-label">月其他收入 <span class="optional">（退休金/养老金、投资收益、房租、副业等）</span></label>
+      <label class="form-label">月租金收入 <span class="optional">（房屋/商铺出租等租金收入，无则留 0）</span></label>
       <div class="form-row">
-        <input type="number" class="form-input" id="otherIncome" placeholder="例如 3000" min="0" step="1">
+        <input type="number" class="form-input" id="rentalIncome" placeholder="例如 3000" min="0" step="1">
+        <span class="form-unit">元</span>
+      </div>
+    </div>
+
+    <div class="form-group" id="grpInvestIncome">
+      <label class="form-label">月投资收益 <span class="optional">（利息、股息、分红、基金收益等，无则留 0）</span></label>
+      <div class="form-row">
+        <input type="number" class="form-input" id="investIncome" placeholder="例如 1000" min="0" step="1">
+        <span class="form-unit">元</span>
+      </div>
+    </div>
+
+    <div class="form-group" id="grpSideIncome">
+      <label class="form-label">月副业/兼职收入 <span class="optional">（非本职工作收入，无则留 0）</span></label>
+      <div class="form-row">
+        <input type="number" class="form-input" id="sideIncome" placeholder="例如 2000" min="0" step="1">
         <span class="form-unit">元</span>
       </div>
     </div>
 
     <div class="form-group" id="grpExpense">
-      <label class="form-label">月支出</label>
+      <label class="form-label">月固定支出 <span class="optional">（伙食/水电/物业/交通/教育/通讯等刚性支出，不含月供）</span></label>
       <div class="form-row">
         <input type="number" class="form-input" id="expense" placeholder="例如 8000" min="0" step="1">
         <span class="form-unit">元</span>
@@ -490,17 +546,17 @@ body {
     </div>
 
     <div class="form-group" id="grpProperty">
-      <label class="form-label">房产市值 <span class="optional">（自住房 + 投资房当前市值，无则留 0）</span></label>
+      <label class="form-label">自住房市值 <span class="optional">（自己居住的房屋当前市值，无则留 0）</span></label>
       <div class="form-row">
-        <input type="number" class="form-input" id="property" placeholder="例如 2000000" min="0" step="1">
+        <input type="number" class="form-input" id="property" placeholder="例如 1500000" min="0" step="1">
         <span class="form-unit">元</span>
       </div>
     </div>
 
-    <div class="form-group" id="grpBankDebt">
-      <label class="form-label">银行负债 <span class="optional">（房贷、车贷、消费贷等有息负债，无则留 0）</span></label>
+    <div class="form-group" id="grpInvestProperty">
+      <label class="form-label">投资房市值 <span class="optional">（出租或空置的投资性房产，无则留 0）</span></label>
       <div class="form-row">
-        <input type="number" class="form-input" id="bankDebt" placeholder="例如 500000" min="0" step="1">
+        <input type="number" class="form-input" id="investProperty" placeholder="例如 500000" min="0" step="1">
         <span class="form-unit">元</span>
       </div>
     </div>
@@ -513,12 +569,11 @@ body {
       </div>
     </div>
 
-    <div class="form-group" id="grpMonthlyPay">
-      <label class="form-label">月供金额 <span class="optional">（银行负债的月还款额，无房贷则留 0）</span></label>
-      <div class="form-row">
-        <input type="number" class="form-input" id="monthlyPay" placeholder="例如 3000" min="0" step="1">
-        <span class="form-unit">元</span>
-      </div>
+    <div class="form-group">
+      <label class="form-label">贷款明细 <span class="optional">（逐笔填写，系统自动计算月供，无贷款可跳过）</span></label>
+      <div id="loansContainer" class="loans-section"></div>
+      <button type="button" class="btn-add-loan" id="btnAddLoan">+ 添加一笔贷款</button>
+      <div id="loanSummary" class="loan-summary" style="display:none"></div>
     </div>
 
     <div class="form-group" id="grpHousingFund">
@@ -550,6 +605,22 @@ body {
       <div class="form-row">
         <input type="number" class="form-input" id="lifeInsurance" placeholder="例如 50" min="0" step="1">
         <span class="form-unit">万元</span>
+      </div>
+    </div>
+
+    <div class="form-group" id="grpInsTerm">
+      <label class="form-label">保险缴费年限 <span class="optional">（保单约定的总缴费期数，无商保可跳过）</span></label>
+      <div class="form-row">
+        <input type="number" class="form-input" id="insuranceTerm" placeholder="例如 20" min="0" step="1">
+        <span class="form-unit">年</span>
+      </div>
+    </div>
+
+    <div class="form-group" id="grpInsPaidYears">
+      <label class="form-label">保险已缴年限 <span class="optional">（已缴费年数，无商保可跳过）</span></label>
+      <div class="form-row">
+        <input type="number" class="form-input" id="insurancePaidYears" placeholder="例如 5" min="0" step="1">
+        <span class="form-unit">年</span>
       </div>
     </div>
 
@@ -628,6 +699,167 @@ body {
   var btnSubmit = $('btnSubmit');
   var resultSection = $('resultSection');
 
+  // ==================== Loan Calculator ====================
+  var loanCount = 0;
+
+  // 计算单笔贷款月供（当前阶段）
+  function calcSingleMonthly(amt, annualRate, term, type, transLeft) {
+    if (amt <= 0 || term <= 0) return 0;
+    var r = annualRate / 100 / 12;
+    if (type === 'xxhb') {
+      // 先息后本：过渡期内只还利息
+      if (transLeft > 0) return amt * r;
+      // 过渡期结束后转等额本息（剩余期限）
+      var origTrans = Number(document.querySelector('[data-idx="' + type + '"]')?.dataset?.origTrans || 0);
+      return 0; // handled separately
+    }
+    if (type === 'debx' && r > 0) {
+      return amt * r * Math.pow(1 + r, term) / (Math.pow(1 + r, term) - 1);
+    }
+    if (type === 'debj' && r > 0) {
+      return amt / term + amt * r; // 首月（最高月）
+    }
+    if (type === 'dqhc') {
+      return amt * r; // 到期还本，月供仅利息
+    }
+    return 0;
+  }
+
+  // 收集所有贷款数据，计算月供
+  function collectLoanData() {
+    var entries = document.querySelectorAll('.loan-entry');
+    var totalCurrent = 0, totalMax = 0, totalBankDebt = 0;
+    var details = [];
+    entries.forEach(function(entry, idx) {
+      var amt = Number(entry.querySelector('.loan-amt').value) || 0;
+      if (amt <= 0) return;
+      totalBankDebt += amt;
+      var rate = Number(entry.querySelector('.loan-rate').value) || 0;
+      var term = Number(entry.querySelector('.loan-term').value) || 1;
+      var type = entry.querySelector('.loan-type').value;
+      var transTotal = Number(entry.querySelector('.loan-trans-total')?.value) || 0;
+      var transLeft = Number(entry.querySelector('.loan-trans-left')?.value) || 0;
+      var r = rate / 100 / 12;
+      var curPay = 0, maxPay = 0, detail = '';
+
+      if (type === 'debx' && r > 0) {
+        curPay = amt * r * Math.pow(1+r, term) / (Math.pow(1+r, term) - 1);
+        maxPay = curPay;
+        detail = '等额本息，月供恒定 ' + Math.round(curPay) + ' 元';
+      } else if (type === 'debx' && r === 0) {
+        curPay = amt / term; maxPay = curPay;
+        detail = '等额本息（无息），月供 ' + Math.round(curPay) + ' 元';
+      } else if (type === 'debj' && r > 0) {
+        curPay = amt / term + amt * r;
+        maxPay = curPay;
+        detail = '等额本金，首月 ' + Math.round(curPay) + ' 元，逐月递减';
+      } else if (type === 'debj' && r === 0) {
+        curPay = amt / term; maxPay = curPay;
+        detail = '等额本金（无息），月供 ' + Math.round(curPay) + ' 元';
+      } else if (type === 'xxhb') {
+        var curInterest = amt * r;
+        if (transLeft > 0) {
+          // 当前还在先息阶段
+          curPay = curInterest;
+          var remainTerm = term - transLeft;
+          if (remainTerm > 0 && r > 0) {
+            maxPay = amt * r * Math.pow(1+r, remainTerm) / (Math.pow(1+r, remainTerm) - 1);
+          } else if (remainTerm > 0) {
+            maxPay = amt / remainTerm;
+          } else {
+            maxPay = curPay;
+          }
+          detail = '先息后本，当前月供 ' + Math.round(curPay) + ' 元（剩余 ' + transLeft + ' 个月转等额本息）';
+        } else {
+          // 已转等额本息
+          var origTrans = transTotal || 0;
+          curPay = amt * r * Math.pow(1+r, term) / (Math.pow(1+r, term) - 1);
+          maxPay = curPay;
+          detail = '先息后本（已转等额本息），月供 ' + Math.round(curPay) + ' 元';
+        }
+      } else if (type === 'dqhc') {
+        curPay = amt * r;
+        maxPay = curPay;
+        detail = '按月付息到期还本，月供利息 ' + Math.round(curPay) + ' 元';
+      }
+
+      totalCurrent += curPay;
+      totalMax += Math.max(curPay, maxPay);
+      details.push({ amount: amt, curPay: Math.round(curPay), maxPay: Math.round(Math.max(curPay, maxPay)), detail: detail });
+    });
+    return { currentPay: Math.round(totalCurrent), maxPay: Math.round(totalMax), bankDebt: Math.round(totalBankDebt), details: details, count: details.length };
+  }
+
+  // 更新贷款汇总
+  function updateLoanSummary() {
+    var data = collectLoanData();
+    var el = $('loanSummary');
+    if (data.count === 0) { el.style.display = 'none'; return; }
+    el.style.display = 'block';
+    var html = '<strong>📊 贷款汇总</strong><br>';
+    html += '负债总额：<strong>' + (data.bankDebt/10000).toFixed(1) + '</strong> 万元 &nbsp;|&nbsp; ';
+    html += '当前月供：<strong>' + data.currentPay + '</strong> 元/月';
+    if (data.maxPay > data.currentPay) {
+      html += ' → <span class="loan-warn">未来最高 ' + data.maxPay + ' 元</span>';
+    }
+    html += '<br>';
+    data.details.forEach(function(d, i) {
+      html += '贷款' + (i+1) + '（' + (d.amount/10000).toFixed(1) + '万）：' + d.detail + '<br>';
+    });
+    if (data.maxPay > data.currentPay) {
+      var income = Number($('jobIncome').value) || 1;
+      html += '<span class="loan-warn">⚠️ 最高月供占收入 ' + Math.round(data.maxPay / income * 100) + '%，请评估承受能力</span>';
+    }
+    el.innerHTML = html;
+  }
+
+  // 添加一笔贷款
+  function addLoanEntry() {
+    loanCount++;
+    var idx = loanCount;
+    var html = '<div class="loan-entry" data-idx="' + idx + '">' +
+      '<div class="loan-entry-header">' +
+        '<span class="loan-entry-title">贷款 #' + idx + '</span>' +
+        '<button type="button" class="loan-remove" onclick="removeLoan(this)">✕ 删除</button>' +
+      '</div>' +
+      '<div class="loan-row">' +
+        '<div class="loan-field"><label>贷款金额</label><input type="number" class="loan-amt" placeholder="100000" min="0" step="1000" oninput="updateLoanSummary()"></div>' +
+        '<div class="loan-field"><label>年利率 (%)</label><input type="number" class="loan-rate" placeholder="5.5" min="0" max="50" step="0.1" oninput="updateLoanSummary()"></div>' +
+      '</div>' +
+      '<div class="loan-row">' +
+        '<div class="loan-field"><label>剩余期数</label><input type="number" class="loan-term" placeholder="24" min="1" step="1" oninput="updateLoanSummary()"></div>' +
+        '<div class="loan-field"><label>还款方式</label><select class="loan-type" onchange="toggleTrans(this);updateLoanSummary()"><option value="debx">等额本息</option><option value="debj">等额本金</option><option value="xxhb">先息后本</option><option value="dqhc">按月付息到期还本</option></select></div>' +
+      '</div>' +
+      '<div class="loan-trans" style="display:none" id="trans_' + idx + '">' +
+        '<div class="loan-transition-title">⚡ 先息后本 → 转等额本息</div>' +
+        '<div class="loan-row">' +
+          '<div class="loan-field"><label>总先息期（月）</label><input type="number" class="loan-trans-total" placeholder="12" min="0" step="1" oninput="updateLoanSummary()"></div>' +
+          '<div class="loan-field"><label>剩余先息期（月）</label><input type="number" class="loan-trans-left" placeholder="6" min="0" step="1" oninput="updateLoanSummary()"></div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+    $('loansContainer').insertAdjacentHTML('beforeend', html);
+    updateLoanSummary();
+  }
+
+  function removeLoan(btn) {
+    btn.closest('.loan-entry').remove();
+    updateLoanSummary();
+  }
+
+  function toggleTrans(sel) {
+    var entry = sel.closest('.loan-entry');
+    var transDiv = entry.querySelector('.loan-trans');
+    transDiv.style.display = sel.value === 'xxhb' ? 'block' : 'none';
+  }
+
+  // 绑定"添加贷款"按钮
+  document.addEventListener('click', function(e) {
+    if (e.target && e.target.id === 'btnAddLoan') {
+      addLoanEntry();
+    }
+  });
+
   // ==================== Scoring Engine ====================
   /**
    * @param {Object} data
@@ -636,38 +868,47 @@ body {
    */
     function scoringEngine(data) {
     var jobIncome = data.jobIncome;         // 月职业收入
-    var otherIncome = data.otherIncome;     // 月其他收入
-    var expense = data.expense;
+    var rentalIncome = data.rentalIncome || 0;   // 月租金收入
+    var investIncome = data.investIncome || 0;   // 月投资收益
+    var sideIncome = data.sideIncome || 0;       // 月副业/兼职收入
+    var otherIncome = rentalIncome + investIncome + sideIncome; // 非职业收入合计
+    var fixedExpense = data.expense;       // 月固定支出（不含月供）
     var savings = data.savings;
-    var equityInvest = data.equityInvest;   // 权益投资（股票、股票型基金、混合基金）
-    var stableInvest = data.stableInvest;   // 稳健投资（债券基金、货基、定期理财）
-    var investment = equityInvest + stableInvest; // 投资总额（兼容后续计算）
-    var prop = data.property;
-    var bankDebt = data.bankDebt;
+    var equityInvest = data.equityInvest;  // 权益投资
+    var stableInvest = data.stableInvest;  // 稳健投资
+    var investment = equityInvest + stableInvest;
+    var prop = data.property;              // 自住房市值
+    var investProp = data.investProperty || 0; // 投资房市值
+    var bankDebt = data.bankDebt || 0;     // 银行负债（从贷款明细汇总）
     var otherDebt = data.otherDebt;
-    var monthlyPay = data.monthlyPay;
+    var monthlyPay = data.monthlyPay;      // 当前月供（从贷款明细计算）
+    var maxMonthlyPay = data.maxMonthlyPay || monthlyPay; // 未来最高月供
     var housingFund = data.housingFund;
     var housingFundYears = data.housingFundYears;
     var commercialPremium = data.commercialPremium;
     var lifeInsurance = data.lifeInsurance; // 万元
     var ageGroup = data.ageGroup;
+    var insuranceTerm = data.insuranceTerm || 0;       // 保险缴费年限
+    var insurancePaidYears = data.insurancePaidYears || 0; // 保险已缴年限
+    var insRemainingYears = Math.max(0, insuranceTerm - insurancePaidYears); // 剩余缴费年数
 
     // 总收入
     var income = jobIncome + otherIncome;
     // 总负债
     var debt = bankDebt + otherDebt;
-    // 总资产
-    var totalAssets = savings + investment + prop;
+    // 总资产（自住房 + 投资房 + 金融资产 + 现金）
+    var totalAssets = savings + investment + prop + investProp;
     if (totalAssets === 0) totalAssets = 1;
 
     // 是否退休（60+ 或 推断：公积金=0 且 年限≥20）
     var isRetired = (ageGroup == 6) || (housingFund === 0 && housingFundYears >= 20);
 
     // ---- Dimension 1: 资产负债健康度 (20%) ----
-    // 1a. 月供/收入比（框架：≤30%健康，>50%危险）
-    var monthlyPayRatio = income > 0 ? monthlyPay / income : 0;
+    // 1a. 月供/收入比（用未来最高月供评估风险，框架：≤30%健康，>50%危险）
+    var effectiveMonthlyPay = maxMonthlyPay;
+    var monthlyPayRatio = income > 0 ? effectiveMonthlyPay / income : 0;
     var score1a;
-    if (monthlyPay === 0) score1a = 100;          // 无月供
+    if (effectiveMonthlyPay === 0) score1a = 100;          // 无月供
     else if (monthlyPayRatio <= 0.3) score1a = 100;
     else if (monthlyPayRatio <= 0.5) score1a = 60;
     else score1a = 0;
@@ -692,11 +933,11 @@ body {
     var dim1Score = Math.round((score1a + score1b + score1c) / 3);
 
     // ---- Dimension 2: 流动性安全度 (15%) ----
-    // 框架：紧急现金储备≥6-12个月刚性支出（含月供）
-    var monthlyRigid = expense + monthlyPay;  // 月刚性支出
+    // 框架：紧急现金储备≥6-12个月刚性支出（固定支出+最高月供）
+    var monthlyRigid = fixedExpense + effectiveMonthlyPay;  // 月刚性支出
     var savingsMonths = monthlyRigid > 0 ? savings / monthlyRigid : (savings > 0 ? 999 : 0);
     var dim2Score;
-    if (expense === 0 && monthlyPay === 0) dim2Score = 100;  // 无支出
+    if (fixedExpense === 0 && effectiveMonthlyPay === 0) dim2Score = 100;  // 无支出
     else if (savingsMonths >= 12) dim2Score = 100;
     else if (savingsMonths >= 6) dim2Score = 70;
     else if (savingsMonths >= 3) dim2Score = 40;
@@ -713,7 +954,7 @@ body {
     else dim3Score = 0;
 
     // ---- Dimension 4: 支出与储蓄率 (15%) ----
-    var savingsRate = income > 0 ? (income - expense) / income : 0;
+    var savingsRate = income > 0 ? (income - fixedExpense - effectiveMonthlyPay) / income : 0;
     var dim4Score;
     if (income === 0) dim4Score = 0;
     else if (savingsRate >= 0.3) dim4Score = 100;
@@ -722,10 +963,11 @@ body {
     else dim4Score = 0;
 
     // ---- Dimension 5: 资产配置均衡度 (20%) ----
-    // 5a. 房产占比（框架：中产≤40%目标）
-    var propRatio = totalAssets > 0 ? prop / totalAssets : 0;
+    // 5a. 房产占比（含自住房+投资房，框架：总房产≤40%目标）
+    var totalProp = prop + investProp;
+    var propRatio = totalAssets > 0 ? totalProp / totalAssets : 0;
     var score5a;
-    if (prop === 0) score5a = 100;
+    if (totalProp === 0) score5a = 100;
     else if (propRatio <= 0.4) score5a = 100;
     else if (propRatio <= 0.55) score5a = 60;
     else score5a = 0;
@@ -756,7 +998,7 @@ body {
     // ---- Dimension 6: 风险保障充足度 (10%) ----
     var annualIncome = income * 12;
     var annualJobIncome = jobIncome * 12;
-    var annualExpense = expense * 12;
+    var annualExpense = (fixedExpense + effectiveMonthlyPay) * 12;
 
     // 6a. 公积金覆盖率（30%）
     var fundScore;
@@ -843,6 +1085,17 @@ body {
       insuranceParts.push('商业保险配置基本合理，可根据家庭责任变化适当调整。');
     }
 
+    // 保险缴费年限分析
+    if (insuranceTerm > 0 && commercialPremium > 0) {
+      if (insRemainingYears > 10) {
+        insuranceParts.push('商保还需缴费 ' + insRemainingYears + ' 年（年缴 ' + commercialPremium + ' 元），这是一笔长期刚性支出，需确保未来收入能持续覆盖。');
+      } else if (insRemainingYears > 0 && insRemainingYears <= 10) {
+        insuranceParts.push('商保还剩 ' + insRemainingYears + ' 年缴费期，即将完成保费义务，现金流压力将逐步减轻。');
+      } else {
+        insuranceParts.push('商保缴费已完成，后续无需再承担保费支出，保障持续有效。');
+      }
+    }
+
     insuranceAdvice = insuranceParts.join('');
 
     // ---- Total Score ----
@@ -872,12 +1125,20 @@ body {
       '风险保障充足度'
     ];
     var dimDescs = [
-      '评估标准：月供≤月收入30%为健康，负债/资产≤30%为安全，银行负债杠杆≤50%为稳健（框架1.1）',
-      '评估标准：应急储备覆盖6-12个月刚性支出（含月供）为安全（框架2.1）',
-      '评估标准：其他收入÷总收入≥30%为健康，体现财产性收入占比（框架1.2）',
-      '评估标准：（总收入-月支出）÷总收入≥30%为优秀，≥20%良好（框架通用储蓄原则）',
-      '评估标准：房产占总资产≤40%为健康，非房产中投资占比≥30%为合理（框架1.3）',
+      '评估标准：未来最高月供÷月收入≤30%为健康，负债/总资产≤30%为安全，银行负债占比≤50%为稳健（框架1.1）',
+      '评估标准：（现金+活期）÷（固定支出+最高月供）≥6为安全，≥12为优秀（框架2.1）',
+      '评估标准：（租金+投资收益）÷总收入≥30%为健康，体现被动收入质量（框架1.2）',
+      '评估标准：（总收入-固定支出-月供）÷总收入≥30%为优秀，≥20%良好（框架通用储蓄原则）',
+      '评估标准：（自住房+投资房）÷总资产≤40%为健康，金融资产中投资占比≥30%为合理（框架1.3）',
       '评估标准：公积金覆盖率30% + 商业保费/职业收入35% + 保额/年支出35%（框架推导）'
+    ];
+    var dimTargets = [
+      '达标区间：未来最高月供÷收入 ≤ 30%，负债÷总资产 ≤ 30%，银行负债占比 ≤ 50%',
+      '达标区间：现金储备 ÷ 月刚性支出（固定支出+最高月供）≥ 6 个月',
+      '达标区间：（租金+投资收益）÷ 总收入 ≥ 30%（被动收入质量）',
+      '达标区间：月储蓄率 ≥ 20%（即固定支出+月供 ≤ 收入的 80%）',
+      '达标区间：（自住房+投资房）÷总资产 ≤ 40%，金融资产中投资占比 ≥ 30%',
+      '达标区间：保费占年收入 8%~15%，保额 ≥ 5 年年支出'
     ];
     var dimensions = [];
     for (var j = 0; j < 6; j++) {
@@ -885,7 +1146,8 @@ body {
         name: dimNames[j],
         score: dimScores[j],
         weight: Math.round(weights[j] * 100),
-        desc: dimDescs[j]
+        desc: dimDescs[j],
+        target: dimTargets[j]
       });
     }
 
@@ -893,37 +1155,43 @@ body {
     var suggestionMap = {
       0: {
         problem: '负债压力较大，银行负债杠杆或月供占比超过安全线。',
-        principle: '吴晓波指出，资产负债表是财富的"地基"——净资产 = 总资产 - 总负债。月供占收入比超过 50% 时，家庭现金流极度脆弱，一旦遭遇失业、疾病或行业下行，断供风险急剧上升。2025 年全国房产断供 187 万人，核心原因就是杠杆超出了实际支付能力。',
+        target: '月供收入比降至 ≤ 30%，负债/资产比 ≤ 30%，银行有息负债占总资产 ≤ 50%',
+        principle: '财富管理的第一原则：资产负债表是财富的"地基"——净资产 = 总资产 - 总负债。月供占收入比超过 50% 时，家庭现金流极度脆弱，一旦遭遇失业、疾病或行业下行，断供风险急剧上升。2025 年全国房产断供 187 万人，核心原因就是杠杆超出了实际支付能力。',
         action: '优先偿还高息银行负债（信用卡分期、消费贷利率通常 15%+），适当延长房贷期限降低月供压力。每月将多余资金集中"狙击"利率最高的那一笔负债，还清后转入下一笔，形成雪效应。',
         benefit: '每降低 1 万元有息负债，每年就能省下 600-1500 元的利息支出，这笔钱相当于多赚了一个月的被动收入。负债率降到 30% 以下后，银行更愿意给你低利率贷款，整体财务弹性大幅提升。'
       },
       1: {
         problem: '流动性不足，应急储备金偏少。',
-        principle: '吴晓波将现金流比作企业的"血液"，对个人家庭同样适用。没有流动性储备，任何意外——失业、疾病、突发支出——都会迫使你变卖资产或借高息贷款，造成"越急越亏"的恶性循环。框架要求至少储备覆盖 6-12 个月刚性支出的现金。',
+        target: '应急储备金达到 6~12 个月刚性支出（含月供），按 3 层流动性分层存放',
+        principle: '现金流是家庭和企业的"血液"，对个人家庭同样适用。没有流动性储备，任何意外——失业、疾病、突发支出——都会迫使你变卖资产或借高息贷款，造成"越急越亏"的恶性循环。框架要求至少储备覆盖 6-12 个月刚性支出的现金。',
         action: '分三层存放：① 1-2 个月日常开销放活期或余额宝（随时取用）；② 2-4 个月放货币基金或短债基金（7 天内到账，收益高于活期 5-10 倍）； 剩余放债券基金（稳定增值，需要时可赎回）。每月工资到账后第一时间转入储备账户。',
         benefit: '有了充足储备金，你面对突发状况时不再焦虑，不需要低价抛售股票或借网贷。更重要的是，它给了你"选择权"——可以等更好的工作机会、可以择时投资、可以对不合理的报价说"不"。这是真正的财务自由第一步。'
       },
       2: {
         problem: '财产性收入占比过低，收入结构单一依赖职业收入。',
-        principle: '吴晓波的核心框架是"双轨收入"——职务性收入（工资）+ 财产性收入（利息、股息、租金、资本利得）。只靠工资的人，本质上是"用手换钱"，一旦停止工作收入立刻归零。健康家庭的财产性收入应占总收入的 30% 以上，这才是"钱为你工作"。',
+        target: '财产性收入（投资收益、租金、利息等）占总收入 ≥ 30%',
+        principle: '财富增长的核心框架是"双轨收入"——职务性收入（工资）+ 财产性收入（利息、股息、租金、资本利得）。只靠工资的人，本质上是"用手换钱"，一旦停止工作收入立刻归零。健康家庭的财产性收入应占总收入的 30% 以上，这才是"钱为你工作"。',
         action: '从宽基指数基金定投开始（如沪深 300、中证 500），每月固定投入，利用"微笑曲线"在市场波动中摊低成本。先建仓位再谈择时，不要试图精准抄底。进阶后可逐步增加行业基金（科技、消费、医疗）提升收益弹性。',
         benefit: '基金定投 10 年年化收益约 8-12%，这意味着每月投 2000 元，10 年后约 35-45 万元。更重要的是，当财产性收入逐渐覆盖日常支出时，你不再被迫为钱工作，而是可以选择做自己真正想做的事——这才是财富增长的终极目的。'
       },
       3: {
         problem: '储蓄率偏低，入不敷出或所剩无几。',
-        principle: '吴晓波强调"先存后花"是财富积累的第一性原理。大多数人"先花后存"，月底剩多少存多少，结果永远存不下来。框架要求储蓄率不低于 20%——这不是消费习惯问题，而是数学问题：如果收入 1 万、月花 8000，看似合理，但 10 年后净资产增量几乎为零。',
+        target: '月储蓄率 ≥ 20%（即月支出 ≤ 月收入的 80%），理想目标 30%+',
+        principle: '专业理财框架强调"先存后花"是财富积累的第一性原理。大多数人"先花后存"，月底剩多少存多少，结果永远存不下来。框架要求储蓄率不低于 20%——这不是消费习惯问题，而是数学问题：如果收入 1 万、月花 8000，看似合理，但 10 年后净资产增量几乎为零。',
         action: '每月工资到账当天，立即将 20% 自动转入"不可动"账户（可设置定期存款或基金定投，增加提取难度）。剩余 80% 才是你的实际可支配收入，在这个预算内安排生活。记账 3 个月找出"拿铁因子"（每天一杯咖啡、会员自动续费等隐性支出），逐步优化。',
         benefit: '每月多存 1000 元，按年化 8% 复利计算，20 年后约 59 万元。差距看似不大，但关键在于习惯的力量——当你把储蓄变成"第一优先级支出"，消费决策会自动变理性，整个财务系统进入正向循环。这是所有富裕家庭的共同特征。'
       },
       4: {
         problem: '资产配置不均衡，不动产占比过大或投资不足。',
-        principle: '吴晓波指出，中国家庭资产中房产占比平均超 70%，远高于国际健康值（30-50%）。房产流动性差、变现周期长、持有成本高，一旦市场下行就会被"套牢"。同时，缺乏金融资产意味着放弃了中国经济长期增长的红利。框架建议证券类资产占比逐步提升至 30% 左右。',
+        target: '房产占总资产 ≤ 40%，金融资产中权益类占比 30%~60%，债券类 20%~40%，现金类 ≥ 10%',
+        principle: '数据显示，中国家庭资产中房产占比平均超 70%，远高于国际健康值（30-50%）。房产流动性差、变现周期长、持有成本高，一旦市场下行就会被"套牢"。同时，缺乏金融资产意味着放弃了中国经济长期增长的红利。框架建议证券类资产占比逐步提升至 30% 左右。',
         action: '非必须不新购房产，持有两套即可。将每月结余资金的 50% 投入权益类基金（沪深 300 宽基 + 1-2 只行业基金），30% 配置债券基金降低波动，20% 保留现金类。每季度检视一次配比，偏离超过 5% 时做再平衡。',
         benefit: '多元化配置的核心好处是"东方不亮西方亮"——股市跌时债券涨，经济差时现金稳。历史数据显示，均衡配置的年化波动率比全仓房产或全仓股票低 40-60%，但长期收益差距不大。更重要的是，金融资产随时可以变现，给了你应对任何人生变化的底气。'
       },
       5: {
         problem: '风险保障不充分。',
-        principle: '吴晓波将保险定位为"防守型资产"——它不创造财富，但防止财富被一次意外清零。框架强调，一个家庭的底线保障应覆盖：重大疾病（保额 ≥ 3 年年收入）、意外身故（保额 ≥ 5 年年支出）、住院医疗（百万医疗险）。没有这些保障，前面所有的储蓄和投资都可能在一次事故中化为乌有。',
+        target: '保费占年收入 8%~15%，人寿保额 ≥ 5 年年支出，重疾险保额 ≥ 50 万，配百万医疗险',
+        principle: '专业理财将保险定位为"防守型资产"——它不创造财富，但防止财富被一次意外清零。框架强调，一个家庭的底线保障应覆盖：重大疾病（保额 ≥ 3 年年收入）、意外身故（保额 ≥ 5 年年支出）、住院医疗（百万医疗险）。没有这些保障，前面所有的储蓄和投资都可能在一次事故中化为乌有。',
         action: '按年龄段配置：30 岁以下优先百万医疗险（年保费 300-500 元）+ 消费型重疾险（保额 50 万，年保费 2000-4000 元）；30-50 岁增加定期寿险（保额覆盖房贷余额 + 5 年生活费）；50 岁以上侧重防癌险和长期护理险。总保费控制在年收入的 8-15% 以内。',
         benefit: '一份年交 3000 元的重疾险，撬动的是 50 万保额——杠杆率 167 倍。没有保险的家庭，一场大病可能消耗 5-10 年积累；有保险的家庭，同样的情况只损失 3000 元保费。这就是保险的本质：用极小的确定性支出，对冲极大的不确定性损失。'
       }
@@ -992,19 +1260,22 @@ body {
     function validate() {
     var rules = [
       { id: 'jobIncome', grp: 'grpJobIncome', required: true },
-      { id: 'otherIncome', grp: 'grpOtherIncome', required: false },
+      { id: 'rentalIncome', grp: 'grpRentalIncome', required: false },
+      { id: 'investIncome', grp: 'grpInvestIncome', required: false },
+      { id: 'sideIncome', grp: 'grpSideIncome', required: false },
       { id: 'expense', grp: 'grpExpense', required: true },
       { id: 'savings', grp: 'grpSavings', required: true },
       { id: 'equityInvest', grp: 'grpEquityInvest', required: false },
       { id: 'stableInvest', grp: 'grpStableInvest', required: false },
       { id: 'property', grp: 'grpProperty', required: false },
-      { id: 'bankDebt', grp: 'grpBankDebt', required: false },
+      { id: 'investProperty', grp: 'grpInvestProperty', required: false },
       { id: 'otherDebt', grp: 'grpOtherDebt', required: false },
-      { id: 'monthlyPay', grp: 'grpMonthlyPay', required: false },
       { id: 'housingFund', grp: 'grpHousingFund', required: false },
       { id: 'housingFundYears', grp: 'grpHousingFundYears', required: false },
       { id: 'commercialPremium', grp: 'grpCommercialPremium', required: false },
       { id: 'lifeInsurance', grp: 'grpLifeInsurance', required: false },
+      { id: 'insuranceTerm', grp: 'grpInsTerm', required: false },
+      { id: 'insurancePaidYears', grp: 'grpInsPaidYears', required: false },
       { id: 'ageGroup', grp: 'grpAge', required: true, isSelect: true }
     ];
 
@@ -1081,6 +1352,7 @@ body {
         '</div>' +
         '<div class="dim-bar-wrap"><div class="dim-bar ' + barClass + '" style="width:' + dim.score + '%"></div></div>' +
         '<div class="dim-desc">' + dim.desc + '</div>' +
+        '<div class="dim-target">' + dim.target + '</div>' +
         '<div class="dim-weight">权重 ' + dim.weight + '%</div>' +
       '</div>';
       dimList.innerHTML += dimHtml;
@@ -1105,6 +1377,7 @@ body {
           '<div class="suggest-icon">' + (idx + 1) + '</div>' +
           '<div class="suggest-text">' +
             '<div class="sug-problem"><strong>' + s.problem + '</strong></div>' +
+            '<div class="sug-target"><span class="sug-label">📊 达标区间</span>' + s.target + '</div>' +
             '<div class="sug-principle"><span class="sug-label">📖 原理</span>' + s.principle + '</div>' +
             '<div class="sug-action"><span class="sug-label">🎯 怎么做</span>' + s.action + '</div>' +
             '<div class="sug-benefit"><span class="sug-label">💡 好处</span>' + s.benefit + '</div>' +
@@ -1157,21 +1430,29 @@ body {
     try {
     if (!validate()) return;
 
+    var loanData = collectLoanData();
+
     var data = {
       jobIncome: Number($('jobIncome').value) || 0,
-      otherIncome: Number($('otherIncome').value) || 0,
+      rentalIncome: Number($('rentalIncome').value) || 0,
+      investIncome: Number($('investIncome').value) || 0,
+      sideIncome: Number($('sideIncome').value) || 0,
       expense: Number($('expense').value) || 0,
       savings: Number($('savings').value) || 0,
       equityInvest: Number($('equityInvest').value) || 0,
       stableInvest: Number($('stableInvest').value) || 0,
       property: Number($('property').value) || 0,
-      bankDebt: Number($('bankDebt').value) || 0,
+      investProperty: Number($('investProperty').value) || 0,
+      bankDebt: loanData.bankDebt,
       otherDebt: Number($('otherDebt').value) || 0,
-      monthlyPay: Number($('monthlyPay').value) || 0,
+      monthlyPay: loanData.currentPay,
+      maxMonthlyPay: loanData.maxPay,
       housingFund: Number($('housingFund').value) || 0,
       housingFundYears: Number($('housingFundYears').value) || 0,
       commercialPremium: Number($('commercialPremium').value) || 0,
       lifeInsurance: Number($('lifeInsurance').value) || 0,
+      insuranceTerm: Number($('insuranceTerm').value) || 0,
+      insurancePaidYears: Number($('insurancePaidYears').value) || 0,
       ageGroup: $('ageGroup').value
     };
 
