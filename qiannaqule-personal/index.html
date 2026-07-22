@@ -360,6 +360,15 @@ body {
   color: #334155;
   line-height: 1.6;
 }
+.sug-problem { font-weight: 600; color: #dc2626; margin-bottom: 8px; font-size: 0.9rem; }
+.sug-principle, .sug-action, .sug-benefit { margin-bottom: 8px; }
+.sug-principle { background: #eff6ff; border-left: 3px solid #3b82f6; padding: 8px 12px; border-radius: 0 6px 6px 0; }
+.sug-action { background: #f0fdf4; border-left: 3px solid #22c55e; padding: 8px 12px; border-radius: 0 6px 6px 0; }
+.sug-benefit { background: #fffbeb; border-left: 3px solid #f59e0b; padding: 8px 12px; border-radius: 0 6px 6px 0; }
+.sug-label { display: inline-block; font-weight: 700; font-size: 0.8rem; margin-right: 4px; }
+.sug-principle .sug-label { color: #2563eb; }
+.sug-action .sug-label { color: #16a34a; }
+.sug-benefit .sug-label { color: #d97706; }
 
 /* --- Insurance Tip --- */
 .insurance-tip {
@@ -882,12 +891,42 @@ body {
 
     // ---- Suggestions ----
     var suggestionMap = {
-      0: '负债压力较大，银行负债杠杆或月供占比超过安全线。框架建议：延长贷款期限降低月供，优先偿还高息银行负债，严禁超出支付能力负债（2025年全国房产断供187万人，主因即此）。',
-      1: '流动性不足，应急储备金偏少。框架建议：至少建立覆盖6-12个月刚性支出（含月供）的紧急现金储备，分层存放于活期、货币基金、债券基金。',
-      2: '财产性收入占比过低，收入结构单一依赖职业收入。框架指出"职务性收入+财产性收入"双轨是健康结构，建议学习基金定投，从宽基指数基金开始建立"钱生钱"能力。',
-      3: '储蓄率偏低，入不敷出或所剩无几。框架建议：每月工资到账后先存后花，至少留存收入的20%，设定自动转账强制储蓄。',
-      4: '资产配置不均衡，不动产占比过大或投资不足。框架建议：非必须不新购房产，两套即可；逐步将储蓄转化为基金定投，目标证券类资产占比~30%。',
-      5: '风险保障不充分。框架强调保险是"防守型资产"，建议按年龄段配置：30岁10-15%、40-50岁15-20%用于保险+防御型资产，建立底线保障。'
+      0: {
+        problem: '负债压力较大，银行负债杠杆或月供占比超过安全线。',
+        principle: '吴晓波指出，资产负债表是财富的"地基"——净资产 = 总资产 - 总负债。月供占收入比超过 50% 时，家庭现金流极度脆弱，一旦遭遇失业、疾病或行业下行，断供风险急剧上升。2025 年全国房产断供 187 万人，核心原因就是杠杆超出了实际支付能力。',
+        action: '优先偿还高息银行负债（信用卡分期、消费贷利率通常 15%+），适当延长房贷期限降低月供压力。每月将多余资金集中"狙击"利率最高的那一笔负债，还清后转入下一笔，形成雪效应。',
+        benefit: '每降低 1 万元有息负债，每年就能省下 600-1500 元的利息支出，这笔钱相当于多赚了一个月的被动收入。负债率降到 30% 以下后，银行更愿意给你低利率贷款，整体财务弹性大幅提升。'
+      },
+      1: {
+        problem: '流动性不足，应急储备金偏少。',
+        principle: '吴晓波将现金流比作企业的"血液"，对个人家庭同样适用。没有流动性储备，任何意外——失业、疾病、突发支出——都会迫使你变卖资产或借高息贷款，造成"越急越亏"的恶性循环。框架要求至少储备覆盖 6-12 个月刚性支出的现金。',
+        action: '分三层存放：① 1-2 个月日常开销放活期或余额宝（随时取用）；② 2-4 个月放货币基金或短债基金（7 天内到账，收益高于活期 5-10 倍）； 剩余放债券基金（稳定增值，需要时可赎回）。每月工资到账后第一时间转入储备账户。',
+        benefit: '有了充足储备金，你面对突发状况时不再焦虑，不需要低价抛售股票或借网贷。更重要的是，它给了你"选择权"——可以等更好的工作机会、可以择时投资、可以对不合理的报价说"不"。这是真正的财务自由第一步。'
+      },
+      2: {
+        problem: '财产性收入占比过低，收入结构单一依赖职业收入。',
+        principle: '吴晓波的核心框架是"双轨收入"——职务性收入（工资）+ 财产性收入（利息、股息、租金、资本利得）。只靠工资的人，本质上是"用手换钱"，一旦停止工作收入立刻归零。健康家庭的财产性收入应占总收入的 30% 以上，这才是"钱为你工作"。',
+        action: '从宽基指数基金定投开始（如沪深 300、中证 500），每月固定投入，利用"微笑曲线"在市场波动中摊低成本。先建仓位再谈择时，不要试图精准抄底。进阶后可逐步增加行业基金（科技、消费、医疗）提升收益弹性。',
+        benefit: '基金定投 10 年年化收益约 8-12%，这意味着每月投 2000 元，10 年后约 35-45 万元。更重要的是，当财产性收入逐渐覆盖日常支出时，你不再被迫为钱工作，而是可以选择做自己真正想做的事——这才是财富增长的终极目的。'
+      },
+      3: {
+        problem: '储蓄率偏低，入不敷出或所剩无几。',
+        principle: '吴晓波强调"先存后花"是财富积累的第一性原理。大多数人"先花后存"，月底剩多少存多少，结果永远存不下来。框架要求储蓄率不低于 20%——这不是消费习惯问题，而是数学问题：如果收入 1 万、月花 8000，看似合理，但 10 年后净资产增量几乎为零。',
+        action: '每月工资到账当天，立即将 20% 自动转入"不可动"账户（可设置定期存款或基金定投，增加提取难度）。剩余 80% 才是你的实际可支配收入，在这个预算内安排生活。记账 3 个月找出"拿铁因子"（每天一杯咖啡、会员自动续费等隐性支出），逐步优化。',
+        benefit: '每月多存 1000 元，按年化 8% 复利计算，20 年后约 59 万元。差距看似不大，但关键在于习惯的力量——当你把储蓄变成"第一优先级支出"，消费决策会自动变理性，整个财务系统进入正向循环。这是所有富裕家庭的共同特征。'
+      },
+      4: {
+        problem: '资产配置不均衡，不动产占比过大或投资不足。',
+        principle: '吴晓波指出，中国家庭资产中房产占比平均超 70%，远高于国际健康值（30-50%）。房产流动性差、变现周期长、持有成本高，一旦市场下行就会被"套牢"。同时，缺乏金融资产意味着放弃了中国经济长期增长的红利。框架建议证券类资产占比逐步提升至 30% 左右。',
+        action: '非必须不新购房产，持有两套即可。将每月结余资金的 50% 投入权益类基金（沪深 300 宽基 + 1-2 只行业基金），30% 配置债券基金降低波动，20% 保留现金类。每季度检视一次配比，偏离超过 5% 时做再平衡。',
+        benefit: '多元化配置的核心好处是"东方不亮西方亮"——股市跌时债券涨，经济差时现金稳。历史数据显示，均衡配置的年化波动率比全仓房产或全仓股票低 40-60%，但长期收益差距不大。更重要的是，金融资产随时可以变现，给了你应对任何人生变化的底气。'
+      },
+      5: {
+        problem: '风险保障不充分。',
+        principle: '吴晓波将保险定位为"防守型资产"——它不创造财富，但防止财富被一次意外清零。框架强调，一个家庭的底线保障应覆盖：重大疾病（保额 ≥ 3 年年收入）、意外身故（保额 ≥ 5 年年支出）、住院医疗（百万医疗险）。没有这些保障，前面所有的储蓄和投资都可能在一次事故中化为乌有。',
+        action: '按年龄段配置：30 岁以下优先百万医疗险（年保费 300-500 元）+ 消费型重疾险（保额 50 万，年保费 2000-4000 元）；30-50 岁增加定期寿险（保额覆盖房贷余额 + 5 年生活费）；50 岁以上侧重防癌险和长期护理险。总保费控制在年收入的 8-15% 以内。',
+        benefit: '一份年交 3000 元的重疾险，撬动的是 50 万保额——杠杆率 167 倍。没有保险的家庭，一场大病可能消耗 5-10 年积累；有保险的家庭，同样的情况只损失 3000 元保费。这就是保险的本质：用极小的确定性支出，对冲极大的不确定性损失。'
+      }
     };
 
     var sorted = dimensions.slice().sort(function(a, b) { return a.score - b.score; });
@@ -1059,11 +1098,27 @@ body {
     var sugList = $('suggestList');
     sugList.innerHTML = '';
     result.suggestions.forEach(function(sug, idx) {
-      var html = '<div class="suggest-item">' +
-        '<div class="suggest-icon">' + (idx + 1) + '</div>' +
-        '<div class="suggest-text">' + sug.text + '</div>' +
-      '</div>';
-      sugList.insertAdjacentHTML('beforeend', html);
+      var s = sug.text;
+      // New structured format (object with problem/principle/action/benefit)
+      if (s && typeof s === 'object' && s.problem) {
+        var html = '<div class="suggest-item">' +
+          '<div class="suggest-icon">' + (idx + 1) + '</div>' +
+          '<div class="suggest-text">' +
+            '<div class="sug-problem"><strong>' + s.problem + '</strong></div>' +
+            '<div class="sug-principle"><span class="sug-label">📖 原理</span>' + s.principle + '</div>' +
+            '<div class="sug-action"><span class="sug-label">🎯 怎么做</span>' + s.action + '</div>' +
+            '<div class="sug-benefit"><span class="sug-label">💡 好处</span>' + s.benefit + '</div>' +
+          '</div>' +
+        '</div>';
+        sugList.insertAdjacentHTML('beforeend', html);
+      } else {
+        // Fallback for plain text (maintain/optimization suggestions)
+        var html = '<div class="suggest-item">' +
+          '<div class="suggest-icon">' + (idx + 1) + '</div>' +
+          '<div class="suggest-text">' + (typeof s === 'string' ? s : s.text) + '</div>' +
+        '</div>';
+        sugList.insertAdjacentHTML('beforeend', html);
+      }
     });
   }
 
