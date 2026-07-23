@@ -603,8 +603,8 @@ body {
     <div class="form-group" id="grpLifeInsurance">
       <label class="form-label">人寿保险保额 <span class="optional">（身故/全残保额，无则留 0）</span></label>
       <div class="form-row">
-        <input type="number" class="form-input" id="lifeInsurance" placeholder="例如 50" min="0" step="1">
-        <span class="form-unit">万元</span>
+        <input type="number" class="form-input" id="lifeInsurance" placeholder="例如 500000" min="0" step="1">
+        <span class="form-unit">元</span>
       </div>
     </div>
 
@@ -689,7 +689,7 @@ body {
   <div style="text-align:center;margin-top:16px;padding:14px 0;">
     <span style="display:inline-flex;align-items:center;gap:6px;">
       <img src="../logo.png" alt="米儿客" style="height:40px;width:auto;opacity:0.7;">
-      <span style="color:#94a3b8;font-size:13px;">出品</span>
+      <span style="color:#94a3b8;font-size:13px;">出品 v2.0</span>
     </span>
   </div>
 </div>
@@ -813,7 +813,8 @@ body {
       html += '贷款' + (i+1) + '（' + (d.amount/10000).toFixed(1) + '万）：' + d.detail + '<br>';
     });
     if (data.maxPay > data.currentPay) {
-      var income = Number($('jobIncome').value) || 1;
+      var income = $('jobIncome').value !== '' ? Number($('jobIncome').value) : 1;
+      if (!income || income <= 0) income = 1;
       html += '<span class="loan-warn">⚠️ 最高月供占收入 ' + Math.round(data.maxPay / income * 100) + '%，请评估承受能力</span>';
     }
     el.innerHTML = html;
@@ -869,7 +870,7 @@ body {
   // ==================== Scoring Engine ====================
   /**
    * @param {Object} data
-   *   income, expense, savings, equityInvest, stableInvest, property, debt, monthlyPay, annualPremium, lifeInsurance(万元), ageGroup(1-5)
+   *   income, expense, savings, equityInvest, stableInvest, property, debt, monthlyPay, annualPremium, lifeInsurance(元), ageGroup(1-5)
    * @returns {Object} { total, grade, gradeLabel, gradeDesc, dimensions, diagnosis, suggestions, insuranceTip }
    */
     function scoringEngine(data) {
@@ -892,7 +893,7 @@ body {
     var housingFund = data.housingFund;
     var housingFundYears = data.housingFundYears;
     var commercialPremium = data.commercialPremium;
-    var lifeInsurance = data.lifeInsurance; // 万元
+    var lifeInsurance = data.lifeInsurance; // 元
     var ageGroup = data.ageGroup;
     var insuranceTerm = data.insuranceTerm || 0;       // 保险缴费年限
     var insurancePaidYears = data.insurancePaidYears || 0; // 保险已缴年限
@@ -1038,7 +1039,7 @@ body {
     }
 
     // 6c. 保额充足度（35%）— 人寿保额 / 年支出
-    var lifeInsuranceAmount = lifeInsurance * 10000;
+    var lifeInsuranceAmount = lifeInsurance; // 单位：元（已直接输入）
     var coverageRatio = annualExpense > 0 ? lifeInsuranceAmount / annualExpense : 0;
     var coverageScore;
     if (lifeInsurance === 0) {
@@ -1265,7 +1266,7 @@ body {
   // ==================== Validation ====================
     function validate() {
     var rules = [
-      { id: 'jobIncome', grp: 'grpJobIncome', required: true },
+      { id: 'jobIncome', grp: 'grpJobIncome', required: false },
       { id: 'rentalIncome', grp: 'grpRentalIncome', required: false },
       { id: 'investIncome', grp: 'grpInvestIncome', required: false },
       { id: 'sideIncome', grp: 'grpSideIncome', required: false },
@@ -1312,7 +1313,7 @@ body {
 
   // ==================== Render Results ====================
   function renderResults(result) {
-    resultSection.classList.add('visible');
+    if (resultSection) resultSection.classList.add('visible');
 
     // Scroll to result
     setTimeout(function() {
