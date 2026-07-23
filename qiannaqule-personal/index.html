@@ -608,10 +608,18 @@ body {
       </div>
     </div>
 
-    <div class="form-group" id="grpInsTerm">
-      <label class="form-label">保险缴费年限 <span class="optional">（保单约定的总缴费期数，无商保可跳过）</span></label>
+    <div class="form-group" id="grpLifeInsTerm">
+      <label class="form-label">人寿保险缴费年限 <span class="optional">（身故/全残险总缴费期，无则留 0）</span></label>
       <div class="form-row">
-        <input type="number" class="form-input" id="insuranceTerm" placeholder="例如 20" min="0" step="1">
+        <input type="number" class="form-input" id="lifeInsuranceTerm" placeholder="例如 10" min="0" step="1">
+        <span class="form-unit">年</span>
+      </div>
+    </div>
+
+    <div class="form-group" id="grpCommInsTerm">
+      <label class="form-label">商业保险缴费年限 <span class="optional">（重疾/医疗等商保总缴费期，无则留 0）</span></label>
+      <div class="form-row">
+        <input type="number" class="form-input" id="commercialInsuranceTerm" placeholder="例如 20" min="0" step="1">
         <span class="form-unit">年</span>
       </div>
     </div>
@@ -895,9 +903,11 @@ body {
     var commercialPremium = data.commercialPremium;
     var lifeInsurance = data.lifeInsurance; // 元
     var ageGroup = data.ageGroup;
-    var insuranceTerm = data.insuranceTerm || 0;       // 保险缴费年限
+    var lifeInsuranceTerm = data.lifeInsuranceTerm || 0;       // 人寿保险缴费年限
+    var commercialInsuranceTerm = data.commercialInsuranceTerm || 0; // 商业保险缴费年限
     var insurancePaidYears = data.insurancePaidYears || 0; // 保险已缴年限
-    var insRemainingYears = Math.max(0, insuranceTerm - insurancePaidYears); // 剩余缴费年数
+    var commInsRemainingYears = Math.max(0, commercialInsuranceTerm - insurancePaidYears); // 商保剩余缴费年数
+    var lifeInsRemainingYears = Math.max(0, lifeInsuranceTerm - insurancePaidYears); // 人寿险剩余缴费年数
 
     // 总收入
     var income = jobIncome + otherIncome;
@@ -1093,13 +1103,20 @@ body {
     }
 
     // 保险缴费年限分析
-    if (insuranceTerm > 0 && commercialPremium > 0) {
-      if (insRemainingYears > 10) {
-        insuranceParts.push('商保还需缴费 ' + insRemainingYears + ' 年（年缴 ' + commercialPremium + ' 元），这是一笔长期刚性支出，需确保未来收入能持续覆盖。');
-      } else if (insRemainingYears > 0 && insRemainingYears <= 10) {
-        insuranceParts.push('商保还剩 ' + insRemainingYears + ' 年缴费期，即将完成保费义务，现金流压力将逐步减轻。');
+    if (commercialInsuranceTerm > 0 && commercialPremium > 0) {
+      if (commInsRemainingYears > 10) {
+        insuranceParts.push('商保还需缴费 ' + commInsRemainingYears + ' 年（年缴 ' + commercialPremium + ' 元），这是一笔长期刚性支出，需确保未来收入能持续覆盖。');
+      } else if (commInsRemainingYears > 0 && commInsRemainingYears <= 10) {
+        insuranceParts.push('商保还剩 ' + commInsRemainingYears + ' 年缴费期，即将完成保费义务，现金流压力将逐步减轻。');
       } else {
         insuranceParts.push('商保缴费已完成，后续无需再承担保费支出，保障持续有效。');
+      }
+    }
+    if (lifeInsuranceTerm > 0) {
+      if (lifeInsRemainingYears > 0) {
+        insuranceParts.push('人寿保险还需缴费 ' + lifeInsRemainingYears + ' 年，请确保缴费期内保障持续有效。');
+      } else {
+        insuranceParts.push('人寿保险缴费已完成，保障持续有效。');
       }
     }
 
@@ -1281,7 +1298,8 @@ body {
       { id: 'housingFundYears', grp: 'grpHousingFundYears', required: false },
       { id: 'commercialPremium', grp: 'grpCommercialPremium', required: false },
       { id: 'lifeInsurance', grp: 'grpLifeInsurance', required: false },
-      { id: 'insuranceTerm', grp: 'grpInsTerm', required: false },
+      { id: 'lifeInsuranceTerm', grp: 'grpLifeInsTerm', required: false },
+      { id: 'commercialInsuranceTerm', grp: 'grpCommInsTerm', required: false },
       { id: 'insurancePaidYears', grp: 'grpInsPaidYears', required: false },
       { id: 'ageGroup', grp: 'grpAge', required: true, isSelect: true }
     ];
@@ -1458,7 +1476,8 @@ body {
       housingFundYears: Number($('housingFundYears').value) || 0,
       commercialPremium: Number($('commercialPremium').value) || 0,
       lifeInsurance: Number($('lifeInsurance').value) || 0,
-      insuranceTerm: Number($('insuranceTerm').value) || 0,
+      insuranceTerm: Number($('commercialInsuranceTerm').value) || 0,
+      lifeInsuranceTerm: Number($('lifeInsuranceTerm').value) || 0,
       insurancePaidYears: Number($('insurancePaidYears').value) || 0,
       ageGroup: $('ageGroup').value
     };
