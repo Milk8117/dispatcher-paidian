@@ -1,6 +1,6 @@
 // Service Worker for 个人财富增长CT — AI财务体检
 // Cache version: update this string to invalidate old caches
-const CACHE_VERSION = 'wealth-ct-v3';
+const CACHE_VERSION = 'wealth-ct-v4';
 const CACHE_NAME = CACHE_VERSION;
 
 // Resources to cache on install
