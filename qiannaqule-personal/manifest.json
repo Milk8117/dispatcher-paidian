@@ -1,6 +1,6 @@
 {
   "name": "个人财富增长CT — AI财务体检",
-  "short_name": "财富体检",
+  "short_name": "财富CT",
   "description": "全方位财务健康体检工具，覆盖收入、储蓄、负债、资产、保障、流动性六大维度",
   "start_url": "./index.html",
   "scope": "./",
