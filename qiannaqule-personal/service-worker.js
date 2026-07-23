@@ -1,6 +1,6 @@
 // Service Worker for 个人财富增长CT — AI财务体检
 // Cache version: update this string to invalidate old caches
-const CACHE_VERSION = 'wealth-ct-v4';
+const CACHE_VERSION = 'wealth-ct-v5';
 const CACHE_NAME = CACHE_VERSION;
 
 // Resources to cache on install
@@ -8,7 +8,8 @@ const PRECACHE_URLS = [
   './',
   './index.html',
   './manifest.json',
-  './icon.png'
+  './icon.png',
+  './icon-orange.png'
 ];
 
 // Install: precache core resources
