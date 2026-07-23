@@ -11,10 +11,10 @@
   "lang": "zh-CN",
   "icons": [
     {
-      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='102' fill='%231a237e'/%3E%3Cpath d='M154 358 L205 256 L282 307 L384 154' stroke='%2300e676' stroke-width='40' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='154' cy='358' r='25' fill='%2300e676'/%3E%3Ccircle cx='384' cy='154' r='25' fill='%2300e676'/%3E%3C/svg%3E",
+      "src": "./icon.png",
       "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }
