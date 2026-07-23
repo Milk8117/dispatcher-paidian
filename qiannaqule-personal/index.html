@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%231a237e'/><path d='M30 70 L40 50 L55 60 L75 30' stroke='%2300e676' stroke-width='8' fill='none' stroke-linecap='round' stroke-linejoin='round'/><circle cx='30' cy='70' r='5' fill='%2300e676'/><circle cx='75' cy='30' r='5' fill='%2300e676'/></svg>">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2563eb">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="财富体检">
 <title>个人财富增长CT — AI财务体检</title>
 <style>
 /* ========== Reset & Base ========== */
@@ -645,6 +650,7 @@ body {
     </div>
 
     <button class="btn-submit" id="btnSubmit" type="button">开始体检</button>
+    <button class="btn-clear" id="btnClear" type="button" style="display:block;width:100%;height:44px;margin-top:10px;background:#fff;color:#94a3b8;font-size:0.85rem;font-weight:500;border:1.5px solid #e2e8f0;border-radius:10px;cursor:pointer;transition:color 0.2s,border-color 0.2s;">清除已保存的数据</button>
   </div>
 
   <!-- Result Section -->
@@ -1581,6 +1587,226 @@ body {
       if (grp) grp.classList.remove('has-error');
     });
   });
+
+  // ==================== localStorage Persistence ====================
+  var LS_PREFIX = 'wealth_ct_';
+  var LS_FIELDS = [
+    'jobIncome', 'rentalIncome', 'investIncome', 'sideIncome',
+    'expense', 'savings', 'equityInvest', 'stableInvest',
+    'property', 'investProperty', 'otherDebt', 'housingFund',
+    'housingFundYears', 'commercialPremium', 'ageGroup'
+  ];
+
+  function lsKey(field) { return LS_PREFIX + field; }
+
+  // Save a single field to localStorage
+  function saveField(field) {
+    var el = $(field);
+    if (!el) return;
+    var val = el.tagName === 'SELECT' ? el.value : el.value;
+    if (val !== '' && val !== null && val !== undefined) {
+      localStorage.setItem(lsKey(field), val);
+    } else {
+      localStorage.removeItem(lsKey(field));
+    }
+  }
+
+  // Restore a single field from localStorage
+  function restoreField(field) {
+    var el = $(field);
+    if (!el) return;
+    var saved = localStorage.getItem(lsKey(field));
+    if (saved !== null) {
+      el.value = saved;
+    }
+  }
+
+  // Save loan entries to localStorage
+  function saveLoans() {
+    var entries = document.querySelectorAll('.loan-entry');
+    var loans = [];
+    entries.forEach(function(entry) {
+      loans.push({
+        amt: entry.querySelector('.loan-amt').value || '',
+        rate: entry.querySelector('.loan-rate').value || '',
+        term: entry.querySelector('.loan-term').value || '',
+        type: entry.querySelector('.loan-type').value || 'debx',
+        transTotal: entry.querySelector('.loan-trans-total') ? entry.querySelector('.loan-trans-total').value : '',
+        transLeft: entry.querySelector('.loan-trans-left') ? entry.querySelector('.loan-trans-left').value : ''
+      });
+    });
+    localStorage.setItem(lsKey('loans'), JSON.stringify(loans));
+  }
+
+  // Restore loan entries from localStorage
+  function restoreLoans() {
+    var saved = localStorage.getItem(lsKey('loans'));
+    if (!saved) return;
+    try {
+      var loans = JSON.parse(saved);
+      loans.forEach(function(loan) {
+        addLoanEntry();
+        var entries = document.querySelectorAll('.loan-entry');
+        var entry = entries[entries.length - 1];
+        if (loan.amt) entry.querySelector('.loan-amt').value = loan.amt;
+        if (loan.rate) entry.querySelector('.loan-rate').value = loan.rate;
+        if (loan.term) entry.querySelector('.loan-term').value = loan.term;
+        if (loan.type) {
+          entry.querySelector('.loan-type').value = loan.type;
+          toggleTrans(entry.querySelector('.loan-type'));
+        }
+        var transTotalEl = entry.querySelector('.loan-trans-total');
+        var transLeftEl = entry.querySelector('.loan-trans-left');
+        if (transTotalEl && loan.transTotal) transTotalEl.value = loan.transTotal;
+        if (transLeftEl && loan.transLeft) transLeftEl.value = loan.transLeft;
+      });
+      updateLoanSummary();
+    } catch(e) { /* ignore parse errors */ }
+  }
+
+  // Save insurance entries to localStorage
+  function saveInsurance() {
+    var entries = document.querySelectorAll('.insurance-entry');
+    var items = [];
+    entries.forEach(function(entry) {
+      items.push({
+        type: entry.querySelector('.ins-type').value || 'life',
+        amount: entry.querySelector('.ins-amount').value || '',
+        premium: entry.querySelector('.ins-premium').value || '',
+        term: entry.querySelector('.ins-term').value || '',
+        paid: entry.querySelector('.ins-paid').value || ''
+      });
+    });
+    localStorage.setItem(lsKey('insurance'), JSON.stringify(items));
+  }
+
+  // Restore insurance entries from localStorage
+  function restoreInsurance() {
+    var saved = localStorage.getItem(lsKey('insurance'));
+    if (!saved) return;
+    try {
+      var items = JSON.parse(saved);
+      items.forEach(function(item) {
+        addInsuranceEntry();
+        var entries = document.querySelectorAll('.insurance-entry');
+        var entry = entries[entries.length - 1];
+        if (item.type) entry.querySelector('.ins-type').value = item.type;
+        if (item.amount) entry.querySelector('.ins-amount').value = item.amount;
+        if (item.premium) entry.querySelector('.ins-premium').value = item.premium;
+        if (item.term) entry.querySelector('.ins-term').value = item.term;
+        if (item.paid) entry.querySelector('.ins-paid').value = item.paid;
+      });
+    } catch(e) { /* ignore parse errors */ }
+  }
+
+  // Save all form data
+  function saveAllFields() {
+    LS_FIELDS.forEach(function(field) { saveField(field); });
+    saveLoans();
+    saveInsurance();
+  }
+
+  // Restore all form data
+  function restoreAllFields() {
+    LS_FIELDS.forEach(function(field) { restoreField(field); });
+    restoreLoans();
+    restoreInsurance();
+  }
+
+  // Clear all saved data
+  function clearAllData() {
+    LS_FIELDS.forEach(function(field) { localStorage.removeItem(lsKey(field)); });
+    localStorage.removeItem(lsKey('loans'));
+    localStorage.removeItem(lsKey('insurance'));
+    // Also clear form fields
+    LS_FIELDS.forEach(function(field) {
+      var el = $(field);
+      if (el) el.value = el.tagName === 'SELECT' ? '' : '';
+    });
+    document.querySelectorAll('.loan-entry').forEach(function(e) { e.remove(); });
+    document.querySelectorAll('.insurance-entry').forEach(function(e) { e.remove(); });
+    var loanSummary = $('loanSummary');
+    if (loanSummary) { loanSummary.style.display = 'none'; loanSummary.innerHTML = ''; }
+    // Hide result section
+    var rs = $('resultSection');
+    if (rs) rs.classList.remove('visible');
+    // Reset loan/insurance counters for clean re-entry
+    loanCount = 0;
+    insuranceCount = 0;
+    updateLoanSummary();
+  }
+
+  // ---- Restore on load ----
+  restoreAllFields();
+
+  // ---- Auto-save on input/change ----
+  LS_FIELDS.forEach(function(field) {
+    var el = $(field);
+    if (!el) return;
+    el.addEventListener('input', function() { saveField(field); });
+    el.addEventListener('change', function() { saveField(field); });
+  });
+
+  // Observe DOM changes for dynamic loan/insurance entries
+  var observer = new MutationObserver(function() {
+    saveLoans();
+    saveInsurance();
+  });
+
+  var loansContainer = $('loansContainer');
+  var insuranceListEl = $('insuranceList');
+  if (loansContainer) {
+    observer.observe(loansContainer, { childList: true, subtree: true });
+  }
+  if (insuranceListEl) {
+    observer.observe(insuranceListEl, { childList: true, subtree: true });
+  }
+
+  // Also save loan fields on input (debounced)
+  document.addEventListener('input', function(e) {
+    if (e.target.closest('.loan-entry')) {
+      clearTimeout(window._loanSaveTimer);
+      window._loanSaveTimer = setTimeout(saveLoans, 300);
+    }
+    if (e.target.closest('.insurance-entry')) {
+      clearTimeout(window._insSaveTimer);
+      window._insSaveTimer = setTimeout(saveInsurance, 300);
+    }
+  });
+  document.addEventListener('change', function(e) {
+    if (e.target.closest('.loan-entry')) saveLoans();
+    if (e.target.closest('.insurance-entry')) saveInsurance();
+  });
+
+  // ---- Clear button ----
+  var btnClear = $('btnClear');
+  if (btnClear) {
+    btnClear.addEventListener('click', function() {
+      if (confirm('确定要清除所有已保存的数据吗？此操作不可撤销。')) {
+        clearAllData();
+      }
+    });
+    btnClear.addEventListener('mouseenter', function() {
+      btnClear.style.color = '#ef4444';
+      btnClear.style.borderColor = '#fca5a5';
+    });
+    btnClear.addEventListener('mouseleave', function() {
+      btnClear.style.color = '#94a3b8';
+      btnClear.style.borderColor = '#e2e8f0';
+    });
+  }
+
+  // ==================== Service Worker Registration ====================
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('./service-worker.js').then(function(reg) {
+        console.log('SW registered, scope:', reg.scope);
+      }).catch(function(err) {
+        console.log('SW registration failed:', err);
+      });
+    });
+  }
+
 
 })();
 </script>
