@@ -453,12 +453,34 @@ body {
 }
 .loan-summary strong { color: #1e3a8a; }
 .loan-summary .loan-warn { color: #dc2626; font-weight: 600; }
-.btn-add-loan {
+.btn-add-loan, #addInsuranceBtn {
   background: #f1f5f9; border: 1px dashed #94a3b8; border-radius: 8px;
   padding: 10px; width: 100%; cursor: pointer; color: #64748b;
   font-size: 0.85rem; text-align: center; transition: all 0.2s;
 }
-.btn-add-loan:hover { background: #e2e8f0; color: #334155; border-color: #64748b; }
+.btn-add-loan:hover, #addInsuranceBtn:hover { background: #e2e8f0; color: #334155; border-color: #64748b; }
+/* --- Insurance Section --- */
+.insurance-entry {
+  background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px;
+  padding: 14px; margin-bottom: 10px; position: relative;
+}
+.insurance-entry-header {
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
+}
+.insurance-entry-title { font-weight: 700; font-size: 0.85rem; color: #166534; }
+.insurance-remove {
+  background: none; border: none; color: #ef4444; cursor: pointer;
+  font-size: 0.8rem; padding: 2px 8px; border-radius: 4px;
+}
+.insurance-remove:hover { background: #fef2f2; }
+.insurance-row { display: flex; gap: 10px; align-items: flex-end; margin-bottom: 8px; }
+.insurance-field { flex: 1; }
+.insurance-field label { display: block; font-size: 0.75rem; color: #64748b; margin-bottom: 3px; }
+.insurance-field input, .insurance-field select {
+  width: 100%; padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 6px;
+  font-size: 0.85rem; background: #fff;
+}
+.insurance-field input:focus, .insurance-field select:focus { outline: none; border-color: #22c55e; box-shadow: 0 0 0 2px rgba(34,197,94,0.15); }
 .loan-transition { background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 10px; margin-top: 8px; }
 .loan-transition-title { font-size: 0.78rem; color: #92400e; font-weight: 600; margin-bottom: 6px; }
 </style>
@@ -600,36 +622,10 @@ body {
       </div>
     </div>
 
-    <div class="form-group" id="grpLifeInsurance">
-      <label class="form-label">人寿保险保额 <span class="optional">（身故/全残保额，无则留 0）</span></label>
-      <div class="form-row">
-        <input type="number" class="form-input" id="lifeInsurance" placeholder="例如 500000" min="0" step="1">
-        <span class="form-unit">元</span>
-      </div>
-    </div>
-
-    <div class="form-group" id="grpLifeInsTerm">
-      <label class="form-label">人寿保险缴费年限 <span class="optional">（身故/全残险总缴费期，无则留 0）</span></label>
-      <div class="form-row">
-        <input type="number" class="form-input" id="lifeInsuranceTerm" placeholder="例如 10" min="0" step="1">
-        <span class="form-unit">年</span>
-      </div>
-    </div>
-
-    <div class="form-group" id="grpCommInsTerm">
-      <label class="form-label">商业保险缴费年限 <span class="optional">（重疾/医疗等商保总缴费期，无则留 0）</span></label>
-      <div class="form-row">
-        <input type="number" class="form-input" id="commercialInsuranceTerm" placeholder="例如 20" min="0" step="1">
-        <span class="form-unit">年</span>
-      </div>
-    </div>
-
-    <div class="form-group" id="grpInsPaidYears">
-      <label class="form-label">保险已缴年限 <span class="optional">（已缴费年数，无商保可跳过）</span></label>
-      <div class="form-row">
-        <input type="number" class="form-input" id="insurancePaidYears" placeholder="例如 5" min="0" step="1">
-        <span class="form-unit">年</span>
-      </div>
+    <div class="form-group">
+      <label class="form-label">保险信息 <span class="optional">（可添加多条保险记录）</span></label>
+      <div id="insuranceList"></div>
+      <button type="button" class="btn-secondary" id="addInsuranceBtn" style="margin-top:8px;">+ 添加保险</button>
     </div>
 
     <div class="form-group" id="grpAge">
@@ -875,6 +871,41 @@ body {
     }
   });
 
+  // ==================== Insurance Dynamic List ====================
+  var insuranceCount = 0;
+  
+  function addInsuranceEntry() {
+    insuranceCount++;
+    var idx = insuranceCount;
+    var html = '<div class="insurance-entry" data-idx="' + idx + '">' +
+      '<div class="insurance-entry-header">' +
+        '<span class="insurance-entry-title">保险 #' + idx + '</span>' +
+        '<button type="button" class="insurance-remove" onclick="removeInsurance(this)">✕ 删除</button>' +
+      '</div>' +
+      '<div class="insurance-row">' +
+        '<div class="insurance-field"><label>保险类型</label><select class="ins-type"><option value="life">人寿保险</option><option value="commercial">商业保险（重疾/医疗）</option><option value="education">教育险</option><option value="other">其他</option></select></div>' +
+        '<div class="insurance-field"><label>保额（元）</label><input type="number" class="ins-amount" placeholder="500000" min="0" step="1000"></div>' +
+      '</div>' +
+      '<div class="insurance-row">' +
+        '<div class="insurance-field"><label>年缴保费（元）</label><input type="number" class="ins-premium" placeholder="8000" min="0" step="100"></div>' +
+        '<div class="insurance-field"><label>缴费年限（年）</label><input type="number" class="ins-term" placeholder="20" min="0" step="1"></div>' +
+        '<div class="insurance-field"><label>已缴年限（年）</label><input type="number" class="ins-paid" placeholder="5" min="0" step="1"></div>' +
+      '</div>' +
+    '</div>';
+    $('insuranceList').insertAdjacentHTML('beforeend', html);
+  }
+
+  function removeInsurance(btn) {
+    btn.closest('.insurance-entry').remove();
+  }
+
+  // 绑定"添加保险"按钮
+  document.addEventListener('click', function(e) {
+    if (e.target && e.target.id === 'addInsuranceBtn') {
+      addInsuranceEntry();
+    }
+  });
+
   // ==================== Scoring Engine ====================
   /**
    * @param {Object} data
@@ -901,13 +932,29 @@ body {
     var housingFund = data.housingFund;
     var housingFundYears = data.housingFundYears;
     var commercialPremium = data.commercialPremium;
-    var lifeInsurance = data.lifeInsurance; // 元
     var ageGroup = data.ageGroup;
-    var lifeInsuranceTerm = data.lifeInsuranceTerm || 0;       // 人寿保险缴费年限
-    var commercialInsuranceTerm = data.commercialInsuranceTerm || 0; // 商业保险缴费年限
-    var insurancePaidYears = data.insurancePaidYears || 0; // 保险已缴年限
-    var commInsRemainingYears = Math.max(0, commercialInsuranceTerm - insurancePaidYears); // 商保剩余缴费年数
-    var lifeInsRemainingYears = Math.max(0, lifeInsuranceTerm - insurancePaidYears); // 人寿险剩余缴费年数
+    
+    // 从保险列表计算汇总数据
+    var insuranceList = data.insuranceList || [];
+    var lifeInsurance = 0;      // 人寿保险总保额（元）
+    var totalInsurancePremium = 0; // 所有保险年缴保费合计
+    var insuranceDetails = [];  // 保险详情列表，用于诊断文本
+    
+    insuranceList.forEach(function(ins) {
+      if (ins.type === 'life') {
+        lifeInsurance += ins.amount;
+      }
+      totalInsurancePremium += ins.premium;
+      var remainingYears = Math.max(0, ins.term - ins.paid);
+      insuranceDetails.push({
+        type: ins.type,
+        amount: ins.amount,
+        premium: ins.premium,
+        term: ins.term,
+        paid: ins.paid,
+        remaining: remainingYears
+      });
+    });
 
     // 总收入
     var income = jobIncome + otherIncome;
@@ -1033,10 +1080,10 @@ body {
       else fundScore = 50;
     }
 
-    // 6b. 商业保费充足度（35%）— 基于职业收入（框架比例）
-    var premiumRatio = annualJobIncome > 0 ? commercialPremium / annualJobIncome : 0;
+    // 6b. 保费充足度（35%）— 基于职业收入（框架比例）
+    var premiumRatio = annualJobIncome > 0 ? totalInsurancePremium / annualJobIncome : 0;
     var premiumScore;
-    if (commercialPremium === 0) {
+    if (totalInsurancePremium === 0) {
       premiumScore = 0;
     } else if (premiumRatio < 0.03) {
       premiumScore = 20;
@@ -1085,38 +1132,64 @@ body {
       insuranceParts.push('无公积金保障，职业基础保障缺失。建议以商业保险补足风险缺口。');
     }
 
-    // 商保部分
-    if (commercialPremium === 0 && lifeInsurance === 0) {
+    // 商业保险部分
+    if (insuranceList.length === 0 && commercialPremium === 0) {
       insuranceParts.push('商业保险配置为零，风险敞口极大。框架指出"中产家庭保险配置严重不足"是典型困境，建议立即配置基础寿险+医疗险。');
-    } else if (commercialPremium === 0) {
-      insuranceParts.push('有人寿保险但无持续保费投入，保障可能中断。建议增加保费投入。');
-    } else if (lifeInsurance === 0) {
-      insuranceParts.push('有保费投入但缺乏足额人寿保险。框架强调"是否配置了足够的人寿保险"是关键诊断问题，建议保额覆盖至少5年支出。');
-    } else if (premiumScore < 60) {
-      insuranceParts.push('商业保费偏低（仅占年职业收入' + Math.round(premiumRatio * 100) + '%），保障不足。框架建议不同年龄段配置比例为：30岁10-15%、40-50岁15-20%，目标为年收入的8-15%。');
-    } else if (coverageScore < 60) {
-      insuranceParts.push('人寿保险保额偏低（仅为年支出的' + Math.round(coverageRatio) + '倍），保障不足。建议提高保额至年支出的5-10倍。');
-    } else if (premiumScore >= 90 && coverageScore >= 90) {
-      insuranceParts.push('商业保险配置完善：保费占年职业收入' + Math.round(premiumRatio * 100) + '%，保额为年支出的' + Math.round(coverageRatio) + '倍。建议定期检视保单，确保与家庭责任匹配。');
     } else {
-      insuranceParts.push('商业保险配置基本合理，可根据家庭责任变化适当调整。');
-    }
+      // 按类型统计保险
+      var lifeCount = 0, commercialCount = 0, educationCount = 0, otherCount = 0;
+      var lifeAmount = 0, totalPremiumAll = 0;
+      insuranceDetails.forEach(function(ins) {
+        totalPremiumAll += ins.premium;
+        if (ins.type === 'life') { lifeCount++; lifeAmount += ins.amount; }
+        else if (ins.type === 'commercial') { commercialCount++; }
+        else if (ins.type === 'education') { educationCount++; }
+        else { otherCount++; }
+      });
 
-    // 保险缴费年限分析
-    if (commercialInsuranceTerm > 0 && commercialPremium > 0) {
-      if (commInsRemainingYears > 10) {
-        insuranceParts.push('商保还需缴费 ' + commInsRemainingYears + ' 年（年缴 ' + commercialPremium + ' 元），这是一笔长期刚性支出，需确保未来收入能持续覆盖。');
-      } else if (commInsRemainingYears > 0 && commInsRemainingYears <= 10) {
-        insuranceParts.push('商保还剩 ' + commInsRemainingYears + ' 年缴费期，即将完成保费义务，现金流压力将逐步减轻。');
+      if (lifeCount === 0) {
+        insuranceParts.push('未配置人寿保险（身故/全残保障）。框架强调"是否配置了足够的人寿保险"是关键诊断问题，建议保额覆盖至少5-10年支出。');
       } else {
-        insuranceParts.push('商保缴费已完成，后续无需再承担保费支出，保障持续有效。');
+        var coverageRatioLife = annualExpense > 0 ? lifeAmount / annualExpense : 0;
+        insuranceParts.push('已配置 ' + lifeCount + ' 份人寿保险，总保额 ' + lifeAmount.toLocaleString() + ' 元（约年支出的' + Math.round(coverageRatioLife) + '倍）。');
+        if (coverageRatioLife < 5) {
+          insuranceParts.push('保额偏低，建议提高至年支出的5-10倍。');
+        }
       }
-    }
-    if (lifeInsuranceTerm > 0) {
-      if (lifeInsRemainingYears > 0) {
-        insuranceParts.push('人寿保险还需缴费 ' + lifeInsRemainingYears + ' 年，请确保缴费期内保障持续有效。');
+
+      if (commercialCount === 0 && commercialPremium === 0) {
+        insuranceParts.push('未配置商业保险（重疾/医疗），建议补充。');
       } else {
-        insuranceParts.push('人寿保险缴费已完成，保障持续有效。');
+        insuranceParts.push('已配置 ' + commercialCount + ' 份商业保险。');
+      }
+
+      if (educationCount > 0) {
+        insuranceParts.push('已配置 ' + educationCount + ' 份教育险/补充险。');
+      }
+
+      // 保费占比分析
+      if (premiumScore < 60) {
+        insuranceParts.push('总保费占年职业收入' + Math.round(premiumRatio * 100) + '%，保障不足。框架建议不同年龄段配置比例为：30岁10-15%、40-50岁15-20%，目标为年收入的8-15%。');
+      } else if (premiumScore >= 90) {
+        insuranceParts.push('保费投入充足：占年职业收入' + Math.round(premiumRatio * 100) + '%。');
+      }
+
+      // 缴费年限分析
+      var activeInsurance = insuranceDetails.filter(function(ins) { return ins.premium > 0 && ins.term > 0; });
+      if (activeInsurance.length > 0) {
+        var longTermCount = activeInsurance.filter(function(ins) { return ins.remaining > 10; }).length;
+        var shortTermCount = activeInsurance.filter(function(ins) { return ins.remaining > 0 && ins.remaining <= 10; }).length;
+        var completedCount = activeInsurance.filter(function(ins) { return ins.remaining === 0; }).length;
+
+        if (longTermCount > 0) {
+          insuranceParts.push('有 ' + longTermCount + ' 份保险还需缴费超过10年，属于长期刚性支出，需确保未来收入能持续覆盖。');
+        }
+        if (shortTermCount > 0) {
+          insuranceParts.push('有 ' + shortTermCount + ' 份保险还剩10年内缴费期，即将完成保费义务。');
+        }
+        if (completedCount > 0) {
+          insuranceParts.push('有 ' + completedCount + ' 份保险缴费已完成，保障持续有效。');
+        }
       }
     }
 
@@ -1297,10 +1370,7 @@ body {
       { id: 'housingFund', grp: 'grpHousingFund', required: false },
       { id: 'housingFundYears', grp: 'grpHousingFundYears', required: false },
       { id: 'commercialPremium', grp: 'grpCommercialPremium', required: false },
-      { id: 'lifeInsurance', grp: 'grpLifeInsurance', required: false },
-      { id: 'lifeInsuranceTerm', grp: 'grpLifeInsTerm', required: false },
-      { id: 'commercialInsuranceTerm', grp: 'grpCommInsTerm', required: false },
-      { id: 'insurancePaidYears', grp: 'grpInsPaidYears', required: false },
+
       { id: 'ageGroup', grp: 'grpAge', required: true, isSelect: true }
     ];
 
@@ -1457,6 +1527,19 @@ body {
 
     var loanData = collectLoanData();
 
+    // 收集所有保险条目
+    var insuranceList = [];
+    var insuranceEntries = document.querySelectorAll('.insurance-entry');
+    insuranceEntries.forEach(function(entry) {
+      insuranceList.push({
+        type: entry.querySelector('.ins-type').value,
+        amount: Number(entry.querySelector('.ins-amount').value) || 0,
+        premium: Number(entry.querySelector('.ins-premium').value) || 0,
+        term: Number(entry.querySelector('.ins-term').value) || 0,
+        paid: Number(entry.querySelector('.ins-paid').value) || 0
+      });
+    });
+
     var data = {
       jobIncome: Number($('jobIncome').value) || 0,
       rentalIncome: Number($('rentalIncome').value) || 0,
@@ -1475,10 +1558,7 @@ body {
       housingFund: Number($('housingFund').value) || 0,
       housingFundYears: Number($('housingFundYears').value) || 0,
       commercialPremium: Number($('commercialPremium').value) || 0,
-      lifeInsurance: Number($('lifeInsurance').value) || 0,
-      insuranceTerm: Number($('commercialInsuranceTerm').value) || 0,
-      lifeInsuranceTerm: Number($('lifeInsuranceTerm').value) || 0,
-      insurancePaidYears: Number($('insurancePaidYears').value) || 0,
+      insuranceList: insuranceList,
       ageGroup: $('ageGroup').value
     };
 
