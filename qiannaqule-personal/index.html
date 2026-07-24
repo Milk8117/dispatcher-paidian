@@ -1097,11 +1097,13 @@ body {
         '<option value="parent">父母</option>' +
         '<option value="other">其他</option>' +
       '</select>' +
-      '<button type="button" class="btn-remove-member" onclick="removeFamilyMember(this)">✕</button>' +
+      '<button type="button" class="btn-remove-member" onclick="window.removeFamilyMember(this)">✕</button>' +
     '</div>';
     $('familyMembersContainer').insertAdjacentHTML('beforeend', html);
     saveFamilyMembers();
   }
+  window.addFamilyMember = addFamilyMember;
+  window.removeFamilyMember = removeFamilyMember;
 
   function removeFamilyMember(btn) {
     btn.closest('.family-member').remove();
