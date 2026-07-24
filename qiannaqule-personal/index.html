@@ -148,6 +148,145 @@ body {
 }
 .form-group.has-error .form-error { display: block; }
 
+/* ========== Expense Categories ========== */
+.expense-categories {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.expense-cat-item {
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+}
+.expense-cat-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #334155;
+  display: block;
+  margin-bottom: 6px;
+}
+.expense-summary {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  padding: 10px 12px;
+  background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+  border-radius: 10px;
+  border: 1.5px solid #bae6fd;
+}
+.expense-summary-label {
+  font-size: 0.85rem;
+  color: #475569;
+  font-weight: 500;
+}
+.expense-summary-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0369a1;
+}
+
+/* ========== Family Members ========== */
+.family-section {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px dashed #e2e8f0;
+}
+.family-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.family-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #334155;
+}
+.btn-add-member {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: #f0f9ff;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-add-member:hover {
+  background: #e0f2fe;
+  border-color: #7dd3fc;
+}
+.btn-add-member svg {
+  width: 14px;
+  height: 14px;
+}
+.family-member {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding: 10px 12px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+}
+.member-name {
+  flex: 1;
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: #1a2a3a;
+  background: #f8fafc;
+}
+.member-name:focus {
+  border-color: #2563eb;
+  background: #fff;
+  outline: none;
+}
+.member-relation {
+  width: 100px;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: #1a2a3a;
+  background: #f8fafc;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2394a3b8' stroke-width='1.2' fill='none'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
+}
+.btn-remove-member {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: #fee2e2;
+  color: #dc2626;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.btn-remove-member:hover {
+  background: #fecaca;
+}
+
 /* ========== Submit Button ========== */
 .btn-submit {
   display: block;
@@ -540,12 +679,59 @@ body {
     </div>
 
     <div class="form-group" id="grpExpense">
-      <label class="form-label">月固定支出 <span class="optional">（伙食/水电/物业/交通/教育/通讯等刚性支出，不含月供）</span></label>
-      <div class="form-row">
-        <input type="number" class="form-input" id="expense" placeholder="例如 8000" min="0" step="1">
+      <label class="form-label">月固定支出 <span class="optional">（分类填写，不含月供）</span></label>
+      <div class="expense-categories">
+        <div class="expense-cat-item">
+          <label class="expense-cat-label">个人支出</label>
+          <span class="optional" style="font-size:0.75rem;color:#94a3b8;margin-left:4px;">（自己买衣服、个人餐饮等）</span>
+          <div class="form-row">
+            <input type="number" class="form-input" id="expensePersonal" placeholder="0" min="0" step="1">
+            <span class="form-unit">元</span>
+          </div>
+        </div>
+        <div class="expense-cat-item">
+          <label class="expense-cat-label">家庭支出</label>
+          <span class="optional" style="font-size:0.75rem;color:#94a3b8;margin-left:4px;">（买菜/水电/物业/交通等）</span>
+          <div class="form-row">
+            <input type="number" class="form-input" id="expenseFamily" placeholder="0" min="0" step="1">
+            <span class="form-unit">元</span>
+          </div>
+        </div>
+        <div class="expense-cat-item">
+          <label class="expense-cat-label">家庭教育支出</label>
+          <span class="optional" style="font-size:0.75rem;color:#94a3b8;margin-left:4px;">（孩子学费/培训费等）</span>
+          <div class="form-row">
+            <input type="number" class="form-input" id="expenseEducation" placeholder="0" min="0" step="1">
+            <span class="form-unit">元</span>
+          </div>
+        </div>
+        <div class="expense-cat-item">
+          <label class="expense-cat-label">家庭医疗支出</label>
+          <span class="optional" style="font-size:0.75rem;color:#94a3b8;margin-left:4px;">（看病/体检/药费等）</span>
+          <div class="form-row">
+            <input type="number" class="form-input" id="expenseMedical" placeholder="0" min="0" step="1">
+            <span class="form-unit">元</span>
+          </div>
+        </div>
+      </div>
+      <div class="expense-summary">
+        <span class="expense-summary-label">月支出合计：</span>
+        <span class="expense-summary-value" id="expenseTotal">0</span>
         <span class="form-unit">元</span>
       </div>
       <div class="form-error">请输入有效的月支出</div>
+      
+      <!-- 家庭成员 -->
+      <div class="family-section">
+        <div class="family-header">
+          <span class="family-title">家庭成员 <span class="optional">（用于家庭统计）</span></span>
+          <button type="button" class="btn-add-member" onclick="addFamilyMember()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+            添加成员
+          </button>
+        </div>
+        <div id="familyMembersContainer"></div>
+      </div>
     </div>
 
     <div class="form-group" id="grpSavings">
@@ -877,6 +1063,50 @@ body {
       addLoanEntry();
     }
   });
+
+  // ==================== Expense Categories ====================
+  function updateExpenseTotal() {
+    var personal = parseFloat($('expensePersonal').value) || 0;
+    var family = parseFloat($('expenseFamily').value) || 0;
+    var education = parseFloat($('expenseEducation').value) || 0;
+    var medical = parseFloat($('expenseMedical').value) || 0;
+    var total = personal + family + education + medical;
+    $('expenseTotal').textContent = total.toLocaleString();
+  }
+
+  // Bind expense inputs to update total
+  ['expensePersonal', 'expenseFamily', 'expenseEducation', 'expenseMedical'].forEach(function(id) {
+    var el = $(id);
+    if (el) {
+      el.addEventListener('input', updateExpenseTotal);
+    }
+  });
+
+  // ==================== Family Members ====================
+  var familyCount = 0;
+  
+  function addFamilyMember() {
+    familyCount++;
+    var idx = familyCount;
+    var html = '<div class="family-member" data-idx="' + idx + '">' +
+      '<input type="text" class="member-name" placeholder="姓名" maxlength="20">' +
+      '<select class="member-relation">' +
+        '<option value="self">本人</option>' +
+        '<option value="spouse">配偶</option>' +
+        '<option value="child">子女</option>' +
+        '<option value="parent">父母</option>' +
+        '<option value="other">其他</option>' +
+      '</select>' +
+      '<button type="button" class="btn-remove-member" onclick="removeFamilyMember(this)">✕</button>' +
+    '</div>';
+    $('familyMembersContainer').insertAdjacentHTML('beforeend', html);
+    saveFamilyMembers();
+  }
+
+  function removeFamilyMember(btn) {
+    btn.closest('.family-member').remove();
+    saveFamilyMembers();
+  }
 
   // ==================== Insurance Dynamic List ====================
   var insuranceCount = 0;
@@ -1552,7 +1782,7 @@ body {
       rentalIncome: Number($('rentalIncome').value) || 0,
       investIncome: Number($('investIncome').value) || 0,
       sideIncome: Number($('sideIncome').value) || 0,
-      expense: Number($('expense').value) || 0,
+      expense: (Number($('expensePersonal').value) || 0) + (Number($('expenseFamily').value) || 0) + (Number($('expenseEducation').value) || 0) + (Number($('expenseMedical').value) || 0),
       savings: Number($('savings').value) || 0,
       equityInvest: Number($('equityInvest').value) || 0,
       stableInvest: Number($('stableInvest').value) || 0,
@@ -1593,7 +1823,8 @@ body {
   var LS_PREFIX = 'wealth_ct_';
   var LS_FIELDS = [
     'jobIncome', 'rentalIncome', 'investIncome', 'sideIncome',
-    'expense', 'savings', 'equityInvest', 'stableInvest',
+    'expense', 'expensePersonal', 'expenseFamily', 'expenseEducation', 'expenseMedical',
+    'savings', 'equityInvest', 'stableInvest',
     'property', 'investProperty', 'otherDebt', 'housingFund',
     'housingFundYears', 'commercialPremium', 'ageGroup'
   ];
@@ -1700,11 +1931,41 @@ body {
     } catch(e) { /* ignore parse errors */ }
   }
 
+  // Save family members to localStorage
+  function saveFamilyMembers() {
+    var members = document.querySelectorAll('.family-member');
+    var data = [];
+    members.forEach(function(m) {
+      data.push({
+        name: m.querySelector('.member-name').value || '',
+        relation: m.querySelector('.member-relation').value || 'self'
+      });
+    });
+    localStorage.setItem(lsKey('familyMembers'), JSON.stringify(data));
+  }
+
+  // Restore family members from localStorage
+  function restoreFamilyMembers() {
+    var saved = localStorage.getItem(lsKey('familyMembers'));
+    if (!saved) return;
+    try {
+      var data = JSON.parse(saved);
+      data.forEach(function(m) {
+        addFamilyMember();
+        var members = document.querySelectorAll('.family-member');
+        var el = members[members.length - 1];
+        if (m.name) el.querySelector('.member-name').value = m.name;
+        if (m.relation) el.querySelector('.member-relation').value = m.relation;
+      });
+    } catch(e) { /* ignore parse errors */ }
+  }
+
   // Save all form data
   function saveAllFields() {
     LS_FIELDS.forEach(function(field) { saveField(field); });
     saveLoans();
     saveInsurance();
+    saveFamilyMembers();
   }
 
   // Restore all form data
@@ -1712,6 +1973,8 @@ body {
     LS_FIELDS.forEach(function(field) { restoreField(field); });
     restoreLoans();
     restoreInsurance();
+    restoreFamilyMembers();
+    updateExpenseTotal();
   }
 
   // Clear all saved data
@@ -1719,6 +1982,7 @@ body {
     LS_FIELDS.forEach(function(field) { localStorage.removeItem(lsKey(field)); });
     localStorage.removeItem(lsKey('loans'));
     localStorage.removeItem(lsKey('insurance'));
+    localStorage.removeItem(lsKey('familyMembers'));
     // Also clear form fields
     LS_FIELDS.forEach(function(field) {
       var el = $(field);
@@ -1726,6 +1990,7 @@ body {
     });
     document.querySelectorAll('.loan-entry').forEach(function(e) { e.remove(); });
     document.querySelectorAll('.insurance-entry').forEach(function(e) { e.remove(); });
+    document.querySelectorAll('.family-member').forEach(function(e) { e.remove(); });
     var loanSummary = $('loanSummary');
     if (loanSummary) { loanSummary.style.display = 'none'; loanSummary.innerHTML = ''; }
     // Hide result section
@@ -1748,22 +2013,27 @@ body {
     el.addEventListener('change', function() { saveField(field); });
   });
 
-  // Observe DOM changes for dynamic loan/insurance entries
+  // Observe DOM changes for dynamic loan/insurance/family entries
   var observer = new MutationObserver(function() {
     saveLoans();
     saveInsurance();
+    saveFamilyMembers();
   });
 
   var loansContainer = $('loansContainer');
   var insuranceListEl = $('insuranceList');
+  var familyContainer = $('familyMembersContainer');
   if (loansContainer) {
     observer.observe(loansContainer, { childList: true, subtree: true });
   }
   if (insuranceListEl) {
     observer.observe(insuranceListEl, { childList: true, subtree: true });
   }
+  if (familyContainer) {
+    observer.observe(familyContainer, { childList: true, subtree: true });
+  }
 
-  // Also save loan fields on input (debounced)
+  // Also save loan/insurance/family fields on input (debounced)
   document.addEventListener('input', function(e) {
     if (e.target.closest('.loan-entry')) {
       clearTimeout(window._loanSaveTimer);
@@ -1773,10 +2043,15 @@ body {
       clearTimeout(window._insSaveTimer);
       window._insSaveTimer = setTimeout(saveInsurance, 300);
     }
+    if (e.target.closest('.family-member')) {
+      clearTimeout(window._familySaveTimer);
+      window._familySaveTimer = setTimeout(saveFamilyMembers, 300);
+    }
   });
   document.addEventListener('change', function(e) {
     if (e.target.closest('.loan-entry')) saveLoans();
     if (e.target.closest('.insurance-entry')) saveInsurance();
+    if (e.target.closest('.family-member')) saveFamilyMembers();
   });
 
   // ---- Clear button ----
