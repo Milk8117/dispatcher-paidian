@@ -978,6 +978,7 @@ body {
   </a>
 </nav>
 
+<script src="datastore.js"></script>
 <script>
 (function() {
   'use strict';
@@ -1920,29 +1921,29 @@ body {
 
   function lsKey(field) { return LS_PREFIX + field; }
 
-  // Save a single field to localStorage
+  // Save a single field to localStorage (using WealthCT DataStore)
   function saveField(field) {
     var el = $(field);
     if (!el) return;
     var val = el.tagName === 'SELECT' ? el.value : el.value;
     if (val !== '' && val !== null && val !== undefined) {
-      localStorage.setItem(lsKey(field), val);
+      WealthCT.saveField(field, val);
     } else {
-      localStorage.removeItem(lsKey(field));
+      WealthCT.saveField(field, null);  // 空值则删除
     }
   }
 
-  // Restore a single field from localStorage
+  // Restore a single field from localStorage (using WealthCT DataStore)
   function restoreField(field) {
     var el = $(field);
     if (!el) return;
-    var saved = localStorage.getItem(lsKey(field));
+    var saved = WealthCT.loadField(field, null);
     if (saved !== null) {
       el.value = saved;
     }
   }
 
-  // Save loan entries to localStorage
+  // Save loan entries to localStorage (using WealthCT DataStore)
   function saveLoans() {
     var entries = document.querySelectorAll('.loan-entry');
     var loans = [];
@@ -1956,15 +1957,14 @@ body {
         transLeft: entry.querySelector('.loan-trans-left') ? entry.querySelector('.loan-trans-left').value : ''
       });
     });
-    localStorage.setItem(lsKey('loans'), JSON.stringify(loans));
+    WealthCT.saveLoans(loans);
   }
 
-  // Restore loan entries from localStorage
+  // Restore loan entries from localStorage (using WealthCT DataStore)
   function restoreLoans() {
-    var saved = localStorage.getItem(lsKey('loans'));
-    if (!saved) return;
+    var loans = WealthCT.loadLoans();
+    if (!loans || loans.length === 0) return;
     try {
-      var loans = JSON.parse(saved);
       loans.forEach(function(loan) {
         addLoanEntry();
         var entries = document.querySelectorAll('.loan-entry');
@@ -1985,7 +1985,7 @@ body {
     } catch(e) { /* ignore parse errors */ }
   }
 
-  // Save insurance entries to localStorage
+  // Save insurance entries to localStorage (using WealthCT DataStore)
   function saveInsurance() {
     var entries = document.querySelectorAll('.insurance-entry');
     var items = [];
@@ -1998,15 +1998,14 @@ body {
         paid: entry.querySelector('.ins-paid').value || ''
       });
     });
-    localStorage.setItem(lsKey('insurance'), JSON.stringify(items));
+    WealthCT.saveInsurance(items);
   }
 
-  // Restore insurance entries from localStorage
+  // Restore insurance entries from localStorage (using WealthCT DataStore)
   function restoreInsurance() {
-    var saved = localStorage.getItem(lsKey('insurance'));
-    if (!saved) return;
+    var items = WealthCT.loadInsurance();
+    if (!items || items.length === 0) return;
     try {
-      var items = JSON.parse(saved);
       items.forEach(function(item) {
         addInsuranceEntry();
         var entries = document.querySelectorAll('.insurance-entry');
@@ -2020,7 +2019,7 @@ body {
     } catch(e) { /* ignore parse errors */ }
   }
 
-  // Save family members to localStorage
+  // Save family members to localStorage (using WealthCT DataStore)
   function saveFamilyMembers() {
     var members = document.querySelectorAll('.family-member');
     var data = [];
@@ -2030,15 +2029,14 @@ body {
         relation: m.querySelector('.member-relation').value || 'self'
       });
     });
-    localStorage.setItem(lsKey('familyMembers'), JSON.stringify(data));
+    WealthCT.saveFamilyMembers(data);
   }
 
-  // Restore family members from localStorage
+  // Restore family members from localStorage (using WealthCT DataStore)
   function restoreFamilyMembers() {
-    var saved = localStorage.getItem(lsKey('familyMembers'));
-    if (!saved) return;
+    var data = WealthCT.loadFamilyMembers();
+    if (!data || data.length === 0) return;
     try {
-      var data = JSON.parse(saved);
       data.forEach(function(m) {
         addFamilyMember();
         var members = document.querySelectorAll('.family-member');
@@ -2066,12 +2064,9 @@ body {
     updateExpenseTotal();
   }
 
-  // Clear all saved data
+  // Clear all saved data (using WealthCT DataStore)
   function clearAllData() {
-    LS_FIELDS.forEach(function(field) { localStorage.removeItem(lsKey(field)); });
-    localStorage.removeItem(lsKey('loans'));
-    localStorage.removeItem(lsKey('insurance'));
-    localStorage.removeItem(lsKey('familyMembers'));
+    WealthCT.clearAll();
     // Also clear form fields
     LS_FIELDS.forEach(function(field) {
       var el = $(field);
