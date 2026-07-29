@@ -2240,11 +2240,11 @@ body {
           return;
         }
         if (!importObj._meta || !importObj.data) {
-          alert('导入失败：请确认是"钱去哪了"导出的备份文件。');
+          alert('导入失败：请确认是"个人财富诊断CT"导出的备份文件。');
           return;
         }
         if (importObj._meta.app !== 'wealth_ct_personal') {
-          alert('导入失败：该文件不是"钱去哪了"的备份数据。');
+          alert('导入失败：该文件不是"个人财富诊断CT"的备份数据。');
           return;
         }
 
@@ -2284,7 +2284,7 @@ body {
 
       // Sheet 1: 填写说明（用户必读）
       var guideData = [
-        ['钱去哪了 · 数据导入模板 — 填写说明'],
+        ['个人财富诊断CT · 数据导入模板 — 填写说明'],
         [],
         ['一、财务摘要', '', '', ''],
         ['在"财务摘要"工作表中填写你的月度收支、资产负债数据', '', '', ''],
@@ -2378,7 +2378,7 @@ body {
       XLSX.utils.book_append_sheet(wb, wsIns, '保险明细');
 
       // 导出模板
-      XLSX.writeFile(wb, '钱去哪了_导入模板.xlsx');
+      XLSX.writeFile(wb, '个人财富诊断CT_导入模板.xlsx');
 
       alert('模板下载成功！\n请先阅读"填写说明"工作表，再按示例格式填写数据导入。');
     } catch(e) {
