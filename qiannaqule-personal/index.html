@@ -1507,7 +1507,6 @@ body {
   var familyCount = 0;
   
   function addFamilyMember() {
-    console.log('[DEBUG] addFamilyMember called, count=', familyCount);
     familyCount++;
     var idx = familyCount;
     var html = '<div class="family-member" data-idx="' + idx + '">' +
@@ -1523,7 +1522,6 @@ body {
     '</div>';
     $('familyMembersContainer').insertAdjacentHTML('beforeend', html);
     // DEBUG: 确认元素已添加
-    console.log('[DEBUG] family members count:', document.querySelectorAll('.family-member').length);
     saveFamilyMembers();
   }
   window.addFamilyMember = addFamilyMember;
@@ -1573,7 +1571,6 @@ body {
   });
 
   // ==================== Validation (诊断引擎已移至 diagnosis-engine.js) ====================
- ====================
     function validate() {
     var rules = [
       { id: 'jobIncome', grp: 'grpJobIncome', required: false },
