@@ -2377,14 +2377,6 @@ body {
       wsIns['!cols'] = [{ wch: 20 }, { wch: 12 }, { wch: 14 }, { wch: 10 }, { wch: 10 }, { wch: 14 }];
       XLSX.utils.book_append_sheet(wb, wsIns, '保险明细');
 
-      // Sheet 6: 诊断历史（示例行）
-      var wsHist = XLSX.utils.aoa_to_sheet([
-        ['诊断时间', '标签', '总分', '等级'],
-        ['2026-07-29 14:00', '手动诊断', 65, 'C']
-      ]);
-      wsHist['!cols'] = [{ wch: 20 }, { wch: 12 }, { wch: 8 }, { wch: 8 }];
-      XLSX.utils.book_append_sheet(wb, wsHist, '诊断历史');
-
       // 导出模板
       XLSX.writeFile(wb, '钱去哪了_导入模板.xlsx');
 
