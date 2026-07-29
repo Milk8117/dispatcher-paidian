@@ -2121,6 +2121,16 @@ body {
         ageGroup: '年龄段'
       };
 
+      // DataStore key helper
+      function dsKey(field) { return LS_PREFIX + 'wealth_ct_' + field; }
+
+      // 贷款类型映射
+      var LOAN_TYPE_CN = { debx: '等额本息', debj: '等额本金', xxhb: '先息后本', dqhc: '按月付息到期还本' };
+      // 保险类型映射
+      var INS_TYPE_CN = { life: '人寿保险', commercial: '商业保险（重疾/医疗）', education: '教育险', other: '其他' };
+      // 年龄段映射
+      var AGE_GROUP_CN = { '1': '25岁以下', '2': '25-35岁', '3': '35-45岁', '4': '45-55岁', '5': '55-60岁', '6': '60岁以上' };
+
       // Sheet 1: 财务摘要
       var financialData = [
         ['字段', '值'],
@@ -2128,9 +2138,6 @@ body {
         ['版本', BACKUP_VERSION],
         []
       ];
-      // DataStore key: LS_PREFIX + MODULE + '_' + field = 'wealth_ct_' + 'wealth_ct' + '_' + field
-      var dsKey = dsKey || function(field) { return LS_PREFIX + 'wealth_ct_' + field; };
-
       var financialFields = Object.keys(FIELD_CN);
       financialFields.forEach(function(field) {
         var val = allData[dsKey(field)];
@@ -2153,13 +2160,6 @@ body {
       });
       var wsFamily = XLSX.utils.aoa_to_sheet(familyData);
       XLSX.utils.book_append_sheet(wb, wsFamily, '家庭成员');
-
-      // 贷款类型映射
-      var LOAN_TYPE_CN = { debx: '等额本息', debj: '等额本金', xxhb: '先息后本', dqhc: '按月付息到期还本' };
-      // 保险类型映射
-      var INS_TYPE_CN = { life: '人寿保险', commercial: '商业保险（重疾/医疗）', education: '教育险', other: '其他' };
-      // 年龄段映射
-      var AGE_GROUP_CN = { '1': '25岁以下', '2': '25-35岁', '3': '35-45岁', '4': '45-55岁', '5': '55-60岁', '6': '60岁以上' };
 
       // Sheet 3: 贷款明细
       var loanData = [['贷款名称', '金额', '年利率(%)', '期限(月)', '类型', '过渡期(月)', '剩余过渡期(月)']];
