@@ -35,6 +35,15 @@ body {
   text-align: center;
   padding: 28px 0 20px;
 }
+.header-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+.header-icon {
+  flex-shrink: 0;
+}
 .header h1 {
   font-size: 2rem;
   font-weight: 800;
@@ -540,6 +549,7 @@ body {
   .container { padding: 12px 12px 32px; }
   .header { padding: 22px 0 16px; }
   .header h1 { font-size: 1.6rem; }
+  .header-icon { width: 32px; height: 32px; }
   .form-card { padding: 20px 16px; }
   .form-input, .form-select { height: 42px; font-size: 0.95rem; }
   .score-ring-wrapper { width: 150px; height: 150px; }
@@ -1291,7 +1301,15 @@ body {
 <div class="container">
   <!-- Header -->
   <div class="header">
-    <h1>💰 财富诊断CT</h1>
+    <div class="header-title-row">
+      <svg class="header-icon" viewBox="0 0 48 48" width="40" height="40">
+        <rect x="0" y="0" width="48" height="48" rx="12" fill="#2563eb"/>
+        <path d="M24 14l8 8-8 4-8-4 8-8z" fill="#fff"/>
+        <path d="M16 24l8 4 8-4" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+        <path d="M16 28l8 4 8-4" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <h1>财富诊断CT</h1>
+    </div>
     <p class="header-eco">by 米界AI</p>
   </div>
 
