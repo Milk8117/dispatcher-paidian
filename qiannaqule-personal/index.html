@@ -2442,6 +2442,7 @@ body {
     btn.closest('.loan-entry').remove();
     updateLoanSummary();
   }
+  window.removeLoan = removeLoan;
 
   function toggleTrans(sel) {
     var entry = sel.closest('.loan-entry');
@@ -2553,6 +2554,7 @@ body {
   function removeInsurance(btn) {
     btn.closest('.insurance-entry').remove();
   }
+  window.removeInsurance = removeInsurance;
 
   // 绑定"添加保险"按钮
   document.addEventListener('click', function(e) {
