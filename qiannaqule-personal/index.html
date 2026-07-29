@@ -60,12 +60,44 @@ body {
 }
 
 /* ========== Form ========== */
+/* Zone divider between guide and diagnosis */
+.zone-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 28px 0 20px;
+  padding: 0 4px;
+}
+.zone-divider-line {
+  flex: 1;
+  height: 1.5px;
+  background: linear-gradient(90deg, #f59e0b 0%, #fbbf24 50%, transparent 100%);
+  border-radius: 1px;
+}
+.zone-divider-line.right {
+  background: linear-gradient(90deg, transparent 0%, #fbbf24 50%, #f59e0b 100%);
+}
+.zone-divider-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #b45309;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+}
+.zone-divider-icon {
+  font-size: 1.1rem;
+}
+/* Form card with warm accent */
 .form-card {
   background: #fff;
   border-radius: 16px;
   padding: 28px 24px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.04);
   margin-bottom: 24px;
+  border-top: 3px solid #f59e0b;
 }
 .form-group {
   margin-bottom: 18px;
@@ -327,6 +359,7 @@ body {
   text-align: center;
   box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.04);
   margin-bottom: 16px;
+  border-top: 3px solid #f59e0b;
 }
 .score-ring-wrapper {
   position: relative;
@@ -394,6 +427,7 @@ body {
   padding: 24px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.04);
   margin-bottom: 16px;
+  border-top: 3px solid #f59e0b;
 }
 .dim-card h3 {
   font-size: 1rem;
@@ -451,6 +485,7 @@ body {
   padding: 24px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.04);
   margin-bottom: 16px;
+  border-top: 3px solid #f59e0b;
 }
 .diag-card h3 {
   font-size: 1rem;
@@ -471,6 +506,7 @@ body {
   padding: 24px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.04);
   margin-bottom: 16px;
+  border-top: 3px solid #f59e0b;
 }
 .suggest-card h3 {
   font-size: 1rem;
@@ -1578,6 +1614,13 @@ body {
     </div>
   </div>
 
+
+  <!-- 区域分隔：诊断依据 → 诊断区 -->
+  <div class="zone-divider">
+    <div class="zone-divider-line"></div>
+    <div class="zone-divider-label"><span class="zone-divider-icon">🩺</span> 开始诊断</div>
+    <div class="zone-divider-line right"></div>
+  </div>
 
   <!-- Form -->
   <div class="form-card" id="formCard">
