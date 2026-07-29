@@ -1307,6 +1307,7 @@ body {
       <button id="btnImport" type="button" style="flex:1;height:44px;background:#fff;color:#16a34a;font-size:0.85rem;font-weight:600;border:1.5px solid #bbf7d0;border-radius:10px;cursor:pointer;transition:all 0.2s;">📥 导入数据</button>
       <input type="file" id="importFileInput" accept=".json,.xlsx,.xls" style="display:none;">
     </div>
+    <button id="btnTemplate" type="button" style="width:100%;height:36px;margin-top:8px;background:#fff;color:#7c3aed;font-size:0.8rem;font-weight:500;border:1.5px solid #ddd6fe;border-radius:8px;cursor:pointer;transition:all 0.2s;">📋 下载导入模板</button>
   </div>
 
   <!-- Result Section -->
@@ -2226,6 +2227,79 @@ body {
     reader.readAsText(file);
   }
 
+  // 下载导入模板
+  function downloadTemplate() {
+    try {
+      if (typeof XLSX === 'undefined') {
+        alert('Excel组件未加载，请检查网络连接后刷新页面。');
+        return;
+      }
+
+      var wb = XLSX.utils.book_new();
+
+      // Sheet 1: 财务摘要
+      var financialFields = [
+        ['jobIncome', '月收入'],
+        ['rentalIncome', '租房收入'],
+        ['investIncome', '投资收入'],
+        ['sideIncome', '副业收入'],
+        ['expensePersonal', '个人支出'],
+        ['expenseFamily', '家庭支出'],
+        ['expenseEducation', '教育支出'],
+        ['expenseMedical', '医疗支出'],
+        ['savings', '储蓄'],
+        ['equityInvest', '股票投资'],
+        ['stableInvest', '稳健投资'],
+        ['property', '房产价值'],
+        ['investProperty', '投资房产'],
+        ['otherDebt', '其他负债'],
+        ['housingFund', '公积金余额'],
+        ['housingFundYears', '公积金年限'],
+        ['commercialPremium', '商保年保费'],
+        ['ageGroup', '年龄段']
+      ];
+      var wsFinancial = XLSX.utils.aoa_to_sheet([['字段名', '说明', '值']].concat(
+        financialFields.map(function(f) { return [f[0], f[1], '']; })
+      ));
+      XLSX.utils.book_append_sheet(wb, wsFinancial, '财务摘要');
+
+      // Sheet 2: 家庭成员
+      var wsFamily = XLSX.utils.aoa_to_sheet([
+        ['姓名', '关系', '年龄', '收入'],
+        ['示例姓名', '配偶/子女/父母', 30, 5000]
+      ]);
+      XLSX.utils.book_append_sheet(wb, wsFamily, '家庭成员');
+
+      // Sheet 3: 贷款明细
+      var wsLoan = XLSX.utils.aoa_to_sheet([
+        ['贷款名称', '金额', '年利率(%)', '期限(月)', '类型', '过渡期(月)', '剩余过渡期(月)'],
+        ['示例贷款', 100000, 5.5, 24, '先息后本', 12, 6]
+      ]);
+      XLSX.utils.book_append_sheet(wb, wsLoan, '贷款明细');
+
+      // Sheet 4: 保险明细
+      var wsIns = XLSX.utils.aoa_to_sheet([
+        ['保险名称', '类型', '保额', '年缴保费', '缴费年限', '已缴年限', '下次缴费日'],
+        ['示例保险', '人寿险', 100000, 5000, 10, 3, '2026-12-31']
+      ]);
+      XLSX.utils.book_append_sheet(wb, wsIns, '保险明细');
+
+      // Sheet 5: 诊断历史
+      var wsHist = XLSX.utils.aoa_to_sheet([
+        ['诊断时间', '标签', '总分', '等级'],
+        ['2026-07-29T14:00:00.000Z', 'manual', 65, 'C']
+      ]);
+      XLSX.utils.book_append_sheet(wb, wsHist, '诊断历史');
+
+      // 导出模板
+      XLSX.writeFile(wb, 'wealth_ct_import_template.xlsx');
+
+      alert('模板下载成功！\n请按模板格式填写数据后导入。');
+    } catch(e) {
+      alert('模板下载失败：' + e.message);
+    }
+  }
+
   // Excel 导入
   function importFromExcel(file) {
     var reader = new FileReader();
@@ -2244,13 +2318,17 @@ body {
 
         WealthCT.clearAll();
 
-        // 解析财务摘要 sheet
+        // 解析财务摘要 sheet（支持模板格式：字段名/说明/值 或 导出格式：字段/值）
         var wsFinancial = wb.Sheets['财务摘要'];
         if (wsFinancial) {
           var financialData = XLSX.utils.sheet_to_json(wsFinancial, { header: 1 });
           financialData.forEach(function(row, idx) {
             if (idx < 2) return; // 跳过标题行
-            if (row[0] && row[1] !== undefined) {
+            if (row[0] && row[2] !== undefined) {
+              // 模板格式：字段名/说明/值
+              localStorage.setItem(lsKey(row[0]), String(row[2]));
+            } else if (row[0] && row[1] !== undefined) {
+              // 导出格式：字段/值
               localStorage.setItem(lsKey(row[0]), String(row[1]));
             }
           });
@@ -2365,6 +2443,20 @@ body {
     btnImport.addEventListener('mouseleave', function() {
       btnImport.style.background = '#fff';
       btnImport.style.borderColor = '#bbf7d0';
+    });
+  }
+
+  // 绑定模板下载按钮
+  var btnTemplate = $('btnTemplate');
+  if (btnTemplate) {
+    btnTemplate.addEventListener('click', downloadTemplate);
+    btnTemplate.addEventListener('mouseenter', function() {
+      btnTemplate.style.background = '#faf5ff';
+      btnTemplate.style.borderColor = '#c4b5fd';
+    });
+    btnTemplate.addEventListener('mouseleave', function() {
+      btnTemplate.style.background = '#fff';
+      btnTemplate.style.borderColor = '#ddd6fe';
     });
   }
 
