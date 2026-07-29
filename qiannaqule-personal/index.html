@@ -1392,6 +1392,7 @@ body {
 <script src="diagnosis-engine.js"></script>
 <script src="reminder-engine.js"></script>
 <script src="trend-view.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 (function() {
   'use strict';
@@ -2075,8 +2076,15 @@ body {
   // 导出：收集所有 wealth_ct_ 前缀的 localStorage 数据，生成 JSON 文件下载
   function exportData() {
     try {
+      // 检查 SheetJS 是否加载
+      if (typeof XLSX === 'undefined') {
+        alert('Excel导出组件未加载，请检查网络连接后刷新页面。');
+        return;
+      }
+
+      // 收集所有数据
       var allData = {};
-      var prefix = LS_PREFIX; // 'wealth_ct_'
+      var prefix = LS_PREFIX;
       for (var i = 0; i < localStorage.length; i++) {
         var key = localStorage.key(i);
         if (key && key.indexOf(prefix) === 0) {
@@ -2087,36 +2095,74 @@ body {
         }
       }
 
-      var exportObj = {
-        _meta: {
-          version: BACKUP_VERSION,
-          exportTime: new Date().toISOString(),
-          app: 'wealth_ct_personal',
-          keyCount: Object.keys(allData).length
-        },
-        data: allData
-      };
+      // 创建工作簿
+      var wb = XLSX.utils.book_new();
 
-      var jsonStr = JSON.stringify(exportObj, null, 2);
-      var blob = new Blob([jsonStr], { type: 'application/json' });
-      var url = URL.createObjectURL(blob);
+      // Sheet 1: 财务摘要
+      var financialData = [
+        ['字段', '值'],
+        ['导出时间', new Date().toLocaleString('zh-CN')],
+        ['版本', BACKUP_VERSION]
+      ];
+      var financialFields = ['jobIncome', 'rentalIncome', 'investIncome', 'sideIncome', 
+                             'expensePersonal', 'expenseFamily', 'expenseEducation', 'expenseMedical',
+                             'savings', 'equityInvest', 'stableInvest', 'property', 'investProperty',
+                             'otherDebt', 'housingFund', 'housingFundYears', 'commercialPremium', 'ageGroup'];
+      financialFields.forEach(function(field) {
+        var val = allData[lsKey(field)];
+        if (val !== undefined && val !== null) {
+          financialData.push([field, val]);
+        }
+      });
+      var wsFinancial = XLSX.utils.aoa_to_sheet(financialData);
+      XLSX.utils.book_append_sheet(wb, wsFinancial, '财务摘要');
 
-      // 生成文件名: wealth_ct_backup_YYYY-MM-DD.json
+      // Sheet 2: 家庭成员
+      var familyData = [['姓名', '关系', '年龄', '收入']];
+      var family = allData[lsKey('familyMembers')] || [];
+      family.forEach(function(m) {
+        familyData.push([m.name || '', m.relation || '', m.age || '', m.income || '']);
+      });
+      var wsFamily = XLSX.utils.aoa_to_sheet(familyData);
+      XLSX.utils.book_append_sheet(wb, wsFamily, '家庭成员');
+
+      // Sheet 3: 贷款明细
+      var loanData = [['贷款名称', '金额', '年利率(%)', '期限(月)', '类型', '过渡期(月)', '剩余过渡期(月)']];
+      var loans = allData[lsKey('loans')] || [];
+      loans.forEach(function(l) {
+        loanData.push([l.name || '', l.amount || '', l.rate || '', l.term || '', l.type || '', l.transTotal || '', l.transLeft || '']);
+      });
+      var wsLoan = XLSX.utils.aoa_to_sheet(loanData);
+      XLSX.utils.book_append_sheet(wb, wsLoan, '贷款明细');
+
+      // Sheet 4: 保险明细
+      var insData = [['保险名称', '类型', '保额', '年缴保费', '缴费年限', '已缴年限', '下次缴费日']];
+      var insurance = allData[lsKey('insurance')] || [];
+      insurance.forEach(function(ins) {
+        insData.push([ins.name || '', ins.type || '', ins.amount || '', ins.premium || '', ins.term || '', ins.paid || '', ins.payDate || '']);
+      });
+      var wsIns = XLSX.utils.aoa_to_sheet(insData);
+      XLSX.utils.book_append_sheet(wb, wsIns, '保险明细');
+
+      // Sheet 5: 诊断历史
+      var histData = [['诊断时间', '标签', '总分', '等级']];
+      var history = allData[lsKey('diagnosis_history')] || [];
+      history.forEach(function(h) {
+        histData.push([h.timestamp || '', h.tag || '', h.total || '', h.grade || '']);
+      });
+      var wsHist = XLSX.utils.aoa_to_sheet(histData);
+      XLSX.utils.book_append_sheet(wb, wsHist, '诊断历史');
+
+      // 导出 Excel
       var now = new Date();
       var dateStr = now.getFullYear() + '-' +
         String(now.getMonth() + 1).padStart(2, '0') + '-' +
         String(now.getDate()).padStart(2, '0');
-      var filename = 'wealth_ct_backup_' + dateStr + '.json';
+      var filename = 'wealth_ct_backup_' + dateStr + '.xlsx';
 
-      var a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      XLSX.writeFile(wb, filename);
 
-      alert('数据导出成功！\n文件名：' + filename + '\n共 ' + Object.keys(allData).length + ' 条数据。');
+      alert('数据导出成功！\n文件名：' + filename + '\n包含 ' + (wb.SheetNames.length) + ' 个工作表');
     } catch(e) {
       alert('导出失败：' + e.message);
     }
