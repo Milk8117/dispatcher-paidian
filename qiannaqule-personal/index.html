@@ -2199,15 +2199,6 @@ body {
       wsIns['!cols'] = [{ wch: 20 }, { wch: 12 }, { wch: 14 }, { wch: 10 }, { wch: 10 }, { wch: 14 }];
       XLSX.utils.book_append_sheet(wb, wsIns, '保险明细');
 
-      // Sheet 5: 诊断历史
-      var histData = [['诊断时间', '标签', '总分', '等级']];
-      var history = allData[dsKey('diagnosis_history')] || [];
-      history.forEach(function(h) {
-        histData.push([h.timestamp || '', h.tag || '', h.total || '', h.grade || '']);
-      });
-      var wsHist = XLSX.utils.aoa_to_sheet(histData);
-      XLSX.utils.book_append_sheet(wb, wsHist, '诊断历史');
-
       // 导出 Excel
       var now = new Date();
       var dateStr = now.getFullYear() + '-' +
@@ -2419,10 +2410,19 @@ body {
         var confirmed = confirm('即将从 Excel 导入数据。\n\n⚠️ 此操作将覆盖当前所有数据！\n\n确定要继续吗？');
         if (!confirmed) return;
 
-        WealthCT.clearAll();
-
         // DataStore key helper
         var dsKey = function(field) { return LS_PREFIX + 'wealth_ct_' + field; };
+
+        // 备份诊断历史（诊断数据由系统生成，不应被导入覆盖）
+        var savedDiagHistory = null;
+        try { savedDiagHistory = localStorage.getItem(dsKey('diagnosis_history')); } catch(e) {}
+
+        WealthCT.clearAll();
+
+        // 恢复诊断历史
+        if (savedDiagHistory) {
+          try { localStorage.setItem(dsKey('diagnosis_history'), savedDiagHistory); } catch(e) {}
+        }
 
         // 反向映射：中文名到英文字段名
         var CN_TO_FIELD = {
@@ -2537,29 +2537,12 @@ body {
           console.log('[DEBUG 导入] 未找到"保险明细"工作表');
         }
 
-        // 解析诊断历史 sheet
-        var wsHist = wb.Sheets['诊断历史'];
-        if (wsHist) {
-          var histData = XLSX.utils.sheet_to_json(wsHist, { header: 1 });
-          var history = [];
-          histData.forEach(function(row, idx) {
-            if (idx === 0) return;
-            if (row[0]) {
-              history.push({ timestamp: row[0], tag: row[1], total: row[2], grade: row[3] });
-            }
-          });
-          if (history.length > 0) {
-            localStorage.setItem(dsKey('diagnosis_history'), JSON.stringify(history));
-          }
-        }
-
         // 导入诊断报告
         var report = 'Excel 数据导入成功！\n\n';
         report += '财务摘要：' + (financialData.length > 0 ? '✅' : '❌') + '\n';
         report += '家庭成员：' + (wsFamily && family.length > 0 ? family.length + ' 条 ✅' : (wsFamily ? '空' : '❌ 未找到')) + '\n';
         report += '贷款明细：' + (wsLoan && loans.length > 0 ? loans.length + ' 条 ✅' : (wsLoan ? '空' : '❌ 未找到')) + '\n';
-        report += '保险明细：' + (wsIns && insurance.length > 0 ? insurance.length + ' 条 ✅' : (wsIns ? '空' : '❌ 未找到')) + '\n';
-        report += '诊断历史：' + (wsHist && history.length > 0 ? history.length + ' 条 ✅' : (wsHist ? '空' : '❌ 未找到'));
+        report += '保险明细：' + (wsIns && insurance.length > 0 ? insurance.length + ' 条 ✅' : (wsIns ? '空' : '❌ 未找到'));
         console.log('[DEBUG 导入报告]', report);
 
         // 清除现有 DOM 条目，然后恢复
