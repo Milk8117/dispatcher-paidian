@@ -1076,32 +1076,32 @@ body {
 /* Tabs */
 .guide-tabs {
   display: flex;
-  gap: 0;
-  border-bottom: 2px solid #e2e8f0;
-  margin-bottom: 16px;
+  gap: 8px;
+  background: #f1f5f9;
+  border-radius: 12px;
+  padding: 5px;
+  margin-bottom: 20px;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
 .guide-tab {
-  padding: 10px 16px;
-  font-size: 0.82rem;
-  font-weight: 600;
+  padding: 10px 20px;
+  font-size: 0.92rem;
+  font-weight: 700;
   color: #64748b;
   cursor: pointer;
   white-space: nowrap;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -2px;
-  transition: color 0.2s, border-color 0.2s;
-  background: none;
-  border-top: none;
-  border-left: none;
-  border-right: none;
+  border-radius: 8px;
+  transition: all 0.2s;
+  background: transparent;
+  border: none;
   font-family: inherit;
 }
-.guide-tab:hover { color: #2563eb; }
+.guide-tab:hover { color: #1e40af; background: rgba(37,99,235,0.06); }
 .guide-tab.guide-tab-active {
-  color: #2563eb;
-  border-bottom-color: #2563eb;
+  color: #fff;
+  background: #2563eb;
+  box-shadow: 0 2px 8px rgba(37,99,235,0.3);
 }
 .guide-tab-content { display: none; }
 .guide-tab-content.guide-tab-active { display: block; }
@@ -1217,7 +1217,7 @@ body {
   .guide-header { padding: 14px 16px; }
   .guide-body-inner { padding: 0 16px 16px; }
   .guide-title { font-size: 0.9rem; }
-  .guide-tab { padding: 8px 12px; font-size: 0.78rem; }
+  .guide-tab { padding: 8px 14px; font-size: 0.85rem; }
   .guide-table { font-size: 0.75rem; }
   .guide-table th, .guide-table td { padding: 7px 8px; }
 }
