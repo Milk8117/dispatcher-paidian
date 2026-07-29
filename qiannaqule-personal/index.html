@@ -1303,7 +1303,13 @@ body {
 }
 .guide-subcard-header:hover { background: #f0f7ff; }
 .guide-subcard-open .guide-subcard-header { background: #eff6ff; color: #1e40af; }
-.guide-subcard-icon { font-size: 1.2rem; flex-shrink: 0; }
+.guide-subcard-icon {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.guide-subcard-icon svg { display: block; }
 .guide-subcard-header-text { flex: 1; }
 .guide-subcard-toggle {
   width: 24px; height: 24px;
@@ -1459,10 +1465,10 @@ body {
     </div>
     <div style="padding:24px;">
       <div style="text-align:left;font-size:14px;color:#475569;line-height:1.8;">
-        <p style="margin:0 0 16px;"><strong>🎯 3分钟完成财务体检</strong><br>填写基本财务信息，系统自动诊断并给出改善建议</p>
-        <p style="margin:0 0 16px;"><strong>🔒 数据100%本地存储</strong><br>您的隐私数据不会上传到任何服务器，完全由您掌控</p>
-        <p style="margin:0 0 16px;"><strong>📈 追踪财务变化趋势</strong><br>多次诊断后可查看分数变化和改善情况</p>
-        <p style="margin:0;color:#64748b;font-size:12px;">💡 建议先备份数据，再开始首次诊断</p>
+        <p style="margin:0 0 16px;"><strong><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#f97316" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>3分钟完成财务体检</strong><br>填写基本财务信息，系统自动诊断并给出改善建议</p>
+        <p style="margin:0 0 16px;"><strong><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#f97316" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>数据100%本地存储</strong><br>您的隐私数据不会上传到任何服务器，完全由您掌控</p>
+        <p style="margin:0 0 16px;"><strong><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#f97316" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-5"/></svg>追踪财务变化趋势</strong><br>多次诊断后可查看分数变化和改善情况</p>
+        <p style="margin:0;color:#64748b;font-size:12px;"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:3px"><path d="M9 18h6M10 22h4"/><path d="M12 2a7 7 0 00-4 12.7V17h8v-2.3A7 7 0 0012 2z"/></svg>建议先备份数据，再开始首次诊断</p>
       </div>
       <button onclick="closeWelcome()" style="margin-top:20px;width:100%;background:#f97316;color:#fff;border:none;padding:14px;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer;">开始使用</button>
     </div>
@@ -1575,7 +1581,7 @@ body {
   <div class="guide-card" id="wealthGuideCard">
     <div class="guide-header" onclick="toggleGuideCard()">
       <div class="guide-header-left">
-        <div class="guide-title">📖 诊断依据：你的财富结构健康吗？</div>
+        <div class="guide-title"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#1e40af" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:4px"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>诊断依据：你的财富结构健康吗？</div>
         <div class="guide-summary">了解健康财务结构的标准，让诊断结果更有参考价值</div>
       </div>
       <div class="guide-toggle">
@@ -1594,7 +1600,7 @@ body {
         <!-- Section 1: 六大诊断维度 -->
         <div class="guide-subcard guide-subcard-open" data-subcard="0">
           <div class="guide-subcard-header" onclick="toggleGuideSection(0)">
-            <span class="guide-subcard-icon">📊</span>
+            <span class="guide-subcard-icon" style="background:#dbeafe;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#3b82f6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="6" width="4" height="15" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg></span>
             <span class="guide-subcard-header-text">六大诊断维度</span>
             <span class="guide-subcard-toggle"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></span>
           </div>
@@ -1611,7 +1617,7 @@ body {
                 <tr><td>应急偿还能力</td><td>至少覆盖12个月月供</td><td>失业1人即无法偿还</td></tr>
               </table>
             </div>
-            <div class="guide-highlight"><strong>⚠️ 注意：</strong>严禁超出支付能力负债。2025年全国房产断供187万人，同比增长35%。杠杆是双刃剑。</div>
+            <div class="guide-highlight"><strong><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg>注意：</strong>严禁超出支付能力负债。2025年全国房产断供187万人，同比增长35%。杠杆是双刃剑。</div>
           </div>
 
           <div class="guide-section">
@@ -1638,7 +1644,7 @@ body {
                 <tr><td>收入来源数量</td><td>≥ 3种</td><td>多数人只有工资1种</td></tr>
               </table>
             </div>
-            <div class="guide-highlight"><strong>💡 关键洞察：</strong>中国家庭56.6%的收入靠劳动，仅8%来自投资。而真正财务自由的家庭，"赚钱"远超"挣钱"。</div>
+            <div class="guide-highlight"><strong><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><path d="M9 18h6M10 22h4"/><path d="M12 2a7 7 0 00-4 12.7V17h8v-2.3A7 7 0 0012 2z"/></svg>关键洞察：</strong>中国家庭56.6%的收入靠劳动，仅8%来自投资。而真正财务自由的家庭，"赚钱"远超"挣钱"。</div>
           </div>
 
           <div class="guide-section">
@@ -1651,7 +1657,7 @@ body {
                 <tr><td>储蓄率</td><td>≥ 30%</td></tr>
               </table>
             </div>
-            <div class="guide-highlight"><strong>📉 残酷现实：</strong>每年加薪的时代结束了。2018-2024年本科毕业生月薪年复合增长仅7.23%，GDP增速从9.4%降到4-5%。不靠储蓄率，就只能靠选择。</div>
+            <div class="guide-highlight"><strong><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><path d="M3 3v18h18"/><path d="M21 7l-5 5-4-4-6 6"/></svg>残酷现实：</strong>每年加薪的时代结束了。2018-2024年本科毕业生月薪年复合增长仅7.23%，GDP增速从9.4%降到4-5%。不靠储蓄率，就只能靠选择。</div>
           </div>
 
           <div class="guide-section">
@@ -1688,7 +1694,7 @@ body {
         <!-- Section 2: 公开财务法则 -->
         <div class="guide-subcard" data-subcard="1">
           <div class="guide-subcard-header" onclick="toggleGuideSection(1)">
-            <span class="guide-subcard-icon">⚖️</span>
+            <span class="guide-subcard-icon" style="background:#fef3c7;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#f59e0b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 7l7-4 7 4"/><path d="M3 13a2 2 0 002 2h0a2 2 0 002-2L5 7 3 13z"/><path d="M17 13a2 2 0 002 2h0a2 2 0 002-2l-2-6-2 6z"/></svg></span>
             <span class="guide-subcard-header-text">财务法则</span>
             <span class="guide-subcard-toggle"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></span>
           </div>
@@ -1762,7 +1768,7 @@ body {
         <!-- Section 3: 配置建议 -->
         <div class="guide-subcard" data-subcard="2">
           <div class="guide-subcard-header" onclick="toggleGuideSection(2)">
-            <span class="guide-subcard-icon">💡</span>
+            <span class="guide-subcard-icon" style="background:#dcfce7;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#22c55e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4"/><path d="M12 2a7 7 0 00-4 12.7V17h8v-2.3A7 7 0 0012 2z"/></svg></span>
             <span class="guide-subcard-header-text">配置建议</span>
             <span class="guide-subcard-toggle"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></span>
           </div>
@@ -1808,7 +1814,7 @@ body {
               <li><strong>量化与杠杆：</strong>学会用金融工具放大收益，但前提是控制风险。</li>
               <li><strong>再平衡：</strong>每半年到两年，根据年龄、收入、家庭结构变化动态调整资产配置。</li>
             </ol>
-            <div class="guide-highlight"><strong>🧠 记住：</strong>认知边界 = 财富边界。你赚的每一分钱都不会超出你的认知边界。</div>
+            <div class="guide-highlight"><strong><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><path d="M12 2a7 7 0 00-7 7c0 3 2 5.5 4 7l3 3 3-3c2-1.5 4-4 4-7a7 7 0 00-7-7z"/><circle cx="12" cy="9" r="2"/></svg>记住：</strong>认知边界 = 财富边界。你赚的每一分钱都不会超出你的认知边界。</div>
           </div>
             </div>
           </div>
@@ -1827,7 +1833,7 @@ body {
   <!-- 区域分隔：诊断依据 → 诊断区 -->
   <div class="zone-divider">
     <div class="zone-divider-line"></div>
-    <div class="zone-divider-label"><span class="zone-divider-icon">🩺</span> 开始诊断</div>
+    <div class="zone-divider-label"><span class="zone-divider-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#b45309" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V8s-1 1-4 1-5-2-8-2-4 1-4 1z"/><circle cx="12" cy="11" r="2"/></span> 开始诊断</div>
     <div class="zone-divider-line right"></div>
   </div>
 
@@ -2028,11 +2034,11 @@ body {
     <button class="btn-submit" id="btnSubmit" type="button">开始体检</button>
     <button class="btn-clear" id="btnClear" type="button" style="display:block;width:100%;height:44px;margin-top:10px;background:#fff;color:#94a3b8;font-size:0.85rem;font-weight:500;border:1.5px solid #e2e8f0;border-radius:10px;cursor:pointer;transition:color 0.2s,border-color 0.2s;">清除已保存的数据</button>
     <div style="display:flex;gap:10px;margin-top:10px;">
-      <button id="btnExport" type="button" style="flex:1;height:44px;background:#fff;color:#2563eb;font-size:0.85rem;font-weight:600;border:1.5px solid #bfdbfe;border-radius:10px;cursor:pointer;transition:all 0.2s;">📤 导出数据</button>
-      <button id="btnImport" type="button" style="flex:1;height:44px;background:#fff;color:#16a34a;font-size:0.85rem;font-weight:600;border:1.5px solid #bbf7d0;border-radius:10px;cursor:pointer;transition:all 0.2s;">📥 导入数据</button>
+      <button id="btnExport" type="button" style="flex:1;height:44px;background:#fff;color:#2563eb;font-size:0.85rem;font-weight:600;border:1.5px solid #bfdbfe;border-radius:10px;cursor:pointer;transition:all 0.2s;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:4px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>导出数据</button>
+      <button id="btnImport" type="button" style="flex:1;height:44px;background:#fff;color:#16a34a;font-size:0.85rem;font-weight:600;border:1.5px solid #bbf7d0;border-radius:10px;cursor:pointer;transition:all 0.2s;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:4px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>导入数据</button>
       <input type="file" id="importFileInput" accept=".json,.xlsx,.xls" style="display:none;">
     </div>
-    <button id="btnTemplate" type="button" style="width:100%;height:36px;margin-top:8px;background:#fff;color:#7c3aed;font-size:0.8rem;font-weight:500;border:1.5px solid #ddd6fe;border-radius:8px;cursor:pointer;transition:all 0.2s;">📋 下载导入模板</button>
+    <button id="btnTemplate" type="button" style="width:100%;height:36px;margin-top:8px;background:#fff;color:#7c3aed;font-size:0.8rem;font-weight:500;border:1.5px solid #ddd6fe;border-radius:8px;cursor:pointer;transition:all 0.2s;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#6b7280" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:4px"><rect x="9" y="2" width="6" height="4" rx="1"/><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><path d="M9 12h6M9 16h4"/></svg>下载导入模板</button>
   </div>
 
   <!-- Result Section -->
@@ -2107,7 +2113,7 @@ body {
       <li><span class="feat-icon" style="background:#dbeafe;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#3b82f6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M4 4l17 17"/></svg></span> 热量/蛋白质/碳水/脂肪追踪</li>
       <li><span class="feat-icon" style="background:#fce7f3;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#ec4899" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg></span> 周/月膳食计划自动生成</li>
     </ul>
-    <span class="module-placeholder-tag">🚧 即将上线</span>
+    <span class="module-placeholder-tag"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>即将上线</span>
   </div>
 </div>
 <!-- END page-meal -->
@@ -2124,7 +2130,7 @@ body {
       <li><span class="feat-icon" style="background:#dbeafe;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#3b82f6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4v6h6"/><path d="M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 013.51 15"/></svg></span> 周期性任务自动排程</li>
       <li><span class="feat-icon" style="background:#fce7f3;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#ec4899" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg></span> 多端同步与日历集成</li>
     </ul>
-    <span class="module-placeholder-tag">🚧 即将上线</span>
+    <span class="module-placeholder-tag"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>即将上线</span>
   </div>
 </div>
 <!-- END page-schedule -->
@@ -2141,7 +2147,7 @@ body {
       <li><span class="feat-icon" style="background:#dbeafe;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#3b82f6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 1.5H8A6.5 6.5 0 008 14h8a6.5 6.5 0 000-13h-2.5"/><path d="M4 4l4 5M16 4l4 5"/></svg></span> 用药提醒与健康预警</li>
       <li><span class="feat-icon" style="background:#fce7f3;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#ec4899" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 6l-9.5 9.5-5-5L1 18"/><path d="M17 6h6v6"/></svg></span> 运动/睡眠/体重长期追踪</li>
     </ul>
-    <span class="module-placeholder-tag">🚧 即将上线</span>
+    <span class="module-placeholder-tag"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>即将上线</span>
   </div>
 </div>
 <!-- END page-health -->
@@ -2262,18 +2268,18 @@ body {
 
   function detectIntent(text) {
     if (/贷款|负债|还款|借|利息|房贷|车贷|信用|融资|收入|支出|消费|花了|挣|工资|账单|预算|记账/.test(text)) {
-      return '💰 已切换到「财富诊断CT」';
+      return '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#f59e0b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:4px"><path d="M21 12V7H5a2 2 0 010-4h14v4"/><path d="M3 5v14a2 2 0 002 2h16v-5"/><path d="M18 12a2 2 0 100 4 2 2 0 000-4z"/></svg>已切换到「财富诊断CT」';
     }
     if (/吃|饭|餐|早|午|晚|食|菜|肉|面|米|喝|水果|营养|热量|蛋白质/.test(text)) {
-      return '🍽️ 已切换到「膳食管理」';
+      return '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#f97316" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:4px"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2"/><path d="M7 2v20"/><path d="M21 15V2a2 2 0 00-2-2H15a2 2 0 00-2 2v13c0 1.1.9 2 2 2h4a2 2 0 002-2z"/></svg>已切换到「膳食管理」';
     }
     if (/提醒|日程|待办|还款日|缴费|会议|预约|安排|计划|排期/.test(text)) {
-      return '📅 已切换到「日程管理」';
+      return '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#3b82f6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:4px"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M8 14h.01M12 14h.01M16 14h.01"/></svg>已切换到「日程管理」';
     }
     if (/体检|健康|运动|睡眠|体重|用药|血压|心率|步数|卡路里/.test(text)) {
-      return '❤️ 已切换到「健康管理」';
+      return '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#ec4899" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:4px"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>已切换到「健康管理」';
     }
-    return '✨ 意图识别引擎开发中';
+    return '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><path d="M12 3l2 7 7 2-7 2-2 7-2-7-7-2 7-2z"/></svg>意图识别引擎开发中';
   }
 
   // Enter key support
@@ -2384,7 +2390,7 @@ body {
     var el = $('loanSummary');
     if (data.count === 0) { el.style.display = 'none'; return; }
     el.style.display = 'block';
-    var html = '<strong>📊 贷款汇总</strong><br>';
+    var html = '<strong><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#6b7280" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:4px"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="6" width="4" height="15" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>贷款汇总</strong><br>';
     html += '负债总额：<strong>' + (data.bankDebt/10000).toFixed(1) + '</strong> 万元 &nbsp;|&nbsp; ';
     html += '当前月供：<strong>' + data.currentPay + '</strong> 元/月';
     if (data.maxPay > data.currentPay) {
@@ -2397,7 +2403,7 @@ body {
     if (data.maxPay > data.currentPay) {
       var income = $('jobIncome').value !== '' ? Number($('jobIncome').value) : 1;
       if (!income || income <= 0) income = 1;
-      html += '<span class="loan-warn">⚠️ 最高月供占收入 ' + Math.round(data.maxPay / income * 100) + '%，请评估承受能力</span>';
+      html += '<span class="loan-warn"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:2px"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg>最高月供占收入 ' + Math.round(data.maxPay / income * 100) + '%，请评估承受能力</span>';
     }
     el.innerHTML = html;
   }
@@ -2409,7 +2415,7 @@ body {
     var html = '<div class="loan-entry" data-idx="' + idx + '">' +
       '<div class="loan-entry-header">' +
         '<span class="loan-entry-title">贷款 #' + idx + '</span>' +
-        '<button type="button" class="loan-remove" onclick="removeLoan(this)">✕ 删除</button>' +
+        '<button type="button" class="loan-remove" onclick="removeLoan(this)"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:2px"><path d="M18 6L6 18M6 6l12 12"/></svg>删除</button>' +
       '</div>' +
       '<div class="loan-row">' +
         '<div class="loan-field"><label>贷款金额</label><input type="number" class="loan-amt" placeholder="100000" min="0" step="1000" oninput="updateLoanSummary()"></div>' +
@@ -2421,7 +2427,7 @@ body {
         '<div class="loan-field"><label>每月还款日</label><input type="number" class="loan-payday" placeholder="15" min="1" max="28" step="1" oninput="updateLoanSummary()"></div>' +
       '</div>' +
       '<div class="loan-trans" style="display:none" id="trans_' + idx + '">' +
-        '<div class="loan-transition-title">⚡ 先息后本 → 转等额本息</div>' +
+        '<div class="loan-transition-title"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>先息后本 → 转等额本息</div>' +
         '<div class="loan-row">' +
           '<div class="loan-field"><label>总先息期（月）</label><input type="number" class="loan-trans-total" placeholder="12" min="0" step="1" oninput="updateLoanSummary()"></div>' +
           '<div class="loan-field"><label>剩余先息期（月）</label><input type="number" class="loan-trans-left" placeholder="6" min="0" step="1" oninput="updateLoanSummary()"></div>' +
@@ -2483,7 +2489,7 @@ body {
         '<option value="parent">父母</option>' +
         '<option value="other">其他</option>' +
       '</select>' +
-      '<button type="button" class="btn-remove-member" onclick="window.removeFamilyMember(this)">✕</button>' +
+      '<button type="button" class="btn-remove-member" onclick="window.removeFamilyMember(this)"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>' +
     '</div>';
     $('familyMembersContainer').insertAdjacentHTML('beforeend', html);
     // DEBUG: 确认元素已添加
@@ -2526,7 +2532,7 @@ body {
     var html = '<div class="insurance-entry" data-idx="' + idx + '">' +
       '<div class="insurance-entry-header">' +
         '<span class="insurance-entry-title">保险 #' + idx + '</span>' +
-        '<button type="button" class="insurance-remove" onclick="removeInsurance(this)">✕ 删除</button>' +
+        '<button type="button" class="insurance-remove" onclick="removeInsurance(this)"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:2px"><path d="M18 6L6 18M6 6l12 12"/></svg>删除</button>' +
       '</div>' +
       '<div class="insurance-row">' +
         '<div class="insurance-field"><label>保险类型</label><select class="ins-type"><option value="life">人寿保险</option><option value="commercial">商业保险（重疾/医疗）</option><option value="education">教育险</option><option value="other">其他</option></select></div>' +
@@ -2664,7 +2670,7 @@ body {
     }
     } catch(e) {
       document.body.insertAdjacentHTML('beforeend',
-        '<div style="position:fixed;top:0;left:0;right:0;background:red;color:#fff;padding:12px;z-index:99999;font-size:14px;">❌ 错误: ' + e.message + '</div>');
+        '<div style="position:fixed;top:0;left:0;right:0;background:red;color:#fff;padding:12px;z-index:99999;font-size:14px;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px"><path d="M18 6L6 18M6 6l12 12"/></svg> 错误: ' + e.message + '</div>');
     }
   });
 
@@ -3437,10 +3443,10 @@ body {
 
         // 导入诊断报告
         var report = 'Excel 数据导入成功！\n\n';
-        report += '财务摘要：' + (financialData.length > 0 ? '✅' : '❌') + '\n';
-        report += '家庭成员：' + (wsFamily && family.length > 0 ? family.length + ' 条 ✅' : (wsFamily ? '空' : '❌ 未找到')) + '\n';
-        report += '贷款明细：' + (wsLoan && loans.length > 0 ? loans.length + ' 条 ✅' : (wsLoan ? '空' : '❌ 未找到')) + '\n';
-        report += '保险明细：' + (wsIns && insurance.length > 0 ? insurance.length + ' 条 ✅' : (wsIns ? '空' : '❌ 未找到'));
+        report += '财务摘要：' + (financialData.length > 0 ? "<svg viewBox='0 0 24 24' width='12' height='12' fill='none' stroke='#22c55e' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-1px'><path d='M20 6L9 17l-5-5'/></svg>" : "<svg viewBox='0 0 24 24' width='12' height='12' fill='none' stroke='#ef4444' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-1px'><path d='M18 6L6 18M6 6l12 12'/></svg>") + '\n';
+        report += '家庭成员：' + (wsFamily && family.length > 0 ? family.length + ' 条 <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px"><path d="M20 6L9 17l-5-5"/></svg>' : (wsFamily ? '空' : '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px"><path d="M18 6L6 18M6 6l12 12"/></svg> 未找到')) + '\n';
+        report += '贷款明细：' + (wsLoan && loans.length > 0 ? loans.length + ' 条 <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px"><path d="M20 6L9 17l-5-5"/></svg>' : (wsLoan ? '空' : '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px"><path d="M18 6L6 18M6 6l12 12"/></svg> 未找到')) + '\n';
+        report += '保险明细：' + (wsIns && insurance.length > 0 ? insurance.length + ' 条 <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px"><path d="M20 6L9 17l-5-5"/></svg>' : (wsIns ? '空' : '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px"><path d="M18 6L6 18M6 6l12 12"/></svg> 未找到'));
         console.log('[DEBUG 导入报告]', report);
 
         // 清除现有 DOM 条目，然后恢复
@@ -3551,7 +3557,7 @@ body {
     });
 
     window.addEventListener('load', function() {
-      navigator.serviceWorker.register('./service-worker.js?v=6', { updateViaCache: 'none' }).then(function(reg) {
+      navigator.serviceWorker.register('./service-worker.js?v=7', { updateViaCache: 'none' }).then(function(reg) {
         console.log('SW registered, scope:', reg.scope);
         
         // Force check for updates on every page load

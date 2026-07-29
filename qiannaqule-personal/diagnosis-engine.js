@@ -546,10 +546,10 @@
             '<div class="suggest-icon">' + (idx + 1) + '</div>' +
             '<div class="suggest-text">' +
               '<div class="sug-problem"><strong>' + s.problem + '</strong></div>' +
-              '<div class="sug-target"><span class="sug-label">📊 达标区间</span>' + s.target + '</div>' +
-              '<div class="sug-principle"><span class="sug-label">📖 原理</span>' + s.principle + '</div>' +
-              '<div class="sug-action"><span class="sug-label">🎯 怎么做</span>' + s.action + '</div>' +
-              '<div class="sug-benefit"><span class="sug-label">💡 好处</span>' + s.benefit + '</div>' +
+              '<div class="sug-target"><span class="sug-label"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#6b7280" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:4px"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="6" width="4" height="15" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>达标区间</span>' + s.target + '</div>' +
+              '<div class="sug-principle"><span class="sug-label"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>原理</span>' + s.principle + '</div>' +
+              '<div class="sug-action"><span class="sug-label"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>怎么做</span>' + s.action + '</div>' +
+              '<div class="sug-benefit"><span class="sug-label"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><path d="M9 18h6M10 22h4"/><path d="M12 2a7 7 0 00-4 12.7V17h8v-2.3A7 7 0 0012 2z"/></svg>好处</span>' + s.benefit + '</div>' +
             '</div>' +
           '</div>';
           suggestList.insertAdjacentHTML('beforeend', html);

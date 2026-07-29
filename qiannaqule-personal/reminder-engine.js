@@ -16,9 +16,9 @@
 
   // ==================== 常量 ====================
   var URGENCY = {
-    CRITICAL: { key: 'critical', label: '紧急', color: '#dc2626', bg: '#fef2f2', border: '#fca5a5', icon: '🔴' },
-    WARNING:  { key: 'warning',  label: '预警', color: '#ea580c', bg: '#fff7ed', border: '#fed7aa', icon: '🟠' },
-    UPCOMING: { key: 'upcoming', label: '预告', color: '#2563eb', bg: '#eff6ff', border: '#bfdbfe', icon: '🔵' }
+    CRITICAL: { key: 'critical', label: '紧急', color: '#dc2626', bg: '#fef2f2', border: '#fca5a5', icon: '<svg viewBox="0 0 24 24" width="12" height="12"><circle cx="12" cy="12" r="10" fill="#dc2626"/></svg>' },
+    WARNING:  { key: 'warning',  label: '预警', color: '#ea580c', bg: '#fff7ed', border: '#fed7aa', icon: '<svg viewBox="0 0 24 24" width="12" height="12"><circle cx="12" cy="12" r="10" fill="#ea580c"/></svg>' },
+    UPCOMING: { key: 'upcoming', label: '预告', color: '#2563eb', bg: '#eff6ff', border: '#bfdbfe', icon: '<svg viewBox="0 0 24 24" width="12" height="12"><circle cx="12" cy="12" r="10" fill="#2563eb"/></svg>' }
   };
 
   var MONTH_NAMES = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
@@ -252,7 +252,7 @@
     });
     var titleText = urgentCount > 0
       ? '⏰ ' + urgentCount + '项还款即将到期'
-      : '📅 近期财务提醒（' + reminders.length + '项）';
+      : '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#3b82f6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:4px"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M8 14h.01M12 14h.01M16 14h.01"/></svg>近期财务提醒（' + reminders.length + '项）';
 
     html += '<div class="reminder-header">' + titleText + '</div>';
 
@@ -288,11 +288,11 @@
       if (perm === 'default') {
         html += '<div class="reminder-notif-hint">';
         html += '<button class="reminder-notif-btn" onclick="ReminderEngine.requestNotificationPermission()">';
-        html += '🔔 开启到期提醒通知';
+        html += '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>开启到期提醒通知';
         html += '</button>';
         html += '</div>';
       } else if (perm === 'granted') {
-        html += '<div class="reminder-notif-status">🔔 通知已开启，到期前将自动提醒</div>';
+        html += '<div class="reminder-notif-status"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>通知已开启，到期前将自动提醒</div>';
       }
     }
 

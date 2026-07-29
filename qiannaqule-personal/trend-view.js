@@ -159,7 +159,7 @@
     var diffSign = diff > 0 ? '+' : '';
 
     var html = '<div class="trend-card trend-score-card">';
-    html += '<h3 class="trend-card-title">📈 总分趋势</h3>';
+    html += '<h3 class="trend-card-title"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#22c55e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:4px"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-5"/></svg>总分趋势</h3>';
     html += '<div class="trend-score-row">';
 
     // 上月
@@ -202,7 +202,7 @@
     var currMap = dimMap(curr);
 
     var html = '<div class="trend-card trend-dim-card">';
-    html += '<h3 class="trend-card-title">🎯 六维度对比</h3>';
+    html += '<h3 class="trend-card-title"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#ef4444" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:4px"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>六维度对比</h3>';
 
     // 图例
     html += '<div class="trend-dim-legend">';
@@ -247,7 +247,7 @@
   // ==================== 渲染：关键指标涨跌 ====================
   function renderMetricsTrend(prev, curr) {
     var html = '<div class="trend-card trend-metrics-card">';
-    html += '<h3 class="trend-card-title">💰 关键指标变化</h3>';
+    html += '<h3 class="trend-card-title"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#f59e0b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:4px"><path d="M21 12V7H5a2 2 0 010-4h14v4"/><path d="M3 5v14a2 2 0 002 2h16v-5"/><path d="M18 12a2 2 0 100 4 2 2 0 000-4z"/></svg>关键指标变化</h3>';
     html += '<div class="trend-metrics-grid">';
 
     KEY_METRICS.forEach(function(metric) {
@@ -279,7 +279,7 @@
   // ==================== 渲染：诊断历史列表 ====================
   function renderHistoryList(history) {
     var html = '<div class="trend-card trend-history-card">';
-    html += '<h3 class="trend-card-title">📋 诊断历史</h3>';
+    html += '<h3 class="trend-card-title"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#6b7280" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:4px"><rect x="9" y="2" width="6" height="4" rx="1"/><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><path d="M9 12h6M9 16h4"/></svg>诊断历史</h3>';
 
     if (history.length === 0) {
       html += '<div class="trend-empty">暂无诊断记录</div>';
@@ -332,7 +332,7 @@
     // 不足 2 条记录时显示提示
     if (!history || history.length < 2) {
       container.innerHTML = '<div class="trend-card trend-empty-card">' +
-        '<div class="trend-empty-icon">📊</div>' +
+        '<div class="trend-empty-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#6b7280" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:4px"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="6" width="4" height="15" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg></div>' +
         '<div class="trend-empty-text">至少需要2次诊断记录才能对比</div>' +
         '<div class="trend-empty-hint">完成第2次体检后，即可查看趋势变化</div>' +
         '</div>';
