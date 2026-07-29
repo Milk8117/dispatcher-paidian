@@ -2227,6 +2227,15 @@ body {
     });
   }
 
+  // ==================== Welcome Modal on First Visit ====================
+  window.addEventListener('load', function() {
+    var welcomed = localStorage.getItem('wealth_ct_welcomed');
+    if (!welcomed) {
+      var modal = document.getElementById('welcomeModal');
+      if (modal) modal.style.display = 'flex';
+    }
+  });
+
   // ==================== Service Worker Registration ====================
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
