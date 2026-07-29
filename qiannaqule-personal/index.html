@@ -2153,37 +2153,38 @@ body {
       XLSX.utils.book_append_sheet(wb, wsFinancial, '财务摘要');
 
       // Sheet 2: 家庭成员
-      var familyData = [['姓名', '关系', '年龄', '收入']];
+      var familyData = [['姓名', '关系']];
       var family = allData[dsKey('familyMembers')] || [];
       family.forEach(function(m) {
-        familyData.push([m.name || '', m.relation || '', m.age || '', m.income || '']);
+        familyData.push([m.name || '', m.relation || '']);
       });
       var wsFamily = XLSX.utils.aoa_to_sheet(familyData);
+      wsFamily['!cols'] = [{ wch: 10 }, { wch: 10 }];
       XLSX.utils.book_append_sheet(wb, wsFamily, '家庭成员');
 
       // Sheet 3: 贷款明细
-      var loanData = [['贷款名称', '金额', '年利率(%)', '期限(月)', '类型', '过渡期(月)', '剩余过渡期(月)']];
+      var loanData = [['金额（元）', '年利率(%)', '期限(月)', '类型', '过渡期(月)', '剩余过渡期(月)', '每月还款日']];
       var loans = allData[dsKey('loans')] || [];
       loans.forEach(function(l) {
         loanData.push([
-          l.name || '',
-          l.amount || '',
+          l.amt || '',
           l.rate || '',
           l.term || '',
           LOAN_TYPE_CN[l.type] || l.type || '',
           l.transTotal || '',
-          l.transLeft || ''
+          l.transLeft || '',
+          l.payDay || ''
         ]);
       });
       var wsLoan = XLSX.utils.aoa_to_sheet(loanData);
+      wsLoan['!cols'] = [{ wch: 12 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 12 }, { wch: 14 }, { wch: 12 }];
       XLSX.utils.book_append_sheet(wb, wsLoan, '贷款明细');
 
       // Sheet 4: 保险明细
-      var insData = [['保险名称', '类型', '保额', '年缴保费', '缴费年限', '已缴年限', '下次缴费日']];
+      var insData = [['类型', '保额（元）', '年缴保费（元）', '缴费年限', '已缴年限', '下次缴费日']];
       var insurance = allData[dsKey('insurance')] || [];
       insurance.forEach(function(ins) {
         insData.push([
-          ins.name || '',
           INS_TYPE_CN[ins.type] || ins.type || '',
           ins.amount || '',
           ins.premium || '',
@@ -2193,6 +2194,7 @@ body {
         ]);
       });
       var wsIns = XLSX.utils.aoa_to_sheet(insData);
+      wsIns['!cols'] = [{ wch: 20 }, { wch: 12 }, { wch: 14 }, { wch: 10 }, { wch: 10 }, { wch: 14 }];
       XLSX.utils.book_append_sheet(wb, wsIns, '保险明细');
 
       // Sheet 5: 诊断历史
@@ -2324,6 +2326,7 @@ body {
         ['五、家庭成员/贷款/保险/诊断', '', '', ''],
         ['每个工作表第一行为标题，从第二行开始填写数据', '', '', ''],
         ['删除示例行后填写你自己的数据即可', '', '', ''],
+        ['贷款/保险/诊断的列数较多，请确保不要错位', '', '', ''],
       ];
       var wsGuide = XLSX.utils.aoa_to_sheet(guideData);
       wsGuide['!cols'] = [{ wch: 18 }, { wch: 30 }, { wch: 15 }, { wch: 15 }];
@@ -2354,31 +2357,31 @@ body {
       wsFinancial['!cols'] = [{ wch: 16 }, { wch: 32 }, { wch: 12 }];
       XLSX.utils.book_append_sheet(wb, wsFinancial, '财务摘要');
 
-      // Sheet 3: 家庭成员（带两行示例）
+      // Sheet 3: 家庭成员（带示例）
       var wsFamily = XLSX.utils.aoa_to_sheet([
-        ['姓名', '关系', '年龄', '月收入（元）'],
-        ['王小明', '本人', 38, 15000],
-        ['李芳', '配偶', 35, 8000]
+        ['姓名', '关系'],
+        ['王小明', '本人'],
+        ['李芳', '配偶']
       ]);
-      wsFamily['!cols'] = [{ wch: 10 }, { wch: 10 }, { wch: 8 }, { wch: 14 }];
+      wsFamily['!cols'] = [{ wch: 10 }, { wch: 10 }];
       XLSX.utils.book_append_sheet(wb, wsFamily, '家庭成员');
 
       // Sheet 4: 贷款明细（带示例，类型用中文）
       var wsLoan = XLSX.utils.aoa_to_sheet([
-        ['贷款名称', '金额（元）', '年利率(%)', '期限(月)', '类型', '过渡期(月)', '剩余过渡期(月)'],
-        ['银行消费贷', 100000, 5.5, 24, '先息后本', 12, 6],
-        ['房贷', 800000, 4.2, 360, '等额本息', 0, 0]
+        ['金额（元）', '年利率(%)', '期限(月)', '类型', '过渡期(月)', '剩余过渡期(月)', '每月还款日'],
+        [100000, 5.5, 24, '先息后本', 12, 6, 15],
+        [800000, 4.2, 360, '等额本息', 0, 0, 20]
       ]);
-      wsLoan['!cols'] = [{ wch: 12 }, { wch: 12 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 12 }, { wch: 14 }];
+      wsLoan['!cols'] = [{ wch: 12 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 12 }, { wch: 14 }, { wch: 12 }];
       XLSX.utils.book_append_sheet(wb, wsLoan, '贷款明细');
 
       // Sheet 5: 保险明细（带示例，类型用中文）
       var wsIns = XLSX.utils.aoa_to_sheet([
-        ['保险名称', '类型', '保额（元）', '年缴保费（元）', '缴费年限', '已缴年限', '下次缴费日'],
-        ['平安福终身寿', '人寿保险', 1000000, 5000, 10, 3, '2026-12-31'],
-        ['重疾险', '商业保险（重疾/医疗）', 500000, 8000, 20, 5, '2026-08-15']
+        ['类型', '保额（元）', '年缴保费（元）', '缴费年限', '已缴年限', '下次缴费日'],
+        ['人寿保险', 1000000, 5000, 10, 3, '2026-12-31'],
+        ['商业保险（重疾/医疗）', 500000, 8000, 20, 5, '2026-08-15']
       ]);
-      wsIns['!cols'] = [{ wch: 16 }, { wch: 20 }, { wch: 12 }, { wch: 14 }, { wch: 10 }, { wch: 10 }, { wch: 14 }];
+      wsIns['!cols'] = [{ wch: 20 }, { wch: 12 }, { wch: 14 }, { wch: 10 }, { wch: 10 }, { wch: 14 }];
       XLSX.utils.book_append_sheet(wb, wsIns, '保险明细');
 
       // Sheet 6: 诊断历史（示例行）
@@ -2463,7 +2466,7 @@ body {
           familyData.forEach(function(row, idx) {
             if (idx === 0) return; // 跳过标题行
             if (row[0]) {
-              family.push({ name: row[0], relation: row[1] || '', age: row[2] || '', income: row[3] || '' });
+              family.push({ name: row[0], relation: row[1] || '' });
             }
           });
           if (family.length > 0) {
@@ -2483,8 +2486,8 @@ body {
           var loans = [];
           loanData.forEach(function(row, idx) {
             if (idx === 0) return;
-            if (row[0]) {
-              loans.push({ name: row[0], amount: row[1], rate: row[2], term: row[3], type: CN_LOAN_TYPE[row[4]] || row[4], transTotal: row[5], transLeft: row[6] });
+            if (row[0] !== undefined && row[0] !== '') {
+              loans.push({ amt: row[0], rate: row[1], term: row[2], type: CN_LOAN_TYPE[row[3]] || row[3], transTotal: row[4], transLeft: row[5], payDay: row[6] || '' });
             }
           });
           if (loans.length > 0) {
@@ -2500,7 +2503,7 @@ body {
           insData.forEach(function(row, idx) {
             if (idx === 0) return;
             if (row[0]) {
-              insurance.push({ name: row[0], type: CN_INS_TYPE[row[1]] || row[1], amount: row[2], premium: row[3], term: row[4], paid: row[5], payDate: row[6] });
+              insurance.push({ type: CN_INS_TYPE[row[0]] || row[0], amount: row[1], premium: row[2], term: row[3], paid: row[4], payDate: row[5] || '' });
             }
           });
           if (insurance.length > 0) {
