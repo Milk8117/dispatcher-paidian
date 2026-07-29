@@ -2135,6 +2135,10 @@ body {
       financialFields.forEach(function(field) {
         var val = allData[dsKey(field)];
         if (val !== undefined && val !== null && val !== '') {
+          // 特殊字段值映射（年龄段转中文）
+          if (field === 'ageGroup' && AGE_GROUP_CN[val]) {
+            val = AGE_GROUP_CN[val];
+          }
           financialData.push([FIELD_CN[field], val]);
         }
       });
@@ -2154,6 +2158,8 @@ body {
       var LOAN_TYPE_CN = { debx: '等额本息', debj: '等额本金', xxhb: '先息后本', dqhc: '按月付息到期还本' };
       // 保险类型映射
       var INS_TYPE_CN = { life: '人寿保险', commercial: '商业保险（重疾/医疗）', education: '教育险', other: '其他' };
+      // 年龄段映射
+      var AGE_GROUP_CN = { '1': '25岁以下', '2': '25-35岁', '3': '35-45岁', '4': '45-55岁', '5': '55-60岁', '6': '60岁以上' };
 
       // Sheet 3: 贷款明细
       var loanData = [['贷款名称', '金额', '年利率(%)', '期限(月)', '类型', '过渡期(月)', '剩余过渡期(月)']];
@@ -2300,7 +2306,7 @@ body {
         ['月缴公积金', '个人+单位月缴存总额'],
         ['公积金缴存年限', '累计已缴年数'],
         ['年缴商业保费', '寿险、重疾、医疗等商保'],
-        ['年龄段', '如：3（代表30-39岁）']
+        ['年龄段', '1=25岁以下, 2=25-35岁, 3=35-45岁, 4=45-55岁, 5=55-60岁, 6=60岁以上']
       ];
       var wsFinancial = XLSX.utils.aoa_to_sheet([['字段名', '说明', '值']].concat(
         financialFields.map(function(f) { return [f[0], f[1], '']; })
