@@ -1015,6 +1015,28 @@ body {
 </head>
 <body>
 
+<!-- 新用户引导弹窗 -->
+<div id="welcomeModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center;">
+  <div style="background:#fff;max-width:420px;width:90%;border-radius:16px;overflow:hidden;text-align:center;">
+    <div style="padding:32px 24px 20px;background:linear-gradient(135deg,#f97316,#fb923c);color:#fff;">
+      <div style="width:60px;height:60px;background:rgba(255,255,255,0.2);border-radius:50%;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      </div>
+      <h2 style="margin:0 0 8px;font-size:22px;">欢迎使用米界AI</h2>
+      <p style="margin:0;font-size:14px;opacity:0.9;">您的个人财务健康助手</p>
+    </div>
+    <div style="padding:24px;">
+      <div style="text-align:left;font-size:14px;color:#475569;line-height:1.8;">
+        <p style="margin:0 0 16px;"><strong>🎯 3分钟完成财务体检</strong><br>填写基本财务信息，系统自动诊断并给出改善建议</p>
+        <p style="margin:0 0 16px;"><strong>🔒 数据100%本地存储</strong><br>您的隐私数据不会上传到任何服务器，完全由您掌控</p>
+        <p style="margin:0 0 16px;"><strong>📈 追踪财务变化趋势</strong><br>多次诊断后可查看分数变化和改善情况</p>
+        <p style="margin:0;color:#64748b;font-size:12px;">💡 建议先备份数据，再开始首次诊断</p>
+      </div>
+      <button onclick="closeWelcome()" style="margin-top:20px;width:100%;background:#f97316;color:#fff;border:none;padding:14px;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer;">开始使用</button>
+    </div>
+  </div>
+</div>
+
 <!-- 隐私协议弹窗 -->
 <div id="privacyModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center;">
   <div style="background:#fff;max-width:500px;width:90%;max-height:80vh;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;">
@@ -1601,6 +1623,14 @@ body {
   }
   window.showPrivacyPolicy = showPrivacyPolicy;
   window.closePrivacyPolicy = closePrivacyPolicy;
+
+  // ==================== Welcome Modal ====================
+  function closeWelcome() {
+    var modal = document.getElementById('welcomeModal');
+    if (modal) modal.style.display = 'none';
+    localStorage.setItem('wealth_ct_welcomed', 'true');
+  }
+  window.closeWelcome = closeWelcome;
 
   // ==================== Insurance Dynamic List ====================
   var insuranceCount = 0;
