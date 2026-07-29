@@ -122,6 +122,18 @@
     }
   }
 
+  /** 从 grade 码推导等级标签（兼容旧记录无 gradeLabel 字段） */
+  function gradeLabelFromGrade(grade) {
+    switch (grade) {
+      case 'A': return 'A 财务健康';
+      case 'B': return 'B 基本健康';
+      case 'C': return 'C 需要改善';
+      case 'D': return 'D 风险较高';
+      case 'F': return 'F 财务危险';
+      default:  return '--';
+    }
+  }
+
   /** 维度条形图颜色 */
   function dimBarColor(score) {
     if (score >= 80) return 'linear-gradient(90deg, #22c55e, #4ade80)';
@@ -154,7 +166,7 @@
     html += '<div class="trend-score-block">';
     html += '<div class="trend-score-label">' + periodLabel(prev.timestamp) + '</div>';
     html += '<div class="trend-score-value" style="color:' + gradeColor(prev.grade) + '">' + prev.total + '</div>';
-    html += '<div class="trend-score-grade ' + gradeClass(prev.grade) + '">' + prev.gradeLabel + '</div>';
+    html += '<div class="trend-score-grade ' + gradeClass(prev.grade) + '">' + (prev.gradeLabel || gradeLabelFromGrade(prev.grade)) + '</div>';
     html += '</div>';
 
     // 箭头
@@ -168,7 +180,7 @@
     html += '<div class="trend-score-block">';
     html += '<div class="trend-score-label">' + periodLabel(curr.timestamp) + '</div>';
     html += '<div class="trend-score-value" style="color:' + gradeColor(curr.grade) + '">' + curr.total + '</div>';
-    html += '<div class="trend-score-grade ' + gradeClass(curr.grade) + '">' + curr.gradeLabel + '</div>';
+    html += '<div class="trend-score-grade ' + gradeClass(curr.grade) + '">' + (curr.gradeLabel || gradeLabelFromGrade(curr.grade)) + '</div>';
     html += '</div>';
 
     html += '</div>';
@@ -285,7 +297,7 @@
         html += '</div>';
         html += '<div class="trend-history-right">';
         html += '<span class="trend-history-score" style="color:' + gradeColor(record.grade) + '">' + record.total + '分</span>';
-        html += '<span class="trend-history-grade ' + gradeClass(record.grade) + '">' + record.gradeLabel + '</span>';
+        html += '<span class="trend-history-grade ' + gradeClass(record.grade) + '">' + (record.gradeLabel || gradeLabelFromGrade(record.grade)) + '</span>';
         html += '</div>';
         html += '</div>';
       });
