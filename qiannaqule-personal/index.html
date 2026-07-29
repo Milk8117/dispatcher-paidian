@@ -739,6 +739,139 @@ body {
 }
 .loan-transition-title { font-size: 0.78rem; color: #92400e; font-weight: 600; margin-bottom: 6px; }
 
+/* ========== Global AI Input ========== */
+.ai-input-fab {
+  position: fixed;
+  bottom: 74px;
+  right: 18px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3b82f6, #6366f1);
+  color: #fff;
+  border: none;
+  box-shadow: 0 4px 16px rgba(59,130,246,0.4);
+  cursor: pointer;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.ai-input-fab:active { transform: scale(0.9); }
+.ai-input-fab svg { width: 23px; height: 23px; fill: none; stroke: #fff; stroke-width: 2; }
+
+.ai-input-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.35);
+  z-index: 1001;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s;
+}
+.ai-input-overlay.open { opacity: 1; pointer-events: auto; }
+
+.ai-input-panel {
+  position: fixed;
+  bottom: 64px;
+  left: 0; right: 0;
+  max-width: 680px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 20px 20px 0 0;
+  padding: 16px 16px calc(env(safe-area-inset-bottom, 8px) + 10px);
+  z-index: 1002;
+  transform: translateY(110%);
+  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+  box-shadow: 0 -6px 24px rgba(0,0,0,0.12);
+}
+.ai-input-panel.open { transform: translateY(0); }
+
+.ai-input-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.ai-input-panel-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a2a3a;
+}
+.ai-input-panel-close {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: #f1f5f9;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  color: #64748b;
+}
+
+.ai-input-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.ai-input-field {
+  flex: 1;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 11px 14px;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s;
+  font-family: inherit;
+  background: #f8fafc;
+}
+.ai-input-field:focus { border-color: #3b82f6; background: #fff; }
+.ai-input-field::placeholder { color: #94a3b8; }
+
+.ai-input-voice-btn,
+.ai-input-send-btn {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: opacity 0.2s, background 0.2s;
+}
+.ai-input-voice-btn {
+  border: 1.5px solid #e2e8f0;
+  background: #f8fafc;
+}
+.ai-input-voice-btn:active { background: #e2e8f0; }
+.ai-input-voice-btn svg { width: 20px; height: 20px; stroke: #64748b; fill: none; stroke-width: 2; }
+
+.ai-input-send-btn {
+  border: none;
+  background: linear-gradient(135deg, #3b82f6, #6366f1);
+}
+.ai-input-send-btn:active { opacity: 0.75; }
+.ai-input-send-btn svg { width: 20px; height: 20px; fill: #fff; stroke: none; }
+
+.ai-input-response {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  display: none;
+}
+.ai-input-response.visible { display: block; }
+.ai-input-response.loading {
+  background: #f0f4ff;
+  color: #3b82f6;
+}
+.ai-input-response.success {
+  background: #f0fdf4;
+  color: #166534;
+}
+
 /* ========== Bottom Tab Bar ========== */
 .tab-bar {
   position: fixed;
@@ -2045,6 +2178,39 @@ body {
 
 </div><!-- END container -->
 
+<!-- AI Global Input FAB -->
+<button class="ai-input-fab" onclick="toggleAiInput()" title="AI 助手">
+  <svg viewBox="0 0 24 24">
+    <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</button>
+
+<!-- AI Input Overlay -->
+<div class="ai-input-overlay" id="aiInputOverlay" onclick="toggleAiInput()"></div>
+
+<!-- AI Input Panel -->
+<div class="ai-input-panel" id="aiInputPanel">
+  <div class="ai-input-panel-header">
+    <span class="ai-input-panel-title">✨ 告诉 AI 你的需求</span>
+    <button class="ai-input-panel-close" onclick="toggleAiInput()">✕</button>
+  </div>
+  <div class="ai-input-row">
+    <input type="text" class="ai-input-field" id="aiInputField" placeholder="比如：记录午餐、提醒我周五还款..." />
+    <button class="ai-input-voice-btn" title="语音输入（即将上线）">
+      <svg viewBox="0 0 24 24">
+        <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <button class="ai-input-send-btn" onclick="submitAiInput()">
+      <svg viewBox="0 0 24 24">
+        <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+      </svg>
+    </button>
+  </div>
+  <div class="ai-input-response" id="aiInputResponse"></div>
+</div>
+
 <nav class="tab-bar">
   <a class="tab-item active" data-module="finance" onclick="switchModule('finance')">
     <svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
@@ -2094,6 +2260,71 @@ body {
     // Scroll to top
     window.scrollTo(0, 0);
   };
+
+  // ==================== AI Global Input ====================
+  window.toggleAiInput = function() {
+    var overlay = document.getElementById('aiInputOverlay');
+    var panel = document.getElementById('aiInputPanel');
+    var field = document.getElementById('aiInputField');
+    var isOpen = panel.classList.contains('open');
+    if (isOpen) {
+      panel.classList.remove('open');
+      overlay.classList.remove('open');
+      field.value = '';
+      var resp = document.getElementById('aiInputResponse');
+      resp.className = 'ai-input-response';
+      resp.textContent = '';
+    } else {
+      panel.classList.add('open');
+      overlay.classList.add('open');
+      setTimeout(function() { field.focus(); }, 300);
+    }
+  };
+
+  window.submitAiInput = function() {
+    var field = document.getElementById('aiInputField');
+    var resp = document.getElementById('aiInputResponse');
+    var text = field.value.trim();
+    if (!text) { field.focus(); return; }
+
+    resp.className = 'ai-input-response visible loading';
+    resp.textContent = '🤔 AI 正在分析你的需求...';
+
+    setTimeout(function() {
+      var result = detectIntent(text);
+      resp.className = 'ai-input-response visible success';
+      resp.textContent = result;
+    }, 1000);
+  };
+
+  // Enter key support
+  document.getElementById('aiInputField').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') { e.preventDefault(); submitAiInput(); }
+  });
+
+  function detectIntent(text) {
+    // Simple keyword-based intent detection (framework placeholder)
+    // Will be replaced with real LLM intent recognition in production
+    if (/贷款|负债|还款|借|利息|房贷|车贷|信用|融资/.test(text)) {
+      return '💰 检测到【财务】相关需求\n→ 即将跳转到「财富诊断CT」进行深度分析\n（意图识别引擎开发中）';
+    }
+    if (/收入|支出|消费|花了|挣|工资|账单|预算|记账/.test(text)) {
+      return '💰 检测到【收支记录】需求\n→ 即将自动分类并记录到你的财务档案\n（意图识别引擎开发中）';
+    }
+    if (/吃|饭|餐|早|午|晚|食|菜|肉|面|米|喝|水果/.test(text)) {
+      return '🍽️ 检测到【膳食记录】需求\n→ 即将跳转到「膳食管理」模块\n（意图识别引擎开发中）';
+    }
+    if (/营养|热量|蛋白|碳水|脂肪|卡路里|维生/.test(text)) {
+      return '🍽️ 检测到【营养分析】需求\n→ 即将跳转到「膳食管理」模块\n（意图识别引擎开发中）';
+    }
+    if (/提醒|闹钟|日程|安排|会议|约定|待办|任务|要做/.test(text)) {
+      return '📅 检测到【日程/提醒】需求\n→ 即将跳转到「日程管理」模块\n（意图识别引擎开发中）';
+    }
+    if (/体检|血压|血糖|体重|运动|睡眠|药|医院|健康|心率/.test(text)) {
+      return '❤️ 检测到【健康】相关需求\n→ 即将跳转到「健康管理」模块\n（意图识别引擎开发中）';
+    }
+    return '🔍 已收到你的输入\n→ AI 意图识别引擎训练中，内测后将逐步开放\n当前支持：财务、膳食、日程、健康四大模块的意图识别';
+  }
 
   // Debug: confirm JS is running
   
@@ -3365,7 +3596,7 @@ body {
     });
 
     window.addEventListener('load', function() {
-      navigator.serviceWorker.register('./service-worker.js?v=5', { updateViaCache: 'none' }).then(function(reg) {
+      navigator.serviceWorker.register('./service-worker.js?v=6', { updateViaCache: 'none' }).then(function(reg) {
         console.log('SW registered, scope:', reg.scope);
         
         // Force check for updates on every page load
