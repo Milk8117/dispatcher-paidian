@@ -2431,30 +2431,42 @@ body {
           '投资房市值': 'investProperty', '其他负债': 'otherDebt', '月缴公积金': 'housingFund',
           '公积金缴存年限': 'housingFundYears', '年缴商业保费': 'commercialPremium', '年龄段': 'ageGroup'
         };
+        // 年龄段中文→代码反向映射（导出时把代码转成了中文，导入需转回）
+        var AGE_GROUP_EN = { '25岁以下': '1', '25-35岁': '2', '35-45岁': '3', '45-55岁': '4', '55-60岁': '5', '60岁以上': '6' };
 
-        // 解析财务摘要 sheet（支持模板格式：字段名/说明/值 或 导出格式：字段/值）
+        // 解析财务摘要 sheet
         var wsFinancial = wb.Sheets['财务摘要'];
         if (wsFinancial) {
           var financialData = XLSX.utils.sheet_to_json(wsFinancial, { header: 1 });
-          // 收集所有有效字段名（中英文都接受）
-          var validFields = {};
-          Object.keys(CN_TO_FIELD).forEach(function(cn) { validFields[cn] = true; });
-          Object.values(CN_TO_FIELD).forEach(function(en) { validFields[en] = true; });
+          // 自动检测格式：表头含"说明"→3列模板，否则→2列导出
+          var isTemplate = false;
+          if (financialData.length > 0 && financialData[0]) {
+            isTemplate = String(financialData[0][1] || '').indexOf('说明') >= 0;
+          }
 
           financialData.forEach(function(row, idx) {
-            if (idx === 0) return; // 只跳过表头行
-            if (!row[0]) return;   // 空行跳过
+            if (idx === 0) return; // 跳过表头
+            if (!row[0]) return;
             var fieldName = String(row[0]).trim();
-            if (!validFields[fieldName]) return; // 跳过非字段行（导出时间、版本等）
+            var enField = CN_TO_FIELD[fieldName];
+            if (!enField) return; // 非字段行（导出时间、版本等）
 
-            if (row[2] !== undefined && row[2] !== '') {
-              // 模板格式：字段名(中文)/说明/值
-              var fieldKey = CN_TO_FIELD[fieldName] || fieldName;
-              localStorage.setItem(dsKey(fieldKey), String(row[2]));
-            } else if (row[1] !== undefined && row[1] !== '') {
-              // 导出格式：字段名(英文)/值
-              localStorage.setItem(dsKey(fieldName), String(row[1]));
+            var rawVal;
+            if (isTemplate) {
+              // 模板格式：字段名/说明/值 → 值在row[2]
+              rawVal = (row[2] !== undefined && row[2] !== '') ? row[2] : null;
+            } else {
+              // 导出格式：中文名/值 → 值在row[1]
+              rawVal = (row[1] !== undefined && row[1] !== '') ? row[1] : null;
             }
+            if (rawVal === null || rawVal === '') return;
+
+            // 特殊处理：年龄段中文→代码（仅对导出格式，模板格式直接填数字）
+            if (enField === 'ageGroup' && isNaN(Number(rawVal)) && AGE_GROUP_EN[rawVal]) {
+              rawVal = AGE_GROUP_EN[rawVal];
+            }
+
+            localStorage.setItem(dsKey(enField), String(rawVal));
           });
         }
 
