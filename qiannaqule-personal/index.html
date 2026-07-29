@@ -2553,8 +2553,42 @@ body {
           }
         }
 
-        alert('Excel 数据导入成功！\n页面将刷新以加载数据。');
-        location.reload();
+        // 导入诊断报告
+        var report = 'Excel 数据导入成功！\n\n';
+        report += '财务摘要：' + (financialData.length > 0 ? '✅' : '❌') + '\n';
+        report += '家庭成员：' + (wsFamily && family.length > 0 ? family.length + ' 条 ✅' : (wsFamily ? '空' : '❌ 未找到')) + '\n';
+        report += '贷款明细：' + (wsLoan && loans.length > 0 ? loans.length + ' 条 ✅' : (wsLoan ? '空' : '❌ 未找到')) + '\n';
+        report += '保险明细：' + (wsIns && insurance.length > 0 ? insurance.length + ' 条 ✅' : (wsIns ? '空' : '❌ 未找到')) + '\n';
+        report += '诊断历史：' + (wsHist && history.length > 0 ? history.length + ' 条 ✅' : (wsHist ? '空' : '❌ 未找到'));
+        console.log('[DEBUG 导入报告]', report);
+
+        // 清除现有 DOM 条目，然后恢复
+        document.querySelectorAll('.loan-entry').forEach(function(e) { e.remove(); });
+        document.querySelectorAll('.insurance-entry').forEach(function(e) { e.remove(); });
+        document.querySelectorAll('.family-member').forEach(function(e) { e.remove(); });
+        loanCount = 0;
+        insuranceCount = 0;
+        var loanSummary = $('loanSummary');
+        if (loanSummary) { loanSummary.style.display = 'none'; loanSummary.innerHTML = ''; }
+
+        // 恢复所有字段（不刷新页面）
+        restoreAllFields();
+
+        // 重新渲染提醒引擎和趋势视图
+        if (typeof ReminderEngine !== 'undefined') {
+          ReminderEngine.render('_reminderContainer');
+          ReminderEngine.checkAndNotify();
+        }
+        if (typeof TrendView !== 'undefined') {
+          var histData2 = DiagnosisEngine.getHistory();
+          if (histData2 && histData2.length >= 1) {
+            TrendView.render('trendContainer');
+            var trendSection2 = $('trendSection');
+            if (trendSection2) trendSection2.classList.add('visible');
+          }
+        }
+
+        alert(report);
 
       } catch(e) {
         alert('导入失败：' + e.message);
