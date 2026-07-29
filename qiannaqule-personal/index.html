@@ -2498,10 +2498,22 @@ body {
         if (wsLoan) {
           var loanData = XLSX.utils.sheet_to_json(wsLoan, { header: 1 });
           var loans = [];
+          // 检测A列是否为"名称"列（用户在WPS中添加的额外列），如果是则列偏移+1
+          var loanHeader = loanData.length > 0 ? loanData[0] : [];
+          var loanOffset = (loanHeader[0] && String(loanHeader[0]).indexOf('名称') >= 0) ? 1 : 0;
           loanData.forEach(function(row, idx) {
             if (idx === 0) return;
-            if (row[0] !== undefined && row[0] !== '') {
-              loans.push({ amt: row[0], rate: row[1], term: row[2], type: CN_LOAN_TYPE[row[3]] || row[3], transTotal: row[4], transLeft: row[5], payDay: row[6] || '' });
+            var amtVal = row[0 + loanOffset];
+            if (amtVal !== undefined && amtVal !== '') {
+              loans.push({
+                amt: amtVal,
+                rate: row[1 + loanOffset],
+                term: row[2 + loanOffset],
+                type: CN_LOAN_TYPE[row[3 + loanOffset]] || row[3 + loanOffset],
+                transTotal: row[4 + loanOffset],
+                transLeft: row[5 + loanOffset],
+                payDay: row[6 + loanOffset] || ''
+              });
             }
           });
           if (loans.length > 0) {
@@ -2509,7 +2521,7 @@ body {
             localStorage.setItem(loanKey, JSON.stringify(loans));
             console.log('[DEBUG 导入] 贷款数据已写入:', loanKey, JSON.stringify(loans));
           } else {
-            console.log('[DEBUG 导入] 贷款数据为空，跳过');
+            console.log('[DEBUG 导入] 贷款数据为空，跳过（offset=' + loanOffset + '）');
           }
         } else {
           console.log('[DEBUG 导入] 未找到"贷款明细"工作表');
@@ -2520,10 +2532,21 @@ body {
         if (wsIns) {
           var insData = XLSX.utils.sheet_to_json(wsIns, { header: 1 });
           var insurance = [];
+          // 检测A列是否为"名称"列（用户在WPS中添加的额外列），如果是则列偏移+1
+          var insHeader = insData.length > 0 ? insData[0] : [];
+          var insOffset = (insHeader[0] && String(insHeader[0]).indexOf('名称') >= 0) ? 1 : 0;
           insData.forEach(function(row, idx) {
             if (idx === 0) return;
-            if (row[0]) {
-              insurance.push({ type: CN_INS_TYPE[row[0]] || row[0], amount: row[1], premium: row[2], term: row[3], paid: row[4], payDate: row[5] || '' });
+            var typeVal = row[0 + insOffset];
+            if (typeVal) {
+              insurance.push({
+                type: CN_INS_TYPE[typeVal] || typeVal,
+                amount: row[1 + insOffset],
+                premium: row[2 + insOffset],
+                term: row[3 + insOffset],
+                paid: row[4 + insOffset],
+                payDate: row[5 + insOffset] || ''
+              });
             }
           });
           if (insurance.length > 0) {
@@ -2531,7 +2554,7 @@ body {
             localStorage.setItem(insKey, JSON.stringify(insurance));
             console.log('[DEBUG 导入] 保险数据已写入:', insKey, JSON.stringify(insurance));
           } else {
-            console.log('[DEBUG 导入] 保险数据为空，跳过');
+            console.log('[DEBUG 导入] 保险数据为空，跳过（offset=' + insOffset + '）');
           }
         } else {
           console.log('[DEBUG 导入] 未找到"保险明细"工作表');
