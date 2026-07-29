@@ -1852,7 +1852,8 @@ body {
   // Restore loan entries from localStorage (using WealthCT DataStore)
   function restoreLoans() {
     var loans = WealthCT.loadLoans();
-    if (!loans || loans.length === 0) return;
+    console.log('[DEBUG 恢复] 贷款数据:', JSON.stringify(loans));
+    if (!loans || loans.length === 0) { console.log('[DEBUG 恢复] 无贷款数据'); return; }
     try {
       loans.forEach(function(loan) {
         addLoanEntry();
@@ -1896,7 +1897,8 @@ body {
   // Restore insurance entries from localStorage (using WealthCT DataStore)
   function restoreInsurance() {
     var items = WealthCT.loadInsurance();
-    if (!items || items.length === 0) return;
+    console.log('[DEBUG 恢复] 保险数据:', JSON.stringify(items));
+    if (!items || items.length === 0) { console.log('[DEBUG 恢复] 无保险数据'); return; }
     try {
       items.forEach(function(item) {
         addInsuranceEntry();
@@ -2503,8 +2505,14 @@ body {
             }
           });
           if (loans.length > 0) {
-            localStorage.setItem(dsKey('loans'), JSON.stringify(loans));
+            var loanKey = dsKey('loans');
+            localStorage.setItem(loanKey, JSON.stringify(loans));
+            console.log('[DEBUG 导入] 贷款数据已写入:', loanKey, JSON.stringify(loans));
+          } else {
+            console.log('[DEBUG 导入] 贷款数据为空，跳过');
           }
+        } else {
+          console.log('[DEBUG 导入] 未找到"贷款明细"工作表');
         }
 
         // 解析保险明细 sheet
@@ -2519,8 +2527,14 @@ body {
             }
           });
           if (insurance.length > 0) {
-            localStorage.setItem(dsKey('insurance'), JSON.stringify(insurance));
+            var insKey = dsKey('insurance');
+            localStorage.setItem(insKey, JSON.stringify(insurance));
+            console.log('[DEBUG 导入] 保险数据已写入:', insKey, JSON.stringify(insurance));
+          } else {
+            console.log('[DEBUG 导入] 保险数据为空，跳过');
           }
+        } else {
+          console.log('[DEBUG 导入] 未找到"保险明细"工作表');
         }
 
         // 解析诊断历史 sheet
