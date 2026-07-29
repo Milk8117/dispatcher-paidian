@@ -780,6 +780,82 @@ body {
   pointer-events: none;
 }
 
+/* ========== Page Views ========== */
+.page-view {
+  display: none;
+  animation: fadeInUp 0.3s ease;
+}
+.page-view.page-active {
+  display: block;
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Module placeholder cards */
+.module-placeholder {
+  background: #fff;
+  border-radius: 16px;
+  padding: 32px 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.04);
+  margin-bottom: 16px;
+  text-align: center;
+}
+.module-placeholder-icon {
+  font-size: 2.8rem;
+  margin-bottom: 12px;
+}
+.module-placeholder-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 8px;
+}
+.module-placeholder-desc {
+  font-size: 0.85rem;
+  color: #64748b;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+.module-placeholder-tag {
+  display: inline-block;
+  padding: 4px 14px;
+  background: #f0f4f8;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+/* Feature list for module placeholders */
+.module-feature-list {
+  text-align: left;
+  margin: 16px 0;
+  padding: 0;
+  list-style: none;
+}
+.module-feature-list li {
+  padding: 10px 0;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.88rem;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.module-feature-list li:last-child { border-bottom: none; }
+.module-feature-list .feat-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
 /* Add padding at bottom so content isn't hidden behind tab bar */
 .footer { margin-bottom: 70px !important; }
 
@@ -1353,6 +1429,9 @@ body {
 </div>
 
 <div class="container">
+
+<!-- ==================== PAGE: 财富诊断 ==================== -->
+<div id="page-finance" class="page-view page-active">
   <!-- Header -->
   <div class="header">
     <div class="header-title-row">
@@ -1887,24 +1966,101 @@ body {
     </span>
   </div>
 </div>
+<!-- END page-finance -->
 
-<!-- Bottom Tab Bar -->
+<!-- ==================== PAGE: 膳食管理 ==================== -->
+<div id="page-meal" class="page-view">
+  <div class="header">
+    <div class="header-title-row">
+      <span style="font-size:2.2rem;">🍽️</span>
+      <h1>膳食管理</h1>
+    </div>
+    <p class="header-eco">by 米界AI · 个人智能操作系统</p>
+  </div>
+
+  <div class="module-placeholder">
+    <div class="module-placeholder-icon">🥗</div>
+    <div class="module-placeholder-title">智能膳食管理</div>
+    <div class="module-placeholder-desc">基于你的身体数据和健康目标，定制每日膳食方案</div>
+    <ul class="module-feature-list">
+      <li><span class="feat-icon" style="background:#fef3c7;">📊</span> 每日营养摄入记录与分析</li>
+      <li><span class="feat-icon" style="background:#dcfce7;">🥦</span> 个性化膳食方案推荐</li>
+      <li><span class="feat-icon" style="background:#dbeafe;">⚖️</span> 热量/蛋白质/碳水/脂肪追踪</li>
+      <li><span class="feat-icon" style="background:#fce7f3;">📅</span> 周/月膳食计划自动生成</li>
+    </ul>
+    <span class="module-placeholder-tag">🚧 即将上线</span>
+  </div>
+</div>
+<!-- END page-meal -->
+
+<!-- ==================== PAGE: 日程管理 ==================== -->
+<div id="page-schedule" class="page-view">
+  <div class="header">
+    <div class="header-title-row">
+      <span style="font-size:2.2rem;">📅</span>
+      <h1>日程管理</h1>
+    </div>
+    <p class="header-eco">by 米界AI · 个人智能操作系统</p>
+  </div>
+
+  <div class="module-placeholder">
+    <div class="module-placeholder-icon">⏰</div>
+    <div class="module-placeholder-title">智能日程管理</div>
+    <div class="module-placeholder-desc">财务事务自动提醒，重要事项不遗漏</div>
+    <ul class="module-feature-list">
+      <li><span class="feat-icon" style="background:#fef3c7;">🔔</span> 还款/缴费日自动提醒</li>
+      <li><span class="feat-icon" style="background:#dcfce7;">📋</span> 待办事项与优先级管理</li>
+      <li><span class="feat-icon" style="background:#dbeafe;">🔄</span> 周期性任务自动排程</li>
+      <li><span class="feat-icon" style="background:#fce7f3;">📱</span> 多端同步与日历集成</li>
+    </ul>
+    <span class="module-placeholder-tag">🚧 即将上线</span>
+  </div>
+</div>
+<!-- END page-schedule -->
+
+<!-- ==================== PAGE: 健康管理 ==================== -->
+<div id="page-health" class="page-view">
+  <div class="header">
+    <div class="header-title-row">
+      <span style="font-size:2.2rem;">❤️</span>
+      <h1>健康管理</h1>
+    </div>
+    <p class="header-eco">by 米界AI · 个人智能操作系统</p>
+  </div>
+
+  <div class="module-placeholder">
+    <div class="module-placeholder-icon">🏃</div>
+    <div class="module-placeholder-title">智能健康管理</div>
+    <div class="module-placeholder-desc">全方位健康数据追踪，守护你和家人的健康</div>
+    <ul class="module-feature-list">
+      <li><span class="feat-icon" style="background:#fef3c7;">💓</span> 体检指标记录与趋势分析</li>
+      <li><span class="feat-icon" style="background:#dcfce7;">🏥</span> 家庭健康档案管理</li>
+      <li><span class="feat-icon" style="background:#dbeafe;">💊</span> 用药提醒与健康预警</li>
+      <li><span class="feat-icon" style="background:#fce7f3;">📈</span> 运动/睡眠/体重长期追踪</li>
+    </ul>
+    <span class="module-placeholder-tag">🚧 即将上线</span>
+  </div>
+</div>
+<!-- END page-health -->
+
+</div><!-- END container -->
+
 <nav class="tab-bar">
-  <a class="tab-item active" data-module="finance">
+  <a class="tab-item active" data-module="finance" onclick="switchModule('finance')">
     <svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
     <span>财富</span>
   </a>
-  <a class="tab-item disabled" data-module="meal">
+  <a class="tab-item" data-module="meal" onclick="switchModule('meal')">
     <svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3"/></svg>
     <span>膳食</span>
   </a>
-  <a class="tab-item disabled" data-module="task">
+  <a class="tab-item" data-module="schedule" onclick="switchModule('schedule')">
     <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
     <span>日程</span>
   </a>
-  <a class="tab-item disabled" data-module="more">
-    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
-    <span>更多</span>
+  <a class="tab-item" data-module="health" onclick="switchModule('health')">
+    <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+    <span>健康</span>
   </a>
 </nav>
 
@@ -1916,6 +2072,28 @@ body {
 <script>
 (function() {
   'use strict';
+
+  // ==================== Module Switching ====================
+  window.switchModule = function(moduleName) {
+    // Hide all pages
+    var pages = document.querySelectorAll('.page-view');
+    for (var i = 0; i < pages.length; i++) {
+      pages[i].classList.remove('page-active');
+    }
+    // Show target page
+    var target = document.getElementById('page-' + moduleName);
+    if (target) target.classList.add('page-active');
+    // Update tab active state
+    var tabs = document.querySelectorAll('.tab-item');
+    for (var i = 0; i < tabs.length; i++) {
+      tabs[i].classList.remove('active');
+      if (tabs[i].getAttribute('data-module') === moduleName) {
+        tabs[i].classList.add('active');
+      }
+    }
+    // Scroll to top
+    window.scrollTo(0, 0);
+  };
 
   // Debug: confirm JS is running
   
