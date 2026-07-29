@@ -2128,9 +2128,12 @@ body {
         ['版本', BACKUP_VERSION],
         []
       ];
+      // DataStore key: LS_PREFIX + MODULE + '_' + field = 'wealth_ct_' + 'wealth_ct' + '_' + field
+      var dsKey = dsKey || function(field) { return LS_PREFIX + 'wealth_ct_' + field; };
+
       var financialFields = Object.keys(FIELD_CN);
       financialFields.forEach(function(field) {
-        var val = allData[lsKey(field)];
+        var val = allData[dsKey(field)];
         if (val !== undefined && val !== null && val !== '') {
           financialData.push([FIELD_CN[field], val]);
         }
@@ -2140,7 +2143,7 @@ body {
 
       // Sheet 2: 家庭成员
       var familyData = [['姓名', '关系', '年龄', '收入']];
-      var family = allData[lsKey('familyMembers')] || [];
+      var family = allData[dsKey('familyMembers')] || [];
       family.forEach(function(m) {
         familyData.push([m.name || '', m.relation || '', m.age || '', m.income || '']);
       });
@@ -2154,7 +2157,7 @@ body {
 
       // Sheet 3: 贷款明细
       var loanData = [['贷款名称', '金额', '年利率(%)', '期限(月)', '类型', '过渡期(月)', '剩余过渡期(月)']];
-      var loans = allData[lsKey('loans')] || [];
+      var loans = allData[dsKey('loans')] || [];
       loans.forEach(function(l) {
         loanData.push([
           l.name || '',
@@ -2171,7 +2174,7 @@ body {
 
       // Sheet 4: 保险明细
       var insData = [['保险名称', '类型', '保额', '年缴保费', '缴费年限', '已缴年限', '下次缴费日']];
-      var insurance = allData[lsKey('insurance')] || [];
+      var insurance = allData[dsKey('insurance')] || [];
       insurance.forEach(function(ins) {
         insData.push([
           ins.name || '',
@@ -2188,7 +2191,7 @@ body {
 
       // Sheet 5: 诊断历史
       var histData = [['诊断时间', '标签', '总分', '等级']];
-      var history = allData[lsKey('diagnosis_history')] || [];
+      var history = allData[dsKey('diagnosis_history')] || [];
       history.forEach(function(h) {
         histData.push([h.timestamp || '', h.tag || '', h.total || '', h.grade || '']);
       });
@@ -2359,6 +2362,9 @@ body {
 
         WealthCT.clearAll();
 
+        // DataStore key helper
+        var dsKey = function(field) { return LS_PREFIX + 'wealth_ct_' + field; };
+
         // 反向映射：中文名到英文字段名
         var CN_TO_FIELD = {
           '月职业收入': 'jobIncome', '月租金收入': 'rentalIncome', '月投资收益': 'investIncome',
@@ -2379,11 +2385,11 @@ body {
               // 模板格式：字段名/说明/值（字段名可能是中文）
               var fieldKey = CN_TO_FIELD[row[0]] || row[0];
               if (row[2] !== '' && row[2] !== undefined) {
-                localStorage.setItem(lsKey(fieldKey), String(row[2]));
+                localStorage.setItem(dsKey(fieldKey), String(row[2]));
               }
             } else if (row[0] && row[1] !== undefined) {
               // 导出格式：字段/值
-              localStorage.setItem(lsKey(row[0]), String(row[1]));
+              localStorage.setItem(dsKey(row[0]), String(row[1]));
             }
           });
         }
@@ -2400,7 +2406,7 @@ body {
             }
           });
           if (family.length > 0) {
-            localStorage.setItem(lsKey('familyMembers'), JSON.stringify(family));
+            localStorage.setItem(dsKey('familyMembers'), JSON.stringify(family));
           }
         }
 
@@ -2421,7 +2427,7 @@ body {
             }
           });
           if (loans.length > 0) {
-            localStorage.setItem(lsKey('loans'), JSON.stringify(loans));
+            localStorage.setItem(dsKey('loans'), JSON.stringify(loans));
           }
         }
 
@@ -2437,7 +2443,7 @@ body {
             }
           });
           if (insurance.length > 0) {
-            localStorage.setItem(lsKey('insurance'), JSON.stringify(insurance));
+            localStorage.setItem(dsKey('insurance'), JSON.stringify(insurance));
           }
         }
 
@@ -2453,7 +2459,7 @@ body {
             }
           });
           if (history.length > 0) {
-            localStorage.setItem(lsKey('diagnosis_history'), JSON.stringify(history));
+            localStorage.setItem(dsKey('diagnosis_history'), JSON.stringify(history));
           }
         }
 
