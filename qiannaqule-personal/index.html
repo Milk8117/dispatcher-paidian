@@ -1073,38 +1073,52 @@ body {
   border-left: 3px solid #2563eb;
 }
 .guide-intro strong { color: #1e40af; }
-/* Tabs */
-.guide-tabs {
-  display: flex;
-  gap: 8px;
-  background: #f1f5f9;
+/* Sub-accordion cards inside guide */
+.guide-subcard {
+  border: 1.5px solid #e2e8f0;
   border-radius: 12px;
-  padding: 5px;
-  margin-bottom: 20px;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+  margin-bottom: 14px;
+  overflow: hidden;
+  transition: border-color 0.2s;
 }
-.guide-tab {
-  padding: 10px 20px;
-  font-size: 0.92rem;
-  font-weight: 700;
-  color: #64748b;
+.guide-subcard.guide-subcard-open { border-color: #93c5fd; }
+.guide-subcard-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
   cursor: pointer;
-  white-space: nowrap;
-  border-radius: 8px;
-  transition: all 0.2s;
-  background: transparent;
-  border: none;
-  font-family: inherit;
+  user-select: none;
+  background: #f8fafc;
+  transition: background 0.2s;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1e293b;
 }
-.guide-tab:hover { color: #1e40af; background: rgba(37,99,235,0.06); }
-.guide-tab.guide-tab-active {
-  color: #fff;
-  background: #2563eb;
-  box-shadow: 0 2px 8px rgba(37,99,235,0.3);
+.guide-subcard-header:hover { background: #f0f7ff; }
+.guide-subcard-open .guide-subcard-header { background: #eff6ff; color: #1e40af; }
+.guide-subcard-icon { font-size: 1.2rem; flex-shrink: 0; }
+.guide-subcard-header-text { flex: 1; }
+.guide-subcard-toggle {
+  width: 24px; height: 24px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  background: #e2e8f0;
+  transition: transform 0.3s, background 0.2s;
+  flex-shrink: 0;
 }
-.guide-tab-content { display: none; }
-.guide-tab-content.guide-tab-active { display: block; }
+.guide-subcard-open .guide-subcard-toggle {
+  transform: rotate(180deg);
+  background: #bfdbfe;
+}
+.guide-subcard-toggle svg { width: 14px; height: 14px; stroke: #475569; stroke-width: 2.5; fill: none; }
+.guide-subcard-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+}
+.guide-subcard-open .guide-subcard-body { max-height: 20000px; }
+.guide-subcard-inner { padding: 16px 18px 18px; }
 /* Content styles */
 .guide-section {
   margin-bottom: 20px;
@@ -1217,7 +1231,8 @@ body {
   .guide-header { padding: 14px 16px; }
   .guide-body-inner { padding: 0 16px 16px; }
   .guide-title { font-size: 0.9rem; }
-  .guide-tab { padding: 8px 14px; font-size: 0.85rem; }
+  .guide-subcard-header { padding: 12px 14px; font-size: 0.9rem; }
+  .guide-subcard-inner { padding: 12px 14px 14px; }
   .guide-table { font-size: 0.75rem; }
   .guide-table th, .guide-table td { padding: 7px 8px; }
 }
@@ -1331,16 +1346,16 @@ body {
           <strong>财务体检的意义</strong>：不是让你赚更多钱，而是让你<strong>知道钱该放哪里、放多少、怎么调</strong>。
         </div>
 
-        <div class="guide-tabs">
-          <button class="guide-tab guide-tab-active" onclick="switchGuideTab(0)">六大诊断维度</button>
-          <button class="guide-tab" onclick="switchGuideTab(1)">公开财务法则</button>
-          <button class="guide-tab" onclick="switchGuideTab(2)">配置建议</button>
-        </div>
-
-        <!-- Tab 1: 六大诊断维度 -->
-        <div class="guide-tab-content guide-tab-active" id="guideTab0">
-
-          <div class="guide-section">
+        <!-- Section 1: 六大诊断维度 -->
+        <div class="guide-subcard guide-subcard-open" data-subcard="0">
+          <div class="guide-subcard-header" onclick="toggleGuideSection(0)">
+            <span class="guide-subcard-icon">📊</span>
+            <span class="guide-subcard-header-text">六大诊断维度</span>
+            <span class="guide-subcard-toggle"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></span>
+          </div>
+          <div class="guide-subcard-body">
+            <div class="guide-subcard-inner">
+<div class="guide-section">
             <div class="guide-section-title">维度1：资产负债健康度 <span class="guide-badge">权重20%</span></div>
             <div class="guide-desc"><strong>核心原则：</strong>既无内债也无外债，是与钱有仇。合理杠杆是财富增长的加速器。</div>
             <div class="guide-table-wrap">
@@ -1421,13 +1436,20 @@ body {
               </table>
             </div>
           </div>
-
+            </div>
+          </div>
         </div>
 
-        <!-- Tab 2: 公开财务法则 -->
-        <div class="guide-tab-content" id="guideTab1">
-
-          <div class="guide-section">
+        <!-- Section 2: 公开财务法则 -->
+        <div class="guide-subcard" data-subcard="1">
+          <div class="guide-subcard-header" onclick="toggleGuideSection(1)">
+            <span class="guide-subcard-icon">📜</span>
+            <span class="guide-subcard-header-text">公开财务法则</span>
+            <span class="guide-subcard-toggle"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></span>
+          </div>
+          <div class="guide-subcard-body">
+            <div class="guide-subcard-inner">
+<div class="guide-section">
             <div class="guide-desc">以下法则是全球公认的财务管理基准，可作为自我检查的参照：</div>
           </div>
 
@@ -1488,13 +1510,20 @@ body {
               • 核心逻辑：按4%安全提取率，资产每年的4%即可覆盖支出
             </div>
           </div>
-
+            </div>
+          </div>
         </div>
 
-        <!-- Tab 3: 配置建议 -->
-        <div class="guide-tab-content" id="guideTab2">
-
-          <div class="guide-section">
+        <!-- Section 3: 配置建议 -->
+        <div class="guide-subcard" data-subcard="2">
+          <div class="guide-subcard-header" onclick="toggleGuideSection(2)">
+            <span class="guide-subcard-icon">💡</span>
+            <span class="guide-subcard-header-text">配置建议</span>
+            <span class="guide-subcard-toggle"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></span>
+          </div>
+          <div class="guide-subcard-body">
+            <div class="guide-subcard-inner">
+<div class="guide-section">
             <div class="guide-section-title">不同人生阶段的配置建议</div>
             <div class="guide-table-wrap">
               <table class="guide-table">
@@ -1536,7 +1565,8 @@ body {
             </ol>
             <div class="guide-highlight"><strong>🧠 记住：</strong>认知边界 = 财富边界。你赚的每一分钱都不会超出你的认知边界。</div>
           </div>
-
+            </div>
+          </div>
         </div>
 
         <div class="guide-footer-note">
@@ -3159,14 +3189,12 @@ function toggleGuideCard() {
 }
 
 // Tab switching
-function switchGuideTab(index) {
-  var tabs = document.querySelectorAll('.guide-tab');
-  var contents = document.querySelectorAll('.guide-tab-content');
-  tabs.forEach(function(t, i) {
-    t.classList.toggle('guide-tab-active', i === index);
-  });
-  contents.forEach(function(c, i) {
-    c.classList.toggle('guide-tab-active', i === index);
+function toggleGuideSection(index) {
+  var cards = document.querySelectorAll('.guide-subcard');
+  cards.forEach(function(c, i) {
+    if (i === index) {
+      c.classList.toggle('guide-subcard-open');
+    }
   });
 }
 
