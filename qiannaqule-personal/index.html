@@ -1305,7 +1305,7 @@ body {
     <div style="display:flex;gap:10px;margin-top:10px;">
       <button id="btnExport" type="button" style="flex:1;height:44px;background:#fff;color:#2563eb;font-size:0.85rem;font-weight:600;border:1.5px solid #bfdbfe;border-radius:10px;cursor:pointer;transition:all 0.2s;">📤 导出数据</button>
       <button id="btnImport" type="button" style="flex:1;height:44px;background:#fff;color:#16a34a;font-size:0.85rem;font-weight:600;border:1.5px solid #bbf7d0;border-radius:10px;cursor:pointer;transition:all 0.2s;">📥 导入数据</button>
-      <input type="file" id="importFileInput" accept=".json" style="display:none;">
+      <input type="file" id="importFileInput" accept=".json,.xlsx,.xls" style="display:none;">
     </div>
   </div>
 
@@ -2168,21 +2168,33 @@ body {
     }
   }
 
-  // 导入：读取 JSON 文件，验证格式，覆盖写入 localStorage
+  // 导入：支持 JSON 和 Excel 格式
   function importData(file) {
     if (!file) return;
+
+    var fileName = file.name.toLowerCase();
+    var isExcel = fileName.endsWith('.xlsx') || fileName.endsWith('.xls');
+
+    if (isExcel) {
+      importFromExcel(file);
+    } else {
+      importFromJSON(file);
+    }
+  }
+
+  // JSON 导入
+  function importFromJSON(file) {
     var reader = new FileReader();
     reader.onload = function(e) {
       try {
         var importObj = JSON.parse(e.target.result);
 
-        // 验证基本格式
         if (!importObj || typeof importObj !== 'object') {
-          alert('导入失败：文件格式不正确，不是有效的 JSON 对象。');
+          alert('导入失败：文件格式不正确。');
           return;
         }
         if (!importObj._meta || !importObj.data) {
-          alert('导入失败：文件格式不正确，缺少 _meta 或 data 字段。\n请确认是"钱去哪了"导出的备份文件。');
+          alert('导入失败：请确认是"钱去哪了"导出的备份文件。');
           return;
         }
         if (importObj._meta.app !== 'wealth_ct_personal') {
@@ -2191,49 +2203,132 @@ body {
         }
 
         var data = importObj.data;
-        var keyCount = Object.keys(data).length;
-        if (keyCount === 0) {
-          alert('导入失败：备份文件中没有数据。');
-          return;
-        }
-
-        // 检查键名是否都以 wealth_ct_ 开头
-        var invalidKeys = Object.keys(data).filter(function(k) { return k.indexOf(LS_PREFIX) !== 0; });
-        if (invalidKeys.length > 0) {
-          alert('导入失败：文件包含非本应用的数据键（' + invalidKeys.length + ' 个无效键），已拒绝导入。');
-          return;
-        }
-
-        // 确认覆盖
         var confirmed = confirm(
-          '即将导入 ' + keyCount + ' 条数据（导出时间：' + importObj._meta.exportTime + '）。\n\n' +
-          '⚠️ 此操作将覆盖当前所有数据！\n\n确定要继续吗？'
+          '即将导入 ' + Object.keys(data).length + ' 条数据。\n\n⚠️ 此操作将覆盖当前所有数据！\n\n确定要继续吗？'
         );
         if (!confirmed) return;
 
-        // 先清除当前数据
         WealthCT.clearAll();
-
-        // 写入导入的数据
         Object.keys(data).forEach(function(key) {
           var value = data[key];
           var strValue = (typeof value === 'object') ? JSON.stringify(value) : String(value);
           localStorage.setItem(key, strValue);
         });
 
-        alert('数据导入成功！共恢复 ' + keyCount + ' 条数据。\n页面将刷新以加载数据。');
-
-        // 刷新页面
+        alert('数据导入成功！\n页面将刷新以加载数据。');
         location.reload();
 
       } catch(e) {
         alert('导入失败：' + e.message);
       }
     };
-    reader.onerror = function() {
-      alert('文件读取失败，请重试。');
-    };
+    reader.onerror = function() { alert('文件读取失败，请重试。'); };
     reader.readAsText(file);
+  }
+
+  // Excel 导入
+  function importFromExcel(file) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        if (typeof XLSX === 'undefined') {
+          alert('Excel组件未加载，请刷新页面。');
+          return;
+        }
+
+        var data = new Uint8Array(e.target.result);
+        var wb = XLSX.read(data, { type: 'array' });
+
+        var confirmed = confirm('即将从 Excel 导入数据。\n\n⚠️ 此操作将覆盖当前所有数据！\n\n确定要继续吗？');
+        if (!confirmed) return;
+
+        WealthCT.clearAll();
+
+        // 解析财务摘要 sheet
+        var wsFinancial = wb.Sheets['财务摘要'];
+        if (wsFinancial) {
+          var financialData = XLSX.utils.sheet_to_json(wsFinancial, { header: 1 });
+          financialData.forEach(function(row, idx) {
+            if (idx < 2) return; // 跳过标题行
+            if (row[0] && row[1] !== undefined) {
+              localStorage.setItem(lsKey(row[0]), String(row[1]));
+            }
+          });
+        }
+
+        // 解析家庭成员 sheet
+        var wsFamily = wb.Sheets['家庭成员'];
+        if (wsFamily) {
+          var familyData = XLSX.utils.sheet_to_json(wsFamily, { header: 1 });
+          var family = [];
+          familyData.forEach(function(row, idx) {
+            if (idx === 0) return; // 跳过标题行
+            if (row[0]) {
+              family.push({ name: row[0], relation: row[1] || '', age: row[2] || '', income: row[3] || '' });
+            }
+          });
+          if (family.length > 0) {
+            localStorage.setItem(lsKey('familyMembers'), JSON.stringify(family));
+          }
+        }
+
+        // 解析贷款明细 sheet
+        var wsLoan = wb.Sheets['贷款明细'];
+        if (wsLoan) {
+          var loanData = XLSX.utils.sheet_to_json(wsLoan, { header: 1 });
+          var loans = [];
+          loanData.forEach(function(row, idx) {
+            if (idx === 0) return;
+            if (row[0]) {
+              loans.push({ name: row[0], amount: row[1], rate: row[2], term: row[3], type: row[4], transTotal: row[5], transLeft: row[6] });
+            }
+          });
+          if (loans.length > 0) {
+            localStorage.setItem(lsKey('loans'), JSON.stringify(loans));
+          }
+        }
+
+        // 解析保险明细 sheet
+        var wsIns = wb.Sheets['保险明细'];
+        if (wsIns) {
+          var insData = XLSX.utils.sheet_to_json(wsIns, { header: 1 });
+          var insurance = [];
+          insData.forEach(function(row, idx) {
+            if (idx === 0) return;
+            if (row[0]) {
+              insurance.push({ name: row[0], type: row[1], amount: row[2], premium: row[3], term: row[4], paid: row[5], payDate: row[6] });
+            }
+          });
+          if (insurance.length > 0) {
+            localStorage.setItem(lsKey('insurance'), JSON.stringify(insurance));
+          }
+        }
+
+        // 解析诊断历史 sheet
+        var wsHist = wb.Sheets['诊断历史'];
+        if (wsHist) {
+          var histData = XLSX.utils.sheet_to_json(wsHist, { header: 1 });
+          var history = [];
+          histData.forEach(function(row, idx) {
+            if (idx === 0) return;
+            if (row[0]) {
+              history.push({ timestamp: row[0], tag: row[1], total: row[2], grade: row[3] });
+            }
+          });
+          if (history.length > 0) {
+            localStorage.setItem(lsKey('diagnosis_history'), JSON.stringify(history));
+          }
+        }
+
+        alert('Excel 数据导入成功！\n页面将刷新以加载数据。');
+        location.reload();
+
+      } catch(e) {
+        alert('导入失败：' + e.message);
+      }
+    };
+    reader.onerror = function() { alert('文件读取失败，请重试。'); };
+    reader.readAsArrayBuffer(file);
   }
 
   // 绑定导出按钮
