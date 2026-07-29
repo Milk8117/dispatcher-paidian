@@ -2433,17 +2433,24 @@ body {
         var wsFinancial = wb.Sheets['财务摘要'];
         if (wsFinancial) {
           var financialData = XLSX.utils.sheet_to_json(wsFinancial, { header: 1 });
+          // 收集所有有效字段名（中英文都接受）
+          var validFields = {};
+          Object.keys(CN_TO_FIELD).forEach(function(cn) { validFields[cn] = true; });
+          Object.values(CN_TO_FIELD).forEach(function(en) { validFields[en] = true; });
+
           financialData.forEach(function(row, idx) {
-            if (idx < 2) return; // 跳过标题行
-            if (row[0] && row[2] !== undefined) {
-              // 模板格式：字段名/说明/值（字段名可能是中文）
-              var fieldKey = CN_TO_FIELD[row[0]] || row[0];
-              if (row[2] !== '' && row[2] !== undefined) {
-                localStorage.setItem(dsKey(fieldKey), String(row[2]));
-              }
-            } else if (row[0] && row[1] !== undefined) {
-              // 导出格式：字段/值
-              localStorage.setItem(dsKey(row[0]), String(row[1]));
+            if (idx === 0) return; // 只跳过表头行
+            if (!row[0]) return;   // 空行跳过
+            var fieldName = String(row[0]).trim();
+            if (!validFields[fieldName]) return; // 跳过非字段行（导出时间、版本等）
+
+            if (row[2] !== undefined && row[2] !== '') {
+              // 模板格式：字段名(中文)/说明/值
+              var fieldKey = CN_TO_FIELD[fieldName] || fieldName;
+              localStorage.setItem(dsKey(fieldKey), String(row[2]));
+            } else if (row[1] !== undefined && row[1] !== '') {
+              // 导出格式：字段名(英文)/值
+              localStorage.setItem(dsKey(fieldName), String(row[1]));
             }
           });
         }
