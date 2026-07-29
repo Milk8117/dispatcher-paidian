@@ -1337,17 +1337,17 @@ body {
       var el = $(r.id);
       var grp = $(r.grp);
       var val = el.value;
-      grp.classList.remove('has-error');
+      if (grp) grp.classList.remove('has-error');
 
       if (r.required && (val === '' || val === null)) {
-        grp.classList.add('has-error');
+        if (grp) grp.classList.add('has-error');
         valid = false;
         return;
       }
       if (!r.isSelect && val !== '') {
         var num = Number(val);
         if (isNaN(num) || num < 0) {
-          grp.classList.add('has-error');
+          if (grp) grp.classList.add('has-error');
           valid = false;
         }
       }
