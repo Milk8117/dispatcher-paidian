@@ -1507,6 +1507,7 @@ body {
   var familyCount = 0;
   
   function addFamilyMember() {
+    console.log('[DEBUG] addFamilyMember called, count=', familyCount);
     familyCount++;
     var idx = familyCount;
     var html = '<div class="family-member" data-idx="' + idx + '">' +
@@ -1521,6 +1522,8 @@ body {
       '<button type="button" class="btn-remove-member" onclick="window.removeFamilyMember(this)">✕</button>' +
     '</div>';
     $('familyMembersContainer').insertAdjacentHTML('beforeend', html);
+    // DEBUG: 确认元素已添加
+    console.log('[DEBUG] family members count:', document.querySelectorAll('.family-member').length);
     saveFamilyMembers();
   }
   window.addFamilyMember = addFamilyMember;
