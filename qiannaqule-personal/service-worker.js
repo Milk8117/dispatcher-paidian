@@ -1,6 +1,6 @@
 // Service Worker for 米界AI — 个人智能操作系统
 // Cache version: update this string to invalidate old caches
-const CACHE_VERSION = 'mijieai-v4';
+const CACHE_VERSION = 'mijieai-v5';
 const CACHE_NAME = CACHE_VERSION;
 
 // Resources to cache on install
@@ -12,6 +12,13 @@ const PRECACHE_URLS = [
   './icon-orange.png',
   './icon-blue.png'
 ];
+
+// Listen for skip waiting message from page
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
 
 // Install: precache core resources
 self.addEventListener('install', (event) => {
