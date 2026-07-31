@@ -2280,6 +2280,12 @@ body {
 </div>
 <!-- END page-solar -->
 
+<!-- ==================== PAGE: 日程管理 ==================== -->
+<div id="page-schedule" class="page-view">
+  <div id="scheduleContainer"></div>
+</div>
+<!-- END page-schedule -->
+
 </div><!-- END container -->
 
 <!-- Bottom Input Bar -->
@@ -2345,6 +2351,10 @@ body {
     if (moduleName === 'solar' && window.initSolarTerm) {
       setTimeout(function() { window.initSolarTerm('solarTermContainer'); }, 50);
     }
+    // 日程管理模块初始化
+    if (moduleName === 'schedule' && window.initSchedule) {
+      setTimeout(function() { window.initSchedule('scheduleContainer'); }, 50);
+    }
     // Close nav drawer
     closeNavDrawer();
     // Scroll to top
@@ -2387,12 +2397,24 @@ body {
       return;
     }
 
+    // 对话式添加任务 — "添加计划/新任务/记一下/安排：xxx"
+    var addTaskMatch = text.match(/(?:添加计划|新任务|记一下|加个任务|安排一下|日程|计划|待办|todo)[：:\s]*(.+)/i);
+    if (addTaskMatch && addTaskMatch[1] && addTaskMatch[1].length >= 2) {
+      var taskTitle = addTaskMatch[1].trim();
+      if (window.scheduleAddTask) {
+        var newTask = window.scheduleAddTask({ title: taskTitle, desc: '' });
+        switchModule('schedule');
+        showToast('已添加任务：' + taskTitle);
+        return;
+      }
+    }
+
     // Navigate to the relevant module based on intent
     if (/贷款|负债|还款|借|利息|房贷|车贷|信用|融资|收入|支出|消费|花了|挣|工资|账单|预算|记账/.test(text)) {
       switchModule('finance');
     } else if (/吃|饭|餐|早|午|晚|食|菜|肉|面|米|喝|水果|营养|热量|蛋白质/.test(text)) {
       switchModule('solar');
-    } else if (/提醒|日程|待办|还款日|缴费|会议|预约|安排|计划|排期/.test(text)) {
+    } else if (/提醒|日程|待办|还款日|缴费|会议|预约|排期/.test(text)) {
       switchModule('schedule');
     } else if (/体检|健康|运动|睡眠|体重|用药|血压|心率|步数|卡路里/.test(text)) {
       switchModule('solar');
@@ -3866,5 +3888,6 @@ function toggleGuideSection(index) {
 
 <script src="solar-term.js"></script>
 <script src="chronic-disease.js"></script>
+<script src="schedule.js"></script>
 </body>
 </html>
