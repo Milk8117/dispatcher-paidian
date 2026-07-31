@@ -597,7 +597,7 @@
     // 旋转容器
     var wheelGroup = document.createElementNS(svgNS, 'g');
     wheelGroup.setAttribute('class', 'solar-wheel-group');
-    wheelGroup.style.transition = 'transform 0.6s cubic-bezier(0.34,1.56,0.64,1)';
+    wheelGroup.style.transition = 'transform 0.5s cubic-bezier(0.25,1,0.5,1)';
     wheelGroup.style.transformOrigin = cx + 'px ' + cy + 'px';
 
     // 绘制24个扇区
@@ -718,9 +718,12 @@
     function rotateTo(idx) {
       if (isSnapping) return;
       var targetAngle = -(idx * anglePerSegment + anglePerSegment / 2);
-      currentRotation = targetAngle;
+      // 最短路径：把角度差归一化到 [-180, 180]，避免跨0点时转整圈
+      var diff = targetAngle - currentRotation;
+      diff = ((diff % 360) + 540) % 360 - 180;
+      currentRotation = currentRotation + diff;
       wheelGroup.style.transition = 'transform 0.5s cubic-bezier(0.25,1,0.5,1)';
-      wheelGroup.style.transform = 'rotate(' + targetAngle + 'deg)';
+      wheelGroup.style.transform = 'rotate(' + currentRotation + 'deg)';
     }
 
     // 初始旋转到当前节气
