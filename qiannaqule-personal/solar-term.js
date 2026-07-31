@@ -416,10 +416,10 @@
       if (!isDragging) return;
       isDragging = false;
       wheelGroup.style.transition = 'transform 0.6s cubic-bezier(0.34,1.56,0.64,1)';
-      // 吸附到最近的节气 — 正确旋转方向与角度映射
-      // 推导：rotateTo(i) 设置 r = -(i*15+7.5)，指针指向 i 当 (i+0.5)*15+r ≡ 0
-      // 故 nearestIdx = round(r/15 - 0.5)，加48保证取模前为正
-      var nearestIdx = (Math.round(currentRotation / anglePerSegment - 0.5) + 48) % 24;
+      // 吸附到最近的节气 — 正确公式推导：
+      // rotateTo(i) 设置 r = -(i*15 + 7.5)
+      // 反推：i = -r/15 - 0.5 → 取整 → nearestIdx = (-round(r/15 + 0.5) + 24) % 24
+      var nearestIdx = (-Math.round(currentRotation / anglePerSegment + 0.5) + 24) % 24;
       rotateTo(nearestIdx);
       onClickTerm(nearestIdx);
     });
