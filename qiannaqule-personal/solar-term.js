@@ -215,17 +215,16 @@
       { idx: 23, m: 1, d: 20 }  // 大寒
     ];
 
-    // 找到当前所处节气
-    var currentIdx = 23; // 默认大寒
-    for (var i = termDates.length - 1; i >= 0; i--) {
+    // 找到当前所处节气：找到第一个尚未到来的节气，前一个即为当前节气
+    var currentIdx = 23; // 默认冬至（年末最后一个节气）
+    for (var i = 0; i < termDates.length; i++) {
       var t = termDates[i];
-      if (month > t.m || (month === t.m && day >= t.d)) {
-        currentIdx = t.idx;
+      if (month < t.m || (month === t.m && day < t.d)) {
+        // 第i个节气还没到，当前是前一个
+        currentIdx = (i === 0) ? 23 : termDates[i - 1].idx;
         break;
       }
     }
-    // 特殊处理：1月1日-1月5日还在小寒之前，属于冬至
-    if (month === 1 && day < 6) currentIdx = 21; // 冬至
 
     return currentIdx;
   }
@@ -469,11 +468,20 @@
         html += '<div class="st-recipe-steps"><strong>做法：</strong>' + recipe.steps + '</div>';
         if (recipe.nutrition) {
           html += '<div class="st-nutrition-bar">';
-          html += '<span class="st-nutrition-item">🔥 ' + recipe.nutrition.kcal + 'kcal</span>';
-          html += '<span class="st-nutrition-item">🥩 蛋白' + recipe.nutrition.protein + 'g</span>';
-          html += '<span class="st-nutrition-item">🧈 脂肪' + recipe.nutrition.fat + 'g</span>';
-          html += '<span class="st-nutrition-item">🍚 碳水' + recipe.nutrition.carb + 'g</span>';
-          html += '<span class="st-nutrition-item">🌾 纤维' + recipe.nutrition.fiber + 'g</span>';
+          html += '<span class="st-nutrition-item"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:2px"><path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z"/></svg>' + recipe.nutrition.kcal + 'kcal</span>';
+          html += '<span class="st-nutrition-item"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:2px"><path d="M12 2v20M2 12h20"/></svg>蛋白' + recipe.nutrition.protein + 'g</span>';
+          html += '<span class="st-nutrition-item"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:2px"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/></svg>脂肪' + recipe.nutrition.fat + 'g</span>';
+          html += '<span class="st-nutrition-item"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:2px"><path d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/></svg>碳水' + recipe.nutrition.carb + 'g</span>';
+          html += '<span class="st-nutrition-item"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:2px"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>纤维' + recipe.nutrition.fiber + 'g</span>';
+          if (recipe.nutrition.calcium != null) {
+            html += '<span class="st-nutrition-item"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:2px"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 6v6l4 2"/></svg>钙' + recipe.nutrition.calcium + 'mg</span>';
+          }
+          if (recipe.nutrition.iron != null) {
+            html += '<span class="st-nutrition-item"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:2px"><path d="M6 18L18 6M6 6l12 12"/></svg>铁' + recipe.nutrition.iron + 'mg</span>';
+          }
+          if (recipe.nutrition.vitC != null) {
+            html += '<span class="st-nutrition-item"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:2px"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>维C' + recipe.nutrition.vitC + 'mg</span>';
+          }
           html += '</div>';
         }
         html += '</div>';
