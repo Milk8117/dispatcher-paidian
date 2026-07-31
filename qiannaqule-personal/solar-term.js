@@ -1035,7 +1035,42 @@
       '.collection-recipe-ing { font-size: 12px; color: #6b7280; margin-top: 4px; }',
       '.collection-recipe-method { font-size: 12px; color: #4b5563; margin-top: 2px; }',
       '.collection-del-btn { position: absolute; top: 8px; right: 8px; background: none; border: none; color: #d1d5db; cursor: pointer; padding: 4px; border-radius: 4px; }',
-      '.collection-del-btn:hover { color: #ef4444; background: #fef2f2; }'
+      '.collection-del-btn:hover { color: #ef4444; background: #fef2f2; }',
+
+      // ---- Collection: Add Recipe Button ----
+      '.collection-add-btn { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; padding: 10px; border: 2px dashed #d1d5db; border-radius: 10px; background: #fafafa; color: #6b7280; font-size: 14px; font-weight: 500; cursor: pointer; margin-bottom: 12px; transition: all .2s; }',
+      '.collection-add-btn:hover { border-color: #f97316; color: #f97316; background: #fff7ed; }',
+      '.collection-add-btn svg { flex-shrink: 0; }',
+      // Custom tag
+      '.collection-custom-tag { display: inline-block; font-size: 10px; font-weight: 600; color: #fff; background: #f97316; border-radius: 4px; padding: 1px 5px; margin-left: 6px; vertical-align: middle; line-height: 16px; }',
+      // Thumbnail for custom recipes
+      '.collection-recipe-thumb { width: 48px; height: 48px; border-radius: 8px; object-fit: cover; flex-shrink: 0; margin-right: 10px; }',
+      '.collection-recipe-card-inner { display: flex; align-items: flex-start; }',
+      '.collection-recipe-text { flex: 1; min-width: 0; }',
+
+      // ---- Recipe Form Modal ----
+      '.recipe-form-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 10000; display: flex; align-items: flex-end; justify-content: center; }',
+      '.recipe-form-panel { width: 100%; max-width: 480px; max-height: 85vh; background: #fff; border-radius: 18px 18px 0 0; overflow-y: auto; padding: 20px 16px 24px; animation: slideUp .3s ease; }',
+      '@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }',
+      '.recipe-form-title { font-size: 16px; font-weight: 700; color: #1f2937; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }',
+      '.recipe-form-close { background: none; border: none; color: #9ca3af; cursor: pointer; padding: 4px; border-radius: 4px; }',
+      '.recipe-form-close:hover { color: #374151; background: #f3f4f6; }',
+      '.recipe-form-group { margin-bottom: 14px; }',
+      '.recipe-form-label { display: block; font-size: 12px; font-weight: 600; color: #6b7280; margin-bottom: 4px; }',
+      '.recipe-form-label .required { color: #ef4444; }',
+      '.recipe-form-input, .recipe-form-textarea, .recipe-form-select { width: 100%; padding: 9px 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px; color: #1f2937; background: #fff; outline: none; transition: border-color .2s; box-sizing: border-box; }',
+      '.recipe-form-input:focus, .recipe-form-textarea:focus, .recipe-form-select:focus { border-color: #f97316; }',
+      '.recipe-form-textarea { min-height: 64px; resize: vertical; }',
+      '.recipe-form-select { -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%239ca3af\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'M6 9l6 6 6-6\'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }',
+      '.recipe-form-photo-row { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }',
+      '.recipe-form-photo-btn { display: flex; align-items: center; gap: 4px; padding: 8px 14px; border: 1px solid #e5e7eb; border-radius: 8px; background: #f9fafb; color: #6b7280; font-size: 13px; cursor: pointer; transition: all .2s; }',
+      '.recipe-form-photo-btn:hover { border-color: #f97316; color: #f97316; }',
+      '.recipe-form-photo-btn input[type="file"] { display: none; }',
+      '.recipe-form-preview { width: 56px; height: 56px; border-radius: 8px; object-fit: cover; border: 1px solid #e5e7eb; display: none; }',
+      '.recipe-form-preview.visible { display: block; }',
+      '.recipe-form-submit { width: 100%; padding: 11px; border: none; border-radius: 10px; background: #1f2937; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 6px; transition: background .2s; }',
+      '.recipe-form-submit:hover { background: #374151; }',
+      '.recipe-form-submit:disabled { background: #d1d5db; cursor: not-allowed; }'
     ].join('\n');
     document.head.appendChild(style);
   }
@@ -1374,11 +1409,16 @@
     html += '<div class="collection-count">共 ' + collection.length + ' 道菜谱</div>';
     html += '</div>';
 
+    // "+ 添加菜谱"按钮
+    html += '<button class="collection-add-btn" id="collectionAddBtn">';
+    html += '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>';
+    html += '添加菜谱</button>';
+
     if (collection.length === 0) {
       html += '<div class="collection-empty">';
       html += '<svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#d1d5db" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>';
       html += '<div>还没有收藏菜谱</div>';
-      html += '<div class="collection-empty-hint">在节气养生页面浏览食谱时，点击收藏按钮即可添加</div>';
+      html += '<div class="collection-empty-hint">点击上方"添加菜谱"手动录入，或在节气食谱页面收藏</div>';
       html += '</div>';
     } else {
       // 按节气分组
@@ -1392,10 +1432,22 @@
         html += '<div class="collection-group-title">' + term + '</div>';
         grouped[term].forEach(function(item) {
           var r = item.recipe;
+          var isCustom = !!r._custom;
           html += '<div class="collection-recipe-card">';
-          html += '<div class="collection-recipe-name">' + r.name + '</div>';
+          html += '<div class="collection-recipe-card-inner">';
+          // 缩略图（仅自定义且有图片时）
+          if (isCustom && r._image) {
+            html += '<img class="collection-recipe-thumb" src="' + r._image + '" alt="' + r.name + '" />';
+          }
+          html += '<div class="collection-recipe-text">';
+          html += '<div class="collection-recipe-name">' + r.name;
+          if (isCustom) html += '<span class="collection-custom-tag">自定</span>';
+          html += '</div>';
           if (r.ingredients || r.ing) html += '<div class="collection-recipe-ing">' + (r.ingredients || r.ing) + '</div>';
           if (r.method) html += '<div class="collection-recipe-method">' + r.method + '</div>';
+          if (r._note) html += '<div class="collection-recipe-method" style="color:#9ca3af">备注：' + r._note + '</div>';
+          html += '</div>'; // .collection-recipe-text
+          html += '</div>'; // .collection-recipe-card-inner
           html += '<button class="collection-del-btn" data-idx="' + item.index + '"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg></button>';
           html += '</div>';
         });
@@ -1403,6 +1455,14 @@
     }
     html += '</div>';
     containerEl.innerHTML = html;
+
+    // "添加菜谱"按钮事件
+    var addBtn = document.getElementById('collectionAddBtn');
+    if (addBtn) {
+      addBtn.addEventListener('click', function() {
+        openRecipeFormModal(containerEl, currentTermIdx, '');
+      });
+    }
 
     // 删除事件
     containerEl.querySelectorAll('.collection-del-btn').forEach(function(btn) {
@@ -1414,6 +1474,162 @@
       });
     });
   }
+
+  // ==================== 菜谱录入表单弹窗 ====================
+  var _currentFormImageBase64 = '';
+
+  function openRecipeFormModal(containerEl, currentTermIdx, prefillText) {
+    _currentFormImageBase64 = '';
+    // 从prefillText中解析菜名和食材
+    var prefillName = '';
+    var prefillIng = '';
+    if (prefillText) {
+      var parts = prefillText.split(/[，,\s]+/);
+      if (parts.length > 0) prefillName = parts[0];
+      if (parts.length > 1) prefillIng = parts.slice(1).join('、');
+    }
+
+    // 构建24节气选项
+    var termOptions = '<option value="">不指定</option>';
+    var termNames = ['立春','雨水','惊蛰','春分','清明','谷雨','立夏','小满','芒种','夏至','小暑','大暑','立秋','处暑','白露','秋分','寒露','霜降','立冬','小雪','大雪','冬至','小寒','大寒'];
+    var currentTermName = SOLAR_TERMS[getCurrentTermIndex()] ? SOLAR_TERMS[getCurrentTermIndex()].name : '';
+    termNames.forEach(function(tn) {
+      var sel = tn === currentTermName ? ' selected' : '';
+      termOptions += '<option value="' + tn + '"' + sel + '>' + tn + '</option>';
+    });
+
+    var html = '<div class="recipe-form-overlay" id="recipeFormOverlay">';
+    html += '<div class="recipe-form-panel">';
+    html += '<div class="recipe-form-title">';
+    html += '<span>添加菜谱</span>';
+    html += '<button class="recipe-form-close" id="recipeFormClose"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg></button>';
+    html += '</div>';
+
+    // 菜名
+    html += '<div class="recipe-form-group">';
+    html += '<label class="recipe-form-label">菜名 <span class="required">*</span></label>';
+    html += '<input class="recipe-form-input" id="recipeFormName" type="text" placeholder="如：番茄炒蛋" value="' + prefillName.replace(/"/g, '&quot;') + '" />';
+    html += '</div>';
+
+    // 食材
+    html += '<div class="recipe-form-group">';
+    html += '<label class="recipe-form-label">食材</label>';
+    html += '<input class="recipe-form-input" id="recipeFormIng" type="text" placeholder="如：番茄2个、鸡蛋3个" value="' + prefillIng.replace(/"/g, '&quot;') + '" />';
+    html += '</div>';
+
+    // 做法
+    html += '<div class="recipe-form-group">';
+    html += '<label class="recipe-form-label">做法</label>';
+    html += '<textarea class="recipe-form-textarea" id="recipeFormMethod" placeholder="简述烹饪步骤..."></textarea>';
+    html += '</div>';
+
+    // 归属节气
+    html += '<div class="recipe-form-group">';
+    html += '<label class="recipe-form-label">归属节气</label>';
+    html += '<select class="recipe-form-select" id="recipeFormTerm">' + termOptions + '</select>';
+    html += '</div>';
+
+    // 备注
+    html += '<div class="recipe-form-group">';
+    html += '<label class="recipe-form-label">备注</label>';
+    html += '<input class="recipe-form-input" id="recipeFormNote" type="text" placeholder="口味偏好、小贴士等（可选）" />';
+    html += '</div>';
+
+    // 拍照/选图
+    html += '<div class="recipe-form-group">';
+    html += '<label class="recipe-form-label">图片</label>';
+    html += '<div class="recipe-form-photo-row">';
+    html += '<label class="recipe-form-photo-btn">';
+    html += '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>';
+    html += '拍照/选图';
+    html += '<input type="file" accept="image/*" capture id="recipeFormFile" />';
+    html += '</label>';
+    html += '<img class="recipe-form-preview" id="recipeFormPreview" alt="预览" />';
+    html += '</div>';
+    html += '</div>';
+
+    // 提交
+    html += '<button class="recipe-form-submit" id="recipeFormSubmit">保存菜谱</button>';
+
+    html += '</div>'; // .recipe-form-panel
+    html += '</div>'; // .recipe-form-overlay
+
+    var existing = document.getElementById('recipeFormOverlay');
+    if (existing) existing.remove();
+    document.body.insertAdjacentHTML('beforeend', html);
+
+    // 关闭事件
+    document.getElementById('recipeFormClose').addEventListener('click', function() {
+      closeRecipeForm();
+    });
+    document.getElementById('recipeFormOverlay').addEventListener('click', function(e) {
+      if (e.target === this) closeRecipeForm();
+    });
+
+    // 图片选择
+    document.getElementById('recipeFormFile').addEventListener('change', function() {
+      var file = this.files && this.files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function(ev) {
+        _currentFormImageBase64 = ev.target.result;
+        var preview = document.getElementById('recipeFormPreview');
+        if (preview) {
+          preview.src = _currentFormImageBase64;
+          preview.classList.add('visible');
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // 提交事件
+    document.getElementById('recipeFormSubmit').addEventListener('click', function() {
+      var name = document.getElementById('recipeFormName').value.trim();
+      var ing = document.getElementById('recipeFormIng').value.trim();
+      var method = document.getElementById('recipeFormMethod').value.trim();
+      var term = document.getElementById('recipeFormTerm').value;
+      var note = document.getElementById('recipeFormNote').value.trim();
+
+      if (!name) {
+        var nameInput = document.getElementById('recipeFormName');
+        nameInput.style.borderColor = '#ef4444';
+        nameInput.focus();
+        setTimeout(function() { nameInput.style.borderColor = ''; }, 2000);
+        return;
+      }
+
+      var recipe = {
+        name: name,
+        _custom: true,
+        _addedAt: new Date().toISOString(),
+        _termName: term || '自定义'
+      };
+      if (ing) recipe.ingredients = ing;
+      if (method) recipe.method = method;
+      if (note) recipe._note = note;
+      if (_currentFormImageBase64) recipe._image = _currentFormImageBase64;
+
+      addToCollection(recipe, recipe._termName);
+      closeRecipeForm();
+      // 刷新收藏视图
+      if (window.solarSwitchView) window.solarSwitchView('collection');
+      // 全局toast提示
+      if (window.showToast) window.showToast('已保存菜谱：' + name);
+    });
+  }
+
+  function closeRecipeForm() {
+    var overlay = document.getElementById('recipeFormOverlay');
+    if (overlay) overlay.remove();
+    _currentFormImageBase64 = '';
+  }
+
+  // 暴露给index.html调用的AI辅助录入接口
+  window.solarOpenRecipeForm = function(prefillText) {
+    var containerEl = document.getElementById('collectionContainer');
+    var idx = getCurrentTermIndex();
+    openRecipeFormModal(containerEl, idx, prefillText || '');
+  };
 
   // ==================== "今天吃什么"接口 ====================
   window.solarTodayRecipes = function() {
@@ -1435,6 +1651,21 @@
       var filtered = filterRecipesByHealth(term.recipes);
       result.recipes = filtered.safe;
       result.blockedRecipes = filtered.blocked;
+    } else {
+      result.recipes = [];
+      result.blockedRecipes = [];
+    }
+
+    // 将自定义菜谱混排到推荐中
+    var collection = getCollection();
+    var customRecipes = collection.filter(function(r) { return r._custom; });
+    if (customRecipes.length > 0) {
+      var customFiltered = filterRecipesByHealth(customRecipes);
+      // 标记为自定义，便于展示
+      customFiltered.safe.forEach(function(r) { r._custom = true; });
+      customFiltered.blocked.forEach(function(item) { item.recipe._custom = true; });
+      result.recipes = result.recipes.concat(customFiltered.safe);
+      result.blockedRecipes = result.blockedRecipes.concat(customFiltered.blocked);
     }
 
     return result;
