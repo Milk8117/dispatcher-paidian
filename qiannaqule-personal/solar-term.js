@@ -10,62 +10,62 @@
 
   // ==================== 二十四节气数据 ====================
   var SOLAR_TERMS = [
-    { name: '立春', date: '2月3-5日', season: 'spring', element: '木',
+    { name: '立春', date: '2月4日', season: 'spring', element: '木',
       summary: '阳气初生，万物复苏', principle: '升阳养肝，疏达气机',
       foods: ['豆芽','韭菜','香椿','春笋','荠菜','豌豆苗'],
      忌: ['酸辣','油腻','生冷'],
       tips: '早睡早起，散步舒展，忌动怒伤肝' },
-    { name: '雨水', date: '2月18-20日', season: 'spring', element: '木',
+    { name: '雨水', date: '2月18日', season: 'spring', element: '木',
       summary: '春雨润物，湿气渐生', principle: '健脾祛湿，养护脾胃',
       foods: ['山药','红枣','蜂蜜','薏米','莲子','菠菜'],
       忌: ['寒凉','甜腻'],
       tips: '春捂防寒，适量运动，预防倒春寒' },
-    { name: '惊蛰', date: '3月5-7日', season: 'spring', element: '木',
+    { name: '惊蛰', date: '3月5日', season: 'spring', element: '木',
       summary: '春雷始鸣，蛰虫惊醒', principle: '平肝息风，清热解毒',
       foods: ['梨','芹菜','荠菜','菠菜','枸杞','菊花'],
       忌: ['辛辣','烧烤'],
       tips: '起居有常，适当伸展，防春瘟' },
-    { name: '春分', date: '3月20-22日', season: 'spring', element: '木',
+    { name: '春分', date: '3月20日', season: 'spring', element: '木',
       summary: '昼夜平分，阴阳平衡', principle: '调和阴阳，养血柔肝',
       foods: ['香椿','春笋','枸杞','百合','银耳','草莓'],
       忌: ['大寒大热'],
       tips: '运动适中，情志舒畅，防过敏' },
-    { name: '清明', date: '4月4-6日', season: 'spring', element: '木',
+    { name: '清明', date: '4月5日', season: 'spring', element: '木',
       summary: '天清气朗，万物皆明', principle: '养肝补肾，祛湿健脾',
       foods: ['青团','艾草','马兰头','菊花脑','枸杞芽','嫩柳芽'],
       忌: ['辛辣燥热'],
       tips: '踏青赏春，调畅情志，防花粉过敏' },
-    { name: '谷雨', date: '4月19-21日', season: 'spring', element: '土',
+    { name: '谷雨', date: '4月20日', season: 'spring', element: '土',
       summary: '雨生百谷，春将尽矣', principle: '健脾利湿，益气养血',
       foods: ['谷雨茶','香椿','薏仁','冬瓜','赤小豆','茯苓'],
       忌: ['冰冷','甜腻'],
       tips: '预防春困，适度锻炼，注意防潮' },
-    { name: '立夏', date: '5月5-7日', season: 'summer', element: '火',
+    { name: '立夏', date: '5月5日', season: 'summer', element: '火',
       summary: '夏季开始，万物繁茂', principle: '养心安神，清热消暑',
       foods: ['蚕豆','苋菜','黄瓜','樱桃','莲子心','绿豆'],
       忌: ['冰饮','辛辣'],
       tips: '晚睡早起，午间小憩，忌大汗伤阳' },
-    { name: '小满', date: '5月20-22日', season: 'summer', element: '火',
+    { name: '小满', date: '5月21日', season: 'summer', element: '火',
       summary: '麦类渐满，未至全熟', principle: '清热利湿，健脾和胃',
       foods: ['苦瓜','黄瓜','樱桃','番茄','冬瓜','绿豆'],
       忌: ['辛辣','烧烤'],
       tips: '穿着透气，饮食清淡，防皮肤病' },
-    { name: '芒种', date: '6月5-7日', season: 'summer', element: '火',
+    { name: '芒种', date: '6月5日', season: 'summer', element: '火',
       summary: '有芒之种当播，湿热交蒸', principle: '清暑化湿，养心健脾',
       foods: ['杨梅','青梅','西瓜','荷叶','薏米','鸭肉'],
       忌: ['油腻','生冷'],
       tips: '勤换衣物，防暑降温，适当出汗排湿' },
-    { name: '夏至', date: '6月21-22日', season: 'summer', element: '火',
+    { name: '夏至', date: '6月21日', season: 'summer', element: '火',
       summary: '日最长，阳极阴生', principle: '养心安神，清补消暑',
       foods: ['面条','苦瓜','绿豆','西瓜翠衣','荷叶','莲子'],
       忌: ['大寒','冰镇'],
       tips: '避暑防晒，静心养神，冬病夏治好时机' },
-    { name: '小暑', date: '7月6-8日', season: 'summer', element: '火',
+    { name: '小暑', date: '7月7日', season: 'summer', element: '火',
       summary: '暑气渐盛，未至极热', principle: '消暑清热，健脾化湿',
       foods: ['绿豆汤','荷叶粥','苦瓜','丝瓜','冬瓜','酸梅汤'],
       忌: ['冰饮','烧烤'],
       tips: '少户外活动，多食清淡，午后避暑' },
-    { name: '大暑', date: '7月22-24日', season: 'summer', element: '火',
+    { name: '大暑', date: '7月23日', season: 'summer', element: '火',
       summary: '一年最热，湿热交蒸', principle: '清暑祛湿，养气护心',
       foods: ['冬瓜','苦瓜','丝瓜','黄瓜','老鸭','薏米','绿豆','百合','莲子','秋葵'],
       忌: ['冰镇生冷','辛辣烧烤','甜腻厚味','过量苦寒'],
@@ -110,62 +110,62 @@
         { name: '陈皮绿豆汤', formula: '绿豆+陈皮1小块', effect: '清火配陈皮护胃(不冰镇)' }
       ]
     },
-    { name: '立秋', date: '8月7-9日', season: 'autumn', element: '金',
+    { name: '立秋', date: '8月7日', season: 'autumn', element: '金',
       summary: '秋季始立，暑去凉来', principle: '滋阴润燥，养肺生津',
       foods: ['百合','银耳','梨','蜂蜜','莲藕','山药'],
       忌: ['辛辣','燥热'],
       tips: '早卧早起，收敛神气，防秋燥' },
-    { name: '处暑', date: '8月22-24日', season: 'autumn', element: '金',
+    { name: '处暑', date: '8月23日', season: 'autumn', element: '金',
       summary: '暑气至此而止', principle: '养阴清热，益胃生津',
       foods: ['百合','莲子','银耳','梨','蜂蜜','鸭子'],
       忌: ['辛辣','生姜过量'],
       tips: '秋乏多睡，适量运动，防秋燥伤肺' },
-    { name: '白露', date: '9月7-9日', season: 'autumn', element: '金',
+    { name: '白露', date: '9月7日', season: 'autumn', element: '金',
       summary: '露凝而白，天气转凉', principle: '润肺生津，健脾益肾',
       foods: ['梨','龙眼','百合','银耳','核桃','红薯'],
       忌: ['寒凉','露脐'],
       tips: '添衣防凉，滋阴润肺，不露脐' },
-    { name: '秋分', date: '9月22-24日', season: 'autumn', element: '金',
+    { name: '秋分', date: '9月23日', season: 'autumn', element: '金',
       summary: '秋色平分，阴阳相半', principle: '滋阴润燥，平衡阴阳',
       foods: ['桂花','栗子','芋头','莲藕','百合','鸭肉'],
       忌: ['辛散','寒凉'],
       tips: '早睡早起，调畅情志，防悲秋' },
-    { name: '寒露', date: '10月8-9日', season: 'autumn', element: '金',
+    { name: '寒露', date: '10月8日', season: 'autumn', element: '金',
       summary: '露气寒冷，将凝结也', principle: '润肺滋阴，温养脾胃',
       foods: ['芝麻','糯米','菊花','山楂','柿子','萝卜'],
       忌: ['寒凉','生冷'],
       tips: '足部保暖，早卧早起，防感冒' },
-    { name: '霜降', date: '10月23-24日', season: 'autumn', element: '土',
+    { name: '霜降', date: '10月23日', season: 'autumn', element: '土',
       summary: '气肃而霜降，阴始凝也', principle: '平补肝肾，润燥养胃',
       foods: ['柿子','栗子','牛肉','羊肉','萝卜','山药'],
       忌: ['寒凉瓜果'],
       tips: '注意保暖，补益脾胃，迎冬准备' },
-    { name: '立冬', date: '11月7-8日', season: 'winter', element: '水',
+    { name: '立冬', date: '11月7日', season: 'winter', element: '水',
       summary: '冬季始立，万物收藏', principle: '滋阴潜阳，温补肝肾',
       foods: ['羊肉','牛肉','核桃','黑芝麻','栗子','萝卜'],
       忌: ['寒凉','生冷'],
       tips: '早卧晚起，必待日光，防寒保暖' },
-    { name: '小雪', date: '11月22-23日', season: 'winter', element: '水',
+    { name: '小雪', date: '11月22日', season: 'winter', element: '水',
       summary: '天渐寒冷，雪花初现', principle: '温补心肾，益脾养肝',
       foods: ['羊肉','牛肉','红薯','栗子','红枣','生姜'],
       忌: ['寒凉','黏腻'],
       tips: '注意头部保暖，适度进补，防抑郁' },
-    { name: '大雪', date: '12月6-8日', season: 'winter', element: '水',
+    { name: '大雪', date: '12月7日', season: 'winter', element: '水',
       summary: '大雪纷飞，阴气渐盛', principle: '温补助阳，补肾固本',
       foods: ['羊肉','桂圆','核桃','黑芝麻','红枣','姜茶'],
       忌: ['寒凉','冷饮'],
       tips: '早卧晚起，护好头颈，冬令进补' },
-    { name: '冬至', date: '12月21-23日', season: 'winter', element: '水',
+    { name: '冬至', date: '12月22日', season: 'winter', element: '水',
       summary: '阴极之至，阳气始生', principle: '温补心肾，养血安神',
       foods: ['饺子','汤圆','羊肉','桂圆','生姜','红枣'],
       忌: ['寒凉','生冷'],
       tips: '静养蓄精，少汗少泄，冬至大如年' },
-    { name: '小寒', date: '1月5-7日', season: 'winter', element: '水',
+    { name: '小寒', date: '1月5日', season: 'winter', element: '水',
       summary: '寒气至极，尚未大寒', principle: '温补脾肾，散寒暖身',
       foods: ['羊肉','牛肉','生姜','红糖','核桃','栗子'],
       忌: ['冰冷','寒性瓜果'],
       tips: '三九补冬，注意心脑血管保暖' },
-    { name: '大寒', date: '1月20-21日', season: 'winter', element: '水',
+    { name: '大寒', date: '1月20日', season: 'winter', element: '水',
       summary: '一年最冷，寒极将暖', principle: '固护阳气，滋阴温补',
       foods: ['八宝饭','羊肉','桂圆','红枣','生姜','糯米'],
       忌: ['寒凉','生冷'],
@@ -190,20 +190,20 @@
     // 节气交节日期表（简化版，基于公历近似）
     var termDates = [
       { idx: 0, m: 2, d: 4 },   // 立春
-      { idx: 1, m: 2, d: 19 },  // 雨水
-      { idx: 2, m: 3, d: 6 },   // 惊蛰
-      { idx: 3, m: 3, d: 21 },  // 春分
+      { idx: 1, m: 2, d: 18 },  // 雨水
+      { idx: 2, m: 3, d: 5 },   // 惊蛰
+      { idx: 3, m: 3, d: 20 },  // 春分
       { idx: 4, m: 4, d: 5 },   // 清明
       { idx: 5, m: 4, d: 20 },  // 谷雨
-      { idx: 6, m: 5, d: 6 },   // 立夏
+      { idx: 6, m: 5, d: 5 },   // 立夏
       { idx: 7, m: 5, d: 21 },  // 小满
-      { idx: 8, m: 6, d: 6 },   // 芒种
+      { idx: 8, m: 6, d: 5 },   // 芒种
       { idx: 9, m: 6, d: 21 },  // 夏至
       { idx: 10, m: 7, d: 7 },  // 小暑
       { idx: 11, m: 7, d: 23 }, // 大暑
       { idx: 12, m: 8, d: 7 },  // 立秋
       { idx: 13, m: 8, d: 23 }, // 处暑
-      { idx: 14, m: 9, d: 8 },  // 白露
+      { idx: 14, m: 9, d: 7 },  // 白露
       { idx: 15, m: 9, d: 23 }, // 秋分
       { idx: 16, m: 10, d: 8 }, // 寒露
       { idx: 17, m: 10, d: 23 },// 霜降
@@ -211,7 +211,7 @@
       { idx: 19, m: 11, d: 22 },// 小雪
       { idx: 20, m: 12, d: 7 }, // 大雪
       { idx: 21, m: 12, d: 22 },// 冬至
-      { idx: 22, m: 1, d: 6 },  // 小寒
+      { idx: 22, m: 1, d: 5 },  // 小寒
       { idx: 23, m: 1, d: 20 }  // 大寒
     ];
 
