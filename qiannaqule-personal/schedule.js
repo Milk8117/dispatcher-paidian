@@ -22,10 +22,10 @@
       created: '2026-07-31', deadline: '2026-08-15'
     },
     {
-      id: 't3', title: 'AI输入框接入LLM',
-      desc: '替换 detectIntent() 关键词检测为 LLM API（Kimi/通义千问）',
-      group: 'mijieai', status: 'todo', priority: 2,
-      created: '2026-07-31', deadline: ''
+      id: 't3', title: 'P0 · AI输入框接入LLM',
+      desc: '替换 detectIntent() 关键词检测为 LLM API（Kimi/通义千问），贾维斯的核心能力',
+      group: 'jarvis', status: 'todo', priority: 0,
+      created: '2026-07-31', deadline: '2026-08-02'
     },
     {
       id: 't4', title: '个人财富诊断CT · 周五内测启动',
@@ -50,12 +50,84 @@
       desc: '6大慢病模块+首次筛查+食谱禁忌规避+收藏+今天吃什么',
       group: 'mijieai', status: 'done', priority: 1,
       created: '2026-07-31', deadline: '2026-07-31'
+    },
+    // ========== 贾维斯进化计划 ==========
+    // P0 — 本周必做（决定是工具还是贾维斯）
+    {
+      id: 't8', title: 'P0 · 建立UserProfile统一用户画像',
+      desc: '合并mijieai_health_profile、mijieai_preferences、财务快照、行为日志偏好为统一UserProfile对象',
+      group: 'jarvis', status: 'todo', priority: 0,
+      created: '2026-07-31', deadline: '2026-08-02'
+    },
+    // P1 — 两周内（让数据活起来）
+    {
+      id: 't9', title: 'P1 · 跨模块数据关联（财务+情绪）',
+      desc: '实现消费数据与情绪日志的联动分析，压力消费预警功能',
+      group: 'jarvis', status: 'todo', priority: 1,
+      created: '2026-07-31', deadline: '2026-08-07'
+    },
+    {
+      id: 't10', title: 'P1 · 主动推送引擎',
+      desc: '基于用户数据生成主动建议（不只是提醒，是洞察），如异常消费提醒、健康趋势预警',
+      group: 'jarvis', status: 'todo', priority: 1,
+      created: '2026-07-31', deadline: '2026-08-10'
+    },
+    {
+      id: 't11', title: 'P1 · DataStore全模块覆盖',
+      desc: '所有模块统一走DataStore抽象层，替换直接localStorage调用，统一key前缀规范',
+      group: 'jarvis', status: 'todo', priority: 1,
+      created: '2026-07-31', deadline: '2026-08-14'
+    },
+    // P2 — 一个月内（体验跃升）
+    {
+      id: 't12', title: 'P2 · 图片识别能力',
+      desc: '接入视觉模型API，拍菜单/账单/体检报告自动识别并记账',
+      group: 'jarvis', status: 'todo', priority: 2,
+      created: '2026-07-31', deadline: '2026-08-21'
+    },
+    {
+      id: 't13', title: 'P2 · 趋势洞察面板',
+      desc: '跨模块时间序列分析，月度生活全景报告（财务+健康+情绪+行为综合趋势）',
+      group: 'jarvis', status: 'todo', priority: 2,
+      created: '2026-07-31', deadline: '2026-08-25'
+    },
+    {
+      id: 't14', title: 'P2 · IndexedDB迁移',
+      desc: '从localStorage(5MB)迁移至IndexedDB，突破存储上限，支撑长期数据积累',
+      group: 'jarvis', status: 'todo', priority: 2,
+      created: '2026-07-31', deadline: '2026-08-31'
+    },
+    // P3 — 远期（贾维斯形态）
+    {
+      id: 't15', title: 'P3 · 端侧AI推理',
+      desc: '本地小模型处理隐私敏感数据，实现真正的离线智能',
+      group: 'jarvis', status: 'todo', priority: 3,
+      created: '2026-07-31', deadline: ''
+    },
+    {
+      id: 't16', title: 'P3 · 对话记忆系统',
+      desc: '长期上下文积累，让贾维斯记住用户的历史偏好、习惯模式和决策风格',
+      group: 'jarvis', status: 'todo', priority: 3,
+      created: '2026-07-31', deadline: ''
+    },
+    {
+      id: 't17', title: 'P3 · 自动化工作流',
+      desc: '每日早8点自动推送生活全景摘要（财务+健康+日程+情绪），实现"人只下命令"',
+      group: 'jarvis', status: 'todo', priority: 3,
+      created: '2026-07-31', deadline: ''
+    },
+    {
+      id: 't18', title: 'P3 · 事件总线EventBus',
+      desc: '建立window.MijieEvent发布/订阅机制，实现模块间实时通信与联动',
+      group: 'jarvis', status: 'todo', priority: 3,
+      created: '2026-07-31', deadline: ''
     }
   ];
 
   var GROUP_LABELS = {
     mijieai: { name: '米界AI', color: '#4f46e5', icon: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>' },
-    'wealth-ct': { name: '财富诊断CT', color: '#2563eb', icon: '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 10h20"/><path d="M6 16h4"/><path d="M14 16h4"/>' }
+    'wealth-ct': { name: '财富诊断CT', color: '#2563eb', icon: '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 10h20"/><path d="M6 16h4"/><path d="M14 16h4"/>' },
+    jarvis: { name: '贾维斯进化', color: '#dc2626', icon: '<path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>' }
   };
 
   var STATUS_META = {
@@ -95,7 +167,27 @@
   function loadTasks() {
     try {
       var raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) return JSON.parse(raw);
+      if (raw) {
+        var tasks = JSON.parse(raw);
+        // 迁移：检查贾维斯进化计划是否已存在
+        var hasJarvis = tasks.some(function(t) { return t.group === 'jarvis'; });
+        if (!hasJarvis) {
+          var jarvisTasks = DEFAULT_TASKS.filter(function(t) { return t.group === 'jarvis'; });
+          // 同时更新t3的group和deadline
+          tasks.forEach(function(t) {
+            if (t.id === 't3') {
+              t.group = 'jarvis';
+              t.priority = 0;
+              t.deadline = '2026-08-02';
+              t.title = 'P0 · AI输入框接入LLM';
+              t.desc = '替换 detectIntent() 关键词检测为 LLM API（Kimi/通义千问），贾维斯的核心能力';
+            }
+          });
+          tasks = tasks.concat(jarvisTasks);
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+        }
+        return tasks;
+      }
     } catch(e) {}
     localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_TASKS));
     return DEFAULT_TASKS.slice();
