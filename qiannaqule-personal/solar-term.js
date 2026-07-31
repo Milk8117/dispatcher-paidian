@@ -8,6 +8,42 @@
 (function() {
   'use strict';
 
+  // ==================== 年份自适应节气日期计算 ====================
+  // 基准年份2026年精确天文日期 [月, 日]
+  var BASE_YEAR = 2026;
+  var BASE_DATES = [
+    [2,4],[2,18],[3,5],[3,20],[4,5],[4,20],
+    [5,5],[5,21],[6,5],[6,21],[7,7],[7,23],
+    [8,7],[8,23],[9,7],[9,23],[10,8],[10,23],
+    [11,7],[11,22],[12,7],[12,22],[1,5],[1,20]
+  ];
+  var TROPICAL_YEAR = 365.2422; // 回归年天数
+
+  // 计算指定年份的24节气日期
+  function computeTermDates(year) {
+    var offset = (year - BASE_YEAR) * TROPICAL_YEAR;
+    return BASE_DATES.map(function(base) {
+      var baseDate = new Date(BASE_YEAR, base[0] - 1, base[1], 12, 0, 0);
+      var targetTime = baseDate.getTime() + offset * 86400000;
+      var d = new Date(targetTime);
+      // 处理跨年边界
+      if (base[0] === 1 && year > BASE_YEAR) {
+        d = new Date(year, base[0] - 1, base[1] + Math.round((year - BASE_YEAR) * TROPICAL_YEAR - Math.floor((year - BASE_YEAR) * TROPICAL_YEAR / 4) * 1), 12, 0, 0);
+      }
+      return { month: d.getMonth() + 1, day: d.getDate() };
+    });
+  }
+
+  // 获取当年节气日期（带缓存）
+  var _cachedYear = 0;
+  var _cachedDates = null;
+  function getYearTermDates(year) {
+    if (_cachedYear === year && _cachedDates) return _cachedDates;
+    _cachedYear = year;
+    _cachedDates = computeTermDates(year);
+    return _cachedDates;
+  }
+
   // ==================== 二十四节气数据 ====================
   var SOLAR_TERMS = [
     { name: '立春', date: '2月4日', season: 'spring', element: '木',
@@ -187,41 +223,19 @@
     var month = now.getMonth() + 1;
     var day = now.getDate();
 
-    // 节气交节日期表（简化版，基于公历近似）
-    var termDates = [
-      { idx: 0, m: 2, d: 4 },   // 立春
-      { idx: 1, m: 2, d: 18 },  // 雨水
-      { idx: 2, m: 3, d: 5 },   // 惊蛰
-      { idx: 3, m: 3, d: 20 },  // 春分
-      { idx: 4, m: 4, d: 5 },   // 清明
-      { idx: 5, m: 4, d: 20 },  // 谷雨
-      { idx: 6, m: 5, d: 5 },   // 立夏
-      { idx: 7, m: 5, d: 21 },  // 小满
-      { idx: 8, m: 6, d: 5 },   // 芒种
-      { idx: 9, m: 6, d: 21 },  // 夏至
-      { idx: 10, m: 7, d: 7 },  // 小暑
-      { idx: 11, m: 7, d: 23 }, // 大暑
-      { idx: 12, m: 8, d: 7 },  // 立秋
-      { idx: 13, m: 8, d: 23 }, // 处暑
-      { idx: 14, m: 9, d: 7 },  // 白露
-      { idx: 15, m: 9, d: 23 }, // 秋分
-      { idx: 16, m: 10, d: 8 }, // 寒露
-      { idx: 17, m: 10, d: 23 },// 霜降
-      { idx: 18, m: 11, d: 7 }, // 立冬
-      { idx: 19, m: 11, d: 22 },// 小雪
-      { idx: 20, m: 12, d: 7 }, // 大雪
-      { idx: 21, m: 12, d: 22 },// 冬至
-      { idx: 22, m: 1, d: 5 },  // 小寒
-      { idx: 23, m: 1, d: 20 }  // 大寒
-    ];
+    // 动态获取当年节气日期
+    var termDates = getYearTermDates(year);
+    var termDatesArr = [];
+    for (var j = 0; j < termDates.length; j++) {
+      termDatesArr.push({ idx: j, m: termDates[j].month, d: termDates[j].day });
+    }
 
     // 找到当前所处节气：找到第一个尚未到来的节气，前一个即为当前节气
     var currentIdx = 23; // 默认冬至（年末最后一个节气）
-    for (var i = 0; i < termDates.length; i++) {
-      var t = termDates[i];
+    for (var i = 0; i < termDatesArr.length; i++) {
+      var t = termDatesArr[i];
       if (month < t.m || (month === t.m && day < t.d)) {
-        // 第i个节气还没到，当前是前一个
-        currentIdx = (i === 0) ? 23 : termDates[i - 1].idx;
+        currentIdx = (i === 0) ? 23 : termDatesArr[i - 1].idx;
         break;
       }
     }
@@ -402,10 +416,9 @@
       if (!isDragging) return;
       isDragging = false;
       wheelGroup.style.transition = 'transform 0.6s cubic-bezier(0.34,1.56,0.64,1)';
-      // 吸附到最近的节气
-      var normalizedRotation = ((currentRotation % 360) + 360) % 360;
-      var nearestIdx = Math.round(-currentRotation / anglePerSegment) % 24;
-      if (nearestIdx < 0) nearestIdx += 24;
+      // 吸附到最近的节气 — 修正旋转方向与角度映射
+      var rot = ((currentRotation % 360) + 360) % 360;
+      var nearestIdx = Math.round((360 - rot) / anglePerSegment) % 24;
       rotateTo(nearestIdx);
       onClickTerm(nearestIdx);
     });
@@ -565,6 +578,13 @@
     if (!container) return;
 
     injectStyles();
+
+    // 动态更新当年节气显示日期
+    var year = new Date().getFullYear();
+    var termDates = getYearTermDates(year);
+    for (var k = 0; k < SOLAR_TERMS.length; k++) {
+      SOLAR_TERMS[k].date = termDates[k].month + '月' + termDates[k].day + '日';
+    }
 
     var currentIdx = getCurrentTermIndex();
 
