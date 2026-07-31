@@ -1647,6 +1647,10 @@ body {
     <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 10h20"/><path d="M6 16h4"/><path d="M14 16h4"/></svg>
     财富诊断CT
   </button>
+  <button class="nav-drawer-item" data-module="dailytx" onclick="switchModule('dailytx')">
+    <svg viewBox="0 0 24 24"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+    日常收支
+  </button>
   <button class="nav-drawer-item" data-module="solar" onclick="switchModule('solar')">
     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
     节气养生
@@ -2264,8 +2268,15 @@ body {
   <div style="text-align:center;margin-top:8px;">
     <a href="#" onclick="showPrivacyPolicy();return false;" style="color:#64748b;font-size:12px;text-decoration:underline;">查看隐私协议</a>
   </div>
-  <!-- ==================== 日常收支记录 ==================== -->
-  <div id="dailyTxContainer"></div>
+  <!-- ==================== 收支概览（自动汇总日常收支数据） ==================== -->
+  <div id="financeTxSummary" style="margin:0 16px 12px;"></div>
+
+  <div style="text-align:center;margin-top:8px;">
+    <a href="#" onclick="switchModule('dailytx');return false;" style="display:inline-flex;align-items:center;gap:4px;color:#2563eb;font-size:13px;font-weight:600;text-decoration:none;padding:8px 16px;border:1.5px solid #bfdbfe;border-radius:10px;background:#eff6ff;transition:all .2s;">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#2563eb" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      查看日常收支明细
+    </a>
+  </div>
 
   <div style="text-align:center;margin-top:16px;padding:14px 0;">
     <span style="display:inline-flex;align-items:center;gap:6px;">
@@ -2275,6 +2286,12 @@ body {
   </div>
 </div>
 <!-- END page-finance -->
+
+<!-- ==================== PAGE: 日常收支 ==================== -->
+<div id="page-dailytx" class="page-view">
+  <div id="dailyTxContainer"></div>
+</div>
+<!-- END page-dailytx -->
 
 <!-- ==================== PAGE: 节气养生 ==================== -->
 <div id="page-solar" class="page-view">
@@ -2320,6 +2337,7 @@ body {
   var moduleTitles = {
     home: '米界AI',
     finance: '财富诊断CT',
+    dailytx: '日常收支',
     solar: '节气养生',
     schedule: '日程管理',
     behavior: '行为日志'
@@ -2373,9 +2391,15 @@ body {
       });
     }
     // 日常收支模块初始化
-    if (moduleName === 'finance' && window.initDailyTx) {
+    if (moduleName === 'dailytx' && window.initDailyTx) {
       requestAnimationFrame(function() {
         window.initDailyTx('dailyTxContainer');
+      });
+    }
+    // 财富诊断CT：刷新收支概览
+    if (moduleName === 'finance' && window.renderFinanceTxSummary) {
+      requestAnimationFrame(function() {
+        window.renderFinanceTxSummary();
       });
     }
     // 行为日志模块初始化
@@ -2430,16 +2454,40 @@ body {
       }
     }
 
-    // 优先级2：语音记账 — "午餐35" "打车20" "收入5000" "买了件衣服300"
+    // 优先级2：日程解析 — "今天晚上7:00饭局" "明天下午3点开会" "18:00提醒我出发"
+    var schResult = tryParseSchedule(text);
+    if (schResult) {
+      if (window.scheduleAddTask) {
+        var newSchTask = window.scheduleAddTask({ title: schResult.title, desc: '', date: schResult.date, time: schResult.time, deadline: schResult.date, reminder: schResult.time });
+        switchModule('schedule');
+        // 跳转到对应日期
+        if (window._schState && schResult.date) {
+          var parts = schResult.date.split('-');
+          window._schState.year = parseInt(parts[0]);
+          window._schState.month = parseInt(parts[1]);
+          window._schState.selectedDay = parseInt(parts[2]);
+        }
+        showToast('<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>已添加日程：' + schResult.title + (schResult.time ? ' ' + schResult.time : ''));
+        return;
+      }
+    }
+
+    // 优先级3：语音记账 — "午餐35" "打车20" "收入5000" "买了件衣服300"
     var txResult = tryParseTransaction(text);
     if (txResult) {
       if (window.dailyTxAdd) {
         window.dailyTxAdd(txResult);
-        switchModule('finance');
-        var catNames = {food:'餐饮',transport:'交通',shopping:'购物',entertain:'娱乐',medical:'医疗',education:'教育',daily:'日用',other:'其他',salary:'工资',sidejob:'兼职',invest:'投资收益',other_in:'其他收入'};
+        switchModule('dailytx');
+        var ctFieldNames = {
+          expensePersonal:'个人消费',expenseFamily:'家庭开支',expenseEducation:'家庭教育',
+          expenseMedical:'家庭医疗',loanPayment:'贷款月供',insurance:'保险保障',
+          jobIncome:'职业收入',rentalIncome:'租金收入',investIncome:'投资收益',sideIncome:'副业兼职'
+        };
         var sym = txResult.type === 'expense' ? '-' : '+';
-        var catLabel = catNames[txResult.category] || '';
-        showToast('<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M20 6L9 17l-5-5"/></svg>已记录：' + catLabel + ' ' + sym + '¥' + txResult.amount);
+        var fieldLabel = ctFieldNames[txResult.ctField] || '';
+        var subLabel = txResult.subCategory || '';
+        var displayLabel = fieldLabel + (subLabel ? '·' + subLabel : '');
+        showToast('<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M20 6L9 17l-5-5"/></svg>已记录：' + displayLabel + ' ' + sym + '¥' + txResult.amount);
         return;
       }
     }
@@ -2488,6 +2536,86 @@ body {
     }
     // Show a brief toast-like feedback
     showToast(result);
+  };
+
+  // ==================== 财富诊断CT — 收支概览（自动汇总日常收支数据） ====================
+  window.renderFinanceTxSummary = function() {
+    var el = document.getElementById('financeTxSummary');
+    if (!el) return;
+    if (!window.getDailyTxSummary) { el.innerHTML = ''; return; }
+    var summary = window.getDailyTxSummary();
+    if (!summary) { el.innerHTML = ''; return; }
+
+    var ctLabels = {
+      jobIncome: { name: '职业收入', color: '#22c55e', icon: 'M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6' },
+      rentalIncome: { name: '租金收入', color: '#0ea5e9', icon: 'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z' },
+      investIncome: { name: '投资收益', color: '#f59e0b', icon: 'M22 12h-4l-3 9L9 3l-3 9H2' },
+      sideIncome: { name: '副业兼职', color: '#8b5cf6', icon: 'M20 7h-4V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2H4a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1z' },
+      expensePersonal: { name: '个人消费', color: '#f97316', icon: 'M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z' },
+      expenseFamily: { name: '家庭开支', color: '#14b8a6', icon: 'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9zM9 22V12h6v10' },
+      expenseEducation: { name: '家庭教育', color: '#06b6d4', icon: 'M12 14l9-5-9-5-9 5 9 5zM12 14l6.16-3.42' },
+      expenseMedical: { name: '家庭医疗', color: '#ef4444', icon: 'M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7z' },
+      loanPayment: { name: '贷款月供', color: '#dc2626', icon: 'M21 12V7H5a2 2 0 010-4h14v4M3 5v14a2 2 0 002 2h16v-5M18 12a2 2 0 100 4 2 2 0 000-4z' },
+      insurance: { name: '保险保障', color: '#7c3aed', icon: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z' }
+    };
+
+    var incomeKeys = ['jobIncome', 'rentalIncome', 'investIncome', 'sideIncome'];
+    var expenseKeys = ['expensePersonal', 'expenseFamily', 'expenseEducation', 'expenseMedical', 'loanPayment', 'insurance'];
+
+    function svgI(pathD, color, sz) {
+      sz = sz || 14;
+      return '<svg viewBox="0 0 24 24" width="'+sz+'" height="'+sz+'" fill="none" stroke="'+color+'" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+pathD+'</svg>';
+    }
+
+    var maxVal = 1;
+    incomeKeys.concat(expenseKeys).forEach(function(k) {
+      var v = (k.indexOf('expense') === 0 || k === 'loanPayment' || k === 'insurance') ? (summary.expense[k] || 0) : (summary.income[k] || 0);
+      if (v > maxVal) maxVal = v;
+    });
+
+    var h = '<div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px 16px;box-shadow:0 1px 3px rgba(0,0,0,.04)">';
+    h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">';
+    h += '<div style="font-size:14px;font-weight:700;color:#1e293b;display:flex;align-items:center;gap:6px">' + svgI('M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6', '#2563eb') + '本月收支概览</div>';
+    h += '<div style="font-size:11px;color:#94a3b8">' + summary.month + '</div>';
+    h += '</div>';
+
+    // 总计卡片
+    h += '<div style="display:flex;gap:6px;margin-bottom:12px">';
+    h += '<div style="flex:1;padding:10px;border-radius:8px;background:#f0fdf4;text-align:center"><div style="font-size:10px;color:#16a34a;font-weight:600">总收入</div><div style="font-size:16px;font-weight:700;color:#16a34a">+¥' + summary.totalIncome.toFixed(0) + '</div></div>';
+    h += '<div style="flex:1;padding:10px;border-radius:8px;background:#fef2f2;text-align:center"><div style="font-size:10px;color:#ef4444;font-weight:600">总支出</div><div style="font-size:16px;font-weight:700;color:#ef4444">-¥' + summary.totalExpense.toFixed(0) + '</div></div>';
+    h += '<div style="flex:1;padding:10px;border-radius:8px;background:' + (summary.balance >= 0 ? '#eff6ff' : '#fef2f2') + ';text-align:center"><div style="font-size:10px;color:' + (summary.balance >= 0 ? '#2563eb' : '#ef4444') + ';font-weight:600">结余</div><div style="font-size:16px;font-weight:700;color:' + (summary.balance >= 0 ? '#2563eb' : '#ef4444') + '">' + (summary.balance >= 0 ? '+' : '') + '¥' + summary.balance.toFixed(0) + '</div></div>';
+    h += '</div>';
+
+    // 收入明细
+    h += '<div style="margin-bottom:10px"><div style="font-size:11px;font-weight:700;color:#16a34a;margin-bottom:6px">收入明细</div>';
+    incomeKeys.forEach(function(k) {
+      var info = ctLabels[k];
+      var val = summary.income[k] || 0;
+      var pct = maxVal > 0 ? Math.round(val / maxVal * 100) : 0;
+      h += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">';
+      h += '<div style="width:22px;height:22px;border-radius:6px;background:' + info.color + '18;display:flex;align-items:center;justify-content:center;flex-shrink:0">' + svgI(info.icon, info.color, 12) + '</div>';
+      h += '<div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:11px;color:#475569">' + info.name + '</span><span style="font-size:11px;font-weight:600;color:#1e293b">¥' + val.toFixed(0) + '</span></div>';
+      h += '<div style="height:3px;background:#f1f5f9;border-radius:2px;margin-top:2px"><div style="height:100%;width:' + pct + '%;background:' + info.color + ';border-radius:2px;transition:width .3s"></div></div>';
+      h += '</div></div>';
+    });
+    h += '</div>';
+
+    // 支出明细
+    h += '<div><div style="font-size:11px;font-weight:700;color:#ef4444;margin-bottom:6px">支出明细</div>';
+    expenseKeys.forEach(function(k) {
+      var info = ctLabels[k];
+      var val = summary.expense[k] || 0;
+      var pct = maxVal > 0 ? Math.round(val / maxVal * 100) : 0;
+      h += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">';
+      h += '<div style="width:22px;height:22px;border-radius:6px;background:' + info.color + '18;display:flex;align-items:center;justify-content:center;flex-shrink:0">' + svgI(info.icon, info.color, 12) + '</div>';
+      h += '<div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:11px;color:#475569">' + info.name + '</span><span style="font-size:11px;font-weight:600;color:#1e293b">¥' + val.toFixed(0) + '</span></div>';
+      h += '<div style="height:3px;background:#f1f5f9;border-radius:2px;margin-top:2px"><div style="height:100%;width:' + pct + '%;background:' + info.color + ';border-radius:2px;transition:width .3s"></div></div>';
+      h += '</div></div>';
+    });
+    h += '</div>';
+
+    h += '</div>';
+    el.innerHTML = h;
   };
 
   function showToast(msg) {
@@ -2571,50 +2699,144 @@ body {
   }
 
   // ========== 自然语言记账解析 ==========
+  // ========== 自然语言日程解析 ==========
+  function tryParseSchedule(text) {
+    // 检测时间表达：支持 "7:00" "18:00" "7点" "3点半" "下午3点" 等
+    var timeRegex = /(?:(今天|明天|后天|大后天))?\s*(?:(早上|上午|中午|下午|晚上))?\s*(\d{1,2})\s*[：:点](\d{0,2})\s*(分|半)?/;
+    var m = text.match(timeRegex);
+    if (!m) return null;
+
+    var dayWord = m[1] || '今天';
+    var period = m[2] || '';
+    var hour = parseInt(m[3]);
+    var minute = m[4] ? parseInt(m[4]) : 0;
+    if (m[5] === '半') minute = 30;
+
+    // 12小时制转24小时
+    if (period === '下午' || period === '晚上') {
+      if (hour < 12) hour += 12;
+    } else if (period === '早上' || period === '上午') {
+      if (hour === 12) hour = 0;
+    } else if (period === '中午') {
+      // 中午12点保持12
+    } else {
+      // 没有时段词，如果小时<=12则认为是12小时制需要推断
+      // 但如果用户说"7:00有一个饭局"大概率是晚上19:00
+      // 保守处理：不自动转换，保持原值
+    }
+
+    // 计算日期
+    var now = new Date();
+    var baseDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    if (dayWord === '明天') baseDate.setDate(baseDate.getDate() + 1);
+    else if (dayWord === '后天') baseDate.setDate(baseDate.getDate() + 2);
+    else if (dayWord === '大后天') baseDate.setDate(baseDate.getDate() + 3);
+
+    var eventTime = new Date(baseDate.getTime() + hour * 3600000 + minute * 60000);
+
+    // 提取事件标题：去掉时间部分和连接词后的剩余文本
+    var title = text
+      .replace(timeRegex[0] || '', '')
+      .replace(/^[，,\s的]+/, '')
+      .replace(/(?:有|要|是|参加|开|去|需要|记得|帮我|请)/, '')
+      .replace(/提醒我?/, '提醒：')
+      .replace(/^[，,\s]+/, '').replace(/[，,\s]+$/, '')
+      .trim();
+
+    if (title.length < 2) return null;
+    if (hour < 0 || hour > 23 || minute < 0 || minute > 59) return null;
+
+    // 格式化时间字符串
+    var dateStr = eventTime.getFullYear() + '-' +
+      String(eventTime.getMonth() + 1).padStart(2, '0') + '-' +
+      String(eventTime.getDate()).padStart(2, '0');
+    var timeStr = String(hour).padStart(2, '0') + ':' + String(minute).padStart(2, '0');
+
+    return { title: title, date: dateStr, time: timeStr };
+  }
+
   function tryParseTransaction(text) {
-    // 提取金额（支持"元/块/元"后缀或纯数字）
-    var amtMatch = text.match(/(\d+\.?\d*)\s*(?:元|块|¥|￥)?/);
+    // 防御1：如果文本含时间+日程关键词，判定为日程而非记账，直接拒绝
+    if (/\d{1,2}\s*[：:点]\s*\d{0,2}/.test(text) && /提醒|饭局|聚会|会议|约会|开会|出差|电影|挂号|出发|到达|接|送|上课|下课|开始|结束/.test(text)) {
+      return null;
+    }
+
+    // 先排除时间格式干扰
+    var cleanText = text
+      .replace(/\d{1,2}\s*[：:]\s*\d{2}/g, '')
+      .replace(/\d{1,2}\s*[点半]\s*(?:分)?/g, '')
+      .replace(/(早上|上午|中午|下午|晚上)/g, '')
+      .replace(/(今天|明天|后天|大后天|昨天|前天)/g, '')
+      .trim();
+
+    // 提取金额
+    var amtMatch = cleanText.match(/(\d+\.?\d*)\s*(?:元|块|¥|￥)?/);
     if (!amtMatch) return null;
     var amount = parseFloat(amtMatch[1]);
     if (!amount || amount <= 0) return null;
 
+    // 防御2：金额必须来自有交易语境的文本——要求有交易动词/分类关键词/金额后缀之一
+    var hasTransactionContext = /(?:元|块|¥|￥)/.test(text)
+      || /(?:花了|花掉|支出|消费|买了|购买|交了|缴了|付了|充值|缴费|扣了|收入|收到|到账|进账|记账|记一下)/.test(text)
+      || /(?:午餐|午饭|晚餐|晚饭|早餐|早饭|吃饭|外卖|打车|出租|地铁|公交|加油|衣服|鞋|课程|培训|学费|药|看病|水电|物业|房贷|车贷|保费|工资|兼职|租金|利息|分红)/.test(text);
+    if (!hasTransactionContext) return null;
+
     // 判断收入还是支出
-    var isIncome = /(?:^|收入|收到|到账|进账|工资|兼职|奖金|红包|报销|返利|回款|提成)/.test(text) && !/(?:花了|花掉|支出|消费|买了|购买|交了|缴了|付了|充值|缴费|扣了)/.test(text);
-    // 显式"收入/到账/工资"等关键词优先判断为收入
-    if (/(?:收入|到账|工资|进账|回款|提成|奖金|返利)/.test(text)) isIncome = true;
-    // 显式"花了/支出/买了"等关键词优先判断为支出
+    var isIncome = false;
+    if (/(?:收入|到账|工资|进账|回款|提成|奖金|返利|租金)/.test(text)) isIncome = true;
     if (/(?:花了|花掉|支出|消费|买了|购买|交了|缴了|付了|充值|缴费|扣了)/.test(text)) isIncome = false;
 
     var type = isIncome ? 'income' : 'expense';
 
-    // 分类匹配
-    var category = 'other';
+    // 分类匹配 → ctField + subCategory（与财富诊断CT字段对齐）
+    var ctField = '', subCategory = '';
     if (isIncome) {
-      if (/工资|薪水|薪酬/.test(text)) category = 'salary';
-      else if (/兼职|副业|私活/.test(text)) category = 'sidejob';
-      else if (/投资|理财|股票|基金|分红|收益/.test(text)) category = 'invest';
-      else category = 'other_in';
+      if (/工资|薪水|薪酬|底薪/.test(text)) { ctField = 'jobIncome'; subCategory = '工资'; }
+      else if (/奖金|年终奖|绩效/.test(text)) { ctField = 'jobIncome'; subCategory = '奖金'; }
+      else if (/提成|佣金/.test(text)) { ctField = 'jobIncome'; subCategory = '提成'; }
+      else if (/兼职|副业|私活|接单/.test(text)) { ctField = 'sideIncome'; subCategory = '兼职'; }
+      else if (/咨询|顾问/.test(text)) { ctField = 'sideIncome'; subCategory = '咨询'; }
+      else if (/房租|出租|租金/.test(text)) { ctField = 'rentalIncome'; subCategory = '房租'; }
+      else if (/利息|股息|分红|理财收益/.test(text)) { ctField = 'investIncome'; subCategory = '股息分红'; }
+      else if (/基金|股票|收益/.test(text)) { ctField = 'investIncome'; subCategory = '基金收益'; }
+      else { ctField = 'jobIncome'; subCategory = '其他'; }
     } else {
-      if (/午餐|午饭|晚餐|晚饭|早餐|早饭|吃饭|外卖|点餐|火锅|烧烤|奶茶|咖啡|饮料|小吃|饭店|餐厅|食堂|干饭|饭|吃/.test(text)) category = 'food';
-      else if (/打车|出租|地铁|公交|加油|停车|过路|高铁|火车|飞机|机票|滴滴|交通|骑行|共享单车/.test(text)) category = 'transport';
-      else if (/衣服|鞋|帽|裤|裙|穿|淘宝|京东|拼多多|网购|买.*了|购物|商城/.test(text)) category = 'shopping';
-      else if (/电影|游戏|KTV|唱歌|旅游|门票|景点|玩|娱乐|演出|音乐会|球赛/.test(text)) category = 'entertain';
-      else if (/医院|药|看病|体检|挂号|医疗|诊所|牙|配镜|眼镜/.test(text)) category = 'medical';
-      else if (/课程|培训|书|学费|考试|报名|教育|学习/.test(text)) category = 'education';
-      else if (/水电|燃气|物业|话费|网费|日用|洗|纸巾|超|便利/.test(text)) category = 'daily';
-      else category = 'other';
+      // 贷款月供 — 优先检测
+      if (/房贷|按揭|月供|还贷/.test(text)) { ctField = 'loanPayment'; subCategory = '房贷'; }
+      else if (/车贷|车贷月供/.test(text)) { ctField = 'loanPayment'; subCategory = '车贷'; }
+      else if (/消费贷|信用贷|借呗|花呗/.test(text)) { ctField = 'loanPayment'; subCategory = '消费贷'; }
+      // 保险
+      else if (/保费|保险费|寿险|重疾险|医疗险|保险缴费/.test(text)) { ctField = 'insurance'; subCategory = /寿险/.test(text)?'寿险':/重疾/.test(text)?'重疾':'医疗险'; }
+      // 家庭教育
+      else if (/学费|学杂费|报名费|学费/.test(text)) { ctField = 'expenseEducation'; subCategory = '学费'; }
+      else if (/培训|课程|辅导班|补习|家教/.test(text)) { ctField = 'expenseEducation'; subCategory = '培训费'; }
+      else if (/教材|文具|书包|课外书/.test(text)) { ctField = 'expenseEducation'; subCategory = '教材文具'; }
+      // 家庭医疗
+      else if (/医院|看病|门诊|挂号|就诊/.test(text)) { ctField = 'expenseMedical'; subCategory = '门诊'; }
+      else if (/药|药品|买药|药房/.test(text)) { ctField = 'expenseMedical'; subCategory = '药品'; }
+      else if (/体检|检查|化验/.test(text)) { ctField = 'expenseMedical'; subCategory = '体检'; }
+      // 家庭开支 — 居住相关
+      else if (/水电|燃气|电费|水费|气费/.test(text)) { ctField = 'expenseFamily'; subCategory = '水电燃气'; }
+      else if (/物业费|物业/.test(text)) { ctField = 'expenseFamily'; subCategory = '物业'; }
+      else if (/话费|网费|宽带/.test(text)) { ctField = 'expenseFamily'; subCategory = '话费网费'; }
+      else if (/买菜|超市|日用|洗护|纸巾|家庭|家里/.test(text)) { ctField = 'expenseFamily'; subCategory = '日用'; }
+      // 个人消费
+      else if (/午餐|午饭|晚餐|晚饭|早餐|早饭|吃饭|外卖|点餐|火锅|烧烤|奶茶|咖啡|饮料|小吃|饭店|餐厅|食堂|干饭|饭|吃/.test(text)) { ctField = 'expensePersonal'; subCategory = '餐饮'; }
+      else if (/打车|出租|地铁|公交|加油|停车|过路|高铁|火车|飞机|机票|滴滴|交通|骑行|共享单车/.test(text)) { ctField = 'expensePersonal'; subCategory = '交通'; }
+      else if (/衣服|鞋|帽|裤|裙|穿|淘宝|京东|拼多多|网购|购物|商城/.test(text)) { ctField = 'expensePersonal'; subCategory = '购物'; }
+      else if (/电影|游戏|KTV|唱歌|旅游|门票|景点|玩|娱乐|演出|音乐会|球赛/.test(text)) { ctField = 'expensePersonal'; subCategory = '娱乐'; }
+      else { ctField = 'expensePersonal'; subCategory = '其他'; }
     }
 
-    // 提取备注（去掉金额、常见动词、分类词后的剩余文本）
+    // 提取备注
     var note = text.replace(/(\d+\.?\d*)\s*(?:元|块|¥|￥)?/, '')
                    .replace(/^(?:今天|昨天|前天|早上|中午|晚上|刚才)/, '')
                    .replace(/(?:花了|花掉|支出|消费|买了|购买|交了|缴了|付了|充值|缴费|扣了|收入|收到|到账|进账|记账|记一下|记录)/g, '')
                    .replace(/^[，,\s：:]+/, '').replace(/[，,\s：:]+$/, '')
                    .trim();
-    // 如果备注太短（只剩1个字以下）或跟分类关键词重复，则留空
     if (note.length < 2) note = '';
 
-    return { type: type, amount: amount, category: category, note: note, date: new Date().toISOString().substr(0, 10) };
+    return { type: type, amount: amount, ctField: ctField, subCategory: subCategory, note: note, date: new Date().toISOString().substr(0, 10) };
   }
 
   function detectIntent(text) {
@@ -4007,7 +4229,7 @@ body {
     });
 
     window.addEventListener('load', function() {
-      navigator.serviceWorker.register('./service-worker.js?v=10', { updateViaCache: 'none' }).then(function(reg) {
+      navigator.serviceWorker.register('./service-worker.js?v=11', { updateViaCache: 'none' }).then(function(reg) {
         console.log('SW registered, scope:', reg.scope);
         
         // Force check for updates on every page load

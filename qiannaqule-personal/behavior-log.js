@@ -450,7 +450,7 @@
     // 情绪
     var latestMood = recentMoods.length > 0 ? recentMoods[recentMoods.length - 1] : null;
     var moodStr = latestMood ? latestMood.label + ' ' + latestMood.score + '/5' : '未记录';
-    html += _overviewCard('情绪', moodStr, '#ec4899', 'M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z');
+    html += _overviewCard('情绪', moodStr, '#ec4899', 'M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z', '#fdf2f8');
 
     html += '</div>'; // overview grid
     html += '</div>'; // section
@@ -567,8 +567,9 @@
     el.innerHTML = html;
   }
 
-  function _overviewCard(label, value, color, iconPath) {
-    return '<div class="bh-ov-card">' +
+  function _overviewCard(label, value, color, iconPath, bgColor) {
+    var cardStyle = bgColor ? ' style="background:' + bgColor + '"' : '';
+    return '<div class="bh-ov-card"' + cardStyle + '>' +
       '<div class="bh-ov-icon" style="background:' + color + '18">' + svgIcon(iconPath, color, 18) + '</div>' +
       '<div class="bh-ov-info"><div class="bh-ov-label">' + label + '</div><div class="bh-ov-value">' + value + '</div></div>' +
       '</div>';

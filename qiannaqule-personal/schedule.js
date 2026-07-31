@@ -580,4 +580,140 @@
     document.head.appendChild(style);
   })();
 
+  // ==================== 日程提醒引擎 ====================
+  var _reminderShown = {}; // sessionStorage key: 'mijieai_reminders_YYYY-MM-DD'
+
+  function _getShownKey() {
+    var d = new Date();
+    return 'mijieai_reminders_' + d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  }
+
+  function _loadShown() {
+    try { return JSON.parse(sessionStorage.getItem(_getShownKey())) || {}; }
+    catch(e) { return {}; }
+  }
+
+  function _saveShown(obj) {
+    sessionStorage.setItem(_getShownKey(), JSON.stringify(obj));
+  }
+
+  function _requestNotificationPermission() {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+  }
+
+  function _showReminderBanner(task) {
+    // 移除旧横幅
+    var old = document.getElementById('sch-reminder-banner');
+    if (old) old.remove();
+
+    var banner = document.createElement('div');
+    banner.id = 'sch-reminder-banner';
+    banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:10000;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;padding:14px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 4px 20px rgba(79,70,229,.4);animation:schSlideDown .4s ease-out;';
+
+    banner.innerHTML = '<div style="width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0">'
+      + '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>'
+      + '</div>'
+      + '<div style="flex:1;min-width:0"><div style="font-size:12px;opacity:.8">日程提醒</div>'
+      + '<div style="font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (task.title || '待办事项') + '</div></div>'
+      + '<button id="schReminderDismiss" style="background:rgba(255,255,255,.2);border:none;color:#fff;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;flex-shrink:0">知道了</button>';
+
+    // 添加动画样式
+    if (!document.getElementById('sch-reminder-style')) {
+      var s = document.createElement('style');
+      s.id = 'sch-reminder-style';
+      s.textContent = '@keyframes schSlideDown{from{transform:translateY(-100%)}to{transform:translateY(0)}}';
+      document.head.appendChild(s);
+    }
+
+    document.body.appendChild(banner);
+
+    // 绑定关闭
+    document.getElementById('schReminderDismiss').addEventListener('click', function() {
+      banner.style.transition = 'transform .3s';
+      banner.style.transform = 'translateY(-100%)';
+      setTimeout(function() { banner.remove(); }, 300);
+    });
+
+    // 10秒后自动消失
+    setTimeout(function() {
+      if (document.getElementById('sch-reminder-banner')) {
+        banner.style.transition = 'transform .3s';
+        banner.style.transform = 'translateY(-100%)';
+        setTimeout(function() { if (banner.parentNode) banner.remove(); }, 300);
+      }
+    }, 10000);
+
+    // 播放提示音（如果浏览器支持）
+    try {
+      var ctx = new (window.AudioContext || window.webkitAudioContext)();
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.value = 800;
+      gain.gain.value = 0.1;
+      osc.start();
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+      osc.stop(ctx.currentTime + 0.5);
+    } catch(e) {}
+  }
+
+  function _checkReminders() {
+    var tasks = loadTasks();
+    var now = new Date();
+    var todayStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+    var nowMinutes = now.getHours() * 60 + now.getMinutes();
+    var shown = _loadShown();
+
+    tasks.forEach(function(task) {
+      if (!task.time || task.status === 'done') return;
+      var taskDate = task.date || task.deadline || '';
+      if (taskDate.length >= 10 && taskDate.substr(0,10) !== todayStr) return;
+
+      // 解析任务时间
+      var parts = task.time.split(':');
+      var taskMinutes = parseInt(parts[0]) * 60 + parseInt(parts[1] || 0);
+      var diff = taskMinutes - nowMinutes;
+
+      // 在 -1 到 5 分钟范围内触发（1分钟容忍延迟）
+      if (diff >= -1 && diff <= 5) {
+        var reminderKey = task.id + '_' + task.time;
+        if (shown[reminderKey]) return;
+        shown[reminderKey] = true;
+        _saveShown(shown);
+
+        // 桌面通知
+        if ('Notification' in window && Notification.permission === 'granted') {
+          try {
+            new Notification('米界AI 日程提醒', {
+              body: task.title + (task.time ? ' (' + task.time + ')' : ''),
+              icon: '../logo.png',
+              tag: 'sch-reminder-' + task.id
+            });
+          } catch(e) {}
+        }
+
+        // 页内横幅
+        _showReminderBanner(task);
+      }
+    });
+  }
+
+  // 启动提醒引擎：每30秒检查一次
+  _requestNotificationPermission();
+  setInterval(_checkReminders, 30000);
+  // 页面加载后也立即检查一次
+  setTimeout(_checkReminders, 2000);
+
+  // 对外暴露：添加任务时如果带reminder字段，确保时间格式正确
+  var _origAddTask = window.scheduleAddTask;
+  window.scheduleAddTask = function(task) {
+    if (task.reminder && !task.time) {
+      task.time = task.reminder;
+    }
+    return _origAddTask(task);
+  };
+
 })();
