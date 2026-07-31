@@ -1449,6 +1449,28 @@ body {
   .guide-table th, .guide-table td { padding: 7px 8px; }
 }
 
+/* Recipe popup styles */
+.recipe-popup-overlay { position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:99998;display:flex;align-items:center;justify-content:center;padding:16px; }
+.recipe-popup { background:#fff;border-radius:16px;max-width:480px;width:100%;max-height:80vh;overflow-y:auto;padding:20px; }
+.recipe-popup-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:12px; }
+.recipe-popup-title { font-size:18px;font-weight:700;color:#1f2937; }
+.recipe-popup-close { background:none;border:none;cursor:pointer;padding:4px;color:#9ca3af; }
+.recipe-popup-close:hover { color:#374151; }
+.recipe-popup-principle { background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:10px 12px;font-size:13px;color:#166534;margin-bottom:12px;line-height:1.5; }
+.recipe-popup-section { margin-bottom:12px; }
+.recipe-popup-section strong { display:block;font-size:13px;color:#374151;margin-bottom:6px; }
+.recipe-popup-foods { display:flex;flex-wrap:wrap;gap:6px; }
+.recipe-popup-food-tag { font-size:12px;padding:3px 10px;border-radius:12px;background:#f0fdf4;color:#166534;border:1px solid #bbf7d0; }
+.recipe-popup-food-tag.avoid { background:#fef2f2;color:#991b1b;border-color:#fecaca; }
+.recipe-popup-recipe { background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:10px 12px;margin-bottom:8px; }
+.recipe-popup-recipe.blocked { background:#fef2f2;border-color:#fecaca;opacity:0.6; }
+.recipe-popup-recipe-name { font-size:13px;font-weight:600;color:#92400e;margin-bottom:4px; }
+.recipe-popup-recipe.blocked .recipe-popup-recipe-name { color:#991b1b; }
+.recipe-popup-recipe-detail { font-size:12px;color:#6b7280;margin-top:2px; }
+.recipe-popup-blocked-reason { font-size:11px;color:#dc2626;margin-top:2px; }
+.recipe-popup-footer { text-align:center;margin-top:12px; }
+.recipe-popup-goto { background:linear-gradient(135deg,#3b82f6,#6366f1);color:#fff;border:none;padding:8px 20px;border-radius:20px;font-size:13px;cursor:pointer; }
+.recipe-popup-goto:hover { opacity:0.9; }
 </style>
 </head>
 <body>
@@ -2191,6 +2213,13 @@ body {
     // Simple intent detection (framework placeholder)
     var result = detectIntent(text);
     field.value = '';
+
+    // "今天吃什么"特殊处理 — 弹出时令菜谱推荐
+    if (/今天吃什么|今天吃啥|吃啥好|今天推荐|吃什么好|今天怎么吃|推荐.*(菜|食谱|吃)/.test(text)) {
+      showTodayRecipes();
+      return;
+    }
+
     // Navigate to the relevant module based on intent
     if (/贷款|负债|还款|借|利息|房贷|车贷|信用|融资|收入|支出|消费|花了|挣|工资|账单|预算|记账/.test(text)) {
       switchModule('finance');
@@ -2200,6 +2229,7 @@ body {
       switchModule('schedule');
     } else if (/体检|健康|运动|睡眠|体重|用药|血压|心率|步数|卡路里/.test(text)) {
       switchModule('solar');
+      if (window.solarSwitchView) setTimeout(function() { window.solarSwitchView('health'); }, 200);
     }
     // Show a brief toast-like feedback
     showToast(result);
@@ -2232,6 +2262,95 @@ body {
     }
 
     return '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><path d="M12 3l2 7 7 2-7 2-2 7-2-7-7-2 7-2z"/></svg>意图识别引擎开发中';
+  }
+
+  // ========== 今天吃什么：根据当前节气推荐食谱 ==========
+  function showTodayRecipes() {
+    if (!window.solarTodayRecipes) {
+      showToast('节气模块尚未加载');
+      return;
+    }
+    var data = window.solarTodayRecipes();
+    if (!data) {
+      showToast('无法获取当前节气信息');
+      return;
+    }
+
+    // 构建弹窗内容
+    var html = '<div class="recipe-popup">';
+    html += '<div class="recipe-popup-header">';
+    html += '<span class="recipe-popup-title">' + data.termName + ' · 今日推荐</span>';
+    html += '<button class="recipe-popup-close" id="recipePopupClose"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg></button>';
+    html += '</div>';
+    html += '<div class="recipe-popup-principle"><strong>养生原则：</strong>' + data.principle + '</div>';
+
+    // 推荐食材
+    html += '<div class="recipe-popup-section"><strong>宜食食材</strong><div class="recipe-popup-foods">';
+    data.foods.forEach(function(f) {
+      html += '<span class="recipe-popup-food-tag">' + f + '</span>';
+    });
+    html += '</div></div>';
+
+    // 忌食
+    if (data.avoid && data.avoid.length) {
+      html += '<div class="recipe-popup-section"><strong>忌食食材</strong><div class="recipe-popup-foods">';
+      data.avoid.forEach(function(f) {
+        html += '<span class="recipe-popup-food-tag avoid">' + f + '</span>';
+      });
+      html += '</div></div>';
+    }
+
+    // 推荐食谱
+    if (data.recipes && data.recipes.length) {
+      html += '<div class="recipe-popup-section"><strong>推荐食谱</strong>';
+      data.recipes.forEach(function(r) {
+        html += '<div class="recipe-popup-recipe">';
+        html += '<div class="recipe-popup-recipe-name">' + r.name + '</div>';
+        if (r.ingredients) html += '<div class="recipe-popup-recipe-detail">食材：' + r.ingredients + '</div>';
+        if (r.steps || r.method) html += '<div class="recipe-popup-recipe-detail">做法：' + (r.steps || r.method) + '</div>';
+        if (r.nutrition) {
+          html += '<div class="recipe-popup-recipe-detail">热量 ' + r.nutrition.kcal + 'kcal · 蛋白' + r.nutrition.protein + 'g · 脂肪' + r.nutrition.fat + 'g · 碳水' + r.nutrition.carb + 'g</div>';
+        }
+        html += '</div>';
+      });
+      html += '</div>';
+    }
+
+    // 被过滤的食谱
+    if (data.blockedRecipes && data.blockedRecipes.length) {
+      html += '<div class="recipe-popup-section"><strong>已规避（与您健康档案冲突）</strong>';
+      data.blockedRecipes.forEach(function(item) {
+        html += '<div class="recipe-popup-recipe blocked">';
+        html += '<div class="recipe-popup-recipe-name">' + item.recipe.name + '</div>';
+        html += '<div class="recipe-popup-blocked-reason">冲突食材：' + item.conflicts.join('、') + '</div>';
+        html += '</div>';
+      });
+      html += '</div>';
+    }
+
+    // 底部操作
+    html += '<div class="recipe-popup-footer">';
+    html += '<button class="recipe-popup-goto" id="recipePopupGoto">查看完整节气养生</button>';
+    html += '</div>';
+    html += '</div>';
+
+    // 创建遮罩和弹窗
+    var existing = document.getElementById('recipePopupOverlay');
+    if (existing) existing.remove();
+    var overlay = document.createElement('div');
+    overlay.id = 'recipePopupOverlay';
+    overlay.className = 'recipe-popup-overlay';
+    overlay.innerHTML = html;
+    document.body.appendChild(overlay);
+
+    // 绑定事件
+    document.getElementById('recipePopupClose').addEventListener('click', function() { overlay.remove(); });
+    document.getElementById('recipePopupGoto').addEventListener('click', function() {
+      overlay.remove();
+      switchModule('solar');
+      if (window.solarSwitchView) window.solarSwitchView('term');
+    });
+    overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
   }
 
   // Enter key support
@@ -3579,5 +3698,6 @@ function toggleGuideSection(index) {
 </script>
 
 <script src="solar-term.js"></script>
+<script src="chronic-disease.js"></script>
 </body>
 </html>

@@ -471,10 +471,39 @@
       html += '<div class="st-section-title"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="' + colors.accent + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><path d="M6 1v3M10 1v3M14 1v3"/></svg>推荐食谱</div>';
 
       term.recipes.forEach(function(recipe) {
-        html += '<div class="st-recipe-card">';
+        // 智能过滤：检查是否与用户健康档案冲突
+        var isBlocked = false;
+        var blockReasons = [];
+        var profile = getHealthProfile();
+        if (profile.conditions && profile.conditions.length > 0 && window.CHRONIC_DISEASES) {
+          var recipeText = recipe.name + ' ' + (recipe.ingredients || recipe.ing || '');
+          profile.conditions.forEach(function(condId) {
+            for (var i = 0; i < window.CHRONIC_DISEASES.length; i++) {
+              var d = window.CHRONIC_DISEASES[i];
+              if (d.id === condId && d.avoid) {
+                d.avoid.forEach(function(food) {
+                  if (recipeText.indexOf(food) >= 0) {
+                    isBlocked = true;
+                    blockReasons.push(food + '（' + d.name + '忌食）');
+                  }
+                });
+              }
+            }
+          });
+        }
+        var collected = isInCollection(recipe.name);
+        html += '<div class="st-recipe-card' + (isBlocked ? ' st-recipe-blocked' : '') + '">';
+        if (isBlocked) {
+          html += '<div class="st-recipe-warning"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg> 与您的健康档案冲突：' + blockReasons.join('、') + '</div>';
+        }
         html += '<div class="st-recipe-header">';
         html += '<span class="st-recipe-name">' + recipe.name + '</span>';
+        html += '<div class="st-recipe-actions">';
+        html += '<button class="st-collect-btn' + (collected ? ' collected' : '') + '" data-name="' + recipe.name + '" data-ing="' + (recipe.ingredients || recipe.ing || '').replace(/"/g, '&quot;') + '" data-method="' + (recipe.steps || recipe.method || '').replace(/"/g, '&quot;') + '" data-term="' + term.name + '" title="收藏">';
+        html += '<svg viewBox="0 0 24 24" width="14" height="14" fill="' + (collected ? 'currentColor' : 'none') + '" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>';
+        html += '</button>';
         html += '<span class="st-recipe-method" style="background:' + colors.light + ';color:' + colors.text + '">' + recipe.method + '</span>';
+        html += '</div>';
         html += '</div>';
         html += '<div class="st-recipe-desc">' + recipe.desc + '</div>';
         html += '<div class="st-recipe-ingredients"><strong>食材：</strong>' + recipe.ingredients + '</div>';
@@ -526,6 +555,30 @@
     }
 
     containerEl.innerHTML = html;
+
+    // 收藏按钮事件
+    containerEl.querySelectorAll('.st-collect-btn').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var name = this.getAttribute('data-name');
+        var ing = this.getAttribute('data-ing');
+        var method = this.getAttribute('data-method');
+        var termName = this.getAttribute('data-term');
+        if (isInCollection(name)) {
+          // 取消收藏
+          var collection = getCollection();
+          for (var ci = 0; ci < collection.length; ci++) {
+            if (collection[ci].name === name) { removeFromCollection(ci); break; }
+          }
+          this.classList.remove('collected');
+          this.querySelector('svg').setAttribute('fill', 'none');
+        } else {
+          addToCollection({ name: name, ingredients: ing, method: method }, termName);
+          this.classList.add('collected');
+          this.querySelector('svg').setAttribute('fill', 'currentColor');
+        }
+      });
+    });
   }
 
   // ==================== 注入CSS样式 ====================
@@ -567,7 +620,71 @@
       '.st-tea-formula { font-size: 13px; color: #6b7280; }',
       '.st-tea-effect { font-size: 12px; color: #059669; margin-top: 2px; }',
 
-      '.st-coming-soon { text-align: center; padding: 32px 16px; color: #9ca3af; font-size: 14px; }'
+      '.st-coming-soon { text-align: center; padding: 32px 16px; color: #9ca3af; font-size: 14px; }',
+
+      // ---- Tabs ----
+      '.solar-tabs { display: flex; gap: 4px; padding: 0 0 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; }',
+      '.solar-tab { flex-shrink: 0; display: flex; align-items: center; gap: 4px; padding: 7px 12px; border-radius: 20px; border: 1px solid #e5e7eb; background: #fff; font-size: 12px; color: #6b7280; cursor: pointer; transition: all .2s; white-space: nowrap; }',
+      '.solar-tab svg { vertical-align: -2px; }',
+      '.solar-tab.active { background: #1f2937; color: #fff; border-color: #1f2937; }',
+      '.solar-tab:hover:not(.active) { background: #f3f4f6; }',
+
+      // ---- Recipe collect & blocked ----
+      '.st-recipe-actions { display: flex; align-items: center; gap: 6px; }',
+      '.st-collect-btn { background: none; border: none; padding: 4px; cursor: pointer; color: #9ca3af; border-radius: 4px; transition: all .15s; display: flex; align-items: center; }',
+      '.st-collect-btn:hover { color: #f59e0b; background: #fef3c7; }',
+      '.st-collect-btn.collected { color: #f59e0b; }',
+      '.st-recipe-blocked { opacity: 0.55; border-color: #fca5a5; background: #fef2f2; }',
+      '.st-recipe-warning { font-size: 11px; color: #dc2626; margin-bottom: 6px; display: flex; align-items: center; gap: 3px; }',
+      '.st-recipe-warning svg { vertical-align: -2px; flex-shrink: 0; }',
+
+      // ---- Screening ----
+      '.screening-wrap { padding: 20px 16px; max-width: 480px; margin: 0 auto; }',
+      '.screening-header { text-align: center; margin-bottom: 20px; }',
+      '.screening-icon { margin-bottom: 8px; }',
+      '.screening-title { font-size: 18px; font-weight: 700; color: #1f2937; }',
+      '.screening-desc { font-size: 12px; color: #6b7280; margin-top: 4px; line-height: 1.5; }',
+      '.screening-section { font-size: 13px; font-weight: 600; color: #374151; margin: 16px 0 8px; }',
+      '.screening-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }',
+      '.screening-card { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1.5px solid #e5e7eb; border-radius: 10px; cursor: pointer; transition: all .2s; background: #fff; font-size: 13px; color: #374151; }',
+      '.screening-card:hover { border-color: #22c55e; background: #f0fdf4; }',
+      '.screening-card.selected { border-color: #22c55e; background: #f0fdf4; color: #166534; font-weight: 600; }',
+      '.screening-sym { justify-content: center; text-align: center; }',
+      '.screening-actions { display: flex; gap: 10px; margin-top: 24px; }',
+      '.screening-skip { flex: 1; padding: 10px; border: 1px solid #e5e7eb; border-radius: 10px; background: #fff; font-size: 14px; color: #6b7280; cursor: pointer; }',
+      '.screening-skip:hover { background: #f9fafb; }',
+      '.screening-done { flex: 2; padding: 10px; border: none; border-radius: 10px; background: #22c55e; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; }',
+      '.screening-done:hover { background: #16a34a; }',
+
+      // ---- Health Profile ----
+      '.health-profile-wrap { padding: 20px 16px; max-width: 480px; margin: 0 auto; }',
+      '.health-profile-title { font-size: 18px; font-weight: 700; color: #1f2937; }',
+      '.health-profile-desc { font-size: 12px; color: #6b7280; margin-top: 4px; margin-bottom: 16px; }',
+      '.health-conditions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }',
+      '.health-cond-card { display: flex; align-items: center; gap: 6px; padding: 10px 12px; border: 1.5px solid #e5e7eb; border-radius: 10px; cursor: pointer; transition: all .2s; background: #fff; font-size: 13px; color: #374151; position: relative; }',
+      '.health-cond-card:hover { border-color: #9ca3af; }',
+      '.health-cond-card.active { font-weight: 600; }',
+      '.health-cond-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }',
+      '.health-cond-card svg { margin-left: auto; }',
+      '.health-updated { font-size: 11px; color: #9ca3af; margin-top: 12px; text-align: center; }',
+      '.health-save-btn { width: 100%; padding: 10px; border: none; border-radius: 10px; background: #1f2937; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 16px; transition: all .2s; }',
+      '.health-save-btn:hover { background: #374151; }',
+
+      // ---- Collection ----
+      '.collection-wrap { padding: 16px; max-width: 480px; margin: 0 auto; }',
+      '.collection-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }',
+      '.collection-title { font-size: 16px; font-weight: 700; color: #1f2937; }',
+      '.collection-count { font-size: 12px; color: #9ca3af; }',
+      '.collection-empty { text-align: center; padding: 40px 16px; color: #9ca3af; }',
+      '.collection-empty div { margin-top: 8px; font-size: 14px; }',
+      '.collection-empty-hint { font-size: 12px !important; color: #d1d5db !important; }',
+      '.collection-group-title { font-size: 12px; font-weight: 600; color: #9ca3af; margin: 12px 0 6px; padding-left: 4px; border-left: 2px solid #e5e7eb; padding-left: 8px; }',
+      '.collection-recipe-card { position: relative; background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 12px; margin-bottom: 8px; }',
+      '.collection-recipe-name { font-size: 14px; font-weight: 600; color: #1f2937; }',
+      '.collection-recipe-ing { font-size: 12px; color: #6b7280; margin-top: 4px; }',
+      '.collection-recipe-method { font-size: 12px; color: #4b5563; margin-top: 2px; }',
+      '.collection-del-btn { position: absolute; top: 8px; right: 8px; background: none; border: none; color: #d1d5db; cursor: pointer; padding: 4px; border-radius: 4px; }',
+      '.collection-del-btn:hover { color: #ef4444; background: #fef2f2; }'
     ].join('\n');
     document.head.appendChild(style);
   }
@@ -588,22 +705,388 @@
 
     var currentIdx = getCurrentTermIndex();
 
+    // 读取健康档案
+    var healthProfile = getHealthProfile();
+
+    // 主HTML结构
     var html = '<div class="solar-term-page">';
-    html += '<div class="solar-wheel-container" id="solarWheelBox"></div>';
-    html += '<div class="solar-wheel-hint"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 15l-2 5L9 9l11 4-5 2z"/></svg>点击或拖拽转盘查看各节气养生</div>';
-    html += '<div id="solarTermDetail"></div>';
+    // Tab导航
+    html += '<div class="solar-tabs">';
+    html += '<button class="solar-tab active" data-view="term"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>节气养生</button>';
+    html += '<button class="solar-tab" data-view="disease"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>慢病调养</button>';
+    html += '<button class="solar-tab" data-view="collection"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>我的收藏</button>';
+    html += '<button class="solar-tab" data-view="health"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>健康档案</button>';
+    html += '</div>';
+    // 内容区
+    html += '<div id="solarViewContent"></div>';
     html += '</div>';
 
     container.innerHTML = html;
 
-    var detailEl = document.getElementById('solarTermDetail');
-    var wheelBox = document.getElementById('solarWheelBox');
+    var contentEl = document.getElementById('solarViewContent');
 
-    buildWheel(wheelBox, currentIdx, function(idx) {
-      renderTermDetail(detailEl, idx);
+    // Tab切换
+    container.querySelectorAll('.solar-tab').forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        container.querySelectorAll('.solar-tab').forEach(function(t) { t.classList.remove('active'); });
+        this.classList.add('active');
+        switchSolarView(this.getAttribute('data-view'));
+      });
     });
 
-    renderTermDetail(detailEl, currentIdx);
+    // 默认渲染节气转盘视图
+    function switchSolarView(view) {
+      if (view === 'term') {
+        var viewHtml = '<div class="solar-wheel-container" id="solarWheelBox"></div>';
+        viewHtml += '<div class="solar-wheel-hint"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 15l-2 5L9 9l11 4-5 2z"/></svg>点击或拖拽转盘查看各节气养生</div>';
+        viewHtml += '<div id="solarTermDetail"></div>';
+        contentEl.innerHTML = viewHtml;
+        var detailEl = document.getElementById('solarTermDetail');
+        var wheelBox = document.getElementById('solarWheelBox');
+        buildWheel(wheelBox, currentIdx, function(idx) {
+          renderTermDetail(detailEl, idx);
+        });
+        renderTermDetail(detailEl, currentIdx);
+      } else if (view === 'disease') {
+        contentEl.innerHTML = '<div id="cdContainer"></div>';
+        if (window.initChronicDisease) {
+          window.initChronicDisease('cdContainer', currentIdx);
+        }
+      } else if (view === 'collection') {
+        contentEl.innerHTML = '<div id="collectionContainer"></div>';
+        renderCollection(document.getElementById('collectionContainer'), currentIdx);
+      } else if (view === 'health') {
+        contentEl.innerHTML = '<div id="healthContainer"></div>';
+        renderHealthProfile(document.getElementById('healthContainer'));
+      }
+    }
+
+    // 首次进入检查健康筛查
+    if (!healthProfile.screened) {
+      setTimeout(function() {
+        contentEl.innerHTML = '<div id="screeningContainer"></div>';
+        renderScreening(document.getElementById('screeningContainer'), function() {
+          switchSolarView('term');
+          container.querySelector('.solar-tab[data-view="term"]').click();
+        });
+      }, 500);
+    }
+
+    // 暴露全局接口供"今天吃什么"使用
+    window.solarGetCurrentTerm = function() { return currentIdx; };
+    window.solarGetCurrentTermData = function() { return SOLAR_TERMS[currentIdx]; };
+    window.solarGetHealthProfile = function() { return getHealthProfile(); };
+    window.solarSwitchView = function(view) {
+      var tab = container.querySelector('.solar-tab[data-view="' + view + '"]');
+      if (tab) tab.click();
+    };
+  };
+
+  // ==================== 健康档案 localStorage ====================
+  function getHealthProfile() {
+    try {
+      var data = localStorage.getItem('mijieai_health_profile');
+      return data ? JSON.parse(data) : { screened: false, conditions: [], symptoms: [], updatedAt: null };
+    } catch(e) { return { screened: false, conditions: [], symptoms: [], updatedAt: null }; }
+  }
+
+  function saveHealthProfile(profile) {
+    profile.updatedAt = new Date().toISOString();
+    try { localStorage.setItem('mijieai_health_profile', JSON.stringify(profile)); } catch(e) {}
+  }
+
+  // ==================== 健康筛查问卷 ====================
+  function renderScreening(containerEl, onComplete) {
+    var conditions = [
+      { id: 'hypertension', name: '高血压', icon: 'M19.5 12.572l-7.5 7.428-7.5-7.428A5 5 0 1 1 12 6.006a5 5 0 1 1 7.5 6.572', color: '#E53E3E' },
+      { id: 'diabetes', name: '糖尿病', icon: 'M10.5 20H4a2 2 0 0 1-2-2V5c0-1.1.9-2 2-2h3.93a2 2 0 0 1 1.66.9l.82 1.2a2 2 0 0 0 1.66.9H20a2 2 0 0 1 2 2v2', color: '#D97706' },
+      { id: 'hyperlipidemia', name: '高血脂', icon: 'M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z', color: '#9333EA' },
+      { id: 'chd', name: '冠心病/心血管', icon: 'M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z', color: '#DC2626' },
+      { id: 'gastritis', name: '慢性胃炎', icon: 'M12 20V10M18 20V4M6 20v-4', color: '#EA580C' },
+      { id: 'insomnia', name: '失眠/睡眠障碍', icon: 'M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z', color: '#4F46E5' }
+    ];
+    var symptoms = [
+      { id: 'dizzy', name: '经常头晕头痛', tags: ['hypertension'] },
+      { id: 'thirsty', name: '口干多饮多尿', tags: ['diabetes'] },
+      { id: 'obese', name: '体型偏胖痰多', tags: ['hyperlipidemia'] },
+      { id: 'chest', name: '胸闷心悸气短', tags: ['chd'] },
+      { id: 'stomach', name: '胃胀胃痛反酸', tags: ['gastritis'] },
+      { id: 'sleep', name: '入睡困难易醒', tags: ['insomnia'] }
+    ];
+
+    var selected = [];
+    var symSelected = [];
+
+    var html = '<div class="screening-wrap">';
+    html += '<div class="screening-header">';
+    html += '<div class="screening-icon"><svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#22c55e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>';
+    html += '<div class="screening-title">健康筛查</div>';
+    html += '<div class="screening-desc">选择您已知或疑似的健康状况，系统将在推荐菜谱时自动规避禁忌食材</div>';
+    html += '</div>';
+    html += '<div class="screening-section">已确诊疾病（可多选）</div>';
+    html += '<div class="screening-grid">';
+    conditions.forEach(function(c) {
+      html += '<div class="screening-card" data-id="' + c.id + '">';
+      html += '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="' + c.color + '" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="' + c.icon + '"/></svg>';
+      html += '<span>' + c.name + '</span>';
+      html += '</div>';
+    });
+    html += '</div>';
+    html += '<div class="screening-section">常见症状自筛（辅助参考）</div>';
+    html += '<div class="screening-grid screening-symptoms">';
+    symptoms.forEach(function(s) {
+      html += '<div class="screening-card screening-sym" data-id="' + s.id + '" data-tags="' + s.tags.join(',') + '">';
+      html += '<span>' + s.name + '</span>';
+      html += '</div>';
+    });
+    html += '</div>';
+    html += '<div class="screening-actions">';
+    html += '<button class="screening-skip" id="screenSkip">跳过</button>';
+    html += '<button class="screening-done" id="screenDone">保存并开始</button>';
+    html += '</div>';
+    html += '</div>';
+    containerEl.innerHTML = html;
+
+    // 疾病卡片点击
+    containerEl.querySelectorAll('.screening-card:not(.screening-sym)').forEach(function(card) {
+      card.addEventListener('click', function() {
+        var id = this.getAttribute('data-id');
+        var idx = selected.indexOf(id);
+        if (idx >= 0) { selected.splice(idx, 1); this.classList.remove('selected'); }
+        else { selected.push(id); this.classList.add('selected'); }
+      });
+    });
+
+    // 症状卡片点击
+    containerEl.querySelectorAll('.screening-sym').forEach(function(card) {
+      card.addEventListener('click', function() {
+        var id = this.getAttribute('data-id');
+        var idx = symSelected.indexOf(id);
+        if (idx >= 0) { symSelected.splice(idx, 1); this.classList.remove('selected'); }
+        else { symSelected.push(id); this.classList.add('selected'); }
+      });
+    });
+
+    // 保存
+    document.getElementById('screenDone').addEventListener('click', function() {
+      // 合并症状对应的疾病标签
+      var allConditions = selected.slice();
+      symSelected.forEach(function(sid) {
+        var card = containerEl.querySelector('.screening-sym[data-id="' + sid + '"]');
+        if (card) {
+          card.getAttribute('data-tags').split(',').forEach(function(t) {
+            if (allConditions.indexOf(t) < 0) allConditions.push(t);
+          });
+        }
+      });
+      saveHealthProfile({ screened: true, conditions: allConditions, symptoms: symSelected });
+      onComplete();
+    });
+
+    // 跳过
+    document.getElementById('screenSkip').addEventListener('click', function() {
+      saveHealthProfile({ screened: true, conditions: [], symptoms: [] });
+      onComplete();
+    });
+  }
+
+  // ==================== 健康档案视图 ====================
+  function renderHealthProfile(containerEl) {
+    var profile = getHealthProfile();
+    var conditions = [
+      { id: 'hypertension', name: '高血压', color: '#E53E3E' },
+      { id: 'diabetes', name: '糖尿病', color: '#D97706' },
+      { id: 'hyperlipidemia', name: '高血脂', color: '#9333EA' },
+      { id: 'chd', name: '冠心病/心血管', color: '#DC2626' },
+      { id: 'gastritis', name: '慢性胃炎', color: '#EA580C' },
+      { id: 'insomnia', name: '失眠/睡眠障碍', color: '#4F46E5' }
+    ];
+    var html = '<div class="health-profile-wrap">';
+    html += '<div class="health-profile-title">健康档案</div>';
+    html += '<div class="health-profile-desc">管理您的健康状况，菜谱将根据此档案智能过滤禁忌食材</div>';
+    html += '<div class="health-conditions-grid">';
+    conditions.forEach(function(c) {
+      var isActive = profile.conditions.indexOf(c.id) >= 0;
+      html += '<div class="health-cond-card' + (isActive ? ' active' : '') + '" data-id="' + c.id + '" style="' + (isActive ? 'border-color:' + c.color + ';background:' + c.color + '10' : '') + '">';
+      html += '<div class="health-cond-dot" style="background:' + c.color + '"></div>';
+      html += '<span>' + c.name + '</span>';
+      if (isActive) html += '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="' + c.color + '" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+      html += '</div>';
+    });
+    html += '</div>';
+    if (profile.updatedAt) {
+      html += '<div class="health-updated">上次更新：' + new Date(profile.updatedAt).toLocaleDateString('zh-CN') + '</div>';
+    }
+    html += '<button class="health-save-btn" id="healthSaveBtn">保存修改</button>';
+    html += '</div>';
+    containerEl.innerHTML = html;
+
+    // 切换
+    var currentConditions = profile.conditions.slice();
+    containerEl.querySelectorAll('.health-cond-card').forEach(function(card) {
+      card.addEventListener('click', function() {
+        var id = this.getAttribute('data-id');
+        var idx = currentConditions.indexOf(id);
+        if (idx >= 0) { currentConditions.splice(idx, 1); }
+        else { currentConditions.push(id); }
+        this.classList.toggle('active');
+      });
+    });
+
+    document.getElementById('healthSaveBtn').addEventListener('click', function() {
+      saveHealthProfile({ screened: true, conditions: currentConditions, symptoms: profile.symptoms });
+      this.textContent = '已保存';
+      this.style.background = '#22c55e';
+      setTimeout(function() { renderHealthProfile(containerEl); }, 800);
+    });
+  }
+
+  // ==================== 智能过滤：根据健康档案过滤菜谱 ====================
+  function filterRecipesByHealth(recipes) {
+    var profile = getHealthProfile();
+    if (!profile.conditions || profile.conditions.length === 0) return { safe: recipes, blocked: [] };
+    // 获取所有相关疾病的禁忌食材
+    var avoidMap = {};
+    if (window.CHRONIC_DISEASES) {
+      profile.conditions.forEach(function(condId) {
+        var disease = null;
+        for (var i = 0; i < window.CHRONIC_DISEASES.length; i++) {
+          if (window.CHRONIC_DISEASES[i].id === condId) { disease = window.CHRONIC_DISEASES[i]; break; }
+        }
+        if (disease && disease.avoid) {
+          disease.avoid.forEach(function(food) { avoidMap[food] = condId; });
+        }
+      });
+    }
+    var safe = [], blocked = [];
+    recipes.forEach(function(r) {
+      var hasConflict = false;
+      var conflictFoods = [];
+      // 检查食谱食材名是否包含禁忌食材关键词
+      var recipeText = r.name + ' ' + (r.ingredients || r.ing || '');
+      Object.keys(avoidMap).forEach(function(avoidFood) {
+        if (recipeText.indexOf(avoidFood) >= 0 || avoidFood.indexOf(getRecipeKeyword(r)) >= 0) {
+          hasConflict = true;
+          conflictFoods.push(avoidFood);
+        }
+      });
+      if (hasConflict) {
+        blocked.push({ recipe: r, conflicts: conflictFoods });
+      } else {
+        safe.push(r);
+      }
+    });
+    return { safe: safe, blocked: blocked };
+  }
+
+  function getRecipeKeyword(recipe) {
+    return recipe.name || '';
+  }
+
+  // ==================== 个人菜谱收藏 localStorage ====================
+  function getCollection() {
+    try {
+      var data = localStorage.getItem('mijieai_recipe_collection');
+      return data ? JSON.parse(data) : [];
+    } catch(e) { return []; }
+  }
+
+  function saveCollection(collection) {
+    try { localStorage.setItem('mijieai_recipe_collection', JSON.stringify(collection)); } catch(e) {}
+  }
+
+  function addToCollection(recipe, termName) {
+    var collection = getCollection();
+    recipe._termName = termName;
+    recipe._addedAt = new Date().toISOString();
+    collection.push(recipe);
+    saveCollection(collection);
+  }
+
+  function removeFromCollection(index) {
+    var collection = getCollection();
+    collection.splice(index, 1);
+    saveCollection(collection);
+  }
+
+  function isInCollection(recipeName) {
+    var collection = getCollection();
+    return collection.some(function(r) { return r.name === recipeName; });
+  }
+
+  // ==================== 收藏视图渲染 ====================
+  function renderCollection(containerEl, currentTermIdx) {
+    var collection = getCollection();
+    var html = '<div class="collection-wrap">';
+    html += '<div class="collection-header">';
+    html += '<div class="collection-title">我的收藏</div>';
+    html += '<div class="collection-count">共 ' + collection.length + ' 道菜谱</div>';
+    html += '</div>';
+
+    if (collection.length === 0) {
+      html += '<div class="collection-empty">';
+      html += '<svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#d1d5db" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>';
+      html += '<div>还没有收藏菜谱</div>';
+      html += '<div class="collection-empty-hint">在节气养生页面浏览食谱时，点击收藏按钮即可添加</div>';
+      html += '</div>';
+    } else {
+      // 按节气分组
+      var grouped = {};
+      collection.forEach(function(r, i) {
+        var term = r._termName || '其他';
+        if (!grouped[term]) grouped[term] = [];
+        grouped[term].push({ recipe: r, index: i });
+      });
+      Object.keys(grouped).forEach(function(term) {
+        html += '<div class="collection-group-title">' + term + '</div>';
+        grouped[term].forEach(function(item) {
+          var r = item.recipe;
+          html += '<div class="collection-recipe-card">';
+          html += '<div class="collection-recipe-name">' + r.name + '</div>';
+          if (r.ingredients || r.ing) html += '<div class="collection-recipe-ing">' + (r.ingredients || r.ing) + '</div>';
+          if (r.method) html += '<div class="collection-recipe-method">' + r.method + '</div>';
+          html += '<button class="collection-del-btn" data-idx="' + item.index + '"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg></button>';
+          html += '</div>';
+        });
+      });
+    }
+    html += '</div>';
+    containerEl.innerHTML = html;
+
+    // 删除事件
+    containerEl.querySelectorAll('.collection-del-btn').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var idx = parseInt(this.getAttribute('data-idx'));
+        removeFromCollection(idx);
+        renderCollection(containerEl, currentTermIdx);
+      });
+    });
+  }
+
+  // ==================== "今天吃什么"接口 ====================
+  window.solarTodayRecipes = function() {
+    var idx = getCurrentTermIndex();
+    var term = SOLAR_TERMS[idx];
+    var termName = term.name;
+    var profile = getHealthProfile();
+
+    // 构建推荐信息
+    var result = {
+      termName: termName,
+      principle: term.principle,
+      foods: term.foods,
+      avoid: term['忌']
+    };
+
+    // 如果有食谱数据，进行智能过滤
+    if (term.recipes && term.recipes.length > 0) {
+      var filtered = filterRecipesByHealth(term.recipes);
+      result.recipes = filtered.safe;
+      result.blockedRecipes = filtered.blocked;
+    }
+
+    return result;
   };
 
 })();
