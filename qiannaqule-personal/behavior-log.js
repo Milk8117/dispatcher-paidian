@@ -592,6 +592,17 @@
 
     var submitBtn = overlay.querySelector('.bh-modal-submit');
     if (submitBtn && onSubmit) {
+      // 创建按钮容器，包裹保存+取消
+      var btnWrap = document.createElement('div');
+      btnWrap.className = 'bh-modal-btns';
+      submitBtn.parentNode.insertBefore(btnWrap, submitBtn);
+      btnWrap.appendChild(submitBtn);
+      var cancelBtn = document.createElement('button');
+      cancelBtn.className = 'bh-modal-cancel';
+      cancelBtn.textContent = '取消';
+      cancelBtn.onclick = function() { overlay.remove(); };
+      btnWrap.appendChild(cancelBtn);
+
       submitBtn.addEventListener('click', function() {
         if (onSubmit(overlay) !== false) overlay.remove();
       });
@@ -792,8 +803,11 @@
       '.bh-form-row input,.bh-form-row select,.bh-form-row textarea{width:100%;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;box-sizing:border-box;outline:none;transition:border .2s}',
       '.bh-form-row input:focus,.bh-form-row select:focus,.bh-form-row textarea:focus{border-color:#2563eb}',
       '.bh-form-row textarea{height:60px;resize:none}',
-      '.bh-modal-submit{width:100%;padding:12px;border:none;border-radius:10px;background:#2563eb;color:#fff;font-size:15px;font-weight:600;cursor:pointer;margin-top:8px}',
+      '.bh-modal-btns{display:flex;gap:10px;margin-top:12px}',
+      '.bh-modal-submit{flex:1;padding:12px;border:none;border-radius:10px;background:#2563eb;color:#fff;font-size:15px;font-weight:600;cursor:pointer}',
       '.bh-modal-submit:hover{background:#1d4ed8}',
+      '.bh-modal-cancel{flex:0 0 auto;padding:12px 18px;border:1.5px solid #d1d5db;border-radius:10px;background:#fff;color:#6b7280;font-size:14px;font-weight:500;cursor:pointer}',
+      '.bh-modal-cancel:hover{background:#f3f4f6}',
       '.bh-quality-select{display:flex;gap:6px}',
       '.bh-q-btn{flex:1;padding:8px;border:1.5px solid #e5e7eb;border-radius:8px;background:#fff;cursor:pointer;font-size:12px;font-weight:600;transition:all .2s}',
       '.bh-q-btn.active{background:currentColor;color:#fff !important}',

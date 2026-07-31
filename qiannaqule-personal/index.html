@@ -1719,6 +1719,28 @@ body {
         <svg class="home-card-arrow" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
       </div>
 
+      <div class="home-card" onclick="switchModule('dailytx')">
+        <div class="home-card-icon" style="background:linear-gradient(135deg,#f97316,#ef4444)">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+        <div class="home-card-body">
+          <div class="home-card-name">日常收支</div>
+          <div class="home-card-desc">快速记账，分类对齐CT，收支一目了然</div>
+        </div>
+        <svg class="home-card-arrow" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+
+      <div class="home-card" onclick="switchModule('behavior')">
+        <div class="home-card-icon" style="background:linear-gradient(135deg,#8b5cf6,#ec4899)">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+        </div>
+        <div class="home-card-body">
+          <div class="home-card-name">行为日志</div>
+          <div class="home-card-desc">饮食运动睡眠情绪，记录你的每一天</div>
+        </div>
+        <svg class="home-card-arrow" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+
     </div>
   </div>
 
@@ -1728,6 +1750,10 @@ body {
       <button class="home-shortcut" onclick="document.getElementById('aiInputField').value='今天吃什么';submitAiInput()">
         <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><path d="M6 1v3M10 1v3M14 1v3"/></svg>
         今天吃什么
+      </button>
+      <button class="home-shortcut" onclick="switchModule('dailytx');setTimeout(function(){var b=document.querySelector('.dt-quick-add');if(b)b.click();},300)">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        记一笔
       </button>
       <button class="home-shortcut" onclick="switchModule('finance')">
         <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 15l2 2 4-4"/></svg>
@@ -2268,16 +2294,6 @@ body {
   <div style="text-align:center;margin-top:8px;">
     <a href="#" onclick="showPrivacyPolicy();return false;" style="color:#64748b;font-size:12px;text-decoration:underline;">查看隐私协议</a>
   </div>
-  <!-- ==================== 收支概览（自动汇总日常收支数据） ==================== -->
-  <div id="financeTxSummary" style="margin:0 16px 12px;"></div>
-
-  <div style="text-align:center;margin-top:8px;">
-    <a href="#" onclick="switchModule('dailytx');return false;" style="display:inline-flex;align-items:center;gap:4px;color:#2563eb;font-size:13px;font-weight:600;text-decoration:none;padding:8px 16px;border:1.5px solid #bfdbfe;border-radius:10px;background:#eff6ff;transition:all .2s;">
-      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#2563eb" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-      查看日常收支明细
-    </a>
-  </div>
-
   <div style="text-align:center;margin-top:16px;padding:14px 0;">
     <span style="display:inline-flex;align-items:center;gap:6px;">
       <img src="../logo.png" alt="米儿客" style="height:40px;width:auto;opacity:0.7;">
@@ -2697,6 +2713,7 @@ body {
 
     voiceRecognition.start();
   }
+  window.toggleVoiceInput = toggleVoiceInput;
 
   // ========== 自然语言记账解析 ==========
   // ========== 自然语言日程解析 ==========
