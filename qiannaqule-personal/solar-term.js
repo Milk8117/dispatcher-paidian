@@ -628,7 +628,10 @@
       // 点击事件
       path.addEventListener('click', (function(idx) {
         return function() {
+          if (isSnapping) return;
+          isSnapping = true;
           rotateTo(idx);
+          setTimeout(function() { isSnapping = false; }, 550);
           onClickTerm(idx);
         };
       })(i));
@@ -711,9 +714,12 @@
 
     // 旋转逻辑
     var currentRotation = 0;
+    var isSnapping = false;
     function rotateTo(idx) {
+      if (isSnapping) return;
       var targetAngle = -(idx * anglePerSegment + anglePerSegment / 2);
       currentRotation = targetAngle;
+      wheelGroup.style.transition = 'transform 0.5s cubic-bezier(0.25,1,0.5,1)';
       wheelGroup.style.transform = 'rotate(' + targetAngle + 'deg)';
     }
 
@@ -722,6 +728,7 @@
 
     // 触摸/拖拽旋转
     var isDragging = false;
+    var didDrag = false; // 是否真正拖拽过（区分点击和拖拽）
     var startAngle = 0;
     var dragStartRotation = 0;
 
@@ -734,6 +741,7 @@
 
     svg.addEventListener('pointerdown', function(e) {
       isDragging = true;
+      didDrag = false;
       startAngle = getAngleFromCenter(e.clientX, e.clientY);
       dragStartRotation = currentRotation;
       wheelGroup.style.transition = 'none';
@@ -744,6 +752,7 @@
       if (!isDragging) return;
       var currentAngle = getAngleFromCenter(e.clientX, e.clientY);
       var delta = currentAngle - startAngle;
+      if (Math.abs(delta) > 2) didDrag = true; // 超过2度视为拖拽
       currentRotation = dragStartRotation + delta;
       wheelGroup.style.transform = 'rotate(' + currentRotation + 'deg)';
     });
@@ -751,12 +760,14 @@
     svg.addEventListener('pointerup', function(e) {
       if (!isDragging) return;
       isDragging = false;
-      wheelGroup.style.transition = 'transform 0.6s cubic-bezier(0.34,1.56,0.64,1)';
+      if (!didDrag) return; // 点击不触发吸附，由 click 事件处理
+      isSnapping = true;
       // 吸附到最近的节气 — 正确公式推导：
       // rotateTo(i) 设置 r = -(i*15 + 7.5)
       // 反推：i = -r/15 - 0.5 → 取整 → nearestIdx = (-round(r/15 + 0.5) + 24) % 24
       var nearestIdx = (-Math.round(currentRotation / anglePerSegment + 0.5) + 24) % 24;
       rotateTo(nearestIdx);
+      setTimeout(function() { isSnapping = false; }, 550);
       onClickTerm(nearestIdx);
     });
 
