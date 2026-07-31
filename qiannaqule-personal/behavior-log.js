@@ -129,6 +129,8 @@
 
     var result;
 
+    // 0. 饮水记录（优先于饮食，避免"喝水"被误判为饮食）
+    result = _parseWater(text); if (result) return result;
     // 1. 饮食记录
     result = _parseMeal(text); if (result) return result;
     // 2. 运动记录
@@ -190,6 +192,28 @@
     if (amount) msg += '（¥' + amount + '）';
 
     return { matched: true, module: 'behavior', action: 'meal', message: msg };
+  }
+
+  function _parseWater(text) {
+    // "喝了3杯水" "喝了两杯水" "今天喝了三杯水" "喝了一杯水"
+    // 注意：要排除"喝奶茶""喝咖啡""喝了碗汤"等饮食类
+    if (!/喝了?\s*(?:\d+|[一二三四五六七八九十]+)\s*杯水|喝了?水|喝水/.test(text)) return null;
+    // 如果包含奶茶/咖啡/果汁/汤/饮料等，不算纯水
+    if (/(?:奶茶|咖啡|果汁|汤|饮料|可乐|啤酒|茶|酒|豆浆|牛奶)/.test(text)) return null;
+
+    var count = 1;
+    var numM = text.match(/(\d+|[一二三四五六七八九十])\s*杯/);
+    if (numM) {
+      var n = numM[1];
+      var numMap = {'一':1,'二':2,'三':3,'四':4,'五':5,'六':6,'七':7,'八':8,'九':9,'十':10};
+      count = numMap[n] || parseInt(n) || 1;
+    }
+
+    var log = getTodayLog();
+    log.water = (log.water || 0) + count;
+    saveTodayLog(log);
+
+    return { matched: true, module: 'behavior', action: 'water', message: '已记录饮水 +' + count + ' 杯（今日共' + log.water + '杯）' };
   }
 
   function _parseExercise(text) {
@@ -686,8 +710,9 @@
       var btns = document.querySelectorAll('#bhSleepQuality .bh-q-btn');
       btns.forEach(function(btn) {
         btn.addEventListener('click', function() {
-          btns.forEach(function(b) { b.classList.remove('active'); });
+          btns.forEach(function(b) { b.classList.remove('active'); b.style.background = '#fff'; });
           this.classList.add('active');
+          this.style.background = this.style.color;
         });
       });
     }, 100);
@@ -719,8 +744,9 @@
       var btns = document.querySelectorAll('#bhMoodScore .bh-q-btn');
       btns.forEach(function(btn) {
         btn.addEventListener('click', function() {
-          btns.forEach(function(b) { b.classList.remove('active'); });
+          btns.forEach(function(b) { b.classList.remove('active'); b.style.background = '#fff'; });
           this.classList.add('active');
+          this.style.background = this.style.color;
         });
       });
     }, 100);
@@ -809,8 +835,8 @@
       '.bh-modal-cancel{flex:0 0 auto;padding:12px 18px;border:1.5px solid #d1d5db;border-radius:10px;background:#fff;color:#6b7280;font-size:14px;font-weight:500;cursor:pointer}',
       '.bh-modal-cancel:hover{background:#f3f4f6}',
       '.bh-quality-select{display:flex;gap:6px}',
-      '.bh-q-btn{flex:1;padding:8px;border:1.5px solid #e5e7eb;border-radius:8px;background:#fff;cursor:pointer;font-size:12px;font-weight:600;transition:all .2s}',
-      '.bh-q-btn.active{background:currentColor;color:#fff !important}',
+      '.bh-q-btn{flex:1;padding:8px;border:1.5px solid #e5e7eb;border-radius:8px;background:#fff;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s}',
+      '.bh-q-btn.active{color:#fff !important}',
       '@media(max-width:380px){.bh-overview-grid{grid-template-columns:repeat(2,1fr)}.bh-quick-actions{grid-template-columns:repeat(2,1fr)}}'
     ].join('\n');
     document.head.appendChild(s);
