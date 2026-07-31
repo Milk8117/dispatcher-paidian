@@ -1653,6 +1653,10 @@ body {
     <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>
     日程管理
   </button>
+  <button class="nav-drawer-item" data-module="behavior" onclick="switchModule('behavior')">
+    <svg viewBox="0 0 24 24"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+    行为日志
+  </button>
 </nav>
 
 <!-- ==================== PAGE: 首页 ==================== -->
@@ -2266,6 +2270,9 @@ body {
   <div style="text-align:center;margin-top:8px;">
     <a href="#" onclick="showPrivacyPolicy();return false;" style="color:#64748b;font-size:12px;text-decoration:underline;">查看隐私协议</a>
   </div>
+  <!-- ==================== 日常收支记录 ==================== -->
+  <div id="dailyTxContainer"></div>
+
   <div style="text-align:center;margin-top:16px;padding:14px 0;">
     <span style="display:inline-flex;align-items:center;gap:6px;">
       <img src="../logo.png" alt="米儿客" style="height:40px;width:auto;opacity:0.7;">
@@ -2286,6 +2293,12 @@ body {
   <div id="scheduleContainer"></div>
 </div>
 <!-- END page-schedule -->
+
+<!-- ==================== PAGE: 行为日志 ==================== -->
+<div id="page-behavior" class="page-view">
+  <div id="behaviorHubContainer"></div>
+</div>
+<!-- END page-behavior -->
 
 </div><!-- END container -->
 
@@ -2314,7 +2327,8 @@ body {
     home: '米界AI',
     finance: '财富诊断CT',
     solar: '节气养生',
-    schedule: '日程管理'
+    schedule: '日程管理',
+    behavior: '行为日志'
   };
 
   // 首页问候语（按时间动态更新）
@@ -2348,13 +2362,33 @@ body {
     // Update top bar title
     var titleEl = document.getElementById('topbarTitle');
     if (titleEl) titleEl.textContent = moduleTitles[moduleName] || moduleName;
-    // 节气养生模块初始化
+    // 节气养生模块初始化（用双重rAF确保页面布局完成后再渲染）
     if (moduleName === 'solar' && window.initSolarTerm) {
-      setTimeout(function() { window.initSolarTerm('solarTermContainer'); }, 50);
+      requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+          window.initSolarTerm('solarTermContainer');
+        });
+      });
     }
     // 日程管理模块初始化
     if (moduleName === 'schedule' && window.initSchedule) {
-      setTimeout(function() { window.initSchedule('scheduleContainer'); }, 50);
+      requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+          window.initSchedule('scheduleContainer');
+        });
+      });
+    }
+    // 日常收支模块初始化
+    if (moduleName === 'finance' && window.initDailyTx) {
+      requestAnimationFrame(function() {
+        window.initDailyTx('dailyTxContainer');
+      });
+    }
+    // 行为日志模块初始化
+    if (moduleName === 'behavior' && window.initBehaviorHub) {
+      requestAnimationFrame(function() {
+        window.initBehaviorHub('behaviorHubContainer');
+      });
     }
     // Close nav drawer
     closeNavDrawer();
@@ -2402,7 +2436,31 @@ body {
       }
     }
 
-    // 优先级2："今天吃什么"特殊处理 — 弹出时令菜谱推荐
+    // 优先级2：语音记账 — "午餐35" "打车20" "收入5000" "买了件衣服300"
+    var txResult = tryParseTransaction(text);
+    if (txResult) {
+      if (window.dailyTxAdd) {
+        window.dailyTxAdd(txResult);
+        switchModule('finance');
+        var catNames = {food:'餐饮',transport:'交通',shopping:'购物',entertain:'娱乐',medical:'医疗',education:'教育',daily:'日用',other:'其他',salary:'工资',sidejob:'兼职',invest:'投资收益',other_in:'其他收入'};
+        var sym = txResult.type === 'expense' ? '-' : '+';
+        var catLabel = catNames[txResult.category] || '';
+        showToast('<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M20 6L9 17l-5-5"/></svg>已记录：' + catLabel + ' ' + sym + '¥' + txResult.amount);
+        return;
+      }
+    }
+
+    // 优先级3：行为数据采集 — "早餐吃了..." "跑步30分钟" "心情不错" "学了2小时"
+    if (window.parseAndRecordBehavior) {
+      var bhResult = window.parseAndRecordBehavior(text);
+      if (bhResult && bhResult.matched) {
+        switchModule('behavior');
+        showToast('<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M20 6L9 17l-5-5"/></svg>' + bhResult.message);
+        return;
+      }
+    }
+
+    // 优先级4："今天吃什么"特殊处理 — 弹出时令菜谱推荐
     if (/今天吃什么|今天吃啥|吃啥好|今天推荐|吃什么好|今天怎么吃|推荐.*(菜|食谱|吃)/.test(text)) {
       showTodayRecipes();
       return;
@@ -2516,6 +2574,53 @@ body {
     };
 
     voiceRecognition.start();
+  }
+
+  // ========== 自然语言记账解析 ==========
+  function tryParseTransaction(text) {
+    // 提取金额（支持"元/块/元"后缀或纯数字）
+    var amtMatch = text.match(/(\d+\.?\d*)\s*(?:元|块|¥|￥)?/);
+    if (!amtMatch) return null;
+    var amount = parseFloat(amtMatch[1]);
+    if (!amount || amount <= 0) return null;
+
+    // 判断收入还是支出
+    var isIncome = /(?:^|收入|收到|到账|进账|工资|兼职|奖金|红包|报销|返利|回款|提成)/.test(text) && !/(?:花了|花掉|支出|消费|买了|购买|交了|缴了|付了|充值|缴费|扣了)/.test(text);
+    // 显式"收入/到账/工资"等关键词优先判断为收入
+    if (/(?:收入|到账|工资|进账|回款|提成|奖金|返利)/.test(text)) isIncome = true;
+    // 显式"花了/支出/买了"等关键词优先判断为支出
+    if (/(?:花了|花掉|支出|消费|买了|购买|交了|缴了|付了|充值|缴费|扣了)/.test(text)) isIncome = false;
+
+    var type = isIncome ? 'income' : 'expense';
+
+    // 分类匹配
+    var category = 'other';
+    if (isIncome) {
+      if (/工资|薪水|薪酬/.test(text)) category = 'salary';
+      else if (/兼职|副业|私活/.test(text)) category = 'sidejob';
+      else if (/投资|理财|股票|基金|分红|收益/.test(text)) category = 'invest';
+      else category = 'other_in';
+    } else {
+      if (/午餐|午饭|晚餐|晚饭|早餐|早饭|吃饭|外卖|点餐|火锅|烧烤|奶茶|咖啡|饮料|小吃|饭店|餐厅|食堂|干饭|饭|吃/.test(text)) category = 'food';
+      else if (/打车|出租|地铁|公交|加油|停车|过路|高铁|火车|飞机|机票|滴滴|交通|骑行|共享单车/.test(text)) category = 'transport';
+      else if (/衣服|鞋|帽|裤|裙|穿|淘宝|京东|拼多多|网购|买.*了|购物|商城/.test(text)) category = 'shopping';
+      else if (/电影|游戏|KTV|唱歌|旅游|门票|景点|玩|娱乐|演出|音乐会|球赛/.test(text)) category = 'entertain';
+      else if (/医院|药|看病|体检|挂号|医疗|诊所|牙|配镜|眼镜/.test(text)) category = 'medical';
+      else if (/课程|培训|书|学费|考试|报名|教育|学习/.test(text)) category = 'education';
+      else if (/水电|燃气|物业|话费|网费|日用|洗|纸巾|超|便利/.test(text)) category = 'daily';
+      else category = 'other';
+    }
+
+    // 提取备注（去掉金额、常见动词、分类词后的剩余文本）
+    var note = text.replace(/(\d+\.?\d*)\s*(?:元|块|¥|￥)?/, '')
+                   .replace(/^(?:今天|昨天|前天|早上|中午|晚上|刚才)/, '')
+                   .replace(/(?:花了|花掉|支出|消费|买了|购买|交了|缴了|付了|充值|缴费|扣了|收入|收到|到账|进账|记账|记一下|记录)/g, '')
+                   .replace(/^[，,\s：:]+/, '').replace(/[，,\s：:]+$/, '')
+                   .trim();
+    // 如果备注太短（只剩1个字以下）或跟分类关键词重复，则留空
+    if (note.length < 2) note = '';
+
+    return { type: type, amount: amount, category: category, note: note, date: new Date().toISOString().substr(0, 10) };
   }
 
   function detectIntent(text) {
@@ -3908,7 +4013,7 @@ body {
     });
 
     window.addEventListener('load', function() {
-      navigator.serviceWorker.register('./service-worker.js?v=8', { updateViaCache: 'none' }).then(function(reg) {
+      navigator.serviceWorker.register('./service-worker.js?v=10', { updateViaCache: 'none' }).then(function(reg) {
         console.log('SW registered, scope:', reg.scope);
         
         // Force check for updates on every page load
@@ -3978,5 +4083,7 @@ function toggleGuideSection(index) {
 <script src="solar-term.js"></script>
 <script src="chronic-disease.js"></script>
 <script src="schedule.js"></script>
+<script src="daily-tx.js"></script>
+<script src="behavior-log.js"></script>
 </body>
 </html>
