@@ -164,18 +164,22 @@
   ];
 
   // ==================== 获取当前季节 ====================
+  // 根据节气索引(0-23)直接计算季节，不依赖外部变量
   function getSeasonForTerm(idx) {
-    var season = SOLAR_TERMS[idx].season;
-    return season;
+    idx = ((idx % 24) + 24) % 24;
+    if (idx >= 0 && idx <= 2) return 'spring';
+    if (idx >= 3 && idx <= 8) return 'summer';
+    if (idx >= 9 && idx <= 14) return 'autumn';
+    return 'winter';
   }
 
   // ==================== 渲染慢病卡片列表 ====================
-  function renderDiseaseList(containerEl, termIdx) {
+  function renderDiseaseList(containerEl, termIdx, termName) {
     var season = getSeasonForTerm(termIdx);
     var seasonLabel = { spring: '春', summer: '夏', autumn: '秋', winter: '冬' }[season];
     var html = '<div class="cd-header">';
     html += '<div class="cd-header-title">慢病调养</div>';
-    html += '<div class="cd-header-sub">选择关注的慢性病，查看' + seasonLabel + '季调养建议</div>';
+    html += '<div class="cd-header-sub">选择关注的慢性病，查看' + seasonLabel + '季调养建议' + (termName ? ' · 当前：' + termName : '') + '</div>';
     html += '</div>';
     html += '<div class="cd-grid">';
     CHRONIC_DISEASES.forEach(function(d) {
@@ -195,13 +199,13 @@
     containerEl.querySelectorAll('.cd-card').forEach(function(card) {
       card.addEventListener('click', function() {
         var diseaseId = this.getAttribute('data-disease');
-        renderDiseaseDetail(containerEl, diseaseId, termIdx);
+        renderDiseaseDetail(containerEl, diseaseId, termIdx, termName);
       });
     });
   }
 
   // ==================== 渲染慢病详情 ====================
-  function renderDiseaseDetail(containerEl, diseaseId, termIdx) {
+  function renderDiseaseDetail(containerEl, diseaseId, termIdx, termName) {
     var disease = null;
     for (var i = 0; i < CHRONIC_DISEASES.length; i++) {
       if (CHRONIC_DISEASES[i].id === diseaseId) { disease = CHRONIC_DISEASES[i]; break; }
@@ -210,7 +214,6 @@
 
     var season = getSeasonForTerm(termIdx);
     var seasonLabel = { spring: '春', summer: '夏', autumn: '秋', winter: '冬' }[season];
-    var termName = SOLAR_TERMS[termIdx].name;
 
     var html = '<div class="cd-detail">';
     // 返回按钮
@@ -275,13 +278,13 @@
 
     // 返回按钮事件
     document.getElementById('cdBackBtn').addEventListener('click', function() {
-      renderDiseaseList(containerEl, termIdx);
+      renderDiseaseList(containerEl, termIdx, termName);
     });
   }
 
   // ==================== 暴露初始化函数 ====================
-  window.initChronicDisease = function(containerId, termIdx) {
-    renderDiseaseList(document.getElementById(containerId), termIdx);
+  window.initChronicDisease = function(containerId, termIdx, termName) {
+    renderDiseaseList(document.getElementById(containerId), termIdx, termName);
   };
 
   // 暴露数据供外部使用

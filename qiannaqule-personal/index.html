@@ -884,6 +884,75 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* ========== Home Page ========== */
+.home-hero {
+  background: linear-gradient(135deg, #1e3a5f 0%, #4f46e5 60%, #7c3aed 100%);
+  padding: 40px 24px 32px;
+  border-radius: 0 0 28px 28px;
+  margin: -1px -1px 0 -1px;
+}
+.home-hero-inner { text-align: center; }
+.home-logo-ring {
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  border: 2px solid rgba(255,255,255,0.25);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 16px;
+  box-shadow: 0 4px 20px rgba(79,70,229,0.4);
+}
+.home-greeting {
+  font-size: 24px; font-weight: 700; color: #fff;
+  margin: 0 0 6px; letter-spacing: 0.5px;
+}
+.home-tagline {
+  font-size: 13px; color: rgba(255,255,255,0.7);
+  margin: 0; letter-spacing: 1px;
+}
+.home-section {
+  padding: 20px 16px 4px;
+}
+.home-section-title {
+  font-size: 13px; font-weight: 600; color: #6b7280;
+  margin-bottom: 10px; padding-left: 2px;
+  letter-spacing: 0.5px;
+}
+.home-card-grid { display: flex; flex-direction: column; gap: 10px; }
+.home-card {
+  display: flex; align-items: center; gap: 14px;
+  background: #fff; border-radius: 14px;
+  padding: 14px 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 4px 14px rgba(0,0,0,0.04);
+  cursor: pointer; transition: all 0.2s;
+  border: 1px solid #f3f4f6;
+  position: relative;
+}
+.home-card:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+.home-card:active { transform: scale(0.98); }
+.home-card-icon {
+  width: 50px; height: 50px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.home-card-body { flex: 1; min-width: 0; }
+.home-card-name { font-size: 15px; font-weight: 600; color: #1a1a2e; margin-bottom: 3px; }
+.home-card-desc { font-size: 12px; color: #6b7280; line-height: 1.4; }
+.home-card-arrow { flex-shrink: 0; }
+.home-shortcuts { display: flex; gap: 8px; flex-wrap: wrap; }
+.home-shortcut {
+  display: flex; align-items: center; gap: 5px;
+  background: #f8fafc; border: 1px solid #e2e8f0;
+  border-radius: 20px; padding: 7px 14px;
+  font-size: 13px; color: #475569; cursor: pointer;
+  transition: all 0.15s;
+}
+.home-shortcut:hover { background: #eef2ff; border-color: #c7d2fe; color: #4338ca; }
+.home-shortcut:active { transform: scale(0.95); }
+.home-footer {
+  text-align: center; padding: 20px 16px 32px;
+  font-size: 11px; color: #9ca3af;
+}
+
 /* Module placeholder cards */
 .module-placeholder {
   background: #fff;
@@ -1567,7 +1636,11 @@ body {
     <h2>米界AI</h2>
     <p>你的私人贾维斯</p>
   </div>
-  <button class="nav-drawer-item active" data-module="finance" onclick="switchModule('finance')">
+  <button class="nav-drawer-item active" data-module="home" onclick="switchModule('home')">
+    <svg viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9.5z"/><path d="M9 22V12h6v10"/></svg>
+    首页
+  </button>
+  <button class="nav-drawer-item" data-module="finance" onclick="switchModule('finance')">
     <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 10h20"/><path d="M6 16h4"/><path d="M14 16h4"/></svg>
     财富诊断CT
   </button>
@@ -1581,8 +1654,90 @@ body {
   </button>
 </nav>
 
+<!-- ==================== PAGE: 首页 ==================== -->
+<div id="page-home" class="page-view page-active">
+  <div class="home-hero">
+    <div class="home-hero-inner">
+      <div class="home-logo-ring">
+        <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2a5 5 0 0 0-5 5v3a5 5 0 0 0 10 0V7a5 5 0 0 0-5-5z"/>
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+          <path d="M12 19v4"/>
+          <path d="M8 23h8"/>
+        </svg>
+      </div>
+      <h1 class="home-greeting" id="homeGreeting">你好</h1>
+      <p class="home-tagline">米界AI · 你的私人贾维斯</p>
+    </div>
+  </div>
+
+  <div class="home-section">
+    <div class="home-section-title">我的能力</div>
+    <div class="home-card-grid">
+
+      <div class="home-card" onclick="switchModule('finance')">
+        <div class="home-card-icon" style="background:linear-gradient(135deg,#2563eb,#7c3aed)">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 10h20"/><path d="M6 16h4"/><path d="M14 16h4"/></svg>
+        </div>
+        <div class="home-card-body">
+          <div class="home-card-name">财富诊断CT</div>
+          <div class="home-card-desc">导入支付宝/微信账单，一键诊断你的财务健康</div>
+        </div>
+        <svg class="home-card-arrow" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+
+      <div class="home-card" onclick="switchModule('solar')">
+        <div class="home-card-icon" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+        </div>
+        <div class="home-card-body">
+          <div class="home-card-name">节气养生</div>
+          <div class="home-card-desc">跟着24节气吃对饭，慢病调养智能规避</div>
+        </div>
+        <svg class="home-card-arrow" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+
+      <div class="home-card" onclick="switchModule('schedule')">
+        <div class="home-card-icon" style="background:linear-gradient(135deg,#10b981,#0ea5e9)">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>
+        </div>
+        <div class="home-card-body">
+          <div class="home-card-name">日程管理</div>
+          <div class="home-card-desc">还款日、缴费日、重要事项自动提醒</div>
+        </div>
+        <svg class="home-card-arrow" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="home-section">
+    <div class="home-section-title">快捷指令</div>
+    <div class="home-shortcuts">
+      <button class="home-shortcut" onclick="document.getElementById('aiInputField').value='今天吃什么';submitAiInput()">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><path d="M6 1v3M10 1v3M14 1v3"/></svg>
+        今天吃什么
+      </button>
+      <button class="home-shortcut" onclick="switchModule('finance')">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 15l2 2 4-4"/></svg>
+        财务体检
+      </button>
+      <button class="home-shortcut" onclick="switchModule('solar');setTimeout(function(){var t=document.querySelector('.solar-tab[data-view=health]');if(t)t.click();},200)">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        健康档案
+      </button>
+    </div>
+  </div>
+
+  <div class="home-footer">
+    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#9ca3af" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:3px"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+    <span>米儿客出品 · 数据仅存本地</span>
+  </div>
+</div>
+<!-- END page-home -->
+
 <!-- ==================== PAGE: 财富诊断 ==================== -->
-<div id="page-finance" class="page-view page-active">
+<div id="page-finance" class="page-view">
   <!-- Header -->
   <div class="header">
     <div class="header-title-row">
@@ -2149,10 +2304,22 @@ body {
 
   // ==================== Module Switching ====================
   var moduleTitles = {
+    home: '米界AI',
     finance: '财富诊断CT',
     solar: '节气养生',
     schedule: '日程管理'
   };
+
+  // 首页问候语（按时间动态更新）
+  function updateGreeting() {
+    var el = document.getElementById('homeGreeting');
+    if (!el) return;
+    var h = new Date().getHours();
+    var g = h < 6 ? '夜深了' : h < 11 ? '早上好' : h < 14 ? '中午好' : h < 18 ? '下午好' : '晚上好';
+    el.textContent = g + '，小米';
+  }
+  updateGreeting();
+  setInterval(updateGreeting, 60000);
 
   window.switchModule = function(moduleName) {
     // Hide all pages

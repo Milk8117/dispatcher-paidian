@@ -751,7 +751,7 @@
       } else if (view === 'disease') {
         contentEl.innerHTML = '<div id="cdContainer"></div>';
         if (window.initChronicDisease) {
-          window.initChronicDisease('cdContainer', currentIdx);
+          window.initChronicDisease('cdContainer', currentIdx, SOLAR_TERMS[currentIdx].name);
         }
       } else if (view === 'collection') {
         contentEl.innerHTML = '<div id="collectionContainer"></div>';
