@@ -1508,6 +1508,9 @@
           container.querySelector('.solar-tab[data-view="term"]').click();
         });
       }, 500);
+    } else {
+      // 已完成筛查，直接显示节气视图
+      switchSolarView('term');
     }
 
     // 暴露全局接口供"今天吃什么"使用
