@@ -1,0 +1,581 @@
+/**
+ * 米界AI — 节气养生模块
+ * 二十四节气转盘 · 时令食疗 · 东方养生智慧
+ * 
+ * 知识体系：倪海厦《人纪》、徐文兵《字里藏医》
+ */
+
+(function() {
+  'use strict';
+
+  // ==================== 二十四节气数据 ====================
+  var SOLAR_TERMS = [
+    { name: '立春', date: '2月3-5日', season: 'spring', element: '木',
+      summary: '阳气初生，万物复苏', principle: '升阳养肝，疏达气机',
+      foods: ['豆芽','韭菜','香椿','春笋','荠菜','豌豆苗'],
+     忌: ['酸辣','油腻','生冷'],
+      tips: '早睡早起，散步舒展，忌动怒伤肝' },
+    { name: '雨水', date: '2月18-20日', season: 'spring', element: '木',
+      summary: '春雨润物，湿气渐生', principle: '健脾祛湿，养护脾胃',
+      foods: ['山药','红枣','蜂蜜','薏米','莲子','菠菜'],
+      忌: ['寒凉','甜腻'],
+      tips: '春捂防寒，适量运动，预防倒春寒' },
+    { name: '惊蛰', date: '3月5-7日', season: 'spring', element: '木',
+      summary: '春雷始鸣，蛰虫惊醒', principle: '平肝息风，清热解毒',
+      foods: ['梨','芹菜','荠菜','菠菜','枸杞','菊花'],
+      忌: ['辛辣','烧烤'],
+      tips: '起居有常，适当伸展，防春瘟' },
+    { name: '春分', date: '3月20-22日', season: 'spring', element: '木',
+      summary: '昼夜平分，阴阳平衡', principle: '调和阴阳，养血柔肝',
+      foods: ['香椿','春笋','枸杞','百合','银耳','草莓'],
+      忌: ['大寒大热'],
+      tips: '运动适中，情志舒畅，防过敏' },
+    { name: '清明', date: '4月4-6日', season: 'spring', element: '木',
+      summary: '天清气朗，万物皆明', principle: '养肝补肾，祛湿健脾',
+      foods: ['青团','艾草','马兰头','菊花脑','枸杞芽','嫩柳芽'],
+      忌: ['辛辣燥热'],
+      tips: '踏青赏春，调畅情志，防花粉过敏' },
+    { name: '谷雨', date: '4月19-21日', season: 'spring', element: '土',
+      summary: '雨生百谷，春将尽矣', principle: '健脾利湿，益气养血',
+      foods: ['谷雨茶','香椿','薏仁','冬瓜','赤小豆','茯苓'],
+      忌: ['冰冷','甜腻'],
+      tips: '预防春困，适度锻炼，注意防潮' },
+    { name: '立夏', date: '5月5-7日', season: 'summer', element: '火',
+      summary: '夏季开始，万物繁茂', principle: '养心安神，清热消暑',
+      foods: ['蚕豆','苋菜','黄瓜','樱桃','莲子心','绿豆'],
+      忌: ['冰饮','辛辣'],
+      tips: '晚睡早起，午间小憩，忌大汗伤阳' },
+    { name: '小满', date: '5月20-22日', season: 'summer', element: '火',
+      summary: '麦类渐满，未至全熟', principle: '清热利湿，健脾和胃',
+      foods: ['苦瓜','黄瓜','樱桃','番茄','冬瓜','绿豆'],
+      忌: ['辛辣','烧烤'],
+      tips: '穿着透气，饮食清淡，防皮肤病' },
+    { name: '芒种', date: '6月5-7日', season: 'summer', element: '火',
+      summary: '有芒之种当播，湿热交蒸', principle: '清暑化湿，养心健脾',
+      foods: ['杨梅','青梅','西瓜','荷叶','薏米','鸭肉'],
+      忌: ['油腻','生冷'],
+      tips: '勤换衣物，防暑降温，适当出汗排湿' },
+    { name: '夏至', date: '6月21-22日', season: 'summer', element: '火',
+      summary: '日最长，阳极阴生', principle: '养心安神，清补消暑',
+      foods: ['面条','苦瓜','绿豆','西瓜翠衣','荷叶','莲子'],
+      忌: ['大寒','冰镇'],
+      tips: '避暑防晒，静心养神，冬病夏治好时机' },
+    { name: '小暑', date: '7月6-8日', season: 'summer', element: '火',
+      summary: '暑气渐盛，未至极热', principle: '消暑清热，健脾化湿',
+      foods: ['绿豆汤','荷叶粥','苦瓜','丝瓜','冬瓜','酸梅汤'],
+      忌: ['冰饮','烧烤'],
+      tips: '少户外活动，多食清淡，午后避暑' },
+    { name: '大暑', date: '7月22-24日', season: 'summer', element: '火',
+      summary: '一年最热，湿热交蒸', principle: '清暑祛湿，养气护心',
+      foods: ['冬瓜','苦瓜','丝瓜','黄瓜','老鸭','薏米','绿豆','百合','莲子','秋葵'],
+      忌: ['冰镇生冷','辛辣烧烤','甜腻厚味','过量苦寒'],
+      tips: '晚睡不超23点，午憩15-30分，运动以微汗为度',
+      // 大暑为完整样板，含详细食谱
+      recipes: [
+        { name: '冬瓜薏米老鸭汤', method: '煲汤',
+          desc: '鸭肉滋阴补虚，冬瓜带皮利水祛湿，薏米健脾渗湿。清补兼顾，祛湿不伤正。',
+          ingredients: '老鸭半只(500g)、冬瓜带皮300g、炒薏米30g、茯苓15g、生姜3片、陈皮1小块、红枣3颗',
+          steps: '鸭肉焯水去沫→薏米泡30分钟→鸭肉与干货入砂锅加清水→大火烧开转小火炖1.5小时→加冬瓜块炖30分钟→调味',
+          nutrition: { kcal: 280, protein: 28, fat: 15, carb: 12, fiber: 3, calcium: 45, iron: 3.2, vitC: 18 }
+        },
+        { name: '苦瓜丝瓜炒鲜百合', method: '清炒',
+          desc: '苦瓜清心泻火，丝瓜清热利水，百合养阴安神。清暑不峻烈，祛湿不伤阴。',
+          ingredients: '苦瓜1根(200g)、嫩丝瓜1条(150g)、鲜百合10g、蒜末适量',
+          steps: '苦瓜去瓤切片盐腌5分钟→丝瓜去皮切块→热油爆香蒜末→先炒苦瓜1分钟→加丝瓜炒2分钟→放百合翻炒30秒→调味出锅',
+          nutrition: { kcal: 85, protein: 3, fat: 4, carb: 12, fiber: 4, calcium: 35, iron: 1.5, vitC: 45 }
+        },
+        { name: '凉拌秋葵木耳', method: '凉拌',
+          desc: '秋葵健脾润肠补肾，黑木耳凉血润燥活血。少油清爽，适合湿热天气开胃。',
+          ingredients: '秋葵200g、干黑木耳15g、蒜末2瓣、生抽1汤匙、香油少许、米醋半汤匙',
+          steps: '秋葵整根沸水焯2分钟→过凉水切段→木耳泡发焯2分钟→调酱汁(蒜末+生抽+香油+米醋)→摆盘淋酱拌匀',
+          nutrition: { kcal: 65, protein: 3, fat: 3, carb: 9, fiber: 5, calcium: 95, iron: 2.8, vitC: 22 }
+        },
+        { name: '清蒸鲈鱼配姜丝', method: '蒸煮',
+          desc: '鲈鱼高蛋白低脂肪好吸收，补体力不生湿热；生姜温中散寒醒脾，中和鱼性凉。',
+          ingredients: '鲈鱼1条(400g)、姜丝15g、葱丝适量、蒸鱼豉油2汤匙、料酒1汤匙',
+          steps: '鲈鱼处理干净划刀抹料酒腌10分钟→鱼身垫姜片架空→水开大火蒸8分钟→倒掉汤汁去腥→铺姜丝葱丝淋豉油→热油浇上激香',
+          nutrition: { kcal: 195, protein: 32, fat: 7, carb: 3, fiber: 0, calcium: 55, iron: 1.8, vitC: 5 }
+        },
+        { name: '绿豆百合莲子粥', method: '粥饮',
+          desc: '绿豆清热解暑，百合润肺清热，莲子养心安神健脾。清心安神，适合心烦失眠。',
+          ingredients: '绿豆50g、干百合20g、干莲子30g、粳米80g、冰糖适量(可不加)',
+          steps: '绿豆泡2小时、莲子去芯泡2小时、百合泡30分钟→粳米与绿豆莲子入锅加水→大火煮沸转小火熬30分钟→加百合煮10分钟→温热食用(不冰镇)',
+          nutrition: { kcal: 210, protein: 8, fat: 1, carb: 42, fiber: 6, calcium: 30, iron: 2.5, vitC: 3 }
+        }
+      ],
+      tea: [
+        { name: '荷叶麦冬茯苓饮', formula: '干荷叶6g、麦冬6g、茯苓6g、乌梅1颗', effect: '清暑养阴健脾' },
+        { name: '姜枣茶', formula: '生姜3-5片带皮、红枣3枚、红糖少许', effect: '温中散寒升脾阳(上午9点前饮)' },
+        { name: '古法酸梅汤', formula: '乌梅50g、山楂30g、陈皮15g、炙甘草10g', effect: '生津止渴收敛心气(温饮)' },
+        { name: '陈皮绿豆汤', formula: '绿豆+陈皮1小块', effect: '清火配陈皮护胃(不冰镇)' }
+      ]
+    },
+    { name: '立秋', date: '8月7-9日', season: 'autumn', element: '金',
+      summary: '秋季始立，暑去凉来', principle: '滋阴润燥，养肺生津',
+      foods: ['百合','银耳','梨','蜂蜜','莲藕','山药'],
+      忌: ['辛辣','燥热'],
+      tips: '早卧早起，收敛神气，防秋燥' },
+    { name: '处暑', date: '8月22-24日', season: 'autumn', element: '金',
+      summary: '暑气至此而止', principle: '养阴清热，益胃生津',
+      foods: ['百合','莲子','银耳','梨','蜂蜜','鸭子'],
+      忌: ['辛辣','生姜过量'],
+      tips: '秋乏多睡，适量运动，防秋燥伤肺' },
+    { name: '白露', date: '9月7-9日', season: 'autumn', element: '金',
+      summary: '露凝而白，天气转凉', principle: '润肺生津，健脾益肾',
+      foods: ['梨','龙眼','百合','银耳','核桃','红薯'],
+      忌: ['寒凉','露脐'],
+      tips: '添衣防凉，滋阴润肺，不露脐' },
+    { name: '秋分', date: '9月22-24日', season: 'autumn', element: '金',
+      summary: '秋色平分，阴阳相半', principle: '滋阴润燥，平衡阴阳',
+      foods: ['桂花','栗子','芋头','莲藕','百合','鸭肉'],
+      忌: ['辛散','寒凉'],
+      tips: '早睡早起，调畅情志，防悲秋' },
+    { name: '寒露', date: '10月8-9日', season: 'autumn', element: '金',
+      summary: '露气寒冷，将凝结也', principle: '润肺滋阴，温养脾胃',
+      foods: ['芝麻','糯米','菊花','山楂','柿子','萝卜'],
+      忌: ['寒凉','生冷'],
+      tips: '足部保暖，早卧早起，防感冒' },
+    { name: '霜降', date: '10月23-24日', season: 'autumn', element: '土',
+      summary: '气肃而霜降，阴始凝也', principle: '平补肝肾，润燥养胃',
+      foods: ['柿子','栗子','牛肉','羊肉','萝卜','山药'],
+      忌: ['寒凉瓜果'],
+      tips: '注意保暖，补益脾胃，迎冬准备' },
+    { name: '立冬', date: '11月7-8日', season: 'winter', element: '水',
+      summary: '冬季始立，万物收藏', principle: '滋阴潜阳，温补肝肾',
+      foods: ['羊肉','牛肉','核桃','黑芝麻','栗子','萝卜'],
+      忌: ['寒凉','生冷'],
+      tips: '早卧晚起，必待日光，防寒保暖' },
+    { name: '小雪', date: '11月22-23日', season: 'winter', element: '水',
+      summary: '天渐寒冷，雪花初现', principle: '温补心肾，益脾养肝',
+      foods: ['羊肉','牛肉','红薯','栗子','红枣','生姜'],
+      忌: ['寒凉','黏腻'],
+      tips: '注意头部保暖，适度进补，防抑郁' },
+    { name: '大雪', date: '12月6-8日', season: 'winter', element: '水',
+      summary: '大雪纷飞，阴气渐盛', principle: '温补助阳，补肾固本',
+      foods: ['羊肉','桂圆','核桃','黑芝麻','红枣','姜茶'],
+      忌: ['寒凉','冷饮'],
+      tips: '早卧晚起，护好头颈，冬令进补' },
+    { name: '冬至', date: '12月21-23日', season: 'winter', element: '水',
+      summary: '阴极之至，阳气始生', principle: '温补心肾，养血安神',
+      foods: ['饺子','汤圆','羊肉','桂圆','生姜','红枣'],
+      忌: ['寒凉','生冷'],
+      tips: '静养蓄精，少汗少泄，冬至大如年' },
+    { name: '小寒', date: '1月5-7日', season: 'winter', element: '水',
+      summary: '寒气至极，尚未大寒', principle: '温补脾肾，散寒暖身',
+      foods: ['羊肉','牛肉','生姜','红糖','核桃','栗子'],
+      忌: ['冰冷','寒性瓜果'],
+      tips: '三九补冬，注意心脑血管保暖' },
+    { name: '大寒', date: '1月20-21日', season: 'winter', element: '水',
+      summary: '一年最冷，寒极将暖', principle: '固护阳气，滋阴温补',
+      foods: ['八宝饭','羊肉','桂圆','红枣','生姜','糯米'],
+      忌: ['寒凉','生冷'],
+      tips: '防寒保暖迎春，进补收尾，准备过渡' }
+  ];
+
+  // ==================== 节气颜色主题 ====================
+  var SEASON_COLORS = {
+    spring: { bg: '#f0fdf4', accent: '#22c55e', text: '#166534', light: '#dcfce7' },
+    summer: { bg: '#fef9ee', accent: '#f59e0b', text: '#92400e', light: '#fef3c7' },
+    autumn: { bg: '#fdf4ff', accent: '#a855f7', text: '#6b21a8', light: '#f3e8ff' },
+    winter: { bg: '#eff6ff', accent: '#3b82f6', text: '#1e40af', light: '#dbeafe' }
+  };
+
+  // ==================== 获取当前节气 ====================
+  function getCurrentTermIndex() {
+    var now = new Date();
+    var year = now.getFullYear();
+    var month = now.getMonth() + 1;
+    var day = now.getDate();
+
+    // 节气交节日期表（简化版，基于公历近似）
+    var termDates = [
+      { idx: 0, m: 2, d: 4 },   // 立春
+      { idx: 1, m: 2, d: 19 },  // 雨水
+      { idx: 2, m: 3, d: 6 },   // 惊蛰
+      { idx: 3, m: 3, d: 21 },  // 春分
+      { idx: 4, m: 4, d: 5 },   // 清明
+      { idx: 5, m: 4, d: 20 },  // 谷雨
+      { idx: 6, m: 5, d: 6 },   // 立夏
+      { idx: 7, m: 5, d: 21 },  // 小满
+      { idx: 8, m: 6, d: 6 },   // 芒种
+      { idx: 9, m: 6, d: 21 },  // 夏至
+      { idx: 10, m: 7, d: 7 },  // 小暑
+      { idx: 11, m: 7, d: 23 }, // 大暑
+      { idx: 12, m: 8, d: 7 },  // 立秋
+      { idx: 13, m: 8, d: 23 }, // 处暑
+      { idx: 14, m: 9, d: 8 },  // 白露
+      { idx: 15, m: 9, d: 23 }, // 秋分
+      { idx: 16, m: 10, d: 8 }, // 寒露
+      { idx: 17, m: 10, d: 23 },// 霜降
+      { idx: 18, m: 11, d: 7 }, // 立冬
+      { idx: 19, m: 11, d: 22 },// 小雪
+      { idx: 20, m: 12, d: 7 }, // 大雪
+      { idx: 21, m: 12, d: 22 },// 冬至
+      { idx: 22, m: 1, d: 6 },  // 小寒
+      { idx: 23, m: 1, d: 20 }  // 大寒
+    ];
+
+    // 找到当前所处节气
+    var currentIdx = 23; // 默认大寒
+    for (var i = termDates.length - 1; i >= 0; i--) {
+      var t = termDates[i];
+      if (month > t.m || (month === t.m && day >= t.d)) {
+        currentIdx = t.idx;
+        break;
+      }
+    }
+    // 特殊处理：1月1日-1月5日还在小寒之前，属于冬至
+    if (month === 1 && day < 6) currentIdx = 21; // 冬至
+
+    return currentIdx;
+  }
+
+  // ==================== 构建转盘SVG ====================
+  function buildWheel(containerEl, currentIdx, onClickTerm) {
+    var size = 320;
+    var cx = size / 2, cy = size / 2, r = 140;
+    var svgNS = 'http://www.w3.org/2000/svg';
+
+    var svg = document.createElementNS(svgNS, 'svg');
+    svg.setAttribute('viewBox', '0 0 ' + size + ' ' + size);
+    svg.setAttribute('width', size);
+    svg.setAttribute('height', size);
+    svg.style.display = 'block';
+    svg.style.margin = '0 auto';
+    svg.style.touchAction = 'none';
+    svg.style.userSelect = 'none';
+
+    // 旋转容器
+    var wheelGroup = document.createElementNS(svgNS, 'g');
+    wheelGroup.setAttribute('class', 'solar-wheel-group');
+    wheelGroup.style.transition = 'transform 0.6s cubic-bezier(0.34,1.56,0.64,1)';
+    wheelGroup.style.transformOrigin = cx + 'px ' + cy + 'px';
+
+    // 绘制24个扇区
+    var anglePerSegment = 360 / 24;
+    for (var i = 0; i < 24; i++) {
+      var startAngle = (i * anglePerSegment - 90) * Math.PI / 180;
+      var endAngle = ((i + 1) * anglePerSegment - 90) * Math.PI / 180;
+
+      var x1 = cx + r * Math.cos(startAngle);
+      var y1 = cy + r * Math.sin(startAngle);
+      var x2 = cx + r * Math.cos(endAngle);
+      var y2 = cy + r * Math.sin(endAngle);
+
+      var path = document.createElementNS(svgNS, 'path');
+      var d = 'M ' + cx + ' ' + cy + ' L ' + x1 + ' ' + y1 +
+              ' A ' + r + ' ' + r + ' 0 0 1 ' + x2 + ' ' + y2 + ' Z';
+      path.setAttribute('d', d);
+
+      var term = SOLAR_TERMS[i];
+      var colors = SEASON_COLORS[term.season];
+      path.setAttribute('fill', i === currentIdx ? colors.accent : colors.light);
+      path.setAttribute('stroke', '#fff');
+      path.setAttribute('stroke-width', '1.5');
+      path.setAttribute('data-idx', i);
+      path.style.cursor = 'pointer';
+      path.style.transition = 'fill 0.3s';
+
+      // 点击事件
+      path.addEventListener('click', (function(idx) {
+        return function() {
+          rotateTo(idx);
+          onClickTerm(idx);
+        };
+      })(i));
+
+      // hover效果
+      path.addEventListener('mouseenter', function() {
+        if (parseInt(this.getAttribute('data-idx')) !== currentIdx) {
+          this.setAttribute('fill', SEASON_COLORS[SOLAR_TERMS[parseInt(this.getAttribute('data-idx'))].season].accent + '44');
+        }
+      });
+      path.addEventListener('mouseleave', function() {
+        var idx = parseInt(this.getAttribute('data-idx'));
+        var t = SOLAR_TERMS[idx];
+        this.setAttribute('fill', idx === getCurrentTermIndex() ? SEASON_COLORS[t.season].accent : SEASON_COLORS[t.season].light);
+      });
+
+      wheelGroup.appendChild(path);
+
+      // 文字标签
+      var midAngle = ((i + 0.5) * anglePerSegment - 90) * Math.PI / 180;
+      var labelR = r * 0.68;
+      var lx = cx + labelR * Math.cos(midAngle);
+      var ly = cy + labelR * Math.sin(midAngle);
+
+      var text = document.createElementNS(svgNS, 'text');
+      text.setAttribute('x', lx);
+      text.setAttribute('y', ly);
+      text.setAttribute('text-anchor', 'middle');
+      text.setAttribute('dominant-baseline', 'central');
+      text.setAttribute('font-size', '11');
+      text.setAttribute('font-weight', i === currentIdx ? 'bold' : 'normal');
+      text.setAttribute('fill', i === currentIdx ? '#fff' : colors.text);
+      text.setAttribute('transform', 'rotate(' + ((i + 0.5) * anglePerSegment) + ' ' + lx + ' ' + ly + ')');
+      text.textContent = term.name;
+      text.style.pointerEvents = 'none';
+      wheelGroup.appendChild(text);
+    }
+
+    svg.appendChild(wheelGroup);
+
+    // 中心圆
+    var centerCircle = document.createElementNS(svgNS, 'circle');
+    centerCircle.setAttribute('cx', cx);
+    centerCircle.setAttribute('cy', cy);
+    centerCircle.setAttribute('r', '32');
+    centerCircle.setAttribute('fill', '#fff');
+    centerCircle.setAttribute('stroke', '#e5e7eb');
+    centerCircle.setAttribute('stroke-width', '2');
+    svg.appendChild(centerCircle);
+
+    // 中心文字
+    var centerText = document.createElementNS(svgNS, 'text');
+    centerText.setAttribute('x', cx);
+    centerText.setAttribute('y', cy - 6);
+    centerText.setAttribute('text-anchor', 'middle');
+    centerText.setAttribute('font-size', '11');
+    centerText.setAttribute('fill', '#6b7280');
+    centerText.textContent = '节气';
+    svg.appendChild(centerText);
+
+    var centerText2 = document.createElementNS(svgNS, 'text');
+    centerText2.setAttribute('x', cx);
+    centerText2.setAttribute('y', cy + 10);
+    centerText2.setAttribute('text-anchor', 'middle');
+    centerText2.setAttribute('font-size', '10');
+    centerText2.setAttribute('fill', '#9ca3af');
+    centerText2.textContent = '养生';
+    svg.appendChild(centerText2);
+
+    // 指针（顶部三角形）
+    var pointer = document.createElementNS(svgNS, 'polygon');
+    pointer.setAttribute('points', (cx) + ',' + (cy - r - 8) + ' ' + (cx - 8) + ',' + (cy - r + 6) + ' ' + (cx + 8) + ',' + (cy - r + 6));
+    pointer.setAttribute('fill', '#ef4444');
+    pointer.setAttribute('stroke', '#fff');
+    pointer.setAttribute('stroke-width', '2');
+    pointer.setAttribute('filter', 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))');
+    svg.appendChild(pointer);
+
+    containerEl.appendChild(svg);
+
+    // 旋转逻辑
+    var currentRotation = 0;
+    function rotateTo(idx) {
+      var targetAngle = -(idx * anglePerSegment + anglePerSegment / 2);
+      currentRotation = targetAngle;
+      wheelGroup.style.transform = 'rotate(' + targetAngle + 'deg)';
+    }
+
+    // 初始旋转到当前节气
+    rotateTo(currentIdx);
+
+    // 触摸/拖拽旋转
+    var isDragging = false;
+    var startAngle = 0;
+    var dragStartRotation = 0;
+
+    function getAngleFromCenter(clientX, clientY) {
+      var rect = svg.getBoundingClientRect();
+      var centerX = rect.left + rect.width / 2;
+      var centerY = rect.top + rect.height / 2;
+      return Math.atan2(clientY - centerY, clientX - centerX) * 180 / Math.PI;
+    }
+
+    svg.addEventListener('pointerdown', function(e) {
+      isDragging = true;
+      startAngle = getAngleFromCenter(e.clientX, e.clientY);
+      dragStartRotation = currentRotation;
+      wheelGroup.style.transition = 'none';
+      svg.setPointerCapture(e.pointerId);
+    });
+
+    svg.addEventListener('pointermove', function(e) {
+      if (!isDragging) return;
+      var currentAngle = getAngleFromCenter(e.clientX, e.clientY);
+      var delta = currentAngle - startAngle;
+      currentRotation = dragStartRotation + delta;
+      wheelGroup.style.transform = 'rotate(' + currentRotation + 'deg)';
+    });
+
+    svg.addEventListener('pointerup', function(e) {
+      if (!isDragging) return;
+      isDragging = false;
+      wheelGroup.style.transition = 'transform 0.6s cubic-bezier(0.34,1.56,0.64,1)';
+      // 吸附到最近的节气
+      var normalizedRotation = ((currentRotation % 360) + 360) % 360;
+      var nearestIdx = Math.round(-currentRotation / anglePerSegment) % 24;
+      if (nearestIdx < 0) nearestIdx += 24;
+      rotateTo(nearestIdx);
+      onClickTerm(nearestIdx);
+    });
+
+    return { rotateTo: rotateTo };
+  }
+
+  // ==================== 渲染节气详情 ====================
+  function renderTermDetail(containerEl, idx) {
+    var term = SOLAR_TERMS[idx];
+    var colors = SEASON_COLORS[term.season];
+
+    var html = '';
+
+    // 标题区
+    html += '<div class="st-detail-header" style="background:' + colors.bg + ';border-left:4px solid ' + colors.accent + '">';
+    html += '<div class="st-detail-name">' + term.name + '</div>';
+    html += '<div class="st-detail-date">' + term.date + ' · ' + term.element + '</div>';
+    html += '<div class="st-detail-summary">' + term.summary + '</div>';
+    html += '</div>';
+
+    // 养生原则
+    html += '<div class="st-section">';
+    html += '<div class="st-section-title"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="' + colors.accent + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>养生原则</div>';
+    html += '<div class="st-principle">' + term.principle + '</div>';
+    html += '</div>';
+
+    // 时令食材
+    html += '<div class="st-section">';
+    html += '<div class="st-section-title"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="' + colors.accent + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M11 20A6 6 0 015 14c0-6 6-10 6-10s6 4 6 10a6 6 0 01-6 6z"/><path d="M11 8v6"/></svg>时令食材</div>';
+    html += '<div class="st-foods">';
+    term.foods.forEach(function(f) {
+      html += '<span class="st-food-tag" style="background:' + colors.light + ';color:' + colors.text + '">' + f + '</span>';
+    });
+    html += '</div>';
+    if (term['忌']) {
+      html += '<div class="st-avoid">忌：' + term['忌'].join('、') + '</div>';
+    }
+    html += '</div>';
+
+    // 起居建议
+    html += '<div class="st-section">';
+    html += '<div class="st-section-title"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="' + colors.accent + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>起居建议</div>';
+    html += '<div class="st-tips">' + term.tips + '</div>';
+    html += '</div>';
+
+    // 详细食谱（仅大暑有完整数据）
+    if (term.recipes && term.recipes.length > 0) {
+      html += '<div class="st-section">';
+      html += '<div class="st-section-title"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="' + colors.accent + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><path d="M6 1v3M10 1v3M14 1v3"/></svg>推荐食谱</div>';
+
+      term.recipes.forEach(function(recipe) {
+        html += '<div class="st-recipe-card">';
+        html += '<div class="st-recipe-header">';
+        html += '<span class="st-recipe-name">' + recipe.name + '</span>';
+        html += '<span class="st-recipe-method" style="background:' + colors.light + ';color:' + colors.text + '">' + recipe.method + '</span>';
+        html += '</div>';
+        html += '<div class="st-recipe-desc">' + recipe.desc + '</div>';
+        html += '<div class="st-recipe-ingredients"><strong>食材：</strong>' + recipe.ingredients + '</div>';
+        html += '<div class="st-recipe-steps"><strong>做法：</strong>' + recipe.steps + '</div>';
+        if (recipe.nutrition) {
+          html += '<div class="st-nutrition-bar">';
+          html += '<span class="st-nutrition-item">🔥 ' + recipe.nutrition.kcal + 'kcal</span>';
+          html += '<span class="st-nutrition-item">🥩 蛋白' + recipe.nutrition.protein + 'g</span>';
+          html += '<span class="st-nutrition-item">🧈 脂肪' + recipe.nutrition.fat + 'g</span>';
+          html += '<span class="st-nutrition-item">🍚 碳水' + recipe.nutrition.carb + 'g</span>';
+          html += '<span class="st-nutrition-item">🌾 纤维' + recipe.nutrition.fiber + 'g</span>';
+          html += '</div>';
+        }
+        html += '</div>';
+      });
+
+      html += '</div>';
+    }
+
+    // 养生茶饮（仅大暑有）
+    if (term.tea && term.tea.length > 0) {
+      html += '<div class="st-section">';
+      html += '<div class="st-section-title"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="' + colors.accent + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M17 8h1a4 4 0 010 8h-1"/><path d="M3 8h14v9a4 4 0 01-4 4H7a4 4 0 01-4-4V8z"/></svg>养生茶饮</div>';
+      term.tea.forEach(function(t) {
+        html += '<div class="st-tea-item">';
+        html += '<span class="st-tea-name">' + t.name + '</span>';
+        html += '<span class="st-tea-formula">' + t.formula + '</span>';
+        html += '<span class="st-tea-effect">' + t.effect + '</span>';
+        html += '</div>';
+      });
+      html += '</div>';
+    }
+
+    // 其他节气显示"即将上线"
+    if (!term.recipes || term.recipes.length === 0) {
+      html += '<div class="st-coming-soon">';
+      html += '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#9ca3af" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:8px"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>';
+      html += '<div>详细食谱与茶饮即将上线</div>';
+      html += '</div>';
+    }
+
+    containerEl.innerHTML = html;
+  }
+
+  // ==================== 注入CSS样式 ====================
+  function injectStyles() {
+    var style = document.createElement('style');
+    style.textContent = [
+      '.solar-term-page { padding: 16px; max-width: 480px; margin: 0 auto; }',
+      '.solar-wheel-container { text-align: center; margin-bottom: 16px; }',
+      '.solar-wheel-hint { font-size: 12px; color: #9ca3af; margin-top: 8px; }',
+      '.solar-wheel-hint svg { vertical-align: -2px; margin-right: 2px; }',
+
+      '.st-detail-header { padding: 16px; border-radius: 12px; margin-bottom: 16px; }',
+      '.st-detail-name { font-size: 24px; font-weight: bold; color: #1f2937; }',
+      '.st-detail-date { font-size: 13px; color: #6b7280; margin-top: 2px; }',
+      '.st-detail-summary { font-size: 14px; color: #4b5563; margin-top: 6px; font-style: italic; }',
+
+      '.st-section { margin-bottom: 16px; }',
+      '.st-section-title { font-size: 15px; font-weight: 600; color: #374151; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid #f3f4f6; }',
+      '.st-principle { font-size: 15px; color: #1f2937; font-weight: 500; padding: 8px 12px; background: #f9fafb; border-radius: 8px; }',
+      '.st-foods { display: flex; flex-wrap: wrap; gap: 6px; }',
+      '.st-food-tag { font-size: 13px; padding: 4px 10px; border-radius: 16px; }',
+      '.st-avoid { font-size: 13px; color: #ef4444; margin-top: 6px; }',
+      '.st-tips { font-size: 14px; color: #4b5563; line-height: 1.6; }',
+
+      '.st-recipe-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 12px; margin-bottom: 10px; }',
+      '.st-recipe-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }',
+      '.st-recipe-name { font-size: 15px; font-weight: 600; color: #1f2937; }',
+      '.st-recipe-method { font-size: 11px; padding: 2px 8px; border-radius: 10px; }',
+      '.st-recipe-desc { font-size: 13px; color: #6b7280; margin-bottom: 6px; font-style: italic; }',
+      '.st-recipe-ingredients { font-size: 13px; color: #374151; margin-bottom: 4px; }',
+      '.st-recipe-steps { font-size: 13px; color: #4b5563; line-height: 1.5; }',
+
+      '.st-nutrition-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; padding-top: 8px; border-top: 1px dashed #e5e7eb; }',
+      '.st-nutrition-item { font-size: 12px; color: #6b7280; background: #f9fafb; padding: 2px 6px; border-radius: 4px; }',
+
+      '.st-tea-item { display: flex; flex-direction: column; padding: 8px 0; border-bottom: 1px solid #f3f4f6; }',
+      '.st-tea-item:last-child { border-bottom: none; }',
+      '.st-tea-name { font-size: 14px; font-weight: 600; color: #374151; }',
+      '.st-tea-formula { font-size: 13px; color: #6b7280; }',
+      '.st-tea-effect { font-size: 12px; color: #059669; margin-top: 2px; }',
+
+      '.st-coming-soon { text-align: center; padding: 32px 16px; color: #9ca3af; font-size: 14px; }'
+    ].join('\n');
+    document.head.appendChild(style);
+  }
+
+  // ==================== 初始化 ====================
+  window.initSolarTerm = function(containerId) {
+    var container = document.getElementById(containerId);
+    if (!container) return;
+
+    injectStyles();
+
+    var currentIdx = getCurrentTermIndex();
+
+    var html = '<div class="solar-term-page">';
+    html += '<div class="solar-wheel-container" id="solarWheelBox"></div>';
+    html += '<div class="solar-wheel-hint"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 15l-2 5L9 9l11 4-5 2z"/></svg>点击或拖拽转盘查看各节气养生</div>';
+    html += '<div id="solarTermDetail"></div>';
+    html += '</div>';
+
+    container.innerHTML = html;
+
+    var detailEl = document.getElementById('solarTermDetail');
+    var wheelBox = document.getElementById('solarWheelBox');
+
+    buildWheel(wheelBox, currentIdx, function(idx) {
+      renderTermDetail(detailEl, idx);
+    });
+
+    renderTermDetail(detailEl, currentIdx);
+  };
+
+})();

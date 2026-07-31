@@ -1549,17 +1549,13 @@ body {
     <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 10h20"/><path d="M6 16h4"/><path d="M14 16h4"/></svg>
     财富诊断CT
   </button>
-  <button class="nav-drawer-item" data-module="meal" onclick="switchModule('meal')">
-    <svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><path d="M6 1v3M10 1v3M14 1v3"/></svg>
-    膳食管理
+  <button class="nav-drawer-item" data-module="solar" onclick="switchModule('solar')">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    节气养生
   </button>
   <button class="nav-drawer-item" data-module="schedule" onclick="switchModule('schedule')">
     <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>
     日程管理
-  </button>
-  <button class="nav-drawer-item" data-module="health" onclick="switchModule('health')">
-    <svg viewBox="0 0 24 24"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg>
-    健康管理
   </button>
 </nav>
 
@@ -2101,56 +2097,11 @@ body {
 </div>
 <!-- END page-finance -->
 
-<!-- ==================== PAGE: 膳食管理 ==================== -->
-<div id="page-meal" class="page-view">
-  <div class="module-placeholder">
-    <div class="module-placeholder-icon"><svg viewBox="0 0 48 48" width="48" height="48" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6v36M18 6v12a4 4 0 004 4h0a4 4 0 004-4V6"/><path d="M12 6h14"/><path d="M36 6a10 10 0 018 10v2a6 6 0 01-6 6h-2V6z"/><path d="M36 24v18"/></svg></div>
-    <div class="module-placeholder-title">智能膳食管理</div>
-    <div class="module-placeholder-desc">基于你的身体数据和健康目标，定制每日膳食方案</div>
-    <ul class="module-feature-list">
-      <li><span class="feat-icon" style="background:#fef3c7;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#f59e0b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-5"/></svg></span> 每日营养摄入记录与分析</li>
-      <li><span class="feat-icon" style="background:#dcfce7;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#22c55e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A6 6 0 015 14c0-6 6-10 6-10s6 4 6 10a6 6 0 01-6 6z"/><path d="M11 8v6"/></svg></span> 个性化膳食方案推荐</li>
-      <li><span class="feat-icon" style="background:#dbeafe;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#3b82f6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M4 4l17 17"/></svg></span> 热量/蛋白质/碳水/脂肪追踪</li>
-      <li><span class="feat-icon" style="background:#fce7f3;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#ec4899" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg></span> 周/月膳食计划自动生成</li>
-    </ul>
-    <span class="module-placeholder-tag"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>即将上线</span>
-  </div>
+<!-- ==================== PAGE: 节气养生 ==================== -->
+<div id="page-solar" class="page-view">
+  <div id="solarTermContainer"></div>
 </div>
-<!-- END page-meal -->
-
-<!-- ==================== PAGE: 日程管理 ==================== -->
-<div id="page-schedule" class="page-view">
-  <div class="module-placeholder">
-    <div class="module-placeholder-icon"><svg viewBox="0 0 48 48" width="48" height="48" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="24" cy="24" r="20"/><path d="M24 12v12l8 4"/></svg></div>
-    <div class="module-placeholder-title">智能日程管理</div>
-    <div class="module-placeholder-desc">财务事务自动提醒，重要事项不遗漏</div>
-    <ul class="module-feature-list">
-      <li><span class="feat-icon" style="background:#fef3c7;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#f59e0b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></span> 还款/缴费日自动提醒</li>
-      <li><span class="feat-icon" style="background:#dcfce7;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#22c55e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 14l2 2 4-4"/></svg></span> 待办事项与优先级管理</li>
-      <li><span class="feat-icon" style="background:#dbeafe;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#3b82f6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4v6h6"/><path d="M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 013.51 15"/></svg></span> 周期性任务自动排程</li>
-      <li><span class="feat-icon" style="background:#fce7f3;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#ec4899" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg></span> 多端同步与日历集成</li>
-    </ul>
-    <span class="module-placeholder-tag"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>即将上线</span>
-  </div>
-</div>
-<!-- END page-schedule -->
-
-<!-- ==================== PAGE: 健康管理 ==================== -->
-<div id="page-health" class="page-view">
-  <div class="module-placeholder">
-    <div class="module-placeholder-icon"><svg viewBox="0 0 48 48" width="48" height="48" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 24h8l6-16 8 32 6-16h12"/></svg></div>
-    <div class="module-placeholder-title">智能健康管理</div>
-    <div class="module-placeholder-desc">全方位健康数据追踪，守护你和家人的健康</div>
-    <ul class="module-feature-list">
-      <li><span class="feat-icon" style="background:#fef3c7;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#f59e0b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg></span> 体检指标记录与趋势分析</li>
-      <li><span class="feat-icon" style="background:#dcfce7;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#22c55e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l7-4 7 4v14"/><path d="M9 21v-4h6v4M9 9h.01M15 9h.01M9 13h.01M15 13h.01"/></svg></span> 家庭健康档案管理</li>
-      <li><span class="feat-icon" style="background:#dbeafe;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#3b82f6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 1.5H8A6.5 6.5 0 008 14h8a6.5 6.5 0 000-13h-2.5"/><path d="M4 4l4 5M16 4l4 5"/></svg></span> 用药提醒与健康预警</li>
-      <li><span class="feat-icon" style="background:#fce7f3;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#ec4899" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 6l-9.5 9.5-5-5L1 18"/><path d="M17 6h6v6"/></svg></span> 运动/睡眠/体重长期追踪</li>
-    </ul>
-    <span class="module-placeholder-tag"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>即将上线</span>
-  </div>
-</div>
-<!-- END page-health -->
+<!-- END page-solar -->
 
 </div><!-- END container -->
 
@@ -2177,9 +2128,8 @@ body {
   // ==================== Module Switching ====================
   var moduleTitles = {
     finance: '财富诊断CT',
-    meal: '膳食管理',
-    schedule: '日程管理',
-    health: '健康管理'
+    solar: '节气养生',
+    schedule: '日程管理'
   };
 
   window.switchModule = function(moduleName) {
@@ -2202,6 +2152,10 @@ body {
     // Update top bar title
     var titleEl = document.getElementById('topbarTitle');
     if (titleEl) titleEl.textContent = moduleTitles[moduleName] || moduleName;
+    // 节气养生模块初始化
+    if (moduleName === 'solar' && window.initSolarTerm) {
+      setTimeout(function() { window.initSolarTerm('solarTermContainer'); }, 50);
+    }
     // Close nav drawer
     closeNavDrawer();
     // Scroll to top
@@ -2241,11 +2195,11 @@ body {
     if (/贷款|负债|还款|借|利息|房贷|车贷|信用|融资|收入|支出|消费|花了|挣|工资|账单|预算|记账/.test(text)) {
       switchModule('finance');
     } else if (/吃|饭|餐|早|午|晚|食|菜|肉|面|米|喝|水果|营养|热量|蛋白质/.test(text)) {
-      switchModule('meal');
+      switchModule('solar');
     } else if (/提醒|日程|待办|还款日|缴费|会议|预约|安排|计划|排期/.test(text)) {
       switchModule('schedule');
     } else if (/体检|健康|运动|睡眠|体重|用药|血压|心率|步数|卡路里/.test(text)) {
-      switchModule('health');
+      switchModule('solar');
     }
     // Show a brief toast-like feedback
     showToast(result);
@@ -2270,15 +2224,13 @@ body {
     if (/贷款|负债|还款|借|利息|房贷|车贷|信用|融资|收入|支出|消费|花了|挣|工资|账单|预算|记账/.test(text)) {
       return '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#f59e0b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:4px"><path d="M21 12V7H5a2 2 0 010-4h14v4"/><path d="M3 5v14a2 2 0 002 2h16v-5"/><path d="M18 12a2 2 0 100 4 2 2 0 000-4z"/></svg>已切换到「财富诊断CT」';
     }
-    if (/吃|饭|餐|早|午|晚|食|菜|肉|面|米|喝|水果|营养|热量|蛋白质/.test(text)) {
-      return '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#f97316" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:4px"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2"/><path d="M7 2v20"/><path d="M21 15V2a2 2 0 00-2-2H15a2 2 0 00-2 2v13c0 1.1.9 2 2 2h4a2 2 0 002-2z"/></svg>已切换到「膳食管理」';
+    if (/吃|饭|餐|早|午|晚|食|菜|肉|面|米|喝|水果|营养|热量|蛋白质|养生|节气|时令|节气|食疗|滋补|祛湿|清热/.test(text)) {
+      return '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#f97316" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:4px"><circle cx="12" cy="12" r="10"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>已切换到「节气养生」';
     }
     if (/提醒|日程|待办|还款日|缴费|会议|预约|安排|计划|排期/.test(text)) {
       return '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#3b82f6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:4px"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M8 14h.01M12 14h.01M16 14h.01"/></svg>已切换到「日程管理」';
     }
-    if (/体检|健康|运动|睡眠|体重|用药|血压|心率|步数|卡路里/.test(text)) {
-      return '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#ec4899" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:4px"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>已切换到「健康管理」';
-    }
+
     return '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><path d="M12 3l2 7 7 2-7 2-2 7-2-7-7-2 7-2z"/></svg>意图识别引擎开发中';
   }
 
@@ -3626,5 +3578,6 @@ function toggleGuideSection(index) {
 })();
 </script>
 
+<script src="solar-term.js"></script>
 </body>
 </html>
