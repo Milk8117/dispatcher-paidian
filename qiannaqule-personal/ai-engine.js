@@ -158,6 +158,13 @@
       }
     } catch(e) {}
 
+    // 健康数据摘要
+    try {
+      if (window.HealthBridge) {
+        ctx.healthSummary = window.HealthBridge.getHealthSummary();
+      }
+    } catch(e) {}
+
     return ctx;
   }
 
@@ -194,6 +201,9 @@
     }
     if (context.insightSummary) {
       prompt += '\n## 跨模块洞察\n' + context.insightSummary + '\n';
+    }
+    if (context.healthSummary) {
+      prompt += '\n## 健康数据\n' + context.healthSummary + '\n';
     }
 
     prompt += '\n## 你的能力\n';
