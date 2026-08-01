@@ -151,6 +151,13 @@
       }
     } catch(e) {}
 
+    // 跨模块洞察摘要
+    try {
+      if (window.InsightEngine) {
+        ctx.insightSummary = window.InsightEngine.getInsightSummary();
+      }
+    } catch(e) {}
+
     return ctx;
   }
 
@@ -184,6 +191,9 @@
     }
     if (context.userProfileSummary) {
       prompt += '\n## 用户画像\n' + context.userProfileSummary + '\n';
+    }
+    if (context.insightSummary) {
+      prompt += '\n## 跨模块洞察\n' + context.insightSummary + '\n';
     }
 
     prompt += '\n## 你的能力\n';
