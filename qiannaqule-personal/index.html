@@ -1592,20 +1592,99 @@ body {
 @keyframes aiBubbleIn { from { opacity:0;transform:translateY(10px); } to { opacity:1;transform:translateY(0); } }
 @keyframes aiDotPulse { 0%,80%,100% { opacity:0.3;transform:scale(0.8); } 40% { opacity:1;transform:scale(1.2); } }
 
-/* ========== AI Settings Modal ========== */
+/* ========== AI Settings Modal v2 ========== */
 .ai-settings-overlay { position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:9999;display:flex;align-items:center;justify-content:center; }
-.ai-settings-modal { background:#fff;border-radius:16px;width:90%;max-width:420px;max-height:80vh;overflow-y:auto; }
+.ai-settings-modal { background:#fff;border-radius:16px;width:90%;max-width:480px;max-height:85vh;overflow-y:auto;-webkit-overflow-scrolling:touch; }
 .ai-settings-modal h3 { padding:20px 20px 0;font-size:16px;color:#1a2a3a; }
-.ai-settings-modal .ai-field { padding:10px 20px; }
-.ai-settings-modal label { display:block;font-size:12px;color:#6b7280;margin-bottom:4px;font-weight:500; }
-.ai-settings-modal input,.ai-settings-modal select { width:100%;padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;outline:none; }
-.ai-settings-modal input:focus,.ai-settings-modal select:focus { border-color:#8b5cf6; }
-.ai-settings-modal .ai-hint { font-size:11px;color:#9ca3af;margin-top:4px; }
-.ai-settings-modal .ai-hint a { color:#8b5cf6; }
-.ai-settings-modal .ai-btns { padding:12px 20px 20px;display:flex;gap:8px;justify-content:flex-end; }
-.ai-settings-modal .ai-btn-save { background:linear-gradient(135deg,#8b5cf6,#6366f1);color:#fff;border:none;padding:8px 20px;border-radius:8px;font-size:13px;cursor:pointer;font-weight:500; }
-.ai-settings-modal .ai-btn-test { background:#f0f4f8;color:#1a2a3a;border:none;padding:8px 16px;border-radius:8px;font-size:13px;cursor:pointer; }
-.ai-settings-modal .ai-btn-clear { background:#fef2f2;color:#dc2626;border:none;padding:8px 16px;border-radius:8px;font-size:13px;cursor:pointer; }
+
+/* Settings header */
+.ai-settings .ai-settings-header { display:flex;align-items:center;justify-content:space-between;padding:16px 20px 0; }
+.ai-settings .ai-settings-header h3 { padding:0;margin:0; }
+.ai-status { display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px; }
+.ai-status.online { background:#f0fdf4;color:#16a34a; }
+.ai-status.offline { background:#fef2f2;color:#dc2626; }
+.ai-status::before { content:'';width:6px;height:6px;border-radius:50%;background:currentColor; }
+
+/* Mode tabs */
+.ai-mode-tabs { display:flex;margin:16px 20px 0;background:#f1f5f9;border-radius:10px;padding:3px; }
+.ai-mode-tab { flex:1;text-align:center;padding:8px 0;font-size:13px;font-weight:600;color:#64748b;border-radius:8px;cursor:pointer;transition:all 0.2s; }
+.ai-mode-tab.active { background:#fff;color:#8b5cf6;box-shadow:0 1px 3px rgba(0,0,0,0.1); }
+
+/* Mode panels */
+.ai-mode-panel { padding:12px 0 0; }
+.ai-mode-desc { padding:4px 20px 8px;font-size:12px;color:#94a3b8;line-height:1.5; }
+
+/* Fields */
+.ai-settings .ai-field { padding:8px 20px; }
+.ai-settings .ai-field label { display:block;font-size:12px;color:#6b7280;margin-bottom:4px;font-weight:500; }
+.ai-settings .ai-field input[type="text"],
+.ai-settings .ai-field input[type="password"],
+.ai-settings .ai-field input[type="number"],
+.ai-settings .ai-field select { width:100%;padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;outline:none;background:#fff;transition:border-color 0.2s; }
+.ai-settings .ai-field input:focus,.ai-settings .ai-field select:focus { border-color:#8b5cf6;box-shadow:0 0 0 3px rgba(139,92,246,0.1); }
+.ai-settings .ai-hint { font-size:11px;color:#9ca3af;margin-top:4px;display:block; }
+.ai-settings .ai-hint a { color:#8b5cf6;text-decoration:none; }
+.ai-settings .ai-hint a:hover { text-decoration:underline; }
+.ai-settings .ai-hint-inline { font-size:11px;color:#94a3b8;margin-left:8px; }
+
+/* Key row with toggle */
+.ai-key-row { display:flex;gap:6px;align-items:center; }
+.ai-key-row input { flex:1; }
+.ai-key-toggle { width:32px;height:32px;border:1px solid #e2e8f0;border-radius:6px;background:#f8fafc;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#64748b;flex-shrink:0;transition:background 0.2s; }
+.ai-key-toggle:hover { background:#e2e8f0; }
+
+/* Toggle switch */
+.ai-field-row { display:flex;align-items:center;gap:8px;flex-wrap:wrap; }
+.ai-field-row label { margin-bottom:0; }
+.ai-toggle { width:36px;height:20px;-webkit-appearance:none;appearance:none;background:#e2e8f0;border-radius:10px;position:relative;cursor:pointer;transition:background 0.2s;outline:none;flex-shrink:0; }
+.ai-toggle::after { content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.15); }
+.ai-toggle:checked { background:#8b5cf6; }
+.ai-toggle:checked::after { transform:translateX(16px); }
+.ai-toggle-label { font-size:12px;color:#64748b;min-width:40px; }
+
+/* Provider cards */
+.ai-provider-card { margin:8px 20px;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;transition:border-color 0.2s; }
+.ai-provider-card:hover { border-color:#c4b5fd; }
+.ai-provider-header { display:flex;align-items:center;justify-content:space-between;padding:10px 14px;cursor:pointer; }
+.ai-provider-info { display:flex;align-items:center;gap:6px;flex-wrap:wrap; }
+.ai-provider-name { font-size:13px;font-weight:600;color:#1e293b; }
+.ai-badge-free { font-size:10px;font-weight:700;background:#f0fdf4;color:#16a34a;padding:1px 6px;border-radius:4px; }
+.ai-badge-active { font-size:10px;font-weight:700;background:#eff6ff;color:#2563eb;padding:1px 6px;border-radius:4px; }
+.ai-provider-arrow { transition:transform 0.2s;flex-shrink:0; }
+.ai-provider-body { padding:4px 14px 12px;border-top:1px solid #f1f5f9; }
+.ai-provider-body .ai-field { padding:6px 0; }
+.ai-cost-hint { font-size:11px;color:#94a3b8;padding:2px 0 4px; }
+
+/* Advanced toggle */
+.ai-advanced-toggle { display:flex;align-items:center;gap:6px;padding:10px 20px;font-size:12px;color:#8b5cf6;cursor:pointer;font-weight:500; }
+.ai-advanced-toggle:hover { color:#7c3aed; }
+.ai-advanced-panel { padding:0 20px 8px; }
+.ai-advanced-panel .ai-field { padding:6px 0; }
+.ai-range-row { display:flex;align-items:center;gap:10px; }
+.ai-range-row input[type="range"] { flex:1; }
+.ai-range-row span { font-size:13px;color:#64748b;min-width:24px;text-align:right; }
+
+/* Usage stats */
+.ai-usage-stats { margin:12px 20px;padding:14px;background:#f8fafc;border-radius:10px;border:1px solid #f1f5f9; }
+.ai-usage-title { font-size:12px;font-weight:600;color:#64748b;margin-bottom:8px; }
+.ai-usage-grid { display:flex;gap:8px;margin-bottom:10px; }
+.ai-usage-item { flex:1;text-align:center; }
+.ai-usage-value { display:block;font-size:16px;font-weight:700;color:#1e293b; }
+.ai-usage-label { display:block;font-size:10px;color:#94a3b8;margin-top:2px; }
+.ai-budget-bar { height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden;margin-bottom:4px; }
+.ai-budget-fill { height:100%;border-radius:3px;transition:width 0.5s ease; }
+.ai-budget-text { font-size:11px;color:#94a3b8;text-align:right; }
+
+/* Buttons */
+.ai-settings .ai-btns { padding:12px 20px 20px;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap; }
+.ai-btn-save { background:linear-gradient(135deg,#8b5cf6,#6366f1);color:#fff;border:none;padding:8px 20px;border-radius:8px;font-size:13px;cursor:pointer;font-weight:500;transition:opacity 0.2s; }
+.ai-btn-save:hover { opacity:0.9; }
+.ai-btn-test { background:#f0f4f8;color:#1a2a3a;border:none;padding:8px 16px;border-radius:8px;font-size:13px;cursor:pointer;transition:background 0.2s; }
+.ai-btn-test:hover { background:#e2e8f0; }
+.ai-btn-clear { background:#fef2f2;color:#dc2626;border:none;padding:8px 16px;border-radius:8px;font-size:13px;cursor:pointer;transition:background 0.2s; }
+.ai-btn-clear:hover { background:#fee2e2; }
+
+/* Top bar icon */
 .ai-settings-icon { width:28px;height:28px;border-radius:50%;background:rgba(139,92,246,0.1);display:flex;align-items:center;justify-content:center;cursor:pointer;border:none; }
 .ai-settings-icon:hover { background:rgba(139,92,246,0.2); }
 </style>
