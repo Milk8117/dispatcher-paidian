@@ -143,6 +143,14 @@
       }
     } catch(e) {}
 
+    // 统一用户画像
+    try {
+      if (window.UserProfile) {
+        ctx.userProfileSummary = window.UserProfile.getSummary();
+        ctx.userProfileCompleteness = window.UserProfile.getCompleteness();
+      }
+    } catch(e) {}
+
     return ctx;
   }
 
@@ -173,6 +181,9 @@
     prompt += '- 今日收支：收入 ¥' + context.todayFinance.income + '，支出 ¥' + context.todayFinance.expense + '\n';
     if (context.recentMood) {
       prompt += '- 最近情绪记录：' + context.recentMood.mood + '（' + context.recentMood.date + '）\n';
+    }
+    if (context.userProfileSummary) {
+      prompt += '\n## 用户画像\n' + context.userProfileSummary + '\n';
     }
 
     prompt += '\n## 你的能力\n';
