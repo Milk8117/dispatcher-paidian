@@ -200,8 +200,9 @@
       '.dtx-submit-btn:disabled{background:#cbd5e1;cursor:not-allowed}',
       '.dtx-cancel-btn{width:100%;padding:10px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;color:#6b7280;font-size:14px;cursor:pointer;margin-top:8px}',
       '.dtx-month-nav{display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:16px}',
-      '.dtx-month-btn{width:36px;height:36px;border-radius:10px;border:1.5px solid #d1d5db;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#374151;transition:all .2s}',
-      '.dtx-month-btn:hover{background:#f3f4f6;border-color:#9ca3af}',
+      '.dtx-month-btn{width:36px;height:36px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#475569;transition:all .15s;flex-shrink:0}',
+      '.dtx-month-btn:hover{background:#f1f5f9;border-color:#cbd5e1}',
+      '.dtx-month-btn:active{transform:scale(.93)}',
       '.dtx-month-label{font-size:16px;font-weight:700;color:#1f2937;min-width:120px;text-align:center}'
     ].join('\n');
     document.head.appendChild(s);
@@ -270,9 +271,9 @@
 
     // Month navigation
     html += '<div class="dtx-month-nav">';
-    html += '<button class="dtx-month-btn" data-dir="-1">' + svgIcon('M15 18l-6-6 6-6', '#374151', 20) + '</button>';
+    html += '<button class="dtx-month-btn" data-dir="-1">' + svgIcon('<path d="M15 18l-6-6 6-6"/>', '#374151', 18) + '</button>';
     html += '<div class="dtx-month-label">' + vmYear + '年' + vmMonth + '月</div>';
-    html += '<button class="dtx-month-btn" data-dir="1">' + svgIcon('M9 18l6-6-6-6', '#374151', 20) + '</button>';
+    html += '<button class="dtx-month-btn" data-dir="1">' + svgIcon('<path d="M9 18l6-6-6-6"/>', '#374151', 18) + '</button>';
     html += '</div>';
 
     // Summary: total cards + CT field breakdown
