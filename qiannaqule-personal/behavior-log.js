@@ -44,17 +44,38 @@
   }
   function _save(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
 
+  // ---------- 日期状态 ----------
+  var _selectedDate = null; // 当前选中日期，null表示今天
+
+  function _getSelectedDate() {
+    return _selectedDate || _today();
+  }
+
+  function _isViewingToday() {
+    return !_selectedDate || _selectedDate === _today();
+  }
+
   // ---------- 行为日志 ----------
-  function getTodayLog() {
+  function getLogForDate(dateStr) {
+    dateStr = dateStr || _today();
     var logs = _load(KEYS.behavior, []);
-    var today = _today();
-    var found = logs.find(function(l) { return l.date === today; });
+    var found = logs.find(function(l) { return l.date === dateStr; });
     if (!found) {
-      found = { date: today, meals: [], exercise: [], sleep: {}, learning: [], water: 0, notes: '' };
-      logs.push(found);
-      _save(KEYS.behavior, logs);
+      // 仅对今天自动创建空记录，历史日期只读
+      if (dateStr === _today()) {
+        found = { date: dateStr, meals: [], exercise: [], sleep: {}, learning: [], water: 0, notes: '' };
+        logs.push(found);
+        _save(KEYS.behavior, logs);
+      } else {
+        found = { date: dateStr, meals: [], exercise: [], sleep: {}, learning: [], water: 0, notes: '', _empty: true };
+      }
     }
     return found;
+  }
+
+  // 兼容旧接口 - 始终返回今天的日志（用于自然语言输入记录）
+  function getTodayLog() {
+    return getLogForDate(_today());
   }
 
   function saveTodayLog(log) {
@@ -73,6 +94,18 @@
     cutoff.setDate(cutoff.getDate() - days);
     var cutoffStr = cutoff.toISOString().substr(0, 10);
     return logs.filter(function(l) { return l.date >= cutoffStr; });
+  }
+
+  // 检查某天是否有数据
+  function _hasDataForDate(dateStr) {
+    var logs = _load(KEYS.behavior, []);
+    var found = logs.find(function(l) { return l.date === dateStr; });
+    if (!found) return false;
+    return (found.meals && found.meals.length > 0) ||
+           (found.exercise && found.exercise.length > 0) ||
+           (found.sleep && (found.sleep.bedtime || found.sleep.quality)) ||
+           (found.learning && found.learning.length > 0) ||
+           (found.water && found.water > 0);
   }
 
   // ---------- 情绪日志 ----------
@@ -434,20 +467,83 @@
     return { matched: true, module: 'family_edu', action: 'record', message: msg };
   }
 
+  // ==================== 日期导航 ====================
+  function _shiftDate(dateStr, delta) {
+    var d = new Date(dateStr + 'T00:00:00');
+    d.setDate(d.getDate() + delta);
+    return d.toISOString().substr(0, 10);
+  }
+
+  function _formatDateDisplay(dateStr) {
+    var d = new Date(dateStr + 'T00:00:00');
+    var m = d.getMonth() + 1;
+    var day = d.getDate();
+    var weekDays = ['日','一','二','三','四','五','六'];
+    var wd = weekDays[d.getDay()];
+    return m + '月' + day + '日 · 周' + wd;
+  }
+
+  window._bhShiftDate = function(delta) {
+    var current = _getSelectedDate();
+    var newDate = _shiftDate(current, delta);
+    // 不能选未来日期
+    if (newDate > _today()) return;
+    _selectedDate = (newDate === _today()) ? null : newDate;
+    renderBehaviorHub('behaviorHubContainer');
+  };
+
+  window._bhGoToday = function() {
+    _selectedDate = null;
+    renderBehaviorHub('behaviorHubContainer');
+  };
+
+  window._bhPickDate = function() {
+    var input = document.getElementById('bhDatePicker');
+    if (input && input.value) {
+      var val = input.value;
+      if (val > _today()) {
+        window.showToast && window.showToast('不能选未来日期');
+        return;
+      }
+      _selectedDate = (val === _today()) ? null : val;
+      renderBehaviorHub('behaviorHubContainer');
+    }
+  };
+
   // ==================== UI 渲染 ====================
   function renderBehaviorHub(containerId) {
     var el = document.getElementById(containerId);
     if (!el) return;
 
-    var log = getTodayLog();
+    var viewingToday = _isViewingToday();
+    var selDate = _getSelectedDate();
+    var log = getLogForDate(selDate);
     var recentMoods = getRecentMoods(7);
     var recentLogs = getRecentLogs(7);
 
     var html = '<div class="bh-wrap">';
 
-    // --- 今日概览 ---
+    // --- 日期导航栏 ---
+    html += '<div class="bh-date-nav">';
+    html += '<button class="bh-dnav-btn" onclick="window._bhShiftDate(-1)" title="前一天">' + svgIcon('M15 19l-7-7 7-7', '#6b7280', 18) + '</button>';
+    html += '<div class="bh-dnav-center">';
+    html += '<input type="date" id="bhDatePicker" class="bh-dnav-picker" value="' + selDate + '" max="' + _today() + '" onchange="window._bhPickDate()" />';
+    html += '<span class="bh-dnav-label">' + _formatDateDisplay(selDate) + '</span>';
+    html += '</div>';
+    html += '<button class="bh-dnav-btn" onclick="window._bhShiftDate(1)" title="后一天"' + (viewingToday ? ' disabled' : '') + '>' + svgIcon('M9 5l7 7-7 7', viewingToday ? '#d1d5db' : '#6b7280', 18) + '</button>';
+    if (!viewingToday) {
+      html += '<button class="bh-dnav-today" onclick="window._bhGoToday()">今天</button>';
+    }
+    html += '</div>';
+
+    // 历史日期提示
+    if (!viewingToday) {
+      html += '<div class="bh-history-hint">' + svgIcon('M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z', '#f59e0b', 14) + ' 查看历史数据（仅展示当天记录）</div>';
+    }
+
+    // --- 行为概览 ---
     html += '<div class="bh-section">';
-    html += '<div class="bh-section-title">' + svgIcon('M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z', '#3b82f6') + ' 今日行为概览</div>';
+    html += '<div class="bh-section-title">' + svgIcon('M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z', '#3b82f6') + ' ' + (viewingToday ? '今日' : '当日') + '行为概览</div>';
     html += '<div class="bh-overview-grid">';
 
     // 饮食
@@ -479,7 +575,8 @@
     html += '</div>'; // overview grid
     html += '</div>'; // section
 
-    // --- 快捷记录按钮 ---
+    // --- 快捷记录按钮（仅今天可录入） ---
+    if (viewingToday) {
     html += '<div class="bh-section">';
     html += '<div class="bh-section-title">' + svgIcon('M12 5v14M5 12h14', '#22c55e') + ' 快捷记录</div>';
     html += '<div class="bh-quick-actions">';
@@ -491,10 +588,11 @@
     html += '<button class="bh-qa-btn" onclick="window._bhShowAddLearning()">' + svgIcon('M12 14l9-5-9-5-9 5 9 5z', '#06b6d4', 18) + '<span>记学习</span></button>';
     html += '</div>';
     html += '</div>';
+    } // end if (viewingToday)
 
-    // --- 今日详细日志 ---
+    // --- 当日详细日志 ---
     html += '<div class="bh-section">';
-    html += '<div class="bh-section-title">' + svgIcon('M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2', '#6b7280') + ' 今日详情</div>';
+    html += '<div class="bh-section-title">' + svgIcon('M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2', '#6b7280') + ' ' + (viewingToday ? '今日' : '当日') + '详情</div>';
 
     // 饮食详情
     if (log.meals && log.meals.length > 0) {
@@ -557,28 +655,107 @@
 
     // 无记录提示
     if ((!log.meals || log.meals.length === 0) && (!log.exercise || log.exercise.length === 0) && (!log.learning || log.learning.length === 0) && (!log.sleep || !log.sleep.quality)) {
-      html += '<div class="bh-empty-hint">今天还没有记录，试试对AI说：<br>"早餐吃了包子豆浆" / "跑步30分钟" / "心情不错"</div>';
+      if (viewingToday) {
+        html += '<div class="bh-empty-hint">今天还没有记录，试试对AI说：<br>"早餐吃了包子豆浆" / "跑步30分钟" / "心情不错"</div>';
+      } else {
+        html += '<div class="bh-empty-hint">当天无行为记录</div>';
+      }
     }
 
     html += '</div>'; // section
 
     // --- 近7天情绪趋势 ---
     if (recentMoods.length > 0) {
-      html += '<div class="bh-section">';
-      html += '<div class="bh-section-title">' + svgIcon('M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z', '#ec4899') + ' 近7天情绪</div>';
-      html += '<div class="bh-mood-chart">';
+      // 按天聚合（每天取最后一次情绪）
+      var moodByDay = {};
       recentMoods.forEach(function(m) {
+        var dayKey = m.timestamp.substr(0, 10);
+        moodByDay[dayKey] = m; // 后面的覆盖前面的，保留最新
+      });
+      var moodDays = Object.keys(moodByDay).sort();
+      // 只取最近7天
+      if (moodDays.length > 7) moodDays = moodDays.slice(-7);
+
+      // 统计
+      var scores = moodDays.map(function(d) { return moodByDay[d].score; });
+      var avgScore = (scores.reduce(function(a,b){return a+b;},0) / scores.length).toFixed(1);
+      var maxScore = Math.max.apply(null, scores);
+      var minScore = Math.min.apply(null, scores);
+      var trend = scores.length >= 2 ? (scores[scores.length-1] - scores[0]) : 0;
+      var trendLabel = trend > 0 ? '↑ 上升' : trend < 0 ? '↓ 下降' : '→ 平稳';
+      var trendColor = trend > 0 ? '#22c55e' : trend < 0 ? '#ef4444' : '#6b7280';
+
+      html += '<div class="bh-section">';
+      html += '<div class="bh-section-title">' + svgIcon('M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z', '#ec4899') + ' 近7天情绪趋势</div>';
+
+      // 统计卡片行
+      html += '<div class="bh-mood-stats">';
+      html += '<div class="bh-mood-stat"><span class="bh-mood-stat-val">' + avgScore + '</span><span class="bh-mood-stat-lbl">日均分</span></div>';
+      html += '<div class="bh-mood-stat"><span class="bh-mood-stat-val" style="color:#22c55e">' + maxScore + '</span><span class="bh-mood-stat-lbl">最高</span></div>';
+      html += '<div class="bh-mood-stat"><span class="bh-mood-stat-val" style="color:#ef4444">' + minScore + '</span><span class="bh-mood-stat-lbl">最低</span></div>';
+      html += '<div class="bh-mood-stat"><span class="bh-mood-stat-val" style="color:' + trendColor + '">' + trendLabel + '</span><span class="bh-mood-stat-lbl">趋势</span></div>';
+      html += '</div>';
+
+      // SVG折线图
+      var chartW = 320, chartH = 120, padL = 28, padR = 12, padT = 16, padB = 28;
+      var plotW = chartW - padL - padR, plotH = chartH - padT - padB;
+      var points = [];
+      moodDays.forEach(function(d, i) {
+        var x = padL + (moodDays.length === 1 ? plotW / 2 : (i / (moodDays.length - 1)) * plotW);
+        var y = padT + plotH - ((moodByDay[d].score - 1) / 4) * plotH;
+        points.push({ x: x, y: y, score: moodByDay[d].score, date: d, label: moodByDay[d].label || '' });
+      });
+
+      html += '<div class="bh-mood-chart-wrap">';
+      html += '<svg viewBox="0 0 ' + chartW + ' ' + chartH + '" class="bh-mood-svg">';
+
+      // 背景网格线 + Y轴标签
+      for (var s = 1; s <= 5; s++) {
+        var gy = padT + plotH - ((s - 1) / 4) * plotH;
+        html += '<line x1="' + padL + '" y1="' + gy + '" x2="' + (chartW - padR) + '" y2="' + gy + '" stroke="#f3f4f6" stroke-width="1"/>';
+        html += '<text x="' + (padL - 6) + '" y="' + (gy + 3) + '" text-anchor="end" font-size="9" fill="#9ca3af">' + s + '</text>';
+      }
+
+      // 折线
+      if (points.length > 1) {
+        var linePath = points.map(function(p, i) { return (i === 0 ? 'M' : 'L') + p.x.toFixed(1) + ',' + p.y.toFixed(1); }).join(' ');
+        html += '<path d="' + linePath + '" fill="none" stroke="#ec4899" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+        // 面积填充
+        var areaPath = linePath + ' L' + points[points.length-1].x.toFixed(1) + ',' + (padT + plotH) + ' L' + points[0].x.toFixed(1) + ',' + (padT + plotH) + ' Z';
+        html += '<path d="' + areaPath + '" fill="url(#moodGrad)" opacity="0.15"/>';
+        html += '<defs><linearGradient id="moodGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ec4899"/><stop offset="100%" stop-color="#ec4899" stop-opacity="0"/></linearGradient></defs>';
+      }
+
+      // 数据点 + X轴日期
+      points.forEach(function(p) {
+        var moodInfo = MOOD_LABELS.find(function(ml) { return ml.score === p.score; }) || MOOD_LABELS[2];
+        html += '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="4" fill="' + moodInfo.color + '" stroke="#fff" stroke-width="2"/>';
+        html += '<text x="' + p.x.toFixed(1) + '" y="' + (p.y.toFixed(1) - 10) + '" text-anchor="middle" font-size="9" font-weight="600" fill="' + moodInfo.color + '">' + p.score + '</text>';
+        var shortDate = parseInt(p.date.substr(5, 2)) + '/' + parseInt(p.date.substr(8, 2));
+        html += '<text x="' + p.x.toFixed(1) + '" y="' + (chartH - 4) + '" text-anchor="middle" font-size="8" fill="#9ca3af">' + shortDate + '</text>';
+      });
+
+      html += '</svg>';
+      html += '</div>'; // chart-wrap
+
+      // 逐条情绪记录（最近5条）
+      var recentMoodList = recentMoods.slice(-5).reverse();
+      html += '<div class="bh-mood-history">';
+      html += '<div class="bh-mood-history-title">最近记录</div>';
+      recentMoodList.forEach(function(m) {
         var moodInfo = MOOD_LABELS.find(function(ml) { return ml.score === m.score; }) || MOOD_LABELS[2];
         var ts = new Date(m.timestamp);
-        var dayStr = (ts.getMonth() + 1) + '/' + ts.getDate();
-        html += '<div class="bh-mood-bar-wrap">';
-        html += '<div class="bh-mood-bar" style="height:' + (moodInfo.score * 20) + '%;background:' + moodInfo.color + '"></div>';
-        html += '<div class="bh-mood-label">' + moodInfo.label + '</div>';
-        html += '<div class="bh-mood-date">' + dayStr + '</div>';
+        var timeLabel = (ts.getMonth()+1) + '/' + ts.getDate() + ' ' + String(ts.getHours()).padStart(2,'0') + ':' + String(ts.getMinutes()).padStart(2,'0');
+        html += '<div class="bh-mood-record">';
+        html += '<span class="bh-mood-dot" style="background:' + moodInfo.color + '"></span>';
+        html += '<span class="bh-mood-time">' + timeLabel + '</span>';
+        html += '<span class="bh-mood-tag" style="color:' + moodInfo.color + ';background:' + moodInfo.color + '14">' + moodInfo.label + ' ' + m.score + '/5</span>';
+        if (m.trigger) html += '<span class="bh-mood-trigger">' + m.trigger + '</span>';
         html += '</div>';
       });
       html += '</div>';
-      html += '</div>';
+
+      html += '</div>'; // section
     }
 
     // --- 隐私声明 ---
@@ -817,6 +994,33 @@
       '.bh-mood-bar{width:100%;min-height:4px;border-radius:4px 4px 0 0;margin-top:auto;transition:height .3s}',
       '.bh-mood-label{font-size:10px;color:#6b7280;margin-top:4px}',
       '.bh-mood-date{font-size:10px;color:#9ca3af}',
+      // 日期导航栏
+      '.bh-date-nav{display:flex;align-items:center;gap:8px;padding:10px 12px;background:#f8fafc;border-radius:12px;margin-bottom:16px;border:1px solid #e5e7eb}',
+      '.bh-dnav-btn{width:32px;height:32px;border-radius:8px;border:1px solid #e5e7eb;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}',
+      '.bh-dnav-btn:hover:not(:disabled){background:#eff6ff;border-color:#93c5fd}',
+      '.bh-dnav-btn:disabled{opacity:.4;cursor:default}',
+      '.bh-dnav-center{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0}',
+      '.bh-dnav-picker{font-size:0;width:1px;height:1px;opacity:0;position:absolute;pointer-events:none}',
+      '.bh-dnav-label{font-size:15px;font-weight:600;color:#1f2937;cursor:pointer;padding:2px 8px;border-radius:6px;transition:background .15s}',
+      '.bh-dnav-label:hover{background:#e5e7eb}',
+      '.bh-dnav-today{padding:4px 12px;border-radius:16px;border:1px solid #3b82f6;background:#eff6ff;color:#3b82f6;font-size:12px;font-weight:600;cursor:pointer;flex-shrink:0;transition:all .15s}',
+      '.bh-dnav-today:hover{background:#3b82f6;color:#fff}',
+      '.bh-history-hint{display:flex;align-items:center;gap:6px;padding:8px 12px;background:#fffbeb;border-radius:8px;font-size:12px;color:#92400e;margin-bottom:12px;border:1px solid #fde68a}',
+      // 情绪趋势
+      '.bh-mood-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}',
+      '.bh-mood-stat{display:flex;flex-direction:column;align-items:center;padding:8px 4px;background:#fdf2f8;border-radius:10px;border:1px solid #fce7f3}',
+      '.bh-mood-stat-val{font-size:18px;font-weight:700;color:#1f2937;line-height:1.2}',
+      '.bh-mood-stat-lbl{font-size:10px;color:#9ca3af;margin-top:2px}',
+      '.bh-mood-chart-wrap{padding:4px 0;margin-bottom:8px}',
+      '.bh-mood-svg{width:100%;height:auto;display:block}',
+      '.bh-mood-history{margin-top:8px;border-top:1px solid #f3f4f6;padding-top:8px}',
+      '.bh-mood-history-title{font-size:12px;font-weight:600;color:#6b7280;margin-bottom:6px}',
+      '.bh-mood-record{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f9fafb;font-size:12px}',
+      '.bh-mood-record:last-child{border-bottom:none}',
+      '.bh-mood-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}',
+      '.bh-mood-time{color:#9ca3af;flex-shrink:0;width:72px;font-size:11px}',
+      '.bh-mood-tag{padding:2px 8px;border-radius:10px;font-weight:600;font-size:11px;flex-shrink:0}',
+      '.bh-mood-trigger{color:#6b7280;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}',
       '.bh-privacy-notice{display:flex;align-items:center;gap:6px;padding:12px;background:#f0fdf4;border-radius:8px;font-size:11px;color:#6b7280;margin-top:16px}',
       // Modal
       '.bh-modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:9998;display:flex;align-items:flex-end;justify-content:center}',
