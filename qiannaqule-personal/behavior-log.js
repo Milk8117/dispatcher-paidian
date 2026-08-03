@@ -525,12 +525,12 @@
 
     // --- 日期导航栏 ---
     html += '<div class="bh-date-nav">';
-    html += '<button class="bh-dnav-btn" onclick="window._bhShiftDate(-1)" title="前一天">' + svgIcon('M15 19l-7-7 7-7', '#6b7280', 18) + '</button>';
+    html += '<button class="bh-dnav-btn" onclick="window._bhShiftDate(-1)" title="前一天">' + svgIcon('M15 18l-6-6 6-6', 'currentColor', 18) + '</button>';
     html += '<div class="bh-dnav-center">';
     html += '<input type="date" id="bhDatePicker" class="bh-dnav-picker" value="' + selDate + '" max="' + _today() + '" onchange="window._bhPickDate()" />';
     html += '<span class="bh-dnav-label">' + _formatDateDisplay(selDate) + '</span>';
     html += '</div>';
-    html += '<button class="bh-dnav-btn" onclick="window._bhShiftDate(1)" title="后一天"' + (viewingToday ? ' disabled' : '') + '>' + svgIcon('M9 5l7 7-7 7', viewingToday ? '#d1d5db' : '#6b7280', 18) + '</button>';
+    html += '<button class="bh-dnav-btn" onclick="window._bhShiftDate(1)" title="后一天"' + (viewingToday ? ' disabled' : '') + '>' + svgIcon('M9 18l6-6-6-6', 'currentColor', 18) + '</button>';
     if (!viewingToday) {
       html += '<button class="bh-dnav-today" onclick="window._bhGoToday()">今天</button>';
     }
@@ -995,9 +995,10 @@
       '.bh-mood-label{font-size:10px;color:#6b7280;margin-top:4px}',
       '.bh-mood-date{font-size:10px;color:#9ca3af}',
       // 日期导航栏
-      '.bh-date-nav{display:flex;align-items:center;gap:8px;padding:10px 12px;background:#f8fafc;border-radius:12px;margin-bottom:16px;border:1px solid #e5e7eb}',
-      '.bh-dnav-btn{width:32px;height:32px;border-radius:8px;border:1px solid #e5e7eb;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}',
-      '.bh-dnav-btn:hover:not(:disabled){background:#eff6ff;border-color:#93c5fd}',
+      '.bh-date-nav{display:flex;align-items:center;justify-content:center;padding:16px 16px 8px;gap:8px;position:relative;margin-bottom:16px}',
+      '.bh-dnav-btn{width:36px;height:36px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#475569;transition:all .15s;flex-shrink:0}',
+      '.bh-dnav-btn:hover:not(:disabled){background:#f1f5f9;border-color:#cbd5e1}',
+      '.bh-dnav-btn:active:not(:disabled){transform:scale(.93)}',
       '.bh-dnav-btn:disabled{opacity:.4;cursor:default}',
       '.bh-dnav-center{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0}',
       '.bh-dnav-picker{font-size:0;width:1px;height:1px;opacity:0;position:absolute;pointer-events:none}',
