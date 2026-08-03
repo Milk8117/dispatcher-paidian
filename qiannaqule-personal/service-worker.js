@@ -1,6 +1,6 @@
 // Service Worker for 米界AI — 个人智能操作系统
 // Cache version: update this string to invalidate old caches
-const CACHE_VERSION = 'mijieai-v23';
+const CACHE_VERSION = 'mijieai-v24';
 const CACHE_NAME = CACHE_VERSION;
 
 // Resources to cache on install
