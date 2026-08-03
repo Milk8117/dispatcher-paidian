@@ -10,6 +10,9 @@
 (function() {
   'use strict';
 
+  // 金额格式化：保留2位小数，去掉末尾多余零
+  function _fmtAmt(v) { return parseFloat((v || 0).toFixed(2)); }
+
   var STORAGE_KEY = 'mijieai_daily_tx';
 
   // ==================== 分类体系（CT字段对齐） ====================
@@ -279,9 +282,9 @@
     // Summary: total cards + CT field breakdown
     html += '<div class="dtx-summary">';
     html += '<div class="dtx-sum-total">';
-    html += '<div class="dtx-sum-card"><div class="dtx-sum-label">支出</div><div class="dtx-sum-val exp">-' + totalExp.toFixed(0) + '</div></div>';
-    html += '<div class="dtx-sum-card"><div class="dtx-sum-label">收入</div><div class="dtx-sum-val inc">+' + totalInc.toFixed(0) + '</div></div>';
-    html += '<div class="dtx-sum-card"><div class="dtx-sum-label">结余</div><div class="dtx-sum-val bal">' + balance.toFixed(0) + '</div></div>';
+    html += '<div class="dtx-sum-card"><div class="dtx-sum-label">支出</div><div class="dtx-sum-val exp">-' + _fmtAmt(totalExp) + '</div></div>';
+    html += '<div class="dtx-sum-card"><div class="dtx-sum-label">收入</div><div class="dtx-sum-val inc">+' + _fmtAmt(totalInc) + '</div></div>';
+    html += '<div class="dtx-sum-card"><div class="dtx-sum-label">结余</div><div class="dtx-sum-val bal">' + _fmtAmt(balance) + '</div></div>';
     html += '</div>';
 
     // Income breakdown
@@ -295,7 +298,7 @@
       html += '<div class="dtx-sum-row">';
       html += '<span class="dtx-sum-row-name">' + c.name + '</span>';
       html += '<div class="dtx-sum-row-bar"><div class="dtx-sum-row-bar-fill" style="width:' + pct + '%;background:' + c.color + '"></div></div>';
-      html += '<span class="dtx-sum-row-val" style="color:' + c.color + '">¥' + val.toFixed(0) + '</span>';
+      html += '<span class="dtx-sum-row-val" style="color:' + c.color + '">¥' + _fmtAmt(val) + '</span>';
       html += '</div>';
     });
     html += '</div>';
@@ -310,7 +313,7 @@
       html += '<div class="dtx-sum-row">';
       html += '<span class="dtx-sum-row-name">' + c.name + '</span>';
       html += '<div class="dtx-sum-row-bar"><div class="dtx-sum-row-bar-fill" style="width:' + pct + '%;background:' + c.color + '"></div></div>';
-      html += '<span class="dtx-sum-row-val" style="color:' + c.color + '">¥' + val.toFixed(0) + '</span>';
+      html += '<span class="dtx-sum-row-val" style="color:' + c.color + '">¥' + _fmtAmt(val) + '</span>';
       html += '</div>';
     });
     html += '</div>';
@@ -341,8 +344,8 @@
         html += '<div class="dtx-day-group">';
         html += '<div class="dtx-day-header"><div class="dtx-day-label">' + dayLabel + '</div>';
         var dayParts = [];
-        if (dayExp > 0) dayParts.push('支出 ¥' + dayExp.toFixed(0));
-        if (dayInc > 0) dayParts.push('收入 ¥' + dayInc.toFixed(0));
+        if (dayExp > 0) dayParts.push('支出 ¥' + _fmtAmt(dayExp));
+        if (dayInc > 0) dayParts.push('收入 ¥' + _fmtAmt(dayInc));
         html += '<div class="dtx-day-total">' + dayParts.join(' · ') + '</div></div>';
 
         groups[day].forEach(function(t) {
@@ -354,7 +357,7 @@
           if (t.note) html += '<div class="dtx-item-note">' + t.note + '</div>';
           html += '</div>';
           html += '<div class="dtx-item-right">';
-          html += '<div class="dtx-item-amt ' + (t.type === 'expense' ? 'exp' : 'inc') + '">' + (t.type === 'expense' ? '-' : '+') + '¥' + t.amount.toFixed(0) + '</div>';
+          html += '<div class="dtx-item-amt ' + (t.type === 'expense' ? 'exp' : 'inc') + '">' + (t.type === 'expense' ? '-' : '+') + '¥' + _fmtAmt(t.amount) + '</div>';
           html += '<div class="dtx-item-del" data-txid="' + t.id + '">删除</div>';
           html += '</div>';
           html += '</div>';
