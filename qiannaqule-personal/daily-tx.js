@@ -438,7 +438,7 @@
         h += '<button class="dtx-sub-cat-btn' + selCls + '" data-sub="' + sub + '">' + sub + '</button>';
       });
       h += '</div>';
-      h += '<div class="dtx-input-row"><label>金额（元）</label><input type="number" id="dtxAmount" placeholder="0" min="0" step="1" inputmode="numeric"></div>';
+      h += '<div class="dtx-input-row"><label>金额（元）</label><input type="number" id="dtxAmount" placeholder="0.00" min="0" step="0.01" inputmode="decimal"></div>';
       h += '<div class="dtx-input-row"><label>日期</label><input type="date" id="dtxDate" value="' + todayStr + '"></div>';
       h += '<div class="dtx-input-row"><label>备注</label><textarea id="dtxNote" placeholder="可选，如：午餐、打车"></textarea></div>';
       h += '<button class="dtx-submit-btn" id="dtxSubmit" disabled>保存</button>';

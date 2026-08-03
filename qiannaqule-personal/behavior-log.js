@@ -816,7 +816,7 @@
     h += '</select></div>';
     h += '<div class="bh-form-row"><label>吃了什么</label><input id="bhMealItems" placeholder="如：牛肉面、豆浆油条"></div>';
     h += '<div class="bh-form-row"><label>在哪吃的（可选）</label><input id="bhMealWhere" placeholder="如：食堂、外卖、家"></div>';
-    h += '<div class="bh-form-row"><label>花费（可选）</label><input id="bhMealAmount" type="number" placeholder="元"></div>';
+    h += '<div class="bh-form-row"><label>花费（可选）</label><input id="bhMealAmount" type="number" placeholder="0.00" step="0.01" inputmode="decimal"></div>';
     h += '<button class="bh-modal-submit">保存</button>';
 
     _showModal('记录饮食', h, function(ov) {
