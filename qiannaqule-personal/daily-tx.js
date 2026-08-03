@@ -214,7 +214,7 @@
   // ==================== SVG辅助 ====================
   function svgIcon(pathD, color, sz) {
     sz = sz || 16;
-    return '<svg viewBox="0 0 24 24" width="'+sz+'" height="'+sz+'" fill="none" stroke="'+(color||'currentColor')+'" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+pathD+'</svg>';
+    return '<svg viewBox="0 0 24 24" width="'+sz+'" height="'+sz+'" fill="none" stroke="'+(color||'currentColor')+'" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="'+pathD+'"/></svg>';
   }
 
   // ==================== 获取某条记录的分类信息 ====================

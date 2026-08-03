@@ -1055,7 +1055,7 @@
   }
   function svgIcon(pathD, color, sz) {
     sz = sz || 16;
-    return '<svg viewBox="0 0 24 24" width="'+sz+'" height="'+sz+'" fill="none" stroke="'+(color||'currentColor')+'" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px">'+pathD+'</svg>';
+    return '<svg viewBox="0 0 24 24" width="'+sz+'" height="'+sz+'" fill="none" stroke="'+(color||'currentColor')+'" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="'+pathD+'"/></svg>';
   }
 
   // ==================== 全局接口 ====================
