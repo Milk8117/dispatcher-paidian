@@ -92,7 +92,7 @@
 
   var DEFAULT_CONFIG = {
     mode: 'default',
-    defaultProvider: 'nvidia',
+    defaultProvider: 'deepseek',
     defaultApiKey: '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',
     providers: {
       deepseek: { apiKey: 'sk-25c588ba49b243f08e743c788e92cf15', apiBase: '', model: '' },
@@ -580,14 +580,23 @@
       temperature: temperature || 0.7
     };
 
-    var resp = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + provider.apiKey
-      },
-      body: JSON.stringify(body)
-    });
+    var resp;
+    try {
+      var ctrl = new AbortController();
+      var timer = setTimeout(function() { ctrl.abort(); }, 15000);
+      resp = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + provider.apiKey
+        },
+        body: JSON.stringify(body),
+        signal: ctrl.signal
+      });
+      clearTimeout(timer);
+    } catch (e) {
+      throw new Error('API请求超时或网络错误（Provider: ' + provider.id + '）: ' + e.message);
+    }
 
     if (!resp.ok) {
       var errText = await resp.text();

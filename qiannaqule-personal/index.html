@@ -854,7 +854,10 @@ body {
   transition: opacity 0.2s, transform 0.15s;
 }
 .app-input-voice:active, .app-input-send:active { transform: scale(0.9); }
-.app-input-voice { background: #f1f5f9; }
+.app-input-voice.recording { background: linear-gradient(135deg, #ef4444, #f97316); animation: voicePulse 1s ease-in-out infinite; }
+.app-input-voice.recording svg { stroke: #fff; }
+@keyframes voicePulse { 0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.5); } 50% { box-shadow: 0 0 0 8px rgba(239,68,68,0); } }
+.app-input-voice { background: #f1f5f9; transition: background 0.2s; }
 .app-input-voice svg { width: 20px; height: 20px; stroke: #64748b; fill: none; stroke-width: 2; }
 .app-input-send { background: linear-gradient(135deg, #3b82f6, #6366f1); }
 .app-input-send svg { width: 20px; height: 20px; fill: #fff; }
@@ -2402,7 +2405,7 @@ body {
 
 <!-- Bottom Input Bar -->
 <div class="app-input-bar">
-  <button class="app-input-voice" id="voiceBtn" title="语音输入" onclick="toggleVoiceInput()">
+  <button class="app-input-voice" id="voiceBtn" title="语音输入">
     <svg id="voiceIcon" viewBox="0 0 24 24"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z" stroke-linecap="round" stroke-linejoin="round"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8" stroke-linecap="round" stroke-linejoin="round"/></svg>
   </button>
   <input type="text" class="app-input-field" id="aiInputField" placeholder="告诉AI你的需求..." />
@@ -2967,36 +2970,28 @@ body {
   window.showToast = showToast;
 
 
-  // ========== 语音输入（Web Speech API）==========
+  // ========== 语音输入（微信式长按说话，松手自动发送）==========
   var voiceRecognition = null;
   var voiceListening = false;
+  var voiceHasResult = false;
+  var voicePressTimer = null;
+  var voiceStartTime = 0;
 
-  function toggleVoiceInput() {
+  function startVoiceRecording() {
     var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SR) {
-      showToast('当前浏览器不支持语音识别，请用Chrome或Safari');
-      return;
-    }
-    if (voiceListening) {
-      // 停止录音
-      if (voiceRecognition) voiceRecognition.stop();
-      voiceListening = false;
-      var btn = document.getElementById('voiceBtn');
-      if (btn) btn.style.background = '#f1f5f9';
-      showToast('语音输入已停止');
-      return;
-    }
-    // 开始录音
+    if (!SR) { showToast('当前浏览器不支持语音识别，请用Chrome或Safari'); return; }
     voiceRecognition = new SR();
     voiceRecognition.lang = 'zh-CN';
-    voiceRecognition.continuous = false;
+    voiceRecognition.continuous = true;
     voiceRecognition.interimResults = true;
+    voiceHasResult = false;
+    voiceStartTime = Date.now();
 
     voiceRecognition.onstart = function() {
       voiceListening = true;
       var btn = document.getElementById('voiceBtn');
-      if (btn) btn.style.background = '#fecaca';
-      showToast('<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#f97316" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/></svg>正在听，请说话...');
+      if (btn) { btn.classList.add('recording'); btn.style.background = ''; }
+      showToast('<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/></svg>正在听，松开发送...');
     };
 
     voiceRecognition.onresult = function(e) {
@@ -3004,18 +2999,23 @@ body {
       for (var i = e.resultIndex; i < e.results.length; i++) {
         transcript += e.results[i][0].transcript;
       }
-      var field = document.getElementById('aiInputField');
-      if (field) field.value = transcript;
+      if (transcript.trim()) {
+        voiceHasResult = true;
+        var field = document.getElementById('aiInputField');
+        if (field) field.value = transcript.trim();
+      }
     };
 
     voiceRecognition.onerror = function(e) {
       voiceListening = false;
       var btn = document.getElementById('voiceBtn');
-      if (btn) btn.style.background = '#f1f5f9';
+      if (btn) btn.classList.remove('recording');
       if (e.error === 'no-speech') {
-        showToast('没有检测到语音，请重试');
+        showToast('没有检测到语音，请长按重新说');
       } else if (e.error === 'not-allowed') {
         showToast('麦克风权限被拒绝，请在浏览器设置中允许');
+      } else if (e.error === 'aborted') {
+        // ignored, normal stop
       } else {
         showToast('语音识别出错: ' + e.error);
       }
@@ -3024,12 +3024,59 @@ body {
     voiceRecognition.onend = function() {
       voiceListening = false;
       var btn = document.getElementById('voiceBtn');
-      if (btn) btn.style.background = '#f1f5f9';
+      if (btn) btn.classList.remove('recording');
+      // 松手后自动发送
+      var field = document.getElementById('aiInputField');
+      var text = field ? field.value.trim() : '';
+      if (voiceHasResult && text) {
+        // 隐藏toast，自动提交
+        var toastEl = document.querySelector('.app-toast');
+        if (toastEl) toastEl.remove();
+        setTimeout(function() { submitAiInput(); }, 200);
+      } else if (!voiceHasResult) {
+        var duration = Date.now() - voiceStartTime;
+        if (duration < 1000) {
+          showToast('说话时间太短，请长按重试');
+        } else {
+          showToast('没有识别到内容，请重试');
+        }
+      }
     };
 
-    voiceRecognition.start();
+    try { voiceRecognition.start(); } catch(e) { showToast('语音启动失败，请重试'); }
   }
-  window.toggleVoiceInput = toggleVoiceInput;
+
+  function stopVoiceRecording() {
+    if (voiceListening && voiceRecognition) {
+      try { voiceRecognition.stop(); } catch(e) {}
+    }
+  }
+
+  // 绑定长按事件
+  (function() {
+    var btn = document.getElementById('voiceBtn');
+    if (!btn) return;
+    // 触屏长按
+    btn.addEventListener('touchstart', function(e) {
+      e.preventDefault();
+      startVoiceRecording();
+    }, { passive: false });
+    btn.addEventListener('touchend', function(e) {
+      e.preventDefault();
+      stopVoiceRecording();
+    }, { passive: false });
+    btn.addEventListener('touchcancel', function() { stopVoiceRecording(); });
+    // 鼠标长按（桌面端）
+    btn.addEventListener('mousedown', function(e) {
+      e.preventDefault();
+      startVoiceRecording();
+    });
+    btn.addEventListener('mouseup', function(e) {
+      e.preventDefault();
+      stopVoiceRecording();
+    });
+    btn.addEventListener('mouseleave', function() { if (voiceListening) stopVoiceRecording(); });
+  })();
 
   // ========== 自然语言记账解析 ==========
   // ========== 自然语言日程解析 ==========
