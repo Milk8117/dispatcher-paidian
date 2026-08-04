@@ -93,10 +93,10 @@
   var DEFAULT_CONFIG = {
     mode: 'default',
     defaultProvider: 'nvidia',
-    defaultApiKey: '',
+    defaultApiKey: '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',
     providers: {
-      deepseek: { apiKey: '', apiBase: '', model: '' },
-      bailian: { apiKey: '', apiBase: '', model: '' },
+      deepseek: { apiKey: 'sk-25c588ba49b243f08e743c788e92cf15', apiBase: '', model: '' },
+      bailian: { apiKey: 'sk-ws-H.ELEXHRD.2Xmm.MEUCIQD8FduqTxbuANZ3ttnoQKjMEmqxkpG7ZpJK4th7jrpO8wIgeeQVwro_HTzZywrGoEFSAVZPcuuvnpJTdiP2sp5H0JA', apiBase: '', model: '' },
       kimi: { apiKey: '', apiBase: '', model: '' },
       custom: { apiKey: '', apiBase: '', model: '' }
     },
