@@ -1582,12 +1582,38 @@ body {
 .recipe-popup-goto { background:linear-gradient(135deg,#3b82f6,#6366f1);color:#fff;border:none;padding:8px 20px;border-radius:20px;font-size:13px;cursor:pointer; }
 .recipe-popup-goto:hover { opacity:0.9; }
 
-/* ========== AI Chat Bubble ========== */
-.ai-chat-area { position:fixed;bottom:60px;left:0;right:0;z-index:900;pointer-events:none;padding:0 12px; }
-.ai-chat-bubble { max-width:360px;margin:0 auto 8px;padding:12px 16px;border-radius:16px 16px 16px 4px;background:#fff;box-shadow:0 4px 20px rgba(0,0,0,0.12);font-size:14px;line-height:1.5;color:#1a2a3a;pointer-events:auto;animation:aiBubbleIn 0.3s ease; }
-.ai-chat-bubble.user { border-radius:16px 16px 4px 16px;background:#3b82f6;color:#fff;margin-left:auto;text-align:right; }
-.ai-chat-bubble .ai-label { font-size:11px;color:#8b5cf6;font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:4px; }
-.ai-chat-bubble.user .ai-label { color:rgba(255,255,255,0.7);justify-content:flex-end; }
+/* ========== Chat History Section ========== */
+.chat-history-section { max-width:680px;margin:0 auto;padding:0 16px 16px; }
+.chat-history-header { display:flex;align-items:center;justify-content:space-between;padding:8px 4px 10px; }
+.chat-history-title { font-size:15px;font-weight:700;color:#475569; }
+.chat-history-clear-all { background:none;border:none;font-size:12px;color:#94a3b8;cursor:pointer;padding:4px 8px;border-radius:6px;transition:all 0.2s; }
+.chat-history-clear-all:hover { background:#f1f5f9;color:#ef4444; }
+.chat-history-list { display:flex;flex-direction:column;gap:10px; }
+.chat-history-empty { text-align:center;padding:24px 0;color:#94a3b8;font-size:13px; }
+
+/* Chat History Card */
+.chat-history-card { background:#fff;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,0.06);overflow:hidden;position:relative;animation:aiBubbleIn 0.3s ease;transition:box-shadow 0.2s; }
+.chat-history-card:hover { box-shadow:0 2px 8px rgba(0,0,0,0.1); }
+.chat-history-card::before { content:'';position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:12px 0 0 12px; }
+.chat-history-card:nth-child(4n+1)::before { background:linear-gradient(180deg,#8b5cf6,#a78bfa); }
+.chat-history-card:nth-child(4n+2)::before { background:linear-gradient(180deg,#3b82f6,#60a5fa); }
+.chat-history-card:nth-child(4n+3)::before { background:linear-gradient(180deg,#f59e0b,#fbbf24); }
+.chat-history-card:nth-child(4n+4)::before { background:linear-gradient(180deg,#22c55e,#4ade80); }
+.chat-history-card .card-header { display:flex;align-items:center;padding:12px 40px 12px 16px;cursor:pointer;gap:8px; }
+.chat-history-card .card-question { flex:1;font-size:14px;font-weight:600;color:#1e293b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0; }
+.chat-history-card .card-time { font-size:11px;color:#94a3b8;white-space:nowrap;flex-shrink:0; }
+.chat-history-card .card-toggle { font-size:12px;color:#94a3b8;transition:transform 0.25s;flex-shrink:0;width:20px;text-align:center; }
+.chat-history-card.expanded .card-toggle { transform:rotate(180deg); }
+.chat-history-card .card-content { display:none;padding:0 16px 14px;border-top:1px solid #f1f5f9; }
+.chat-history-card.expanded .card-content { display:block; }
+.chat-history-card .card-user-q { font-size:13px;color:#475569;padding:10px 0 8px;line-height:1.6;white-space:pre-wrap;word-break:break-word; }
+.chat-history-card .card-ai-r { font-size:13px;color:#1e293b;background:#f8fafc;border-radius:8px;padding:12px;line-height:1.7;white-space:pre-wrap;word-break:break-word;border-left:3px solid #8b5cf6; }
+.chat-history-card .card-delete { position:absolute;right:10px;top:12px;background:none;border:none;font-size:14px;color:#cbd5e1;cursor:pointer;width:24px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:6px;transition:all 0.2s; }
+.chat-history-card .card-delete:hover { background:#fef2f2;color:#ef4444; }
+
+/* Thinking card */
+.chat-history-card.thinking-card { border:1px dashed #c4b5fd; }
+.chat-history-card.thinking-card .card-ai-r { background:#faf5ff;border-left-color:#c4b5fd; }
 .ai-thinking { display:flex;align-items:center;gap:6px;color:#8b5cf6;font-size:13px; }
 .ai-thinking-dot { width:6px;height:6px;border-radius:50%;background:#8b5cf6;animation:aiDotPulse 1.2s infinite; }
 .ai-thinking-dot:nth-child(2) { animation-delay:0.2s; }
@@ -2400,8 +2426,14 @@ body {
 
 </div><!-- END container -->
 
-<!-- AI Chat Bubble Area -->
-<div class="ai-chat-area" id="aiChatArea"></div>
+<!-- Chat History Section -->
+<div class="chat-history-section" id="chatHistorySection">
+  <div class="chat-history-header">
+    <span class="chat-history-title">💬 AI对话记录</span>
+    <button class="chat-history-clear-all" onclick="clearAllChatHistory()">清空</button>
+  </div>
+  <div class="chat-history-list" id="chatHistoryList"></div>
+</div>
 
 <!-- Bottom Input Bar -->
 <div class="app-input-bar">
@@ -2414,10 +2446,10 @@ body {
   </button>
 </div>
 
-<script src="datastore.js?v=26"></script>
-<script src="diagnosis-engine.js?v=26"></script>
-<script src="reminder-engine.js?v=26"></script>
-<script src="trend-view.js?v=26"></script>
+<script src="datastore.js?v=29"></script>
+<script src="diagnosis-engine.js?v=29"></script>
+<script src="reminder-engine.js?v=29"></script>
+<script src="trend-view.js?v=29"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 (function() {
@@ -2584,6 +2616,7 @@ body {
   }
   // 初始化渲染
   renderSmartHome();
+  renderChatHistory();
 
   window.switchModule = function(moduleName) {
     // Hide all pages
@@ -2667,34 +2700,130 @@ body {
     if (overlay) overlay.classList.remove('open');
   }
 
-  // ==================== AI Chat UI ====================
-  var aiBubbleTimer = null;
-  function showAiThinking(userText) {
-    var area = document.getElementById('aiChatArea');
+  // ==================== AI Chat History (Card-based) ====================
+  var CHAT_STORAGE_KEY = 'mijie_chat_history';
+  var _thinkingCardId = null;
+
+  function getChatHistory() {
+    try { return JSON.parse(localStorage.getItem(CHAT_STORAGE_KEY)) || []; } catch(e) { return []; }
+  }
+  function setChatHistory(arr) {
+    try { localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(arr)); } catch(e) {}
+  }
+  function truncateText(text, maxLen) {
+    if (!text) return '';
+    return text.length > maxLen ? text.substring(0, maxLen) + '...' : text;
+  }
+  function formatTime(ts) {
+    var d = new Date(ts);
+    var hh = ('0'+d.getHours()).slice(-2), mm = ('0'+d.getMinutes()).slice(-2);
+    return hh + ':' + mm;
+  }
+
+  function renderChatHistory() {
+    var list = document.getElementById('chatHistoryList');
+    if (!list) return;
+    var history = getChatHistory();
+    if (history.length === 0) {
+      list.innerHTML = '<div class="chat-history-empty">暂无对话记录</div>';
+      return;
+    }
     var html = '';
-    // User bubble
-    html += '<div class="ai-chat-bubble user"><div class="ai-label">你</div>' + escapeHtml(userText) + '</div>';
-    // AI thinking bubble
-    html += '<div class="ai-chat-bubble" id="aiThinkingBubble"><div class="ai-label"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 017 7c0 3-2 5.5-4 7l-3 3-3-3c-2-1.5-4-4-4-7a7 7 0 017-7z"/><circle cx="12" cy="9" r="2"/></svg>米界AI</div><div class="ai-thinking"><span class="ai-thinking-dot"></span><span class="ai-thinking-dot"></span><span class="ai-thinking-dot"></span><span style="margin-left:4px">思考中...</span></div></div>';
-    area.innerHTML = html;
-    // Auto-hide after 30s
-    clearTimeout(aiBubbleTimer);
-    aiBubbleTimer = setTimeout(function() { area.innerHTML = ''; }, 30000);
+    for (var i = 0; i < history.length; i++) {
+      var item = history[i];
+      var collapsedClass = item.collapsed !== false ? '' : ' expanded';
+      html += '<div class="chat-history-card' + collapsedClass + '" id="chat-card-' + item.id + '">';
+      html += '<div class="card-header" onclick="toggleChatCard(' + item.id + ')">';
+      html += '<span class="card-question">' + escapeHtml(truncateText(item.question, 30)) + '</span>';
+      html += '<span class="card-time">' + item.timestamp.split(' ')[1] + '</span>';
+      html += '<span class="card-toggle">▼</span>';
+      html += '</div>';
+      html += '<div class="card-content" id="card-content-' + item.id + '">';
+      html += '<div class="card-user-q">' + escapeHtml(item.question) + '</div>';
+      html += '<div class="card-ai-r">' + escapeHtml(item.reply) + '</div>';
+      html += '</div>';
+      html += '<button class="card-delete" onclick="event.stopPropagation();deleteChatCard(' + item.id + ')">✕</button>';
+      html += '</div>';
+    }
+    list.innerHTML = html;
+  }
+
+  function saveChatToHistory(question, reply) {
+    var now = new Date();
+    var ts = now.getTime();
+    var dateStr = now.getFullYear() + '-' + ('0'+(now.getMonth()+1)).slice(-2) + '-' + ('0'+now.getDate()).slice(-2) + ' ' + ('0'+now.getHours()).slice(-2) + ':' + ('0'+now.getMinutes()).slice(-2);
+    var history = getChatHistory();
+    history.unshift({ id: ts, question: question, reply: reply, timestamp: dateStr, collapsed: false });
+    setChatHistory(history);
+    renderChatHistory();
+  }
+
+  window.toggleChatCard = function(id) {
+    var card = document.getElementById('chat-card-' + id);
+    if (!card) return;
+    var isExpanded = card.classList.contains('expanded');
+    if (isExpanded) {
+      card.classList.remove('expanded');
+    } else {
+      card.classList.add('expanded');
+    }
+    // Update collapsed state in storage
+    var history = getChatHistory();
+    for (var i = 0; i < history.length; i++) {
+      if (history[i].id === id) { history[i].collapsed = isExpanded; break; }
+    }
+    setChatHistory(history);
+  };
+
+  window.deleteChatCard = function(id) {
+    var card = document.getElementById('chat-card-' + id);
+    if (card) { card.style.opacity = '0'; card.style.transform = 'translateX(20px)'; card.style.transition = 'all 0.25s'; }
+    setTimeout(function() {
+      var history = getChatHistory();
+      history = history.filter(function(item) { return item.id !== id; });
+      setChatHistory(history);
+      renderChatHistory();
+    }, 250);
+  };
+
+  window.clearAllChatHistory = function() {
+    var history = getChatHistory();
+    if (history.length === 0) return;
+    if (!confirm('确定清空所有对话记录？')) return;
+    setChatHistory([]);
+    renderChatHistory();
+  };
+
+  function showAiThinking(userText) {
+    var list = document.getElementById('chatHistoryList');
+    if (!list) return;
+    // Remove empty placeholder
+    var emptyEl = list.querySelector('.chat-history-empty');
+    if (emptyEl) emptyEl.remove();
+    var id = Date.now();
+    _thinkingCardId = id;
+    var card = document.createElement('div');
+    card.className = 'chat-history-card thinking-card';
+    card.id = 'chat-card-thinking';
+    card.innerHTML = '<div class="card-header"><span class="card-question">' + escapeHtml(truncateText(userText, 30)) + '</span><span class="card-time">' + formatTime(id) + '</span><span class="card-toggle"></span></div>' +
+      '<div class="card-content" style="display:block"><div class="card-user-q">' + escapeHtml(userText) + '</div>' +
+      '<div class="card-ai-r"><div class="ai-thinking"><span class="ai-thinking-dot"></span><span class="ai-thinking-dot"></span><span class="ai-thinking-dot"></span><span style="margin-left:4px">思考中...</span></div></div></div>';
+    list.insertBefore(card, list.firstChild);
+    card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
   function hideAiThinking() {
-    var bubble = document.getElementById('aiThinkingBubble');
-    if (bubble) bubble.remove();
+    var card = document.getElementById('chat-card-thinking');
+    if (card) card.remove();
+    _thinkingCardId = null;
   }
 
   function showAiReply(userText, replyText) {
-    var area = document.getElementById('aiChatArea');
-    var html = '';
-    html += '<div class="ai-chat-bubble user"><div class="ai-label">你</div>' + escapeHtml(userText) + '</div>';
-    html += '<div class="ai-chat-bubble"><div class="ai-label"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 017 7c0 3-2 5.5-4 7l-3 3-3-3c-2-1.5-4-4-4-7a7 7 0 017-7z"/><circle cx="12" cy="9" r="2"/></svg>米界AI</div>' + escapeHtml(replyText) + '</div>';
-    area.innerHTML = html;
-    clearTimeout(aiBubbleTimer);
-    aiBubbleTimer = setTimeout(function() { area.innerHTML = ''; }, 15000);
+    hideAiThinking();
+    saveChatToHistory(userText, replyText);
+    // Scroll to chat history section
+    var section = document.getElementById('chatHistorySection');
+    if (section) { section.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
   }
 
   function escapeHtml(text) {
@@ -4609,7 +4738,7 @@ body {
     });
 
     window.addEventListener('load', function() {
-      navigator.serviceWorker.register('./service-worker.js?v=28', { updateViaCache: 'none' }).then(function(reg) {
+      navigator.serviceWorker.register('./service-worker.js?v=29', { updateViaCache: 'none' }).then(function(reg) {
         console.log('SW registered, scope:', reg.scope);
         
         // Force check for updates on every page load
@@ -4676,14 +4805,14 @@ function toggleGuideSection(index) {
 })();
 </script>
 
-<script src="solar-term.js?v=26"></script>
-<script src="chronic-disease.js?v=26"></script>
-<script src="schedule.js?v=26"></script>
-<script src="daily-tx.js?v=26"></script>
-<script src="behavior-log.js?v=26"></script>
-<script src="user-profile.js?v=26"></script>
-<script src="insight-engine.js?v=26"></script>
-<script src="health-bridge.js?v=26"></script>
-<script src="ai-engine.js?v=28"></script>
+<script src="solar-term.js?v=29"></script>
+<script src="chronic-disease.js?v=29"></script>
+<script src="schedule.js?v=29"></script>
+<script src="daily-tx.js?v=29"></script>
+<script src="behavior-log.js?v=29"></script>
+<script src="user-profile.js?v=29"></script>
+<script src="insight-engine.js?v=29"></script>
+<script src="health-bridge.js?v=29"></script>
+<script src="ai-engine.js?v=29"></script>
 </body>
 </html>
