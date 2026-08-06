@@ -1583,7 +1583,7 @@ body {
 .recipe-popup-goto:hover { opacity:0.9; }
 
 /* ========== Chat History Section ========== */
-.chat-history-section { max-width:680px;margin:0 auto;padding:0 16px 16px; }
+.chat-history-section { max-width:680px;margin:0 auto;padding:20px 16px 16px; }
 .chat-history-header { display:flex;align-items:center;justify-content:space-between;padding:8px 4px 10px; }
 .chat-history-title { font-size:15px;font-weight:700;color:#475569; }
 .chat-history-clear-all { background:none;border:none;font-size:12px;color:#94a3b8;cursor:pointer;padding:4px 8px;border-radius:6px;transition:all 0.2s; }
@@ -1604,16 +1604,16 @@ body {
 .chat-history-card .card-time { font-size:11px;color:#94a3b8;white-space:nowrap;flex-shrink:0; }
 .chat-history-card .card-toggle { font-size:12px;color:#94a3b8;transition:transform 0.25s;flex-shrink:0;width:20px;text-align:center; }
 .chat-history-card.expanded .card-toggle { transform:rotate(180deg); }
-.chat-history-card .card-content { display:none;padding:0 16px 14px;border-top:1px solid #f1f5f9; }
+.chat-history-card .card-content { display:none;padding:12px 16px 14px;border-top:1px solid #f1f5f9; }
 .chat-history-card.expanded .card-content { display:block; }
-.chat-history-card .card-user-q { font-size:13px;color:#475569;padding:10px 0 8px;line-height:1.6;white-space:pre-wrap;word-break:break-word; }
-.chat-history-card .card-ai-r { font-size:13px;color:#1e293b;background:#f8fafc;border-radius:8px;padding:12px;line-height:1.7;white-space:pre-wrap;word-break:break-word;border-left:3px solid #8b5cf6; }
-.chat-history-card .card-delete { position:absolute;right:10px;top:12px;background:none;border:none;font-size:14px;color:#cbd5e1;cursor:pointer;width:24px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:6px;transition:all 0.2s; }
-.chat-history-card .card-delete:hover { background:#fef2f2;color:#ef4444; }
+.chat-history-card .card-ai-r { font-size:13px;color:#1e293b;background:#f8fafc;border-radius:8px;padding:12px;line-height:1.7;white-space:pre-wrap;word-break:break-word; }
+.chat-history-card .card-footer { display:flex;justify-content:flex-end;padding:8px 0 0; }
+.chat-history-card .card-delete-btn { background:none;border:none;font-size:12px;color:#94a3b8;cursor:pointer;padding:4px 10px;border-radius:6px;transition:all 0.2s; }
+.chat-history-card .card-delete-btn:hover { background:#fef2f2;color:#ef4444; }
 
 /* Thinking card */
 .chat-history-card.thinking-card { border:1px dashed #c4b5fd; }
-.chat-history-card.thinking-card .card-ai-r { background:#faf5ff;border-left-color:#c4b5fd; }
+.chat-history-card.thinking-card .card-ai-r { background:#faf5ff; }
 .ai-thinking { display:flex;align-items:center;gap:6px;color:#8b5cf6;font-size:13px; }
 .ai-thinking-dot { width:6px;height:6px;border-radius:50%;background:#8b5cf6;animation:aiDotPulse 1.2s infinite; }
 .ai-thinking-dot:nth-child(2) { animation-delay:0.2s; }
@@ -2627,6 +2627,15 @@ body {
     // Show target page
     var target = document.getElementById('page-' + moduleName);
     if (target) target.classList.add('page-active');
+    // 对话记录只在首页显示
+    var chatSection = document.getElementById('chatHistorySection');
+    if (chatSection) {
+      if (moduleName === 'home') {
+        chatSection.style.display = 'block';
+      } else {
+        chatSection.style.display = 'none';
+      }
+    }
     // Update nav drawer active state
     var items = document.querySelectorAll('.nav-drawer-item');
     for (var i = 0; i < items.length; i++) {
@@ -2952,14 +2961,17 @@ body {
             } else if (action.type === 'add_schedule' && action.title) {
               if (window.scheduleAddTask) {
                 window.scheduleAddTask({ title: action.title, desc: action.desc || '', date: action.date, group: action.group || '' });
+                switchModule('schedule');
               }
             } else if (action.type === 'add_expense' && action.amount) {
               if (window.dailyTxAdd) {
                 window.dailyTxAdd({ type: 'expense', amount: parseFloat(action.amount), ctField: action.ctField || 'expensePersonal', note: action.note || '', date: new Date().toISOString().substr(0,10) });
+                switchModule('dailytx');
               }
             } else if (action.type === 'add_income' && action.amount) {
               if (window.dailyTxAdd) {
                 window.dailyTxAdd({ type: 'income', amount: parseFloat(action.amount), ctField: action.ctField || 'jobIncome', note: action.note || '', date: new Date().toISOString().substr(0,10) });
+                switchModule('dailytx');
               }
             } else if (action.type === 'recommend_recipe') {
               showTodayRecipes();
