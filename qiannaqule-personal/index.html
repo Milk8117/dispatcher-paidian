@@ -1594,20 +1594,15 @@ body {
 /* Chat History Card */
 .chat-history-card { background:#fff;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,0.06);overflow:hidden;position:relative;animation:aiBubbleIn 0.3s ease;transition:box-shadow 0.2s; }
 .chat-history-card:hover { box-shadow:0 2px 8px rgba(0,0,0,0.1); }
-.chat-history-card::before { content:'';position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:12px 0 0 12px; }
-.chat-history-card:nth-child(4n+1)::before { background:linear-gradient(180deg,#8b5cf6,#a78bfa); }
-.chat-history-card:nth-child(4n+2)::before { background:linear-gradient(180deg,#3b82f6,#60a5fa); }
-.chat-history-card:nth-child(4n+3)::before { background:linear-gradient(180deg,#f59e0b,#fbbf24); }
-.chat-history-card:nth-child(4n+4)::before { background:linear-gradient(180deg,#22c55e,#4ade80); }
-.chat-history-card .card-header { display:flex;align-items:center;padding:12px 40px 12px 16px;cursor:pointer;gap:8px; }
+.chat-history-card .card-header { display:flex;align-items:center;padding:12px 16px;cursor:pointer;gap:8px; }
 .chat-history-card .card-question { flex:1;font-size:14px;font-weight:600;color:#1e293b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0; }
 .chat-history-card .card-time { font-size:11px;color:#94a3b8;white-space:nowrap;flex-shrink:0; }
 .chat-history-card .card-toggle { font-size:12px;color:#94a3b8;transition:transform 0.25s;flex-shrink:0;width:20px;text-align:center; }
 .chat-history-card.expanded .card-toggle { transform:rotate(180deg); }
-.chat-history-card .card-content { display:none;padding:12px 16px 14px;border-top:1px solid #f1f5f9; }
+.chat-history-card .card-content { display:none;padding:12px 16px 10px;border-top:1px solid #f1f5f9; }
 .chat-history-card.expanded .card-content { display:block; }
 .chat-history-card .card-ai-r { font-size:13px;color:#1e293b;background:#f8fafc;border-radius:8px;padding:12px;line-height:1.7;white-space:pre-wrap;word-break:break-word; }
-.chat-history-card .card-footer { display:flex;justify-content:flex-end;padding:8px 0 0; }
+.chat-history-card .card-footer { display:flex;justify-content:flex-end;padding:8px 16px 12px; }
 .chat-history-card .card-delete-btn { background:none;border:none;font-size:12px;color:#94a3b8;cursor:pointer;padding:4px 10px;border-radius:6px;transition:all 0.2s; }
 .chat-history-card .card-delete-btn:hover { background:#fef2f2;color:#ef4444; }
 
@@ -2740,7 +2735,9 @@ body {
     var html = '';
     for (var i = 0; i < history.length; i++) {
       var item = history[i];
-      var collapsedClass = item.collapsed !== false ? '' : ' expanded';
+      // 第一条（最新）默认展开，其余默认折叠；用户手动切换过的尊重用户选择
+      var isExpanded = (item.collapsed === false) || (i === 0 && item.collapsed !== true);
+      var collapsedClass = isExpanded ? ' expanded' : '';
       html += '<div class="chat-history-card' + collapsedClass + '" id="chat-card-' + item.id + '">';
       html += '<div class="card-header" onclick="toggleChatCard(' + item.id + ')">';
       html += '<span class="card-question">' + escapeHtml(truncateText(item.question, 30)) + '</span>';
@@ -2748,10 +2745,9 @@ body {
       html += '<span class="card-toggle">▼</span>';
       html += '</div>';
       html += '<div class="card-content" id="card-content-' + item.id + '">';
-      html += '<div class="card-user-q">' + escapeHtml(item.question) + '</div>';
       html += '<div class="card-ai-r">' + escapeHtml(item.reply) + '</div>';
       html += '</div>';
-      html += '<button class="card-delete" onclick="event.stopPropagation();deleteChatCard(' + item.id + ')">✕</button>';
+      html += '<div class="card-footer"><button class="card-delete-btn" onclick="event.stopPropagation();deleteChatCard(' + item.id + ')">删除</button></div>';
       html += '</div>';
     }
     list.innerHTML = html;
@@ -2815,8 +2811,7 @@ body {
     card.className = 'chat-history-card thinking-card';
     card.id = 'chat-card-thinking';
     card.innerHTML = '<div class="card-header"><span class="card-question">' + escapeHtml(truncateText(userText, 30)) + '</span><span class="card-time">' + formatTime(id) + '</span><span class="card-toggle"></span></div>' +
-      '<div class="card-content" style="display:block"><div class="card-user-q">' + escapeHtml(userText) + '</div>' +
-      '<div class="card-ai-r"><div class="ai-thinking"><span class="ai-thinking-dot"></span><span class="ai-thinking-dot"></span><span class="ai-thinking-dot"></span><span style="margin-left:4px">思考中...</span></div></div></div>';
+      '<div class="card-content" style="display:block"><div class="card-ai-r"><div class="ai-thinking"><span class="ai-thinking-dot"></span><span class="ai-thinking-dot"></span><span class="ai-thinking-dot"></span><span style="margin-left:4px">思考中...</span></div></div></div>';
     list.insertBefore(card, list.firstChild);
     card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
