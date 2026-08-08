@@ -956,8 +956,24 @@ body {
   font-size: 11px; color: #9ca3af;
 }
 /* Smart Home Dashboard */
-.home-date-bar { text-align:center; margin-top:10px; }
+.home-date-bar { text-align:center; margin-top:10px; position:relative; }
 .home-date-bar span { font-size:12px; color:rgba(255,255,255,0.6); letter-spacing:0.5px; }
+.home-push-bell { position:absolute; right:0; top:50%; transform:translateY(-50%); background:rgba(255,255,255,0.15); border:none; color:#fff; width:32px; height:32px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s; }
+.home-push-bell:hover { background:rgba(255,255,255,0.25); }
+.home-push-badge { position:absolute; top:-2px; right:-2px; background:#ef4444; color:#fff; font-size:10px; font-weight:700; min-width:16px; height:16px; border-radius:8px; padding:0 4px; display:flex; align-items:center; justify-content:center; line-height:1; }
+.home-push-badge:empty, .home-push-badge[data-count="0"] { display:none; }
+
+/* Push Panel */
+.push-panel-overlay { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.4); z-index:1000; display:none; align-items:flex-start; justify-content:center; padding-top:60px; }
+.push-panel-overlay.show { display:flex; animation:fadeIn 0.2s ease; }
+.push-panel { background:#fff; border-radius:16px; width:90%; max-width:400px; max-height:70vh; overflow:hidden; display:flex; flex-direction:column; box-shadow:0 10px 40px rgba(0,0,0,0.15); animation:slideDown 0.3s ease; }
+.push-panel-header { display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid #f1f5f9; flex-shrink:0; }
+.push-panel-title { font-size:16px; font-weight:700; color:#1e293b; }
+.push-panel-close { background:none; border:none; font-size:18px; color:#94a3b8; cursor:pointer; width:28px; height:28px; display:flex; align-items:center; justify-content:center; border-radius:6px; transition:all 0.2s; }
+.push-panel-close:hover { background:#f1f5f9; color:#475569; }
+.push-panel-content { padding:12px 16px 16px; overflow-y:auto; flex:1; }
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+@keyframes slideDown { from { opacity:0; transform:translateY(-20px); } to { opacity:1; transform:translateY(0); } }
 .home-smart-section { padding:16px 16px 0; }
 .home-smart-title { font-size:13px; font-weight:600; color:#6b7280; margin-bottom:10px; padding-left:2px; letter-spacing:0.5px; display:flex; align-items:center; gap:6px; }
 .home-smart-card { background:#fff; border-radius:14px; padding:14px 16px; box-shadow:0 1px 3px rgba(0,0,0,0.05),0 4px 14px rgba(0,0,0,0.04); border:1px solid #f3f4f6; margin-bottom:10px; }
@@ -1852,7 +1868,26 @@ body {
       </div>
       <h1 class="home-greeting" id="homeGreeting">你好</h1>
       <p class="home-tagline">米界AI · 你的私人贾维斯</p>
-      <div class="home-date-bar"><span id="homeDateBar"></span></div>
+      <div class="home-date-bar"><span id="homeDateBar"></span>
+        <button class="home-push-bell" id="homePushBell" onclick="togglePushPanel()" style="display:none">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+          <span class="home-push-badge" id="homePushBadge">0</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 推送面板 -->
+  <div class="push-panel-overlay" id="pushPanelOverlay" onclick="closePushPanel()">
+    <div class="push-panel" onclick="event.stopPropagation()">
+      <div class="push-panel-header">
+        <span class="push-panel-title">智能推送</span>
+        <button class="push-panel-close" onclick="closePushPanel()">✕</button>
+      </div>
+      <div class="push-panel-content" id="pushPanelContent"></div>
     </div>
   </div>
 
@@ -2471,6 +2506,65 @@ body {
   updateGreeting();
   setInterval(updateGreeting, 60000);
 
+  // ==================== 推送引擎 ====================
+  function updatePushBadge() {
+    try {
+      var bell = document.getElementById('homePushBell');
+      var badge = document.getElementById('homePushBadge');
+      if (!bell || !badge || !window.PushEngine) return;
+      var count = window.PushEngine.getUnreadCount();
+      badge.textContent = count > 99 ? '99+' : count;
+      badge.setAttribute('data-count', count);
+      bell.style.display = 'flex';
+    } catch(e) {}
+  }
+
+  window.togglePushPanel = function() {
+    var overlay = document.getElementById('pushPanelOverlay');
+    if (!overlay) return;
+    if (overlay.classList.contains('show')) {
+      closePushPanel();
+    } else {
+      overlay.classList.add('show');
+      try {
+        if (window.PushEngine) {
+          window.PushEngine.renderPanel('pushPanelContent');
+        }
+      } catch(e) {}
+    }
+  };
+
+  window.closePushPanel = function() {
+    var overlay = document.getElementById('pushPanelOverlay');
+    if (overlay) overlay.classList.remove('show');
+    // 关闭时标记所有已读
+    try {
+      if (window.PushEngine) {
+        window.PushEngine.markAllRead();
+        updatePushBadge();
+      }
+    } catch(e) {}
+  };
+
+  // 监听新推送事件
+  try {
+    window.addEventListener('push_new', function(e) {
+      updatePushBadge();
+    });
+  } catch(e) {}
+
+  // 页面加载后启动推送引擎
+  document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+      try {
+        if (window.PushEngine) {
+          window.PushEngine.startPolling();
+          updatePushBadge();
+        }
+      } catch(e) {}
+    }, 2000);
+  });
+
   // ==================== 首页智能看板 ====================
   function renderSmartHome() {
     var container = document.getElementById('homeDashboard');
@@ -2643,7 +2737,7 @@ body {
     var titleEl = document.getElementById('topbarTitle');
     if (titleEl) titleEl.textContent = moduleTitles[moduleName] || moduleName;
     // 首页智能看板刷新
-    if (moduleName === 'home') { renderSmartHome(); updateGreeting(); }
+    if (moduleName === 'home') { renderSmartHome(); updateGreeting(); setTimeout(updatePushBadge, 100); }
     // 节气养生模块初始化（用双重rAF确保页面布局完成后再渲染）
     if (moduleName === 'solar' && window.initSolarTerm) {
       requestAnimationFrame(function() {
@@ -4819,7 +4913,8 @@ function toggleGuideSection(index) {
 <script src="behavior-log.js?v=29"></script>
 <script src="user-profile.js?v=29"></script>
 <script src="insight-engine.js?v=29"></script>
-<script src="health-bridge.js?v=29"></script>
-<script src="ai-engine.js?v=29"></script>
+<script src="health-bridge.js?v=30"></script>
+<script src="push-engine.js?v=30"></script>
+<script src="ai-engine.js?v=30"></script>
 </body>
 </html>
