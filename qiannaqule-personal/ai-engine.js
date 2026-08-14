@@ -1,5 +1,5 @@
 /**
- * AI Engine v2 - 米界AI智能引擎
+ * AI Engine v2 - MiRun AI 智能引擎
  * 多Provider降级链 + 零配置默认模式 + 任务分档 + Token预算控制
  *
  * 架构：
@@ -32,14 +32,14 @@
     },
     {
       id: 'deepseek',
-      name: 'DeepSeek V4 Flash',
+      name: 'DeepSeek V4',
       apiBase: 'https://api.deepseek.com/v1',
-      model: 'deepseek-chat',
+      model: 'deepseek-v4-flash',
       free: false,
       costPerMIn: 1,
       costPerMOut: 2,
-      models: ['deepseek-chat', 'deepseek-reasoner'],
-      defaultModel: 'deepseek-chat',
+      models: ['deepseek-v4-flash', 'deepseek-v4-pro'],
+      defaultModel: 'deepseek-v4-flash',
       keyHint: 'DeepSeek API Key',
       keyUrl: 'https://platform.deepseek.com/api_keys'
     },
@@ -415,7 +415,7 @@
   // ==================== Prompt构建（含截断） ====================
 
   function buildSystemPrompt(context) {
-    var prompt = '你是「米界AI」——一个私人智能助手，风格类似钢铁侠的贾维斯。\n';
+    var prompt = '你是「MiRun AI」——一个私人智能助手，风格类似钢铁侠的贾维斯。\n';
     prompt += '你服务于你的主人"小米"，你需要主动、智能、高效地帮助他管理生活。\n\n';
 
     prompt += '## 当前上下文\n';
@@ -600,7 +600,17 @@
 
     if (!resp.ok) {
       var errText = await resp.text();
-      throw new Error('API调用失败 (' + resp.status + '): ' + errText.substring(0, 200));
+      var errMsg = 'API调用失败 (' + resp.status + '): ' + errText.substring(0, 200);
+      if (resp.status === 402) {
+        errMsg = provider.name + ' 账户余额不足，请充值后再使用';
+      } else if (resp.status === 429) {
+        errMsg = provider.name + ' 请求过于频繁（限流），请稍后再试或切换到其他模型';
+      } else if (resp.status === 401) {
+        errMsg = provider.name + ' API Key无效，请检查Key是否正确';
+      } else if (resp.status === 404) {
+        errMsg = provider.name + ' 模型不存在或API地址错误';
+      }
+      throw new Error(errMsg);
     }
 
     var data = await resp.json();

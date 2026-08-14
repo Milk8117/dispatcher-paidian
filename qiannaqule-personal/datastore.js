@@ -1,5 +1,5 @@
 /**
- * DataStore - 米界AI统一数据访问层
+ * DataStore - MiRun AI统一数据访问层
  * 
  * 设计目标：
  * 1. 统一数据读写接口，所有模块通过DataStore访问数据

@@ -1,5 +1,5 @@
 /**
- * DiagnosisEngine - 米界AI财务诊断引擎模块
+ * DiagnosisEngine - MiRun AI财务诊断引擎模块
  * 
  * 职责：
  * 1. 接收用户录入数据，执行6维度评分

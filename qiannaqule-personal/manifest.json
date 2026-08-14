@@ -1,6 +1,6 @@
 {
-  "name": "米界AI — 个人智能操作系统",
-  "short_name": "米界AI",
+  "name": "MiRun AI — 个人智能操作系统",
+  "short_name": "MiRun AI",
   "description": "个人AI操作系统，覆盖财务、膳食、任务等多模块智能管理",
   "start_url": "./index.html",
   "scope": "./",

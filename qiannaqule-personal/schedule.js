@@ -1,5 +1,5 @@
 /**
- * 米界AI — 日程管理模块（月历视图）
+ * MiRun AI — 日程管理模块（月历视图）
  * 月历网格 · 当日任务详情 · 对话式添加
  */
 (function() {
@@ -125,7 +125,7 @@
   ];
 
   var GROUP_LABELS = {
-    mijieai: { name: '米界AI', color: '#4f46e5', icon: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>' },
+    mijieai: { name: 'MiRun AI', color: '#4f46e5', icon: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>' },
     'wealth-ct': { name: '财富诊断CT', color: '#2563eb', icon: '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 10h20"/><path d="M6 16h4"/><path d="M14 16h4"/>' },
     jarvis: { name: '贾维斯进化', color: '#dc2626', icon: '<path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>' }
   };
@@ -779,7 +779,7 @@
         // 桌面通知
         if ('Notification' in window && Notification.permission === 'granted') {
           try {
-            new Notification('米界AI 日程提醒', {
+            new Notification('MiRun AI 日程提醒', {
               body: task.title + (task.time ? ' (' + task.time + ')' : ''),
               icon: '../logo.png',
               tag: 'sch-reminder-' + task.id

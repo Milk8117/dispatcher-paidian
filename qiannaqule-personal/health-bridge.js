@@ -1,5 +1,5 @@
 /**
- * health-bridge.js — 米界AI 健康数据接入层
+ * health-bridge.js — MiRun AI 健康数据接入层
  *
  * 职责：
  * 1. 统一健康数据Schema定义（心率/步数/睡眠/运动/压力等）

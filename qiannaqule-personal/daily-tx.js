@@ -1,5 +1,5 @@
 /**
- * daily-tx.js - 米界AI日常收支记录模块 (v2 - CT字段对齐版)
+ * daily-tx.js - MiRun AI日常收支记录模块 (v2 - CT字段对齐版)
  *
  * 分类体系与财富诊断CT字段完全对齐，数据可自动汇总回填。
  * 数据键：mijieai_daily_tx

@@ -1,5 +1,5 @@
 /**
- * ReminderEngine - 米界AI财务提醒模块
+ * ReminderEngine - MiRun AI财务提醒模块
  * 
  * 功能：
  * 1. 从贷款/保险数据中提取还款日/缴费日
@@ -316,7 +316,7 @@
     Notification.requestPermission().then(function(permission) {
       if (permission === 'granted') {
         // 发送测试通知
-        new Notification('米界AI · 财务提醒', {
+        new Notification('MiRun AI · 财务提醒', {
           body: '通知已开启！下次还款/缴费到期前将自动提醒您。',
           icon: './icon-orange.png',
           badge: './icon-orange.png'
