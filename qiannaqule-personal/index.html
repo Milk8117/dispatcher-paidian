@@ -2708,6 +2708,12 @@ body {
     html += '<div class="df-entry-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#8b5cf6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div>';
     html += '<div class="df-entry-body"><div class="df-entry-title">纠结诊疗室</div><div class="df-entry-desc">三轮对辩帮你把问题想清楚</div></div>';
     html += '<div class="df-entry-arrow"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>';
+    html += '</div>';
+    // 价值罗盘入口卡片
+    html += '<div class="df-entry-card" onclick="ValueResonance.openPanel()">';
+    html += '<div class="df-entry-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#8b5cf6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="12 6 14 12 18 12 15 16 16 22 12 18 8 22 9 16 6 12 10 12 12 6"/></svg></div>';
+    html += '<div class="df-entry-body"><div class="df-entry-title">价值罗盘</div><div class="df-entry-desc">做你说过的自己</div></div>';
+    html += '<div class="df-entry-arrow"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>';
     html += '</div></div>';
 
     container.innerHTML = html;
@@ -4926,5 +4932,6 @@ function toggleGuideSection(index) {
 <script src="push-engine.js?v=30"></script>
 <script src="ai-engine.js?v=30"></script>
 <script src="decision-forge.js?v=1"></script>
+<script src="value-resonance.js?v=1"></script>
 </body>
 </html>
