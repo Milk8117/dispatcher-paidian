@@ -1,7 +1,7 @@
 {
-  "name": "MiRun AI — 个人智能操作系统",
+  "name": "MiRun AI — 越用越懂你",
   "short_name": "MiRun AI",
-  "description": "个人AI操作系统，覆盖财务、膳食、任务等多模块智能管理",
+  "description": "MiRun AI — 越用越懂你的个人AI伙伴，数据全本地，隐私有保障",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
