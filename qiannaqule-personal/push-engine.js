@@ -12,22 +12,41 @@
  *   - 推送去重（dedupe_window）：同类洞察在窗口期内不重复推送
  *   - 静默时间（quiet_hours）：晚10点-早7点不推送打扰
  *   - 频率控制：每日最多5条主动推送，避免信息过载
+ *   - 反馈闭环（feedback_loop）：用户反馈有用/没用，AI自动校准推送策略（共生内核L1）
  *
  * 数据存储：
  *   mijieai_push_log      — 推送历史记录（用于去重+统计）
  *   mijieai_push_settings — 用户推送偏好设置
  *   mijieai_push_fingerprint — 数据指纹（判断数据是否有变化）
+ *   mijieai_push_feedback_stats — 反馈统计数据
  *
  * 挂载：window.PushEngine
  */
 (function() {
   'use strict';
 
+  // 注册本模块到 DataStore
+  if (window.DataStore && DataStore.registerModule) {
+    DataStore.registerModule('push', {
+      log: 'mijieai_push_log',
+      settings: 'mijieai_push_settings',
+      fingerprint: 'mijieai_push_fingerprint',
+      feedback_stats: 'mijieai_push_feedback_stats'
+    });
+  }
+
+  var MODULE = 'push';
+  var FIELD_LOG = 'log';
+  var FIELD_SETTINGS = 'settings';
+  var FIELD_FINGERPRINT = 'fingerprint';
+  var FIELD_FEEDBACK_STATS = 'feedback_stats';
+
   // ==================== 常量 ====================
 
   var LOG_KEY = 'mijieai_push_log';
   var SETTINGS_KEY = 'mijieai_push_settings';
   var FINGERPRINT_KEY = 'mijieai_push_fingerprint';
+  var FEEDBACK_STATS_KEY = 'mijieai_push_feedback_stats';
 
   // 默认设置
   var DEFAULT_SETTINGS = {
@@ -43,7 +62,9 @@
       financial: true,
       health: true,
       behavior: true
-    }
+    },
+    suppressedInsights: [],       // 被永久屏蔽的洞察/建议列表 [{type, dedupeKey, reason, suppressedAt}]
+    dailyBriefingInterval: 1      // 晨报间隔天数（1=每天，2=每2天）
   };
 
   // 推送严重度
@@ -60,7 +81,67 @@
     daily_briefing: 20 * 60 * 60 * 1000   // 晨报20小时内不重复
   };
 
+  // 反馈原因枚举
+  var FEEDBACK_REASONS = {
+    INACCURATE: 'inaccurate',
+    UNNECESSARY: 'unnecessary',
+    BAD_TIMING: 'bad_timing',
+    TOO_SHALLOW: 'too_shallow'
+  };
+
+  // 反馈原因中文标签
+  var FEEDBACK_REASON_LABELS = {
+    inaccurate: '内容不准',
+    unnecessary: '不需要',
+    bad_timing: '时机不对',
+    too_shallow: '太浅了'
+  };
+
+  // 自校准阈值（保守策略）
+  var SUPPRESSION_THRESHOLDS = {
+    insight_alert: {
+      minUselessCount: 2,     // 至少2次没用才考虑屏蔽
+      uselessRate: 0.6        // 没用率≥60%
+    },
+    scenario_tip: {
+      minUselessCount: 3,     // 至少3次没用才考虑屏蔽
+      uselessRate: 0.5        // 没用率≥50%
+    },
+    daily_briefing: {
+      consecutiveUseless: 5   // 连续5次没用则降频
+    }
+  };
+
   // ==================== 工具函数 ====================
+
+  // ===== push 模块自身数据读写（走 DataStore） =====
+
+  function _loadLog() {
+    try { return DataStore.load(MODULE, FIELD_LOG, []) || []; } catch(e) { return []; }
+  }
+  function _saveLog(data) {
+    try { DataStore.save(MODULE, FIELD_LOG, data); } catch(e) {}
+  }
+  function _loadSettings() {
+    try { return DataStore.load(MODULE, FIELD_SETTINGS, null); } catch(e) { return null; }
+  }
+  function _saveSettings(data) {
+    try { DataStore.save(MODULE, FIELD_SETTINGS, data); } catch(e) {}
+  }
+  function _loadFingerprint() {
+    try { return DataStore.load(MODULE, FIELD_FINGERPRINT, null); } catch(e) { return null; }
+  }
+  function _saveFingerprint(data) {
+    try { DataStore.save(MODULE, FIELD_FINGERPRINT, data); } catch(e) {}
+  }
+  function _loadFeedbackStats() {
+    try { return DataStore.load(MODULE, FIELD_FEEDBACK_STATS, null); } catch(e) { return null; }
+  }
+  function _saveFeedbackStats(data) {
+    try { DataStore.save(MODULE, FIELD_FEEDBACK_STATS, data); } catch(e) {}
+  }
+
+  // ===== 跨模块读取（只读其他模块数据，直接读 localStorage） =====
 
   function safeGetJSON(key, fallback) {
     try {
@@ -68,12 +149,6 @@
       if (raw) return JSON.parse(raw);
     } catch(e) {}
     return fallback;
-  }
-
-  function safeSetJSON(key, val) {
-    try {
-      localStorage.setItem(key, JSON.stringify(val));
-    } catch(e) {}
   }
 
   function todayStr() {
@@ -111,7 +186,7 @@
   // ==================== 设置管理 ====================
 
   function getSettings() {
-    var saved = safeGetJSON(SETTINGS_KEY, null);
+    var saved = _loadSettings();
     if (!saved) return JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
     // 合并默认值（兼容旧版本新增字段）
     var merged = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
@@ -127,6 +202,14 @@
           merged[k] = saved[k];
         }
       }
+    }
+    // 确保 suppressedInsights 存在
+    if (!Array.isArray(merged.suppressedInsights)) {
+      merged.suppressedInsights = [];
+    }
+    // 确保 dailyBriefingInterval 存在
+    if (typeof merged.dailyBriefingInterval !== 'number' || merged.dailyBriefingInterval < 1) {
+      merged.dailyBriefingInterval = 1;
     }
     return merged;
   }
@@ -147,22 +230,28 @@
         }
       }
     }
-    safeSetJSON(SETTINGS_KEY, current);
+    _saveSettings(current);
     return current;
   }
 
   // ==================== 推送历史管理 ====================
 
   function getPushLog() {
-    return safeGetJSON(LOG_KEY, []);
+    return _loadLog();
   }
 
   function addPushLog(item) {
-    var log = getPushLog();
-    log.unshift(item);
+    var log = _loadLog();
+    // 确保新条目有反馈相关字段
+    var entry = JSON.parse(JSON.stringify(item));
+    entry.feedback = item.feedback || null;
+    entry.feedbackReasons = item.feedbackReasons || [];
+    entry.feedbackTime = item.feedbackTime || null;
+    entry.feedbackNote = item.feedbackNote || '';
+    log.unshift(entry);
     // 只保留最近100条
     if (log.length > 100) log = log.slice(0, 100);
-    safeSetJSON(LOG_KEY, log);
+    _saveLog(log);
   }
 
   function getTodayPushCount() {
@@ -194,6 +283,332 @@
     return false;
   }
 
+  // ==================== 反馈统计模块 ====================
+
+  /**
+   * 获取初始反馈统计结构
+   */
+  function _getEmptyStats() {
+    return {
+      totalUseful: 0,
+      totalUseless: 0,
+      byType: {
+        daily_briefing: {
+          useful: 0,
+          useless: 0,
+          reasons: { inaccurate: 0, unnecessary: 0, bad_timing: 0, too_shallow: 0 }
+        },
+        insight_alert: {
+          useful: 0,
+          useless: 0,
+          reasons: { inaccurate: 0, unnecessary: 0, bad_timing: 0, too_shallow: 0 }
+        },
+        scenario_tip: {
+          useful: 0,
+          useless: 0,
+          reasons: { inaccurate: 0, unnecessary: 0, bad_timing: 0, too_shallow: 0 }
+        }
+      },
+      byDedupeKey: {}
+    };
+  }
+
+  /**
+   * 获取反馈统计数据
+   */
+  function getFeedbackStats() {
+    var saved = _loadFeedbackStats();
+    if (!saved) {
+      var empty = _getEmptyStats();
+      _saveFeedbackStats(empty);
+      return empty;
+    }
+    // 兼容旧数据，确保结构完整
+    var stats = _getEmptyStats();
+    if (typeof saved.totalUseful === 'number') stats.totalUseful = saved.totalUseful;
+    if (typeof saved.totalUseless === 'number') stats.totalUseless = saved.totalUseless;
+    if (saved.byType) {
+      for (var t in saved.byType) {
+        if (saved.byType.hasOwnProperty(t) && stats.byType[t]) {
+          if (typeof saved.byType[t].useful === 'number') stats.byType[t].useful = saved.byType[t].useful;
+          if (typeof saved.byType[t].useless === 'number') stats.byType[t].useless = saved.byType[t].useless;
+          if (saved.byType[t].reasons) {
+            for (var r in saved.byType[t].reasons) {
+              if (saved.byType[t].reasons.hasOwnProperty(r) && stats.byType[t].reasons[r] !== undefined) {
+                stats.byType[t].reasons[r] = saved.byType[t].reasons[r];
+              }
+            }
+          }
+        }
+      }
+    }
+    if (saved.byDedupeKey) {
+      stats.byDedupeKey = saved.byDedupeKey;
+    }
+    return stats;
+  }
+
+  /**
+   * 保存反馈统计
+   */
+  function _saveStats(stats) {
+    _saveFeedbackStats(stats);
+  }
+
+  /**
+   * 获取或创建某 dedupeKey 的统计
+   */
+  function _getOrCreateDedupeStats(stats, dedupeKey) {
+    if (!stats.byDedupeKey[dedupeKey]) {
+      stats.byDedupeKey[dedupeKey] = {
+        useful: 0,
+        useless: 0,
+        reasons: { inaccurate: 0, unnecessary: 0, bad_timing: 0, too_shallow: 0 }
+      };
+    }
+    return stats.byDedupeKey[dedupeKey];
+  }
+
+  /**
+   * 记录用户反馈
+   * @param {string} pushId - 推送ID
+   * @param {string} feedback - 'useful' | 'useless'
+   * @param {string[]} [reasons] - 没用的原因数组
+   * @param {string} [note] - 可选备注
+   * @returns {boolean} 是否成功
+   */
+  function recordFeedback(pushId, feedback, reasons, note) {
+    if (!pushId || (feedback !== 'useful' && feedback !== 'useless')) {
+      return false;
+    }
+
+    var log = getPushLog();
+    var targetIndex = -1;
+    var targetItem = null;
+
+    for (var i = 0; i < log.length; i++) {
+      if (log[i].id === pushId) {
+        targetIndex = i;
+        targetItem = log[i];
+        break;
+      }
+    }
+
+    if (!targetItem) return false;
+
+    // 如果已经反馈过，不重复统计（但允许修改反馈，需要先扣除旧的）
+    var prevFeedback = targetItem.feedback;
+    if (prevFeedback === feedback) {
+      // 反馈没变，只更新原因/备注（如果是useless）
+      if (feedback === 'useless') {
+        targetItem.feedbackReasons = reasons || [];
+        targetItem.feedbackNote = note || '';
+        targetItem.feedbackTime = Date.now();
+        _saveLog(log);
+      }
+      return true;
+    }
+
+    // 如果之前有过反馈，需要先从统计中扣除
+    var stats = getFeedbackStats();
+    if (prevFeedback === 'useful') {
+      stats.totalUseful = Math.max(0, stats.totalUseful - 1);
+      if (stats.byType[targetItem.type]) {
+        stats.byType[targetItem.type].useful = Math.max(0, stats.byType[targetItem.type].useful - 1);
+      }
+      if (stats.byDedupeKey[targetItem.dedupeKey]) {
+        stats.byDedupeKey[targetItem.dedupeKey].useful = Math.max(0, stats.byDedupeKey[targetItem.dedupeKey].useful - 1);
+      }
+    } else if (prevFeedback === 'useless') {
+      stats.totalUseless = Math.max(0, stats.totalUseless - 1);
+      if (stats.byType[targetItem.type]) {
+        stats.byType[targetItem.type].useless = Math.max(0, stats.byType[targetItem.type].useless - 1);
+        // 扣除旧原因
+        var oldReasons = targetItem.feedbackReasons || [];
+        for (var orIdx = 0; orIdx < oldReasons.length; orIdx++) {
+          var orKey = oldReasons[orIdx];
+          if (stats.byType[targetItem.type].reasons[orKey] !== undefined) {
+            stats.byType[targetItem.type].reasons[orKey] = Math.max(0, stats.byType[targetItem.type].reasons[orKey] - 1);
+          }
+        }
+      }
+      if (stats.byDedupeKey[targetItem.dedupeKey]) {
+        stats.byDedupeKey[targetItem.dedupeKey].useless = Math.max(0, stats.byDedupeKey[targetItem.dedupeKey].useless - 1);
+        var oldReasons2 = targetItem.feedbackReasons || [];
+        for (var orIdx2 = 0; orIdx2 < oldReasons2.length; orIdx2++) {
+          var orKey2 = oldReasons2[orIdx2];
+          if (stats.byDedupeKey[targetItem.dedupeKey].reasons[orKey2] !== undefined) {
+            stats.byDedupeKey[targetItem.dedupeKey].reasons[orKey2] = Math.max(0, stats.byDedupeKey[targetItem.dedupeKey].reasons[orKey2] - 1);
+          }
+        }
+      }
+    }
+
+    // 记录新反馈到日志
+    targetItem.feedback = feedback;
+    targetItem.feedbackReasons = (feedback === 'useless' && reasons) ? reasons : [];
+    targetItem.feedbackTime = Date.now();
+    targetItem.feedbackNote = note || '';
+    _saveLog(log);
+
+    // 更新统计
+    var typeStats = stats.byType[targetItem.type];
+    if (!typeStats) {
+      typeStats = {
+        useful: 0,
+        useless: 0,
+        reasons: { inaccurate: 0, unnecessary: 0, bad_timing: 0, too_shallow: 0 }
+      };
+      stats.byType[targetItem.type] = typeStats;
+    }
+
+    if (feedback === 'useful') {
+      stats.totalUseful++;
+      typeStats.useful++;
+      var dedupeStats = _getOrCreateDedupeStats(stats, targetItem.dedupeKey);
+      dedupeStats.useful++;
+    } else if (feedback === 'useless') {
+      stats.totalUseless++;
+      typeStats.useless++;
+      var dedupeStats2 = _getOrCreateDedupeStats(stats, targetItem.dedupeKey);
+      dedupeStats2.useless++;
+
+      // 记录原因
+      var reasonList = reasons || [];
+      for (var ri = 0; ri < reasonList.length; ri++) {
+        var reasonKey = reasonList[ri];
+        if (typeStats.reasons[reasonKey] !== undefined) {
+          typeStats.reasons[reasonKey]++;
+        }
+        if (dedupeStats2.reasons[reasonKey] !== undefined) {
+          dedupeStats2.reasons[reasonKey]++;
+        }
+      }
+    }
+
+    _saveStats(stats);
+
+    // 触发自校准检查
+    _checkSuppression(targetItem.type, targetItem.dedupeKey, stats);
+
+    return true;
+  }
+
+  // ==================== 推送策略自校准 ====================
+
+  /**
+   * 检查是否应该屏蔽某类推送
+   */
+  function _checkSuppression(pushType, dedupeKey, stats) {
+    if (!stats) stats = getFeedbackStats();
+
+    // 晨报特殊处理：连续没用次数判断
+    if (pushType === 'daily_briefing') {
+      _checkDailyBriefingSuppression(stats);
+      return;
+    }
+
+    var threshold = SUPPRESSION_THRESHOLDS[pushType];
+    if (!threshold) return;
+
+    var dedupeStats = stats.byDedupeKey[dedupeKey];
+    if (!dedupeStats) return;
+
+    var total = dedupeStats.useful + dedupeStats.useless;
+    if (total === 0) return;
+
+    var uselessRate = dedupeStats.useless / total;
+
+    if (dedupeStats.useless >= threshold.minUselessCount && uselessRate >= threshold.uselessRate) {
+      _suppressInsight(pushType, dedupeKey, 'useless_rate_' + uselessRate.toFixed(2));
+    }
+  }
+
+  /**
+   * 晨报连续没用检测，触发降频
+   */
+  function _checkDailyBriefingSuppression(stats) {
+    var log = getPushLog();
+    var consecutiveUseless = 0;
+
+    // 从最近的晨报开始往前数连续没用的次数
+    for (var i = 0; i < log.length; i++) {
+      if (log[i].type !== 'daily_briefing') continue;
+      if (log[i].feedback === 'useless') {
+        consecutiveUseless++;
+      } else {
+        // 遇到有用或未反馈的，中断连续计数
+        break;
+      }
+    }
+
+    var threshold = SUPPRESSION_THRESHOLDS.daily_briefing;
+    if (consecutiveUseless >= threshold.consecutiveUseless) {
+      var settings = getSettings();
+      var currentInterval = settings.dailyBriefingInterval || 1;
+      var newInterval = Math.min(currentInterval + 1, 7); // 最高7天
+      if (newInterval > currentInterval) {
+        updateSettings({ dailyBriefingInterval: newInterval });
+      }
+    }
+  }
+
+  /**
+   * 将某类洞察加入屏蔽列表
+   */
+  function _suppressInsight(pushType, dedupeKey, reason) {
+    var settings = getSettings();
+    var suppressed = settings.suppressedInsights || [];
+
+    // 检查是否已在列表中
+    for (var i = 0; i < suppressed.length; i++) {
+      if (suppressed[i].type === pushType && suppressed[i].dedupeKey === dedupeKey) {
+        return; // 已屏蔽
+      }
+    }
+
+    suppressed.push({
+      type: pushType,
+      dedupeKey: dedupeKey,
+      reason: reason,
+      suppressedAt: Date.now()
+    });
+
+    updateSettings({ suppressedInsights: suppressed });
+  }
+
+  /**
+   * 判断某类推送是否被屏蔽
+   * @param {string} pushType - 推送类型
+   * @param {string} dedupeKey - 去重键
+   * @returns {boolean}
+   */
+  function isSuppressed(pushType, dedupeKey) {
+    var settings = getSettings();
+    var suppressed = settings.suppressedInsights || [];
+    for (var i = 0; i < suppressed.length; i++) {
+      if (suppressed[i].type === pushType && suppressed[i].dedupeKey === dedupeKey) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * 获取已屏蔽列表
+   */
+  function getSuppressedList() {
+    var settings = getSettings();
+    return settings.suppressedInsights || [];
+  }
+
+  /**
+   * 重置所有屏蔽（调试用）
+   */
+  function resetSuppressedInsights() {
+    updateSettings({ suppressedInsights: [] });
+  }
+
   // ==================== 数据指纹 ====================
   // 用于判断关键数据是否有变化，决定是否需要重新生成推送
 
@@ -219,7 +634,7 @@
   }
 
   function hasDataChanged() {
-    var prev = safeGetJSON(FINGERPRINT_KEY, null);
+    var prev = _loadFingerprint();
     var current = getDataFingerprint();
     if (!prev) return true; // 第一次，视为有变化
 
@@ -234,7 +649,7 @@
   }
 
   function saveFingerprint() {
-    safeSetJSON(FINGERPRINT_KEY, getDataFingerprint());
+    _saveFingerprint(getDataFingerprint());
   }
 
   // ==================== 推送生成器 ====================
@@ -243,8 +658,28 @@
    * 生成每日晨报
    */
   function generateDailyBriefing() {
+    var settings = getSettings();
+
     // 检查今天是否已推送过晨报
     if (wasPushedRecently('daily_briefing', 'morning_brief')) return null;
+
+    // 晨报降频检查：根据 dailyBriefingInterval 判断是否到推送日
+    var interval = settings.dailyBriefingInterval || 1;
+    if (interval > 1) {
+      // 找最近一次晨报推送日期
+      var log = getPushLog();
+      var lastBriefDate = null;
+      for (var i = 0; i < log.length; i++) {
+        if (log[i].type === 'daily_briefing') {
+          lastBriefDate = log[i].date;
+          break;
+        }
+      }
+      if (lastBriefDate) {
+        var daysSince = Math.floor((Date.now() - new Date(lastBriefDate).getTime()) / 86400000);
+        if (daysSince < interval) return null; // 还没到间隔天数
+      }
+    }
 
     var insights = [];
     try {
@@ -325,7 +760,11 @@
       category: 'daily_briefing',
       timestamp: Date.now(),
       date: todayStr(),
-      read: false
+      read: false,
+      feedback: null,
+      feedbackReasons: [],
+      feedbackTime: null,
+      feedbackNote: ''
     };
   }
 
@@ -351,6 +790,9 @@
 
       if (wasPushedRecently('insight_alert', dedupeKey)) continue;
 
+      // 自校准过滤：检查是否被屏蔽
+      if (isSuppressed('insight_alert', dedupeKey)) continue;
+
       pushes.push({
         id: genId(),
         type: 'insight_alert',
@@ -362,7 +804,11 @@
         data: ins.data || null,
         timestamp: Date.now(),
         date: todayStr(),
-        read: false
+        read: false,
+        feedback: null,
+        feedbackReasons: [],
+        feedbackTime: null,
+        feedbackNote: ''
       });
     }
 
@@ -388,7 +834,8 @@
     }
     if (lastTxDate) {
       var daysSince = Math.floor((Date.now() - new Date(lastTxDate).getTime()) / 86400000);
-      if (daysSince >= 3 && !wasPushedRecently('scenario_tip', 'no_record_3d')) {
+      if (daysSince >= 3 && !wasPushedRecently('scenario_tip', 'no_record_3d')
+          && !isSuppressed('scenario_tip', 'no_record_3d')) {
         pushes.push({
           id: genId(),
           type: 'scenario_tip',
@@ -399,7 +846,11 @@
           category: 'behavior',
           timestamp: Date.now(),
           date: todayStr(),
-          read: false
+          read: false,
+          feedback: null,
+          feedbackReasons: [],
+          feedbackTime: null,
+          feedbackNote: ''
         });
       }
     }
@@ -437,7 +888,8 @@
         if (weekdayCount > 5) {
           weekdayAvg = weekdayAvg / (weekdayCount / 5); // 约等于工作日日均
           if (yesterdayTotal > weekdayAvg * 1.5 && yesterdayTotal > 50
-              && !wasPushedRecently('scenario_tip', 'weekend_spending')) {
+              && !wasPushedRecently('scenario_tip', 'weekend_spending')
+              && !isSuppressed('scenario_tip', 'weekend_spending')) {
             pushes.push({
               id: genId(),
               type: 'scenario_tip',
@@ -449,7 +901,11 @@
               category: 'financial',
               timestamp: Date.now(),
               date: todayStr(),
-              read: false
+              read: false,
+              feedback: null,
+              feedbackReasons: [],
+              feedbackTime: null,
+              feedbackNote: ''
             });
           }
         }
@@ -466,7 +922,8 @@
           if (score !== undefined && score <= 3) lowCount++;
           else if (recentMoods[m].mood === '低落' || recentMoods[m].mood === '焦虑') lowCount++;
         }
-        if (lowCount >= 2 && !wasPushedRecently('scenario_tip', 'mood_low_streak')) {
+        if (lowCount >= 2 && !wasPushedRecently('scenario_tip', 'mood_low_streak')
+            && !isSuppressed('scenario_tip', 'mood_low_streak')) {
           pushes.push({
             id: genId(),
             type: 'scenario_tip',
@@ -477,7 +934,11 @@
             category: 'health',
             timestamp: Date.now(),
             date: todayStr(),
-            read: false
+            read: false,
+            feedback: null,
+            feedbackReasons: [],
+            feedbackTime: null,
+            feedbackNote: ''
           });
         }
       }
@@ -565,7 +1026,11 @@
         severity: pushes[i].severity,
         category: pushes[i].category,
         timestamp: pushes[i].timestamp,
-        date: pushes[i].date
+        date: pushes[i].date,
+        feedback: pushes[i].feedback || null,
+        feedbackReasons: pushes[i].feedbackReasons || [],
+        feedbackTime: pushes[i].feedbackTime || null,
+        feedbackNote: pushes[i].feedbackNote || ''
       });
     }
 
@@ -592,7 +1057,7 @@
     for (var i = 0; i < log.length; i++) {
       log[i].read = true;
     }
-    safeSetJSON(LOG_KEY, log);
+    _saveLog(log);
   }
 
   /**
@@ -606,7 +1071,7 @@
         break;
       }
     }
-    safeSetJSON(LOG_KEY, log);
+    _saveLog(log);
   }
 
   /**
@@ -622,7 +1087,7 @@
    * 清空推送历史
    */
   function clearLog() {
-    safeSetJSON(LOG_KEY, []);
+    _saveLog([]);
   }
 
   // ==================== 浏览器通知 ====================
@@ -664,6 +1129,95 @@
   // ==================== UI 渲染 ====================
 
   /**
+   * 渲染单条推送卡片的反馈区域
+   * @param {object} pushItem - 推送项
+   * @param {string} containerId - 面板容器ID（用于重新渲染）
+   * @returns {string} HTML字符串
+   */
+  function _renderFeedbackArea(pushItem, containerId) {
+    var fb = pushItem.feedback;
+    var html = '';
+
+    // 反馈按钮区域容器
+    var areaStyle = 'font-size:11px;color:#94a3b8;margin-top:8px;display:flex;gap:12px;';
+    var btnStyle = 'background:none;border:none;color:#64748b;cursor:pointer;font-size:11px;padding:2px 0;';
+    var btnHoverStyle = ''; // hover 用CSS类或直接style
+
+    if (fb === null || fb === undefined) {
+      // 未反馈：显示「有用」「没用」两个按钮
+      html += '<div style="' + areaStyle + '">';
+      html += '<button onclick="PushEngine._handleFeedback(\'' + pushItem.id + '\', \'useful\', [], \'' + containerId + '\')" style="' + btnStyle + '" onmouseover="this.style.color=\'#3b82f6\'" onmouseout="this.style.color=\'#64748b\'">有用</button>';
+      html += '<button onclick="PushEngine._toggleFeedbackReasons(\'' + pushItem.id + '\', \'' + containerId + '\')" style="' + btnStyle + '" onmouseover="this.style.color=\'#3b82f6\'" onmouseout="this.style.color=\'#64748b\'">没用</button>';
+      html += '</div>';
+
+      // 检查是否展开了原因选择（用一个临时标记存在内存里）
+      if (_expandedFeedbackIds && _expandedFeedbackIds[pushItem.id]) {
+        html += _renderReasonButtons(pushItem.id, containerId);
+      }
+    } else if (fb === 'useful') {
+      // 已标记有用
+      html += '<div style="font-size:11px;color:#10b981;margin-top:6px;">感谢反馈，AI会越来越懂你</div>';
+    } else if (fb === 'useless') {
+      // 已标记没用并选了原因
+      html += '<div style="font-size:11px;color:#10b981;margin-top:6px;">已记录，下次会调整</div>';
+    }
+
+    return html;
+  }
+
+  // 内存中记录哪些卡片展开了原因选择
+  var _expandedFeedbackIds = {};
+
+  /**
+   * 渲染没用的原因按钮
+   */
+  function _renderReasonButtons(pushId, containerId) {
+    var reasonRowStyle = 'margin-top:6px;display:flex;gap:8px;flex-wrap:wrap;';
+    var reasonBtnStyle = 'padding:3px 10px;border-radius:12px;border:1px solid #e2e8f0;background:#fff;font-size:11px;color:#64748b;cursor:pointer;';
+
+    var html = '<div style="' + reasonRowStyle + '" id="fb_reasons_' + pushId + '">';
+
+    var reasons = ['inaccurate', 'unnecessary', 'bad_timing', 'too_shallow'];
+    for (var i = 0; i < reasons.length; i++) {
+      var key = reasons[i];
+      var label = FEEDBACK_REASON_LABELS[key] || key;
+      html += '<button onclick="PushEngine._handleFeedback(\'' + pushId + '\', \'useless\', [\'' + key + '\'], \'' + containerId + '\')" style="' + reasonBtnStyle + '" onmouseover="this.style.borderColor=\'#f59e0b\';this.style.color=\'#f59e0b\'" onmouseout="this.style.borderColor=\'#e2e8f0\';this.style.color=\'#64748b\'">' + label + '</button>';
+    }
+
+    html += '</div>';
+    return html;
+  }
+
+  /**
+   * 切换没用原因选择区的展开/收起
+   * 内部方法，供UI调用
+   */
+  function _toggleFeedbackReasons(pushId, containerId) {
+    if (!_expandedFeedbackIds) _expandedFeedbackIds = {};
+    if (_expandedFeedbackIds[pushId]) {
+      delete _expandedFeedbackIds[pushId];
+    } else {
+      _expandedFeedbackIds[pushId] = true;
+    }
+    // 重新渲染面板
+    renderPanel(containerId);
+  }
+
+  /**
+   * 处理反馈提交
+   * 内部方法，供UI调用
+   */
+  function _handleFeedback(pushId, feedback, reasons, containerId) {
+    // 清理展开状态
+    if (_expandedFeedbackIds && _expandedFeedbackIds[pushId]) {
+      delete _expandedFeedbackIds[pushId];
+    }
+    recordFeedback(pushId, feedback, reasons);
+    // 重新渲染面板
+    renderPanel(containerId);
+  }
+
+  /**
    * 渲染推送中心面板（首页或弹窗）
    */
   function renderPanel(containerId) {
@@ -693,6 +1247,10 @@
         var d = new Date(p.timestamp);
         html += '<div style="font-size:11px;color:#94a3b8;margin-top:6px;">' +
           formatTime(d) + '</div>';
+
+        // 反馈交互区域
+        html += _renderFeedbackArea(p, containerId);
+
         html += '</div>';
       }
       html += '</div>';
@@ -782,7 +1340,18 @@
     // 生成器（供外部调试/测试）
     generateDailyBriefing: generateDailyBriefing,
     generateInsightAlerts: generateInsightAlerts,
-    generateScenarioTips: generateScenarioTips
+    generateScenarioTips: generateScenarioTips,
+
+    // ===== 反馈闭环（共生内核L1）=====
+    recordFeedback: recordFeedback,
+    getFeedbackStats: getFeedbackStats,
+    resetSuppressedInsights: resetSuppressedInsights,
+    getSuppressedList: getSuppressedList,
+    isSuppressed: isSuppressed,
+
+    // UI 内部回调（供onclick调用）
+    _handleFeedback: _handleFeedback,
+    _toggleFeedbackReasons: _toggleFeedbackReasons
   };
 
 })();

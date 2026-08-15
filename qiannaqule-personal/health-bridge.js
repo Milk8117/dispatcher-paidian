@@ -21,6 +21,20 @@
 (function() {
   'use strict';
 
+  // 注册本模块到 DataStore
+  if (window.DataStore && DataStore.registerModule) {
+    DataStore.registerModule('health', {
+      records: 'mijieai_health_data',
+      settings: 'mijieai_health_settings',
+      profile: 'mijieai_health_profile'
+    });
+  }
+
+  var MODULE = 'health';
+  var FIELD_RECORDS = 'records';
+  var FIELD_SETTINGS = 'settings';
+  var FIELD_PROFILE = 'profile';
+
   var DATA_KEY = 'mijieai_health_data';
   var SETTINGS_KEY = 'mijieai_health_settings';
 
@@ -29,8 +43,7 @@
   /** 读取所有健康记录 */
   function loadData() {
     try {
-      var raw = localStorage.getItem(DATA_KEY);
-      return raw ? JSON.parse(raw) : [];
+      return DataStore.load(MODULE, FIELD_RECORDS, []) || [];
     } catch(e) {
       return [];
     }
@@ -39,7 +52,7 @@
   /** 保存所有健康记录 */
   function saveData(data) {
     try {
-      localStorage.setItem(DATA_KEY, JSON.stringify(data));
+      DataStore.save(MODULE, FIELD_RECORDS, data);
     } catch(e) {
       console.warn('[HealthBridge] 保存失败:', e.message);
     }
@@ -48,8 +61,7 @@
   /** 读取导入设置 */
   function loadSettings() {
     try {
-      var raw = localStorage.getItem(SETTINGS_KEY);
-      return raw ? JSON.parse(raw) : {};
+      return DataStore.load(MODULE, FIELD_SETTINGS, {}) || {};
     } catch(e) {
       return {};
     }
@@ -58,7 +70,7 @@
   /** 保存导入设置 */
   function saveSettings(settings) {
     try {
-      localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+      DataStore.save(MODULE, FIELD_SETTINGS, settings);
     } catch(e) {}
   }
 

@@ -10,6 +10,16 @@
 (function() {
   'use strict';
 
+  // 注册本模块到 DataStore
+  if (window.DataStore && DataStore.registerModule) {
+    DataStore.registerModule('daily_tx', {
+      records: 'mijieai_daily_tx'
+    });
+  }
+
+  var MODULE = 'daily_tx';
+  var FIELD_RECORDS = 'records';
+
   // 金额格式化：保留2位小数，去掉末尾多余零
   function _fmtAmt(v) { return parseFloat((v || 0).toFixed(2)); }
 
@@ -96,7 +106,7 @@
   // ==================== 数据操作 ====================
   function loadTx() {
     try {
-      var raw = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      var raw = DataStore.load(MODULE, FIELD_RECORDS, []) || [];
       // 旧数据迁移
       var migrated = false;
       raw.forEach(function(t) {
@@ -117,7 +127,7 @@
       return raw;
     } catch(e) { return []; }
   }
-  function saveTx(list) { localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); }
+  function saveTx(list) { DataStore.save(MODULE, FIELD_RECORDS, list); }
 
   function addTx(tx) {
     var list = loadTx();

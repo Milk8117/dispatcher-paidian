@@ -8,6 +8,16 @@
 (function() {
   'use strict';
 
+  // 注册本模块到 DataStore
+  if (window.DataStore && DataStore.registerModule) {
+    DataStore.registerModule('user_profile', {
+      cache: 'mijieai_user_profile'
+    });
+  }
+
+  var MODULE = 'user_profile';
+  var FIELD_CACHE = 'cache';
+
   var PROFILE_CACHE_KEY = 'mijieai_user_profile';
   var cachedProfile = null;
 
@@ -562,11 +572,11 @@
 
   function getProfile() {
     if (!cachedProfile) {
-      // 尝试从 localStorage 恢复缓存
+      // 尝试从 DataStore 恢复缓存
       try {
-        var cached = localStorage.getItem(PROFILE_CACHE_KEY);
+        var cached = DataStore.load(MODULE, FIELD_CACHE, null);
         if (cached) {
-          cachedProfile = JSON.parse(cached);
+          cachedProfile = cached;
         }
       } catch(e) {}
 
@@ -581,7 +591,7 @@
   function refreshCache() {
     build();
     try {
-      localStorage.setItem(PROFILE_CACHE_KEY, JSON.stringify(cachedProfile));
+      DataStore.save(MODULE, FIELD_CACHE, cachedProfile);
     } catch(e) {}
     return cachedProfile;
   }

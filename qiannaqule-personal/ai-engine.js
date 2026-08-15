@@ -8,6 +8,22 @@
 (function() {
   'use strict';
 
+  // 注册本模块到 DataStore
+  if (window.DataStore && DataStore.registerModule) {
+    DataStore.registerModule('ai_engine', {
+      config: 'mijieai_ai_config',
+      usage: 'mijieai_ai_usage',
+      cache: 'mijieai_ai_cache',
+      chat_history: 'mijieai_chat_history'
+    });
+  }
+
+  var MODULE = 'ai_engine';
+  var FIELD_CONFIG = 'config';
+  var FIELD_USAGE = 'usage';
+  var FIELD_CACHE = 'cache';
+  var FIELD_CHAT_HISTORY = 'chat_history';
+
   var CONFIG_KEY = 'mijieai_ai_config';
   var USAGE_KEY = 'mijieai_ai_usage';
   var CACHE_KEY = 'mijieai_ai_cache';
@@ -112,9 +128,8 @@
 
   function getConfig() {
     try {
-      var raw = localStorage.getItem(CONFIG_KEY);
-      if (raw) {
-        var cfg = JSON.parse(raw);
+      var cfg = DataStore.load(MODULE, FIELD_CONFIG, null);
+      if (cfg) {
         // 兼容旧版配置迁移
         if (cfg.provider && !cfg.mode) {
           cfg = migrateOldConfig(cfg);
@@ -152,7 +167,7 @@
   }
 
   function saveConfig(config) {
-    localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
+    DataStore.save(MODULE, FIELD_CONFIG, config);
   }
 
   function isConfigured() {
@@ -194,12 +209,12 @@
 
   function getUsage() {
     try {
-      return JSON.parse(localStorage.getItem(USAGE_KEY) || '{}');
+      return DataStore.load(MODULE, FIELD_USAGE, {}) || {};
     } catch(e) { return {}; }
   }
 
   function saveUsage(usage) {
-    localStorage.setItem(USAGE_KEY, JSON.stringify(usage));
+    DataStore.save(MODULE, FIELD_USAGE, usage);
   }
 
   function recordUsage(providerId, usageData) {
@@ -252,12 +267,12 @@
 
   function getCache() {
     try {
-      return JSON.parse(localStorage.getItem(CACHE_KEY) || '{}');
+      return DataStore.load(MODULE, FIELD_CACHE, {}) || {};
     } catch(e) { return {}; }
   }
 
   function saveCache(cache) {
-    localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
+    DataStore.save(MODULE, FIELD_CACHE, cache);
   }
 
   function getCacheKey(systemPrompt, userText) {
@@ -313,7 +328,7 @@
   }
 
   function clearCache() {
-    localStorage.removeItem(CACHE_KEY);
+    DataStore.remove(MODULE, FIELD_CACHE);
   }
 
   // ==================== 上下文收集 ====================
@@ -349,7 +364,7 @@
 
     // 健康档案
     try {
-      var hp = JSON.parse(localStorage.getItem('mijieai_health_profile') || '{}');
+      var hp = DataStore.load('health', 'profile', {}) || {};
       if (hp.screened && hp.conditions && hp.conditions.length > 0) {
         ctx.healthProfile = { conditions: hp.conditions };
       }
@@ -369,7 +384,7 @@
 
     // 今日收支
     try {
-      var txList = JSON.parse(localStorage.getItem('mijieai_daily_tx') || '[]');
+      var txList = DataStore.load('daily_tx', 'records', []) || [];
       txList.forEach(function(t) {
         if (t.date === todayStr) {
           if (t.type === 'income') ctx.todayFinance.income += t.amount;
@@ -378,7 +393,7 @@
       });
     } catch(e) {}
 
-    // 最近情绪
+    // 最近情绪（mood_log 属于 behavior 模块，暂未在 DataStore 注册，回退 localStorage）
     try {
       var moodLog = JSON.parse(localStorage.getItem('mijieai_mood_log') || '[]');
       if (moodLog.length > 0) {
@@ -768,7 +783,7 @@
 
   function getChatHistory() {
     try {
-      return JSON.parse(localStorage.getItem(CHAT_HISTORY_KEY) || '[]');
+      return DataStore.load(MODULE, FIELD_CHAT_HISTORY, []) || [];
     } catch(e) { return []; }
   }
 
@@ -776,11 +791,11 @@
     if (history.length > MAX_HISTORY * 2) {
       history = history.slice(-MAX_HISTORY * 2);
     }
-    localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(history));
+    DataStore.save(MODULE, FIELD_CHAT_HISTORY, history);
   }
 
   function clearChatHistory() {
-    localStorage.removeItem(CHAT_HISTORY_KEY);
+    DataStore.remove(MODULE, FIELD_CHAT_HISTORY);
   }
 
   // ==================== 主入口 ====================

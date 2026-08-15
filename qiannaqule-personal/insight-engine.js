@@ -16,6 +16,16 @@
 (function() {
   'use strict';
 
+  // 注册本模块到 DataStore
+  if (window.DataStore && DataStore.registerModule) {
+    DataStore.registerModule('insight', {
+      cache: 'mijieai_insight_cache'
+    });
+  }
+
+  var MODULE = 'insight';
+  var FIELD_CACHE = 'cache';
+
   // ==================== 常量 ====================
 
   var CACHE_KEY = 'mijieai_insight_cache';
@@ -527,7 +537,7 @@
         timestamp: Date.now(),
         insights: insights
       };
-      localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
+      DataStore.save(MODULE, FIELD_CACHE, cacheData);
     } catch(e) {}
 
     return insights;
@@ -539,7 +549,7 @@
   function getInsightSummary() {
     try {
       // 优先使用缓存
-      var cache = safeGetJSON(CACHE_KEY, null);
+      var cache = DataStore.load(MODULE, FIELD_CACHE, null);
       var insights;
       if (cache && cache.insights && (Date.now() - cache.timestamp) < CACHE_TTL) {
         insights = cache.insights;
@@ -583,7 +593,7 @@
   // ==================== 缓存管理 ====================
 
   function getCachedInsights() {
-    var cache = safeGetJSON(CACHE_KEY, null);
+    var cache = DataStore.load(MODULE, FIELD_CACHE, null);
     if (cache && cache.insights && (Date.now() - cache.timestamp) < CACHE_TTL) {
       return cache.insights;
     }
@@ -592,7 +602,7 @@
 
   function clearCache() {
     try {
-      localStorage.removeItem(CACHE_KEY);
+      DataStore.remove(MODULE, FIELD_CACHE);
     } catch(e) {}
   }
 

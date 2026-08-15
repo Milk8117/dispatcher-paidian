@@ -5,6 +5,16 @@
 (function() {
   'use strict';
 
+  // 注册本模块到 DataStore
+  if (window.DataStore && DataStore.registerModule) {
+    DataStore.registerModule('schedule', {
+      tasks: 'mijieai_schedule'
+    });
+  }
+
+  var MODULE = 'schedule';
+  var FIELD_TASKS = 'tasks';
+
   var STORAGE_KEY = 'mijieai_schedule';
 
   // 默认工作计划（首次初始化时写入）
@@ -75,8 +85,15 @@
     {
       id: 't11', title: 'P1 · DataStore全模块覆盖',
       desc: '所有模块统一走DataStore抽象层，替换直接localStorage调用，统一key前缀规范',
-      group: 'jarvis', status: 'todo', priority: 1,
+      group: 'jarvis', status: 'done', priority: 1,
       created: '2026-07-31', deadline: '2026-08-14'
+    },
+    // P1.5 — 共生内核
+    {
+      id: 't17_feedback', title: 'P1 · 共生内核L1·反馈闭环',
+      desc: '推送引擎增加有用/没用反馈机制，AI根据反馈自动校准推送策略（屏蔽低质洞察、调整晨报频率）',
+      group: 'jarvis', status: 'progress', priority: 0,
+      created: '2026-08-15', deadline: '2026-08-16'
     },
     // P2 — 一个月内（体验跃升）
     {
@@ -166,9 +183,8 @@
   // ==================== 数据读写 ====================
   function loadTasks() {
     try {
-      var raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        var tasks = JSON.parse(raw);
+      var tasks = DataStore.load(MODULE, FIELD_TASKS, null);
+      if (tasks) {
         // 迁移：检查贾维斯进化计划是否已存在
         var hasJarvis = tasks.some(function(t) { return t.group === 'jarvis'; });
         if (!hasJarvis) {
@@ -184,17 +200,17 @@
             }
           });
           tasks = tasks.concat(jarvisTasks);
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+          DataStore.save(MODULE, FIELD_TASKS, tasks);
         }
         return tasks;
       }
     } catch(e) {}
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_TASKS));
+    DataStore.save(MODULE, FIELD_TASKS, DEFAULT_TASKS);
     return DEFAULT_TASKS.slice();
   }
 
   function saveTasks(tasks) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+    DataStore.save(MODULE, FIELD_TASKS, tasks);
   }
 
   // ==================== 对外接口 ====================
