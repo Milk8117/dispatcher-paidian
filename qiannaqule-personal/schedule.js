@@ -92,8 +92,14 @@
     {
       id: 't17_feedback', title: 'P1 · 共生内核L1·反馈闭环',
       desc: '推送引擎增加有用/没用反馈机制，AI根据反馈自动校准推送策略（屏蔽低质洞察、调整晨报频率）',
-      group: 'jarvis', status: 'progress', priority: 0,
+      group: 'jarvis', status: 'done', priority: 0,
       created: '2026-08-15', deadline: '2026-08-16'
+    },
+    {
+      id: 't18_decision_profile', title: 'P1 · 共生内核L2·决策画像回流',
+      desc: '从决策对辩历史数据自动提取价值排序、风险偏好、决策风格，反哺UserProfile画像体系，让每次决策都反过来塑造贾维斯对用户的理解',
+      group: 'jarvis', status: 'progress', priority: 0,
+      created: '2026-08-15', deadline: '2026-08-17'
     },
     // P2 — 一个月内（体验跃升）
     {
