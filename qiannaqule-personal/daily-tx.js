@@ -14,7 +14,7 @@
   if (window.DataStore && DataStore.registerModule) {
     DataStore.registerModule('daily_tx', {
       records: 'mijieai_daily_tx'
-    });
+    }, { engine: 'indexeddb' });
   }
 
   var MODULE = 'daily_tx';

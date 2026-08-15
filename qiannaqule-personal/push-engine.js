@@ -32,7 +32,7 @@
       settings: 'mijieai_push_settings',
       fingerprint: 'mijieai_push_fingerprint',
       feedback_stats: 'mijieai_push_feedback_stats'
-    });
+    }, { engine: 'indexeddb' });
   }
 
   var MODULE = 'push';

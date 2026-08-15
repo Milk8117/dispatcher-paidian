@@ -15,7 +15,7 @@
       usage: 'mijieai_ai_usage',
       cache: 'mijieai_ai_cache',
       chat_history: 'mijieai_chat_history'
-    });
+    }, { engine: 'indexeddb' });
   }
 
   var MODULE = 'ai_engine';
