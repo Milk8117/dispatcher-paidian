@@ -862,6 +862,35 @@ body {
 .app-input-send { background: linear-gradient(135deg, #3b82f6, #6366f1); }
 .app-input-send svg { width: 20px; height: 20px; fill: #fff; }
 
+.app-input-image {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  border: none;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: opacity 0.2s, transform 0.15s;
+  background: #f1f5f9;
+}
+.app-input-image:active { transform: scale(0.9); }
+.app-input-image svg { width: 20px; height: 20px; stroke: #64748b; fill: none; stroke-width: 2; }
+.chat-image-thumb {
+  max-width: 200px;
+  max-height: 200px;
+  border-radius: 8px;
+  margin: 8px 0;
+  cursor: pointer;
+  border: 1px solid #e2e8f0;
+}
+.card-question-img {
+  width: 24px; height: 24px;
+  border-radius: 4px;
+  margin-right: 6px;
+  vertical-align: middle;
+  object-fit: cover;
+}
+
+
 .app-input-response {
   margin-top: 12px;
   padding: 12px 14px;
@@ -1727,6 +1756,68 @@ body {
 /* Top bar icon */
 .ai-settings-icon { width:28px;height:28px;border-radius:50%;background:rgba(139,92,246,0.1);display:flex;align-items:center;justify-content:center;cursor:pointer;border:none; }
 .ai-settings-icon:hover { background:rgba(139,92,246,0.2); }
+/* ====== 图片识别模块 ====== */
+.image-recog-panel { padding: 16px; max-width: 680px; margin: 0 auto; }
+.ir-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.ir-title { display: flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 600; color: #1a2a3a; }
+.ir-status { font-size: 12px; padding: 3px 10px; border-radius: 12px; background: #f0fdf4; color: #16a34a; }
+.ir-status.offline { background: #fef2f2; color: #dc2626; }
+
+.ir-scene-tabs { display: flex; gap: 6px; margin-bottom: 16px; background: #f1f5f9; padding: 4px; border-radius: 10px; }
+.ir-scene-tab { flex: 1; text-align: center; padding: 8px 12px; font-size: 13px; color: #64748b; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+.ir-scene-tab:hover { color: #334155; }
+.ir-scene-tab.active { background: #fff; color: #8b5cf6; font-weight: 500; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+
+.ir-upload-area { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; border: 2px dashed #cbd5e1; border-radius: 12px; background: #f8fafc; cursor: pointer; transition: all 0.2s; margin-bottom: 16px; }
+.ir-upload-area:hover { border-color: #8b5cf6; background: #f5f3ff; }
+.ir-upload-icon { margin-bottom: 12px; }
+.ir-upload-text { font-size: 14px; color: #334155; font-weight: 500; margin-bottom: 4px; }
+.ir-upload-hint { font-size: 12px; color: #94a3b8; }
+
+.ir-preview { position: relative; margin-bottom: 16px; border-radius: 12px; overflow: hidden; background: #000; }
+.ir-preview img { width: 100%; display: block; max-height: 300px; object-fit: contain; }
+.ir-btn-clear { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.6); color: #fff; border: none; padding: 6px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; }
+.ir-btn-clear:hover { background: rgba(0,0,0,0.8); }
+
+.ir-input-row { display: flex; gap: 8px; margin-bottom: 16px; }
+.ir-input-row input { flex: 1; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; outline: none; transition: border-color 0.2s; }
+.ir-input-row input:focus { border-color: #8b5cf6; }
+.ir-btn-primary { background: linear-gradient(135deg, #8b5cf6, #6366f1); color: #fff; border: none; padding: 10px 20px; border-radius: 10px; font-size: 14px; cursor: pointer; font-weight: 500; white-space: nowrap; transition: opacity 0.2s; }
+.ir-btn-primary:hover { opacity: 0.9; }
+.ir-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.ir-result { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; }
+.ir-result-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.ir-result-title { font-size: 14px; font-weight: 600; color: #1a2a3a; }
+.ir-result-provider { font-size: 11px; color: #94a3b8; background: #f1f5f9; padding: 2px 8px; border-radius: 10px; }
+.ir-result-content { font-size: 13px; color: #334155; line-height: 1.7; }
+.ir-result-text { white-space: pre-wrap; }
+.ir-error { color: #dc2626; font-size: 13px; }
+.ir-result-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+.ir-action-btn { background: #f0f4f8; color: #1a2a3a; border: none; padding: 6px 14px; border-radius: 8px; font-size: 12px; cursor: pointer; transition: background 0.2s; }
+.ir-action-btn:hover { background: #e2e8f0; }
+
+.ir-history { background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; }
+.ir-history-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; font-size: 14px; font-weight: 600; color: #1a2a3a; }
+.ir-history-count { font-size: 12px; color: #94a3b8; font-weight: normal; }
+.ir-history-list { max-height: 400px; overflow-y: auto; }
+.ir-history-item { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: background 0.2s; }
+.ir-history-item:hover { background: #f8fafc; }
+.ir-history-item:last-child { border-bottom: none; }
+.ir-history-thumb { width: 48px; height: 48px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
+.ir-history-thumb-placeholder { display: flex; align-items: center; justify-content: center; background: #f1f5f9; }
+.ir-history-info { flex: 1; min-width: 0; }
+.ir-history-scene { font-size: 12px; color: #8b5cf6; margin-bottom: 3px; font-weight: 500; }
+.ir-history-preview { font-size: 12px; color: #64748b; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ir-empty { text-align: center; padding: 24px; color: #94a3b8; font-size: 13px; }
+
+.ir-entry-card { display: flex; align-items: center; gap: 12px; padding: 14px; background: linear-gradient(135deg, #f5f3ff, #ede9fe); border-radius: 12px; cursor: pointer; transition: transform 0.2s; margin-top: 10px; }
+.ir-entry-card:hover { transform: translateY(-1px); }
+.ir-entry-icon { width: 40px; height: 40px; border-radius: 10px; background: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 1px 3px rgba(139,92,246,0.15); }
+.ir-entry-body { flex: 1; min-width: 0; }
+.ir-entry-title { font-size: 14px; font-weight: 600; color: #1a2a3a; margin-bottom: 2px; }
+.ir-entry-desc { font-size: 12px; color: #64748b; }
+.ir-entry-arrow { flex-shrink: 0; }
 </style>
 </head>
 <body>
@@ -1852,6 +1943,11 @@ body {
     <svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-5"/></svg>
     趋势洞察
   </button>
+  <button class="nav-drawer-item" data-module="imagerecog" onclick="switchModule('imagerecog')">
+    <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+    图片识别
+  </button>
+
   <button class="nav-drawer-item" data-module="finance" onclick="switchModule('finance')">
     <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 10h20"/><path d="M6 16h4"/><path d="M14 16h4"/></svg>
     财富诊断CT
@@ -2464,6 +2560,13 @@ body {
 </div>
 <!-- END page-trend -->
 
+<!-- ==================== PAGE: 图片识别 ==================== -->
+<div id="page-imagerecog" class="page-view">
+  <div class="image-recog-panel" id="imageRecogContainer"></div>
+</div>
+<!-- END page-imagerecog -->
+
+
 <!-- END page-behavior -->
 
 </div><!-- END container -->
@@ -2479,6 +2582,10 @@ body {
 
 <!-- Bottom Input Bar -->
 <div class="app-input-bar">
+  <button class="app-input-image" id="imageUploadBtn" title="发送图片">
+    <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+  </button>
+  <input type="file" id="imageFileInput" accept="image/*" style="display:none" />
   <button class="app-input-voice" id="voiceBtn" title="语音输入">
     <svg id="voiceIcon" viewBox="0 0 24 24"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z" stroke-linecap="round" stroke-linejoin="round"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8" stroke-linecap="round" stroke-linejoin="round"/></svg>
   </button>
@@ -2505,7 +2612,8 @@ body {
     solar: '节气养生',
     schedule: '日程管理',
     behavior: '行为日志',
-    trend: '趋势洞察'
+    trend: '趋势洞察',
+    imagerecog: '图片识别'
   };
 
   // 首页问候语（按时间动态更新）
@@ -2714,7 +2822,8 @@ body {
       {id:'dailytx',name:'收支',color:'#8b5cf6',bg:'#f5f3ff',icon:'<path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>'},
       {id:'solar',name:'养生',color:'#16a34a',bg:'#f0fdf4',icon:'<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>'},
       {id:'schedule',name:'日程',color:'#f59e0b',bg:'#fffbeb',icon:'<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>'},
-      {id:'behavior',name:'行为',color:'#ec4899',bg:'#fdf2f8',icon:'<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>'}
+      {id:'behavior',name:'行为',color:'#ec4899',bg:'#fdf2f8',icon:'<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>'},
+      {id:'imagerecog',name:'识图',color:'#f97316',bg:'#fff7ed',icon:'<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/>'}
     ];
     html += '<div class="home-smart-section">';
     html += '<div class="home-smart-title">' + svg('<circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>') + '快捷入口</div>';
@@ -2798,6 +2907,14 @@ body {
     if (moduleName === 'dailytx' && window.initDailyTx) {
       requestAnimationFrame(function() {
         window.initDailyTx('dailyTxContainer');
+      });
+    }
+    // 图片识别模块初始化
+    if (moduleName === 'imagerecog' && window.ImageRecognizer) {
+      requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+          window.ImageRecognizer.renderUI('imageRecogContainer');
+        });
       });
     }
     // 财富诊断CT：刷新收支概览
@@ -2996,8 +3113,173 @@ body {
     }
   };
 
+  // ==================== AI对话图片识别 ====================
+  var _pendingImage = null; // 待发送的图片 {base64, thumb}
+
+  function initImageUpload() {
+    var btn = document.getElementById('imageUploadBtn');
+    var input = document.getElementById('imageFileInput');
+    if (!btn || !input) return;
+    btn.addEventListener('click', function() { input.click(); });
+    input.addEventListener('change', function(e) {
+      var file = e.target.files && e.target.files[0];
+      if (!file) return;
+      handleImageUpload(file);
+      input.value = ''; // 重置以便重复选择同一张
+    });
+  }
+
+  function handleImageUpload(file) {
+    if (!file.type.startsWith('image/')) {
+      showToast('请选择图片文件');
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      showToast('图片不能超过10MB');
+      return;
+    }
+    // 读取并压缩
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var img = new Image();
+      img.onload = function() {
+        // 生成缩略图（最大600px）
+        var thumb = compressImageDataUrl(img, 600, 0.85);
+        // 生成原图用于识别（最大1280px，由ImageRecognizer再压缩）
+        var full = e.target.result;
+        sendImageMessage(full, thumb);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function compressImageDataUrl(img, maxW, quality) {
+    var canvas = document.createElement('canvas');
+    var w = img.width, h = img.height;
+    if (w > maxW) { h = h * maxW / w; w = maxW; }
+    canvas.width = w; canvas.height = h;
+    var ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, w, h);
+    return canvas.toDataURL('image/jpeg', quality);
+  }
+
+  function sendImageMessage(fullBase64, thumbBase64) {
+    var list = document.getElementById('chatHistoryList');
+    if (!list) return;
+    var emptyEl = list.querySelector('.chat-history-empty');
+    if (emptyEl) emptyEl.remove();
+
+    var id = Date.now();
+    var card = document.createElement('div');
+    card.className = 'chat-history-card expanded';
+    card.id = 'chat-card-img-' + id;
+    card.innerHTML = '<div class="card-header"><span class="card-question"><img src="' + thumbBase64 + '" class="card-question-img" />图片</span><span class="card-time">' + formatTime(id) + '</span><span class="card-toggle">▼</span></div>' +
+      '<div class="card-content" style="display:block"><div class="card-ai-r"><img src="' + thumbBase64 + '" class="chat-image-thumb" onclick="window.openImagePreview(this.src)" /><div style="font-size:12px;color:#94a3b8;margin-top:4px">正在识别图片内容...</div></div></div>';
+    list.insertBefore(card, list.firstChild);
+    card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    // 调用ImageRecognizer识别
+    if (!window.ImageRecognizer) {
+      updateImageCardResult(id, '图片识别模块未加载，请刷新页面重试', thumbBase64);
+      return;
+    }
+
+    window.ImageRecognizer.recognize(fullBase64, 'general').then(function(result) {
+      var desc = (result && result.content) || (result && result.error) || '识别失败';
+      updateImageCardResult(id, desc, thumbBase64);
+      // 把识别结果作为用户消息传给AI引擎继续对话
+      var userPrompt = '（用户发送了一张图片，内容识别如下：' + desc + '）请基于图片内容回答用户的问题。';
+      continueWithImageResult(userPrompt, thumbBase64, desc);
+    }).catch(function(err) {
+      var errMsg = '图片识别失败：' + (err.message || err);
+      updateImageCardResult(id, errMsg, thumbBase64);
+    });
+  }
+
+  function updateImageCardResult(id, text, thumbBase64) {
+    var card = document.getElementById('chat-card-img-' + id);
+    if (!card) return;
+    var contentEl = card.querySelector('.card-ai-r');
+    if (contentEl) {
+      contentEl.innerHTML = '<img src="' + thumbBase64 + '" class="chat-image-thumb" onclick="window.openImagePreview(this.src)" /><div style="font-size:13px;color:#334155;margin-top:6px;line-height:1.5">' + escapeHtml(text) + '</div>';
+    }
+  }
+
+  function continueWithImageResult(prompt, thumbBase64, desc) {
+    // 保存到对话历史（用文字摘要，不存大图base64）
+    saveChatToHistory('[图片] ' + (desc || '图片识别结果'), '已收到你的图片，正在分析中...');
+
+    // 走AI引擎流程
+    if (window.AiEngine) {
+      showAiThinking('[图片] ' + (desc ? desc.substring(0, 20) + '...' : ''));
+      window.AiEngine.processInput(prompt).then(function(result) {
+        hideAiThinking();
+        // 更新最后一条历史的回复
+        var history = getChatHistory();
+        if (history.length > 0) {
+          history[0].reply = result.reply;
+          saveChatHistory(history);
+        }
+        renderChatHistory();
+        // 执行actions
+        if (result.actions && result.actions.length > 0) {
+          result.actions.forEach(function(action) {
+            if (action.type === 'navigate' && action.module) {
+              switchModule(action.module);
+            } else if (action.type === 'add_schedule' && action.title) {
+              if (window.scheduleAddTask) {
+                window.scheduleAddTask({ title: action.title, desc: action.desc || '', date: action.date, group: action.group || '' });
+                switchModule('schedule');
+              }
+            } else if (action.type === 'add_expense' && action.amount) {
+              if (window.dailyTxAdd) {
+                window.dailyTxAdd({ type: 'expense', amount: parseFloat(action.amount), ctField: action.ctField || 'expensePersonal', note: action.note || '', date: new Date().toISOString().substr(0,10) });
+                switchModule('dailytx');
+              }
+            } else if (action.type === 'add_income' && action.amount) {
+              if (window.dailyTxAdd) {
+                window.dailyTxAdd({ type: 'income', amount: parseFloat(action.amount), ctField: action.ctField || 'jobIncome', note: action.note || '', date: new Date().toISOString().substr(0,10) });
+                switchModule('dailytx');
+              }
+            } else if (action.type === 'recommend_recipe') {
+              showTodayRecipes();
+            } else if (action.type === 'show_health_tips') {
+              switchModule('solar');
+              if (window.solarSwitchView) setTimeout(function() { window.solarSwitchView('health'); }, 200);
+            }
+          });
+        }
+      }).catch(function(err) {
+        hideAiThinking();
+        var history = getChatHistory();
+        if (history.length > 0) {
+          history[0].reply = 'AI处理失败：' + (err.message || err);
+          saveChatHistory(history);
+        }
+        renderChatHistory();
+      });
+    }
+  }
+
+  window.openImagePreview = function(src) {
+    // 简单的全屏预览
+    var overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px';
+    overlay.onclick = function() { overlay.remove(); };
+    var img = document.createElement('img');
+    img.src = src;
+    img.style.cssText = 'max-width:100%;max-height:100%;border-radius:8px';
+    overlay.appendChild(img);
+    document.body.appendChild(overlay);
+  };
+
   // ==================== AI Input ====================
   window.submitAiInput = function() {
+  // 延迟初始化图片上传按钮（等待DOM就绪）
+  setTimeout(initImageUpload, 300);
+
+
     var field = document.getElementById('aiInputField');
     var text = field.value.trim();
     if (!text) { field.focus(); return; }
@@ -4964,5 +5246,6 @@ function toggleGuideSection(index) {
 <script src="ai-engine.js?v=31"></script>
 <script src="decision-forge.js?v=1"></script>
 <script src="value-resonance.js?v=1"></script>
+<script src="image-recognizer.js?v=1"></script>
 </body>
 </html>
