@@ -70,6 +70,22 @@
       });
     });
 
+    // 投资持仓数据（来自投资持仓模块）
+    var stockHoldings = data.stockHoldings || [];
+    var stockCash = data.stockCash || 0;
+    var holdingsValue = 0;
+    var holdingsCost = 0;
+    var holdingsPnl = 0;
+    stockHoldings.forEach(function(h) {
+      var q = parseFloat(h.quantity) || 0;
+      var cp = parseFloat(h.cost_price) || 0;
+      var curr = parseFloat(h.current_price) || 0;
+      holdingsValue += q * curr;
+      holdingsCost += q * cp;
+      holdingsPnl += q * (curr - cp);
+    });
+    var holdingsPnlPct = holdingsCost > 0 ? holdingsPnl / holdingsCost : 0;
+
     var income = jobIncome + otherIncome;
     var debt = bankDebt + otherDebt;
     var totalAssets = savings + investment + prop + investProp;
@@ -452,7 +468,15 @@
         debtAssetRatio: debtAssetRatio,
         savingsMonths: savingsMonths,
         lifeInsurance: lifeInsurance,
-        totalInsurancePremium: totalInsurancePremium
+        totalInsurancePremium: totalInsurancePremium,
+        // 投资持仓相关
+        stockHoldingsCount: stockHoldings.length,
+        holdingsValue: holdingsValue,
+        holdingsCost: holdingsCost,
+        holdingsPnl: holdingsPnl,
+        holdingsPnlPct: holdingsPnlPct,
+        stockCash: stockCash,
+        holdingsTotalAssets: holdingsValue + stockCash
       }
     };
   }
@@ -536,6 +560,72 @@
       insuranceTip.style.display = 'block';
     }
 
+    // 投资持仓分析
+    var holdingsEl = ids.holdingsPanel ? document.getElementById(ids.holdingsPanel) : null;
+    if (holdingsEl && result.metrics) {
+      var m = result.metrics;
+      var hasHoldings = m.stockHoldingsCount > 0 || m.stockCash > 0;
+      if (hasHoldings) {
+        var pnlClass = m.holdingsPnl >= 0 ? 'up' : 'down';
+        var pnlSign = m.holdingsPnl >= 0 ? '+' : '';
+        var pctSign = m.holdingsPnlPct >= 0 ? '+' : '';
+        var pnlColor = m.holdingsPnl >= 0 ? '#dc2626' : '#16a34a';
+        var totalInvest = m.holdingsValue + m.stockCash;
+
+        holdingsEl.style.display = 'block';
+        holdingsEl.innerHTML =
+          '<div class="diag-card" style="border-top-color:#2563eb;">' +
+            '<h3 style="display:flex;align-items:center;gap:8px;">' +
+              '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>' +
+              '投资资产分析' +
+            '</h3>' +
+            '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;">' +
+              '<div style="background:#f8fafc;border-radius:10px;padding:12px;text-align:center;">' +
+                '<div style="font-size:11px;color:#6b7280;margin-bottom:4px;">持仓市值</div>' +
+                '<div style="font-size:17px;font-weight:700;color:#1e293b;">¥' + _fmt(m.holdingsValue) + '</div>' +
+              '</div>' +
+              '<div style="background:#f8fafc;border-radius:10px;padding:12px;text-align:center;">' +
+                '<div style="font-size:11px;color:#6b7280;margin-bottom:4px;">可用资金</div>' +
+                '<div style="font-size:17px;font-weight:700;color:#2563eb;">¥' + _fmt(m.stockCash) + '</div>' +
+              '</div>' +
+              '<div style="background:#f8fafc;border-radius:10px;padding:12px;text-align:center;">' +
+                '<div style="font-size:11px;color:#6b7280;margin-bottom:4px;">投资总资产</div>' +
+                '<div style="font-size:17px;font-weight:700;color:#1e40af;">¥' + _fmt(totalInvest) + '</div>' +
+              '</div>' +
+            '</div>' +
+            '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px;">' +
+              '<div style="background:#f8fafc;border-radius:10px;padding:10px;text-align:center;">' +
+                '<div style="font-size:11px;color:#6b7280;margin-bottom:4px;">持仓标的</div>' +
+                '<div style="font-size:16px;font-weight:700;color:#1e293b;">' + m.stockHoldingsCount + ' 只</div>' +
+              '</div>' +
+              '<div style="background:#f8fafc;border-radius:10px;padding:10px;text-align:center;">' +
+                '<div style="font-size:11px;color:#6b7280;margin-bottom:4px;">浮盈亏</div>' +
+                '<div style="font-size:16px;font-weight:700;color:' + pnlColor + ';">' + pnlSign + '¥' + _fmt(m.holdingsPnl) + '</div>' +
+              '</div>' +
+              '<div style="background:#f8fafc;border-radius:10px;padding:10px;text-align:center;">' +
+                '<div style="font-size:11px;color:#6b7280;margin-bottom:4px;">盈亏比例</div>' +
+                '<div style="font-size:16px;font-weight:700;color:' + pnlColor + ';">' + pctSign + (m.holdingsPnlPct * 100).toFixed(2) + '%</div>' +
+              '</div>' +
+            '</div>' +
+            '<div style="font-size:13px;color:#475569;line-height:1.7;">' +
+              '<strong>分析：</strong>' +
+              (m.holdingsCost > 0
+                ? '当前持有 ' + m.stockHoldingsCount + ' 只投资标的，总成本 ¥' + _fmt(m.holdingsCost) + '，市值 ¥' + _fmt(m.holdingsValue) + '。' +
+                  (m.holdingsPnl >= 0
+                    ? '整体浮盈 ' + pnlSign + '¥' + _fmt(m.holdingsPnl) + '（' + pctSign + (m.holdingsPnlPct * 100).toFixed(2) + '%），投资处于盈利状态。'
+                    : '整体浮亏 ' + pnlSign + '¥' + _fmt(Math.abs(m.holdingsPnl)) + '（' + pctSign + (m.holdingsPnlPct * 100).toFixed(2) + '%），建议审视持仓结构，考虑是否需要调仓。')
+                : '暂无持仓记录，可用资金 ¥' + _fmt(m.stockCash) + '。') +
+              (m.stockCash > 0 && totalInvest > 0
+                ? '现金占投资资产比例为 ' + (m.stockCash / totalInvest * 100).toFixed(0) + '%，' +
+                  (m.stockCash / totalInvest > 0.3 ? '仓位偏轻，可考虑逐步建仓。' : '仓位合理，留有充足弹药。')
+                : '') +
+            '</div>' +
+          '</div>';
+      } else {
+        holdingsEl.style.display = 'none';
+      }
+    }
+
     // 改善建议
     if (suggestList) {
       suggestList.innerHTML = '';
@@ -572,6 +662,11 @@
     if (score >= 40) return 'bar-warn';
     if (score >= 20) return 'bar-bad';
     return 'bar-danger';
+  }
+
+  function _fmt(v) {
+    var n = parseFloat(v) || 0;
+    return n.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
   function animateNumber(el, from, to, duration) {

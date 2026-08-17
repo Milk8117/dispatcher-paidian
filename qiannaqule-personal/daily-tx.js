@@ -136,11 +136,38 @@
     if (!tx.subCategory) tx.subCategory = '';
     list.push(tx);
     saveTx(list);
+    // 通知其他模块数据已变化（如首页概览）
+    try {
+      var evt = new CustomEvent('dailytx:changed', { detail: { action: 'add', tx: tx } });
+      window.dispatchEvent(evt);
+    } catch(e) {}
     return tx;
   }
   function deleteTx(id) {
     var list = loadTx().filter(function(t) { return t.id !== id; });
     saveTx(list);
+    // 通知其他模块数据已变化
+    try {
+      var evt = new CustomEvent('dailytx:changed', { detail: { action: 'delete', id: id } });
+      window.dispatchEvent(evt);
+    } catch(e) {}
+  }
+  function updateTx(id, patch) {
+    var list = loadTx();
+    var idx = -1;
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].id === id) { idx = i; break; }
+    }
+    if (idx === -1) return null;
+    for (var k in patch) {
+      if (patch.hasOwnProperty(k)) list[idx][k] = patch[k];
+    }
+    saveTx(list);
+    try {
+      var evt = new CustomEvent('dailytx:changed', { detail: { action: 'update', id: id, tx: list[idx] } });
+      window.dispatchEvent(evt);
+    } catch(e) {}
+    return list[idx];
   }
 
   // ==================== 样式注入 ====================
@@ -184,6 +211,8 @@
       '.dtx-item-amt.exp{color:#ef4444}.dtx-item-amt.inc{color:#22c55e}',
       '.dtx-item-del{font-size:13px;color:#d1d5db;cursor:pointer;margin-top:2px}',
       '.dtx-item-del:hover{color:#ef4444}',
+      '.dtx-item-edit{font-size:13px;color:#9ca3af;cursor:pointer}',
+      '.dtx-item-edit:hover{color:#2563eb}',
       '.dtx-empty{text-align:center;padding:40px 16px;color:#9ca3af;font-size:14px}',
       '.dtx-modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:9998;display:flex;align-items:flex-end;justify-content:center}',
       '.dtx-modal{background:#fff;border-radius:16px 16px 0 0;width:100%;max-width:480px;padding:20px 16px 24px;max-height:85vh;overflow-y:auto}',
@@ -216,7 +245,11 @@
       '.dtx-month-btn{width:36px;height:36px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#475569;transition:all .15s;flex-shrink:0}',
       '.dtx-month-btn:hover{background:#f1f5f9;border-color:#cbd5e1}',
       '.dtx-month-btn:active{transform:scale(.93)}',
-      '.dtx-month-label{font-size:16px;font-weight:700;color:#1f2937;min-width:120px;text-align:center}'
+      '.dtx-month-label{font-size:16px;font-weight:700;color:#1f2937;min-width:120px;text-align:center}',
+      '.dtx-type-toggle{flex:1;padding:10px;border:1.5px solid #e5e7eb;border-radius:10px;background:#fff;cursor:pointer;font-size:14px;font-weight:600;color:#6b7280;transition:all .2s}',
+      '.dtx-type-toggle.active.exp{border-color:#ef4444;background:#fef2f2;color:#dc2626}',
+      '.dtx-type-toggle.active.inc{border-color:#22c55e;background:#f0fdf4;color:#16a34a}',
+      '.dtx-form-select{width:100%;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#1f2937;box-sizing:border-box;background:#fff;outline:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2712%27 height=%278%27%3E%3Cpath d=%27M1 1l5 5 5-5%27 stroke=%27%2394a3b8%27 stroke-width=%271.5%27 fill=%27none%27/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px}'
     ].join('\n');
     document.head.appendChild(s);
   }
@@ -368,8 +401,10 @@
           html += '</div>';
           html += '<div class="dtx-item-right">';
           html += '<div class="dtx-item-amt ' + (t.type === 'expense' ? 'exp' : 'inc') + '">' + (t.type === 'expense' ? '-' : '+') + '¥' + _fmtAmt(t.amount) + '</div>';
+          html += '<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:2px">';
+          html += '<div class="dtx-item-edit" data-txid="' + t.id + '">编辑</div>';
           html += '<div class="dtx-item-del" data-txid="' + t.id + '">删除</div>';
-          html += '</div>';
+          html += '</div></div>';
           html += '</div>';
         });
         html += '</div>';
@@ -396,6 +431,13 @@
         e.stopPropagation();
         var id = this.getAttribute('data-txid');
         if (confirm('确定删除这条记录？')) { deleteTx(id); render(root, viewMonth); }
+      });
+    });
+    root.querySelectorAll('.dtx-item-edit').forEach(function(el) {
+      el.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var id = this.getAttribute('data-txid');
+        openEditModal(root, viewMonth, id);
       });
     });
   }
@@ -551,6 +593,138 @@
     }, 100);
   }
 
+  // ==================== 编辑弹窗 ====================
+  function openEditModal(root, viewMonth, txId) {
+    var tx = null;
+    var list = loadTx();
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].id === txId) { tx = list[i]; break; }
+    }
+    if (!tx) return;
+
+    var selType = tx.type;
+    var selCtField = tx.ctField;
+    var selSub = tx.subCategory || '';
+    var overlay = document.createElement('div');
+    overlay.className = 'dtx-modal-overlay';
+
+    var allCategories = selType === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
+    var cat = CT_MAP[selCtField] || allCategories[0];
+
+    // 预填子分类（如果当前子分类不在预设中，追加到列表）
+    var subList = cat.subs.slice();
+    if (selSub && subList.indexOf(selSub) === -1) subList.unshift(selSub);
+
+    var h = '<div class="dtx-modal">';
+    h += '<div class="dtx-modal-title">编辑记录</div>';
+
+    // 收入/支出切换
+    h += '<div style="display:flex;gap:8px;margin-bottom:14px">';
+    h += '<button class="dtx-type-toggle' + (selType === 'expense' ? ' active exp' : '') + '" data-type="expense">支出</button>';
+    h += '<button class="dtx-type-toggle' + (selType === 'income' ? ' active inc' : '') + '" data-type="income">收入</button>';
+    h += '</div>';
+
+    // 分类选择
+    h += '<div class="dtx-input-row"><label>分类</label>';
+    h += '<select id="dtxEditCt" class="dtx-form-select">' + buildCatOptions(selType, selCtField) + '</select>';
+    h += '</div>';
+
+    // 子分类选择
+    h += '<div class="dtx-input-row"><label>子类</label>';
+    h += '<select id="dtxEditSub" class="dtx-form-select">' + buildSubOptions(selCtField, selSub) + '</select>';
+    h += '</div>';
+
+    h += '<div class="dtx-input-row"><label>金额（元）</label><input type="number" id="dtxEditAmount" value="' + tx.amount + '" min="0" step="0.01" inputmode="decimal"></div>';
+    h += '<div class="dtx-input-row"><label>日期</label><input type="date" id="dtxEditDate" value="' + (tx.date || '') + '"></div>';
+    h += '<div class="dtx-input-row"><label>备注</label><textarea id="dtxEditNote" placeholder="可选">' + (tx.note || '') + '</textarea></div>';
+
+    h += '<button class="dtx-submit-btn" id="dtxEditSave">保存修改</button>';
+    h += '<button class="dtx-cancel-btn" id="dtxEditCancel">取消</button>';
+    h += '</div>';
+    overlay.innerHTML = h;
+    document.body.appendChild(overlay);
+
+    // 事件绑定
+    overlay.querySelectorAll('.dtx-type-toggle').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        selType = this.getAttribute('data-type');
+        overlay.querySelectorAll('.dtx-type-toggle').forEach(function(b) {
+          b.classList.remove('active', 'exp', 'inc');
+        });
+        this.classList.add('active');
+        this.classList.add(selType === 'expense' ? 'exp' : 'inc');
+        var newCats = selType === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
+        selCtField = newCats[0].ctField;
+        selSub = newCats[0].subs[0];
+        overlay.querySelector('#dtxEditCt').innerHTML = buildCatOptions(selType, selCtField);
+        overlay.querySelector('#dtxEditSub').innerHTML = buildSubOptions(selCtField, selSub);
+      });
+    });
+
+    overlay.querySelector('#dtxEditCt').addEventListener('change', function() {
+      selCtField = this.value;
+      var c = CT_MAP[selCtField];
+      if (c) {
+        selSub = c.subs[0];
+        overlay.querySelector('#dtxEditSub').innerHTML = buildSubOptions(selCtField, selSub);
+      }
+    });
+
+    overlay.querySelector('#dtxEditSub').addEventListener('change', function() {
+      selSub = this.value;
+    });
+
+    overlay.querySelector('#dtxEditSave').addEventListener('click', function() {
+      var amt = parseFloat(overlay.querySelector('#dtxEditAmount').value);
+      if (!amt || amt <= 0) { alert('请输入金额'); return; }
+      var dateVal = overlay.querySelector('#dtxEditDate').value;
+      var noteVal = overlay.querySelector('#dtxEditNote').value.trim();
+      updateTx(txId, {
+        type: selType,
+        amount: amt,
+        ctField: selCtField,
+        subCategory: selSub,
+        note: noteVal,
+        date: dateVal
+      });
+      overlay.remove();
+      render(root, viewMonth);
+    });
+
+    overlay.querySelector('#dtxEditCancel').addEventListener('click', function() { overlay.remove(); });
+    overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
+
+    setTimeout(function() {
+      var amtEl = overlay.querySelector('#dtxEditAmount');
+      if (amtEl) { amtEl.focus(); amtEl.select(); }
+    }, 100);
+  }
+
+  function buildCatOptions(type, selectedCt) {
+    var cats = type === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
+    var opts = '';
+    cats.forEach(function(c) {
+      var sel = c.ctField === selectedCt ? ' selected' : '';
+      opts += '<option value="' + c.ctField + '"' + sel + '>' + c.name + '</option>';
+    });
+    return opts;
+  }
+
+  function buildSubOptions(ctField, selectedSub) {
+    var cat = CT_MAP[ctField];
+    if (!cat) return '';
+    var opts = '';
+    cat.subs.forEach(function(s) {
+      var sel = s === selectedSub ? ' selected' : '';
+      opts += '<option value="' + s + '"' + sel + '>' + s + '</option>';
+    });
+    // 兼容自定义子类
+    if (selectedSub && cat.subs.indexOf(selectedSub) === -1) {
+      opts = '<option value="' + selectedSub + '" selected>' + selectedSub + '</option>' + opts;
+    }
+    return opts;
+  }
+
   // ==================== getDailyTxSummary ====================
   function getDailyTxSummary() {
     var now = new Date();
@@ -613,6 +787,16 @@
     }
     if (!tx.subCategory) tx.subCategory = '';
     addTx(tx);
+  };
+
+  window.dailyTxUpdate = function(id, patch) {
+    if (!id) return null;
+    return updateTx(id, patch);
+  };
+
+  window.dailyTxDelete = function(id) {
+    if (!id) return;
+    deleteTx(id);
   };
 
   window.getDailyTxSummary = getDailyTxSummary;

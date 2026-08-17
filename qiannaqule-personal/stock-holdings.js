@@ -96,8 +96,10 @@
       return parseFloat(DataStore.load(HOLDINGS_MODULE, CASH_FIELD, 0)) || 0;
     } catch(e) { return 0; }
   }
-  function saveCash(val) {
+  function _saveCashToStore(val) {
     DataStore.save(HOLDINGS_MODULE, CASH_FIELD, parseFloat(val) || 0);
+    // 关键数据立即强制落盘，防止刷新丢失
+    if (DataStore.flush) DataStore.flush();
   }
 
   function loadPlans() {
@@ -751,7 +753,7 @@
             '</div>' +
             '<div class="sh-form-row">' +
               '<div class="sh-form-group">' +
-                '<label class="sh-form-label">持仓数量（股/手） *</label>' +
+                '<label class="sh-form-label">持仓数量（股） *</label>' +
                 '<input type="number" class="sh-form-input" id="sh-h-qty" placeholder="如：100" step="1" min="0" value="' + (h ? h.quantity || 0 : 0) + '">' +
               '</div>' +
               '<div class="sh-form-group">' +
@@ -953,7 +955,7 @@
   function saveCash() {
     var val = parseFloat(document.getElementById('sh-cash-input').value);
     if (isNaN(val) || val < 0) { alert('请输入正确的金额'); return; }
-    saveCash(val);
+    _saveCashToStore(val);
     closeModal('shCashModal');
     refreshOverview();
   }
