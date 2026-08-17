@@ -3274,7 +3274,7 @@ body {
       }
     } catch(e) {}
     
-    html += '<div class="pano-domain" onclick="switchModule(\'health\')">';
+    html += '<div class="pano-domain" onclick="switchModule(\'health\', \'trend\')">';
     html += '<div class="pano-domain-header">';
     html += '<span class="pano-dot" style="background:#16a34a"></span>';
     html += '<span class="pano-domain-name">健康域</span>';
@@ -3433,6 +3433,35 @@ body {
   // 初始化渲染
   renderSmartHome();
   renderChatHistory();
+
+  // 监听每日收支变化，刷新首页今日概览
+  window.addEventListener('dailytx:changed', function() {
+    if (currentModule === 'home') {
+      // 只刷新概览数据部分，避免整页重渲
+      var ovItems = document.querySelectorAll('.home-overview-item .ov-num');
+      if (ovItems.length >= 3) {
+        var todayStr = new Date().toISOString().substr(0, 10);
+        var incToday = 0, expToday = 0;
+        try {
+          var txList = [];
+          if (window.DataStore && DataStore.registerModule) {
+            txList = DataStore.load('daily_tx', 'records', []) || [];
+          } else {
+            txList = JSON.parse(localStorage.getItem('mijieai_daily_tx') || '[]');
+          }
+          txList.forEach(function(t) {
+            if (t.date === todayStr) {
+              if (t.type === 'income') incToday += Number(t.amount) || 0;
+              else expToday += Number(t.amount) || 0;
+            }
+          });
+        } catch(e) {}
+        // ovItems[0] 待办，[1] 支出，[2] 收入
+        if (ovItems[1]) ovItems[1].textContent = '-' + expToday.toFixed(0);
+        if (ovItems[2]) ovItems[2].textContent = '+' + incToday.toFixed(0);
+      }
+    }
+  });
 
   window.switchModule = function(moduleName, subTabName) {
     // 兼容旧模块名的跳转映射

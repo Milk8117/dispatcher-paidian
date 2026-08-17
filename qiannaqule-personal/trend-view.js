@@ -608,18 +608,22 @@
       '.tv-ai-empty { text-align: center; padding: 20px 12px; color: #94a3b8; }',
 
       /* ===== 首页入口卡片 ===== */
-      '.tv-entry-card { background: linear-gradient(135deg, #1e293b 0%, #334155 100%); border-radius: 14px; padding: 16px; color: #fff; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }',
+      '.tv-entry-card { background: linear-gradient(135deg, #1e293b 0%, #334155 100%); border-radius: 14px; padding: 14px 16px; color: #fff; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }',
       '.tv-entry-card:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(30,41,59,0.3); }',
-      '.tv-entry-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }',
-      '.tv-entry-icon { width: 36px; height: 36px; border-radius: 10px; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; }',
-      '.tv-entry-title { font-size: 0.95rem; font-weight: 700; }',
-      '.tv-entry-subtitle { font-size: 0.7rem; color: #94a3b8; }',
-      '.tv-entry-metrics { display: flex; gap: 12px; }',
+      '.tv-entry-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }',
+      '.tv-entry-icon { width: 32px; height: 32px; border-radius: 9px; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; }',
+      '.tv-entry-title { font-size: 0.9rem; font-weight: 700; }',
+      '.tv-entry-subtitle { font-size: 0.68rem; color: #94a3b8; }',
+      '.tv-entry-metrics { display: flex; gap: 10px; margin-bottom: 10px; }',
       '.tv-entry-metric { flex: 1; }',
-      '.tv-entry-metric-label { font-size: 0.68rem; color: #94a3b8; margin-bottom: 2px; }',
-      '.tv-entry-metric-value { font-size: 0.9rem; font-weight: 700; }',
-      '.tv-entry-arrow { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); opacity: 0.5; }',
-      '.tv-entry-decor { position: absolute; right: -20px; bottom: -20px; width: 100px; height: 100px; border-radius: 50%; background: rgba(249, 115, 22, 0.2); }',
+      '.tv-entry-metric-label { font-size: 0.64rem; color: #94a3b8; margin-bottom: 2px; }',
+      '.tv-entry-metric-value { font-size: 0.82rem; font-weight: 700; }',
+      '.tv-entry-divider { width: 1px; background: rgba(255,255,255,0.1); }',
+      '.tv-entry-domain-label { font-size: 0.62rem; color: #64748b; margin-bottom: 4px; letter-spacing: 0.5px; }',
+      '.tv-entry-summary { font-size: 0.72rem; color: #cbd5e1; line-height: 1.5; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; gap: 6px; }',
+      '.tv-entry-summary-icon { color: #f59e0b; flex-shrink: 0; }',
+      '.tv-entry-arrow { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); opacity: 0.5; }',
+      '.tv-entry-decor { position: absolute; right: -30px; bottom: -30px; width: 110px; height: 110px; border-radius: 50%; background: rgba(249, 115, 22, 0.18); }',
 
       /* ===== 月份选择器 ===== */
       '.tv-month-selector { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 12px; }',
@@ -1675,6 +1679,7 @@
     var dxHistory = getDiagnosisHistory();
     var txRecords = getTxRecords();
     var moodLogs = getMoodLogs();
+    var healthRecords = getHealthRecords();
 
     var latestDx = dxHistory.length > 0 ? dxHistory[dxHistory.length - 1] : null;
     var dxScore = latestDx ? latestDx.total + '分' : '--';
@@ -1699,30 +1704,106 @@
     });
     var avgMood = moodCount > 0 ? (Math.round(moodTotal / moodCount * 10) / 10) + '分' : '--';
 
+    // 今日运动
+    var todayKey = new Date().toISOString().substr(0, 10);
+    var todayExercise = '--';
+    try {
+      var todayRec = healthRecords.find(function(r) { return (r.date || r.day) === todayKey; });
+      if (todayRec) {
+        if (todayRec.exercise && todayRec.exercise.duration) todayExercise = todayRec.exercise.duration + 'min';
+        else if (todayRec.exercise && todayRec.exercise.steps) todayExercise = todayRec.exercise.steps + '步';
+        else if (todayRec.steps) todayExercise = todayRec.steps + '步';
+      }
+    } catch(e) {}
+
+    // 本周睡眠均值（最近7天）
+    var weekSleepAvg = '--';
+    try {
+      var end = new Date();
+      var startStr = new Date(end.getTime() - 6 * 86400000).toISOString().substr(0, 10);
+      var endStr = end.toISOString().substr(0, 10);
+      var sleepTotal = 0, sleepCount = 0;
+      healthRecords.forEach(function(r) {
+        var d = r.date || r.day;
+        if (!d || d < startStr || d > endStr) return;
+        if (r.sleep && r.sleep.hours) { sleepTotal += Number(r.sleep.hours) || 0; sleepCount++; }
+        else if (r.sleepHours) { sleepTotal += Number(r.sleepHours) || 0; sleepCount++; }
+      });
+      if (sleepCount > 0) weekSleepAvg = (sleepTotal / sleepCount).toFixed(1) + 'h';
+    } catch(e) {}
+
+    // AI洞察摘要：优先用月度报告缓存，否则显示引导语
+    var insightSummary = '生成你的专属洞察';
+    var hasInsight = false;
+    try {
+      if (_state.aiInsightCache && _state.aiInsightCache[currMonth]) {
+        var cached = _state.aiInsightCache[currMonth];
+        // 简单提取首句或前30字作为摘要
+        var plain = cached.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+        if (plain.length > 0) {
+          insightSummary = plain.length > 40 ? plain.substr(0, 40) + '...' : plain;
+          hasInsight = true;
+        }
+      }
+    } catch(e) {}
+
+    var summaryIcon = 'sparkles';
+
     var html = '<div class="tv-entry-card" onclick="TrendView.openInsightPanel()">';
     html += '<div class="tv-entry-decor"></div>';
     html += '<div class="tv-entry-header">';
-    html += '<div class="tv-entry-icon">' + svgIcon('sparkles', 20, '#fff') + '</div>';
+    html += '<div class="tv-entry-icon">' + svgIcon('sparkles', 18, '#fff') + '</div>';
     html += '<div>';
     html += '<div class="tv-entry-title">趋势洞察</div>';
     html += '<div class="tv-entry-subtitle">月度全景 · AI 智能解读</div>';
     html += '</div>';
+    html += '<div class="tv-entry-arrow">' + svgIcon('chevronRight', 18, '#fff') + '</div>';
     html += '</div>';
+
+    // 财务维度
+    html += '<div class="tv-entry-domain-label">财务维度</div>';
     html += '<div class="tv-entry-metrics">';
     html += '<div class="tv-entry-metric">';
-    html += '<div class="tv-entry-metric-label">财务健康</div>';
-    html += '<div class="tv-entry-metric-value">' + dxScore + '</div>';
+    html += '<div class="tv-entry-metric-label">本月支出</div>';
+    html += '<div class="tv-entry-metric-value" style="color:#f87171">' + formatMoney(monthExpense) + '</div>';
     html += '</div>';
+    html += '<div class="tv-entry-divider"></div>';
     html += '<div class="tv-entry-metric">';
     html += '<div class="tv-entry-metric-label">本月结余</div>';
     html += '<div class="tv-entry-metric-value">' + formatMoney(balance) + '</div>';
     html += '</div>';
+    html += '<div class="tv-entry-divider"></div>';
+    html += '<div class="tv-entry-metric">';
+    html += '<div class="tv-entry-metric-label">健康分</div>';
+    html += '<div class="tv-entry-metric-value" style="color:#34d399">' + dxScore + '</div>';
+    html += '</div>';
+    html += '</div>';
+
+    // 健康维度
+    html += '<div class="tv-entry-domain-label" style="margin-top:8px">健康维度</div>';
+    html += '<div class="tv-entry-metrics">';
+    html += '<div class="tv-entry-metric">';
+    html += '<div class="tv-entry-metric-label">今日运动</div>';
+    html += '<div class="tv-entry-metric-value">' + todayExercise + '</div>';
+    html += '</div>';
+    html += '<div class="tv-entry-divider"></div>';
+    html += '<div class="tv-entry-metric">';
+    html += '<div class="tv-entry-metric-label">周均睡眠</div>';
+    html += '<div class="tv-entry-metric-value">' + weekSleepAvg + '</div>';
+    html += '</div>';
+    html += '<div class="tv-entry-divider"></div>';
     html += '<div class="tv-entry-metric">';
     html += '<div class="tv-entry-metric-label">情绪均分</div>';
-    html += '<div class="tv-entry-metric-value">' + avgMood + '</div>';
+    html += '<div class="tv-entry-metric-value" style="color:#fbbf24">' + avgMood + '</div>';
     html += '</div>';
     html += '</div>';
-    html += '<div class="tv-entry-arrow">' + svgIcon('chevronRight', 18, '#fff') + '</div>';
+
+    // AI洞察摘要
+    html += '<div class="tv-entry-summary">';
+    html += '<span class="tv-entry-summary-icon">' + svgIcon(summaryIcon, 14, '#f59e0b') + '</span>';
+    html += '<span>' + insightSummary + '</span>';
+    html += '</div>';
+
     html += '</div>';
 
     container.innerHTML = html;
