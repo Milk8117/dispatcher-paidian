@@ -2235,11 +2235,11 @@ body {
 <!-- ==================== PAGE: 财富诊断 ==================== -->
 <div id="page-finance" class="page-view">
   <div class="sub-tab-bar" id="financeSubTabBar">
-    <button class="sub-tab-item active" data-sub="ct" onclick="switchSubTab('finance', 'ct')">体检CT</button>
+    <button class="sub-tab-item active" data-sub="trend" onclick="switchSubTab('finance', 'trend')">趋势洞察</button>
     <button class="sub-tab-item" data-sub="dailytx" onclick="switchSubTab('finance', 'dailytx')">收支明细</button>
-    <button class="sub-tab-item" data-sub="trend" onclick="switchSubTab('finance', 'trend')">趋势洞察</button>
+    <button class="sub-tab-item" data-sub="ct" onclick="switchSubTab('finance', 'ct')">财务体检</button>
   </div>
-  <div id="finance-ct" class="sub-tab-content active">
+  <div id="finance-ct" class="sub-tab-content">
 
 
   <!-- Financial Reminder Banner -->
@@ -2772,7 +2772,7 @@ body {
   <div id="finance-dailytx" class="sub-tab-content">
     <div id="dailyTxContainer"></div>
   </div>
-  <div id="finance-trend" class="sub-tab-content">
+  <div id="finance-trend" class="sub-tab-content active">
     <div class="trend-panel-wrap" id="trendPanelContainer" style="padding:16px;max-width:680px;margin:0 auto"></div>
   </div>
 </div>
@@ -2954,7 +2954,7 @@ body {
     me: '我的'
   };
   var subTabTitles = {
-    'finance-ct': '财富诊断CT',
+    'finance-ct': '财务体检',
     'finance-dailytx': '收支明细',
     'finance-trend': '趋势洞察',
     'record-schedule': '日程管理',
@@ -3217,7 +3217,7 @@ body {
     }
     // 财富Tab：初始化默认分段
     if (moduleName === 'finance') {
-      var st = subTabName || currentSubTab.finance || 'ct';
+      var st = subTabName || currentSubTab.finance || 'trend';
       switchSubTab('finance', st, true);
     }
     // 记录Tab：初始化默认分段
