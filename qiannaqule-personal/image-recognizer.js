@@ -489,7 +489,7 @@
 
     // 上传区域
     html += '<div class="ir-upload-area" id="' + ns + 'UploadArea" onclick="document.getElementById(\'' + ns + 'FileInput\').click()">';
-    html += '<input type="file" id="' + ns + 'FileInput" accept="image/*" capture="environment" style="display:none" onchange="ImageRecognizer._onFileSelected(event, \'' + ns + '\')" />';
+    html += '<input type="file" id="' + ns + 'FileInput" accept="image/*" style="display:none" onchange="ImageRecognizer._onFileSelected(event, \'' + ns + '\')" />';
     html += '<div class="ir-upload-icon">';
     html += '<svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>';
     html += '</div>';

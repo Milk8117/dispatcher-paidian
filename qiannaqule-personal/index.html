@@ -3197,8 +3197,10 @@ body {
     });
   } catch(e) {}
 
-  // 页面加载后启动推送引擎
+  // 页面加载后启动推送引擎 + 初始化图片上传
   document.addEventListener('DOMContentLoaded', function() {
+    // 首页图片上传按钮初始化
+    setTimeout(initImageUpload, 300);
     setTimeout(function() {
       try {
         if (window.PushEngine) {
@@ -3994,9 +3996,6 @@ body {
 
   // ==================== AI Input ====================
   window.submitAiInput = function() {
-  // 延迟初始化图片上传按钮（等待DOM就绪）
-  setTimeout(initImageUpload, 300);
-
     var field = document.getElementById('aiInputField');
     var text = field.value.trim();
     if (!text) { field.focus(); return; }
