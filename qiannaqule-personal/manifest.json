@@ -7,17 +7,17 @@
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#f0f4f8",
-  "theme_color": "#ff6600",
+  "theme_color": "#2563eb",
   "lang": "zh-CN",
   "icons": [
     {
-      "src": "./icon.png",
+      "src": "./assets/app-icon.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./icon.png",
+      "src": "./assets/app-icon.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

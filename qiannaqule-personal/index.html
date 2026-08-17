@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" href="./icon-orange.png">
-  <link rel="apple-touch-icon" href="./icon-orange.png">
+<link rel="icon" href="./assets/app-icon.png">
+  <link rel="apple-touch-icon" href="./assets/app-icon.png">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#f97316">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -13,7 +13,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="MiRun AI">
-<title>MiRun AI — 财富诊断CT</title>
+<title>MiRun AI</title>
 <style>
 /* ========== Reset & Base ========== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -866,11 +866,37 @@ body {
   background: #ff6600;
   border-radius: 2px;
 }
+/* 各Tab主题色（分段激活条颜色区分数据域） */
+#financeSubTabBar .sub-tab-item.active { color: #2563eb; }
+#financeSubTabBar .sub-tab-item.active::after { background: #2563eb; }
+#healthSubTabBar .sub-tab-item.active { color: #16a34a; }
+#healthSubTabBar .sub-tab-item.active::after { background: #16a34a; }
+#recordSubTabBar .sub-tab-item.active { color: #ea580c; }
+#recordSubTabBar .sub-tab-item.active::after { background: #ea580c; }
+
+/* 子分段内容区顶部留白 */
 .sub-tab-content {
   display: none;
+  padding-top: 8px;
 }
 .sub-tab-content.active {
   display: block;
+}
+
+/* 分段内模块标题 */
+.sub-section-title {
+  padding: 12px 16px 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.sub-section-title .dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  display: inline-block;
 }
 
 /* ========== Page Views (底部Tab安全距离) ========== */
@@ -1262,6 +1288,80 @@ body {
 .home-footer {
   text-align: center; padding: 20px 16px 32px;
   font-size: 11px; color: #9ca3af;
+}
+.app-brand-footer {
+  text-align: center;
+  padding: 20px 16px 24px;
+  font-size: 11px;
+  color: #9ca3af;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+/* 全景看板 */
+.panorama-card {
+  margin: 0 16px 8px;
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid #f1f5f9;
+  overflow: hidden;
+}
+.pano-domain {
+  padding: 14px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid #f8fafc;
+  transition: background 0.15s;
+}
+.pano-domain:last-child { border-bottom: none; }
+.pano-domain:active { background: #f8fafc; }
+.pano-domain-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.pano-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+.pano-domain-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  flex: 1;
+}
+.pano-arrow {
+  font-size: 12px;
+  color: #cbd5e1;
+}
+.pano-metrics {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+.pano-metric {
+  flex: 1;
+  text-align: center;
+}
+.pano-val {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 2px;
+  line-height: 1.2;
+}
+.pano-val.expense { color: #ef4444; }
+.pano-val.income { color: #16a34a; }
+.pano-label {
+  font-size: 11px;
+  color: #94a3b8;
+}
+.pano-divider {
+  width: 1px;
+  height: 24px;
+  background: #f1f5f9;
 }
 /* Smart Home Dashboard */
 .home-date-bar { text-align:center; margin-top:10px; position:relative; }
@@ -2177,7 +2277,7 @@ body {
 
 <!-- ==================== Global Top Bar ==================== -->
 <header class="app-topbar">
-  <span class="app-topbar-title" id="topbarTitle">MiRun AI</span>
+  <span class="app-topbar-title" id="topbarTitle"><img src="./assets/mirun-ai-logo.png" alt="MiRun AI" style="height:28px;vertical-align:middle;margin-right:8px;display:inline-block">MiRun AI</span>
   <div class="topbar-right">
     <button class="topbar-notif-btn" id="topbarNotifBtn" onclick="togglePushPanel()" title="智能推送" style="display:none">
       <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
@@ -2197,11 +2297,8 @@ body {
     <div class="home-hero-inner">
       <div class="home-hero-top">
         <div class="home-brand">
-          <div class="home-logo-dot">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 2a5 5 0 0 0-5 5v3a5 5 0 0 0 10 0V7a5 5 0 0 0-5-5z"/>
-              <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-            </svg>
+          <div class="home-logo-dot" style="background:#fff;border-radius:12px;padding:2px;box-shadow:0 2px 8px rgba(0,0,0,0.1)">
+            <img src="./assets/mirun-ai-logo.png" alt="MiRun AI" style="height:24px;width:auto;display:block">
           </div>
           <span class="home-brand-name">MiRun AI</span>
         </div>
@@ -2225,8 +2322,8 @@ body {
 
   <div id="homeDashboard"></div>
 
-  <div class="home-footer">
-    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#9ca3af" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:3px"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+  <div class="app-brand-footer">
+    <img src="./assets/mierke-logo.png" alt="米儿客" style="height:16px;vertical-align:middle;margin-right:6px;opacity:0.7">
     <span>米儿客出品 · 数据仅存本地</span>
   </div>
 </div>
@@ -2237,8 +2334,16 @@ body {
   <div class="sub-tab-bar" id="financeSubTabBar">
     <button class="sub-tab-item active" data-sub="trend" onclick="switchSubTab('finance', 'trend')">趋势洞察</button>
     <button class="sub-tab-item" data-sub="dailytx" onclick="switchSubTab('finance', 'dailytx')">收支明细</button>
+    <button class="sub-tab-item" data-sub="receipt" onclick="switchSubTab('finance', 'receipt')">票据记账</button>
     <button class="sub-tab-item" data-sub="ct" onclick="switchSubTab('finance', 'ct')">财务体检</button>
   </div>
+  <div id="finance-receipt" class="sub-tab-content">
+    <div class="sub-section-title"><span class="dot" style="background:#2563eb"></span>票据识别记账</div>
+    <div style="padding:0 16px">
+      <div id="receiptRecogContainer" style="max-width:680px;margin:0 auto"></div>
+    </div>
+  </div>
+
   <div id="finance-ct" class="sub-tab-content">
 
 
@@ -2775,33 +2880,59 @@ body {
   <div id="finance-trend" class="sub-tab-content active">
     <div class="trend-panel-wrap" id="trendPanelContainer" style="padding:16px;max-width:680px;margin:0 auto"></div>
   </div>
+  <div class="app-brand-footer">
+    <img src="./assets/mierke-logo.png" alt="米儿客" style="height:16px;vertical-align:middle;margin-right:6px;opacity:0.7">
+    <span>米儿客出品 · 数据仅存本地</span>
+  </div>
 </div>
 
 <!-- END page-finance -->
 
 
 
-<!-- ==================== PAGE: 节气养生 ==================== -->
-<div id="page-solar" class="page-view">
-  <div id="solarTermContainer"></div>
+<!-- ==================== PAGE: 健康 ==================== -->
+<div id="page-health" class="page-view">
+  <div class="sub-tab-bar" id="healthSubTabBar">
+    <button class="sub-tab-item active" data-sub="behavior" onclick="switchSubTab('health', 'behavior')">行为记录</button>
+    <button class="sub-tab-item" data-sub="food" onclick="switchSubTab('health', 'food')">食物营养</button>
+    <button class="sub-tab-item" data-sub="solar" onclick="switchSubTab('health', 'solar')">节气养生</button>
+  </div>
+  <div id="health-behavior" class="sub-tab-content active">
+    <div class="sub-section-title"><span class="dot" style="background:#16a34a"></span>生活行为记录</div>
+    <div id="behaviorHubContainer"></div>
+  </div>
+  <div id="health-food" class="sub-tab-content">
+    <div class="sub-section-title"><span class="dot" style="background:#16a34a"></span>食物营养识别</div>
+    <div style="padding:0 16px">
+      <div id="foodRecogContainer" style="max-width:680px;margin:0 auto"></div>
+    </div>
+  </div>
+  <div id="health-solar" class="sub-tab-content">
+    <div class="sub-section-title"><span class="dot" style="background:#16a34a"></span>二十四节气养生</div>
+    <div id="solarTermContainer"></div>
+  </div>
+  <div class="app-brand-footer">
+    <img src="./assets/mierke-logo.png" alt="米儿客" style="height:16px;vertical-align:middle;margin-right:6px;opacity:0.7">
+    <span>米儿客出品 · 数据仅存本地</span>
+  </div>
 </div>
-<!-- END page-solar -->
+<!-- END page-health -->
 
 <!-- ==================== PAGE: 记录 ==================== -->
 <div id="page-record" class="page-view">
   <div class="sub-tab-bar" id="recordSubTabBar">
     <button class="sub-tab-item active" data-sub="schedule" onclick="switchSubTab('record', 'schedule')">日程</button>
-    <button class="sub-tab-item" data-sub="behavior" onclick="switchSubTab('record', 'behavior')">行为</button>
     <button class="sub-tab-item" data-sub="imagerecog" onclick="switchSubTab('record', 'imagerecog')">识图</button>
   </div>
   <div id="record-schedule" class="sub-tab-content active">
     <div id="scheduleContainer"></div>
   </div>
-  <div id="record-behavior" class="sub-tab-content">
-    <div id="behaviorHubContainer"></div>
-  </div>
   <div id="record-imagerecog" class="sub-tab-content">
     <div class="image-recog-panel" id="imageRecogContainer"></div>
+  </div>
+  <div class="app-brand-footer">
+    <img src="./assets/mierke-logo.png" alt="米儿客" style="height:16px;vertical-align:middle;margin-right:6px;opacity:0.7">
+    <span>米儿客出品 · 数据仅存本地</span>
   </div>
 </div>
 <!-- END page-record -->
@@ -2812,14 +2943,11 @@ body {
   <div class="me-page" style="padding:16px;max-width:680px;margin:0 auto">
     <!-- 个人信息区 -->
     <div class="me-profile-card" style="background:#fff;border-radius:16px;padding:24px 20px;margin-bottom:16px;border:1px solid #f1f5f9;text-align:center">
-      <div style="width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,#6366f1,#8b5cf6);margin:0 auto 12px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(99,102,241,0.3)">
-        <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 2a5 5 0 0 0-5 5v3a5 5 0 0 0 10 0V7a5 5 0 0 0-5-5z"/>
-          <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-        </svg>
+      <div style="width:64px;height:64px;border-radius:18px;background:#fff;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,0.08);border:1px solid #f1f5f9">
+        <img src="./assets/mirun-ai-logo.png" alt="MiRun AI" style="height:36px;width:auto;display:block">
       </div>
       <div style="font-size:17px;font-weight:700;color:#0f172a;margin-bottom:4px">MiRun AI</div>
-      <div style="font-size:12px;color:#94a3b8">你的私人智能操作系统</div>
+      <div style="font-size:12px;color:#94a3b8">越用越懂你的个人AI共生体</div>
     </div>
 
     <!-- 数据管理 -->
@@ -2880,6 +3008,10 @@ body {
       MiRun AI v41 · 数据仅存本地
     </div>
   </div>
+  <div class="app-brand-footer">
+    <img src="./assets/mierke-logo.png" alt="米儿客" style="height:16px;vertical-align:middle;margin-right:6px;opacity:0.7">
+    <span>米儿客出品 · 数据仅存本地</span>
+  </div>
 </div>
 <!-- END page-me -->
 
@@ -2911,9 +3043,9 @@ body {
     <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
     <span class="bottom-tab-label">记录</span>
   </button>
-  <button class="bottom-tab-item" data-module="solar" onclick="switchModule('solar')">
-    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
-    <span class="bottom-tab-label">养生</span>
+  <button class="bottom-tab-item" data-module="health" onclick="switchModule('health')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+    <span class="bottom-tab-label">健康</span>
   </button>
   <button class="bottom-tab-item" data-module="me" onclick="switchModule('me')">
     <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -2936,10 +3068,10 @@ body {
   </button>
 </div>
 
-<script src="datastore.js?v=31"></script>
-<script src="diagnosis-engine.js?v=31"></script>
-<script src="reminder-engine.js?v=31"></script>
-<script src="trend-view.js?v=31"></script>
+<script src="datastore.js?v=42"></script>
+<script src="diagnosis-engine.js?v=42"></script>
+<script src="reminder-engine.js?v=42"></script>
+<script src="trend-view.js?v=42"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 (function() {
@@ -2949,31 +3081,36 @@ body {
   var moduleTitles = {
     home: 'MiRun AI',
     finance: '财富',
+    health: '健康',
     record: '记录',
-    solar: '养生',
     me: '我的'
   };
   var subTabTitles = {
     'finance-ct': '财务体检',
     'finance-dailytx': '收支明细',
     'finance-trend': '趋势洞察',
+    'finance-receipt': '票据记账',
+    'health-behavior': '行为记录',
+    'health-food': '食物营养',
+    'health-solar': '节气养生',
     'record-schedule': '日程管理',
-    'record-behavior': '行为日志',
-    'record-imagerecog': '图片识别'
+    'record-imagerecog': '识图'
   };
   // 模块初始化标记（防止重复初始化）
   var moduleInitFlags = {
     finance_ct: false,
     finance_dailytx: false,
     finance_trend: false,
+    finance_receipt: false,
+    health_behavior: false,
+    health_food: false,
+    health_solar: false,
     record_schedule: false,
-    record_behavior: false,
-    record_imagerecog: false,
-    solar: false
+    record_imagerecog: false
   };
   // 当前激活的主Tab和子Tab
   var currentModule = 'home';
-  var currentSubTab = { finance: 'ct', record: 'schedule' };
+  var currentSubTab = { finance: 'trend', health: 'behavior', record: 'schedule' };
 
   // 首页问候语（按时间动态更新）
   function updateGreeting() {
@@ -3046,6 +3183,109 @@ body {
   });
 
   // ==================== 首页智能看板 ====================
+  /**
+   * 渲染全局概览卡片（三大数据域核心指标）
+   */
+  function renderPanoramaCard() {
+    var html = '<div class="panorama-card">';
+    
+    // 财富域
+    var monthKey = new Date().getFullYear() + '-' + String(new Date().getMonth()+1).padStart(2,'0');
+    var expMonth = 0, incMonth = 0;
+    try {
+      if (window.dailyTxGetByMonth && typeof dailyTxGetByMonth === 'function') {
+        var txs = dailyTxGetByMonth(monthKey) || [];
+        txs.forEach(function(t) {
+          if (t.type === 'expense') expMonth += Number(t.amount) || 0;
+          else incMonth += Number(t.amount) || 0;
+        });
+      }
+    } catch(e) {}
+    var balance = incMonth - expMonth;
+    
+    html += '<div class="pano-domain" onclick="switchModule(\'finance\')">';
+    html += '<div class="pano-domain-header">';
+    html += '<span class="pano-dot" style="background:#2563eb"></span>';
+    html += '<span class="pano-domain-name">财富域</span>';
+    html += '<span class="pano-arrow">→</span>';
+    html += '</div>';
+    html += '<div class="pano-metrics">';
+    html += '<div class="pano-metric"><div class="pano-val expense">' + (expMonth ? expMonth.toFixed(0) : '--') + '</div><div class="pano-label">本月支出</div></div>';
+    html += '<div class="pano-divider"></div>';
+    html += '<div class="pano-metric"><div class="pano-val income">' + (incMonth ? incMonth.toFixed(0) : '--') + '</div><div class="pano-label">本月收入</div></div>';
+    html += '<div class="pano-divider"></div>';
+    html += '<div class="pano-metric"><div class="pano-val ' + (balance >= 0 ? 'income' : 'expense') + '">' + ((expMonth || incMonth) ? balance.toFixed(0) : '--') + '</div><div class="pano-label">结余</div></div>';
+    html += '</div>';
+    html += '</div>';
+
+    // 健康域
+    var todaySteps = '--';
+    var weekSleepAvg = '--';
+    var moodToday = '--';
+    try {
+      if (window.behaviorGetTodayData && typeof behaviorGetTodayData === 'function') {
+        var td = behaviorGetTodayData() || {};
+        if (td.exercise && td.exercise.duration) todaySteps = td.exercise.duration + 'min';
+        else if (td.exercise && td.exercise.steps) todaySteps = td.exercise.steps + '步';
+        if (td.mood && td.mood.level) moodToday = td.mood.label || td.mood.level;
+      }
+      // 本周睡眠均值（简单取最近7天）
+      if (window.behaviorGetRangeData && typeof behaviorGetRangeData === 'function') {
+        var end = new Date();
+        var start = new Date(end.getTime() - 6 * 86400000);
+        var rd = behaviorGetRangeData(start, end) || [];
+        var sleepTotal = 0, sleepCount = 0;
+        rd.forEach(function(d) {
+          if (d.sleep && d.sleep.hours) { sleepTotal += d.sleep.hours; sleepCount++; }
+        });
+        if (sleepCount > 0) weekSleepAvg = (sleepTotal / sleepCount).toFixed(1) + 'h';
+      }
+    } catch(e) {}
+    
+    html += '<div class="pano-domain" onclick="switchModule(\'health\')">';
+    html += '<div class="pano-domain-header">';
+    html += '<span class="pano-dot" style="background:#16a34a"></span>';
+    html += '<span class="pano-domain-name">健康域</span>';
+    html += '<span class="pano-arrow">→</span>';
+    html += '</div>';
+    html += '<div class="pano-metrics">';
+    html += '<div class="pano-metric"><div class="pano-val">' + todaySteps + '</div><div class="pano-label">今日运动</div></div>';
+    html += '<div class="pano-divider"></div>';
+    html += '<div class="pano-metric"><div class="pano-val">' + weekSleepAvg + '</div><div class="pano-label">周均睡眠</div></div>';
+    html += '<div class="pano-divider"></div>';
+    html += '<div class="pano-metric"><div class="pano-val">' + moodToday + '</div><div class="pano-label">情绪状态</div></div>';
+    html += '</div>';
+    html += '</div>';
+
+    // 记录域
+    var todoTotal = 0, todoDone = 0;
+    try {
+      if (window.scheduleGetTodayTasks && typeof scheduleGetTodayTasks === 'function') {
+        var tasks = scheduleGetTodayTasks() || [];
+        todoTotal = tasks.length;
+        tasks.forEach(function(t) { if (t.status === 'done' || t.completed) todoDone++; });
+      }
+    } catch(e) {}
+    
+    html += '<div class="pano-domain" onclick="switchModule(\'record\')">';
+    html += '<div class="pano-domain-header">';
+    html += '<span class="pano-dot" style="background:#ea580c"></span>';
+    html += '<span class="pano-domain-name">记录域</span>';
+    html += '<span class="pano-arrow">→</span>';
+    html += '</div>';
+    html += '<div class="pano-metrics">';
+    html += '<div class="pano-metric"><div class="pano-val">' + todoTotal + '</div><div class="pano-label">今日待办</div></div>';
+    html += '<div class="pano-divider"></div>';
+    html += '<div class="pano-metric"><div class="pano-val" style="color:#16a34a">' + todoDone + '</div><div class="pano-label">已完成</div></div>';
+    html += '<div class="pano-divider"></div>';
+    html += '<div class="pano-metric"><div class="pano-val">' + (todoTotal > 0 ? Math.round(todoDone / todoTotal * 100) + '%' : '--') + '</div><div class="pano-label">完成率</div></div>';
+    html += '</div>';
+    html += '</div>';
+
+    html += '</div>';
+    return html;
+  }
+
   function renderSmartHome() {
     var container = document.getElementById('homeDashboard');
     if (!container) return;
@@ -3121,6 +3361,10 @@ body {
     html += '</div>';
 
     // （快捷入口已迁移到底部Tab导航）
+    // === 全局概览（跨域看板） ===
+    html += '<div class="home-section-title">全景看板</div>';
+    html += renderPanoramaCard();
+
     // === 共生内核（思考工具 + 行为记录） ===
     html += '<div class="home-section-title">共生内核</div>';
     html += '<div class="home-tool-list">';
@@ -3157,10 +3401,12 @@ body {
     // 兼容旧模块名的跳转映射
     var legacyMap = {
       schedule: ['record', 'schedule'],
-      behavior: ['record', 'behavior'],
+      behavior: ['health', 'behavior'],
       imagerecog: ['record', 'imagerecog'],
       dailytx: ['finance', 'dailytx'],
-      trend: ['finance', 'trend']
+      trend: ['finance', 'trend'],
+      solar: ['health', 'solar'],
+      food: ['health', 'food']
     };
     if (legacyMap[moduleName]) {
       var mapped = legacyMap[moduleName];
@@ -3204,16 +3450,10 @@ body {
     }
     // 首页智能看板刷新
     if (moduleName === 'home') { renderSmartHome(); updateGreeting(); setTimeout(updatePushBadge, 100); }
-    // 节气养生模块初始化
-    if (moduleName === 'solar' && window.initSolarTerm) {
-      if (!moduleInitFlags.solar) {
-        moduleInitFlags.solar = true;
-        requestAnimationFrame(function() {
-          requestAnimationFrame(function() {
-            window.initSolarTerm('solarTermContainer');
-          });
-        });
-      }
+    // 健康Tab：初始化默认分段
+    if (moduleName === 'health') {
+      var hs = subTabName || currentSubTab.health || 'behavior';
+      switchSubTab('health', hs, true);
     }
     // 财富Tab：初始化默认分段
     if (moduleName === 'finance') {
@@ -3282,6 +3522,32 @@ body {
           requestAnimationFrame(function() {
             window.TrendView.render('trendPanelContainer');
           });
+        } else if (subName === 'receipt' && window.ImageRecognizer) {
+          requestAnimationFrame(function() {
+            requestAnimationFrame(function() {
+              window.ImageRecognizer.renderReceipt('receiptRecogContainer');
+            });
+          });
+        }
+      } else if (parent === 'health') {
+        if (subName === 'behavior' && window.initBehaviorHub) {
+          requestAnimationFrame(function() {
+            requestAnimationFrame(function() {
+              window.initBehaviorHub('behaviorHubContainer');
+            });
+          });
+        } else if (subName === 'food' && window.ImageRecognizer) {
+          requestAnimationFrame(function() {
+            requestAnimationFrame(function() {
+              window.ImageRecognizer.renderFood('foodRecogContainer');
+            });
+          });
+        } else if (subName === 'solar' && window.initSolarTerm) {
+          requestAnimationFrame(function() {
+            requestAnimationFrame(function() {
+              window.initSolarTerm('solarTermContainer');
+            });
+          });
         }
       } else if (parent === 'record') {
         if (subName === 'schedule' && window.initSchedule) {
@@ -3290,14 +3556,10 @@ body {
               window.initSchedule('scheduleContainer');
             });
           });
-        } else if (subName === 'behavior' && window.initBehaviorHub) {
-          requestAnimationFrame(function() {
-            window.initBehaviorHub('behaviorHubContainer');
-          });
         } else if (subName === 'imagerecog' && window.ImageRecognizer) {
           requestAnimationFrame(function() {
             requestAnimationFrame(function() {
-              window.ImageRecognizer.renderUI('imageRecogContainer');
+              window.ImageRecognizer.renderGeneral('imageRecogContainer');
             });
           });
         }
@@ -3666,7 +3928,7 @@ body {
             } else if (action.type === 'recommend_recipe') {
               showTodayRecipes();
             } else if (action.type === 'show_health_tips') {
-              switchModule('solar');
+              switchModule('health', 'solar');
               if (window.solarSwitchView) setTimeout(function() { window.solarSwitchView('health'); }, 200);
             }
           });
@@ -3712,7 +3974,7 @@ body {
       var recipeInfo = recipeAddMatch[1].trim();
       if (window.solarOpenRecipeForm) {
         window.solarOpenRecipeForm(recipeInfo);
-        switchModule('solar');
+        switchModule('health', 'solar');
         if (window.solarSwitchView) setTimeout(function() { window.solarSwitchView('collection'); }, 100);
         return;
       }
@@ -3813,7 +4075,7 @@ body {
             } else if (action.type === 'recommend_recipe') {
               showTodayRecipes();
             } else if (action.type === 'show_health_tips') {
-              switchModule('solar');
+              switchModule('health', 'solar');
               if (window.solarSwitchView) setTimeout(function() { window.solarSwitchView('health'); }, 200);
             }
           });
@@ -3827,9 +4089,9 @@ body {
         } else if (/提醒|日程|待办|还款日|缴费|会议|预约|安排|计划|排期|饭局|聚会|今晚|明天|后天|周末|下午|上午|点钟|点半|出差|电影|挂号/.test(text)) {
           switchModule('schedule');
         } else if (/食谱|菜谱|饭菜|煲汤|养生|节气|时令|食疗|滋补|祛湿|清热|食材|菜品|炖汤|营养|热量|蛋白质|水果|蔬菜|肉|喝/.test(text)) {
-          switchModule('solar');
+          switchModule('health', 'solar');
         } else if (/体检|健康|运动|睡眠|体重|用药|血压|心率|步数|卡路里/.test(text)) {
-          switchModule('solar');
+          switchModule('health', 'solar');
           if (window.solarSwitchView) setTimeout(function() { window.solarSwitchView('health'); }, 200);
         }
         showToast(fallbackResult.reply || fallbackResult);
@@ -3842,9 +4104,9 @@ body {
       } else if (/提醒|日程|待办|还款日|缴费|会议|预约|安排|计划|排期|饭局|聚会|今晚|明天|后天|周末|下午|上午|点钟|点半|出差|电影|挂号/.test(text)) {
         switchModule('schedule');
       } else if (/食谱|菜谱|饭菜|煲汤|养生|节气|时令|食疗|滋补|祛湿|清热|食材|菜品|炖汤|营养|热量|蛋白质|水果|蔬菜|肉|喝/.test(text)) {
-        switchModule('solar');
+        switchModule('health', 'solar');
       } else if (/体检|健康|运动|睡眠|体重|用药|血压|心率|步数|卡路里/.test(text)) {
-        switchModule('solar');
+        switchModule('health', 'solar');
         if (window.solarSwitchView) setTimeout(function() { window.solarSwitchView('health'); }, 200);
       }
       showToast(result);
@@ -4303,7 +4565,7 @@ body {
     document.getElementById('recipePopupClose').addEventListener('click', function() { overlay.remove(); });
     document.getElementById('recipePopupGoto').addEventListener('click', function() {
       overlay.remove();
-      switchModule('solar');
+      switchModule('health', 'solar');
       if (window.solarSwitchView) window.solarSwitchView('term');
     });
     overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
@@ -5586,7 +5848,7 @@ body {
     });
 
     window.addEventListener('load', function() {
-      navigator.serviceWorker.register('./service-worker.js?v=31', { updateViaCache: 'none' }).then(function(reg) {
+      navigator.serviceWorker.register('./service-worker.js?v=42', { updateViaCache: 'none' }).then(function(reg) {
         console.log('SW registered, scope:', reg.scope);
         
         // Force check for updates on every page load
@@ -5652,18 +5914,18 @@ function toggleGuideSection(index) {
 })();
 </script>
 
-<script src="solar-term.js?v=31"></script>
-<script src="chronic-disease.js?v=31"></script>
-<script src="schedule.js?v=31"></script>
-<script src="daily-tx.js?v=31"></script>
-<script src="behavior-log.js?v=31"></script>
-<script src="user-profile.js?v=31"></script>
-<script src="insight-engine.js?v=31"></script>
-<script src="health-bridge.js?v=31"></script>
-<script src="push-engine.js?v=31"></script>
-<script src="ai-engine.js?v=31"></script>
+<script src="solar-term.js?v=42"></script>
+<script src="chronic-disease.js?v=42"></script>
+<script src="schedule.js?v=42"></script>
+<script src="daily-tx.js?v=42"></script>
+<script src="behavior-log.js?v=42"></script>
+<script src="user-profile.js?v=42"></script>
+<script src="insight-engine.js?v=42"></script>
+<script src="health-bridge.js?v=42"></script>
+<script src="push-engine.js?v=42"></script>
+<script src="ai-engine.js?v=42"></script>
 <script src="decision-forge.js?v=1"></script>
 <script src="value-resonance.js?v=1"></script>
-<script src="image-recognizer.js?v=1"></script>
+<script src="image-recognizer.js?v=42"></script>
 </body>
 </html>

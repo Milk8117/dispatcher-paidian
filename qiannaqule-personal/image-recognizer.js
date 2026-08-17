@@ -90,6 +90,14 @@
       saveSettings: saveSettings,
       getVisionProviders: function() { return VISION_PROVIDERS; },
       renderUI: renderUI,
+      renderFood: renderFood,
+      renderReceipt: renderReceipt,
+      renderGeneral: renderGeneral,
+      _switchScene: _switchScene,
+      _onFileSelected: _onFileSelected,
+      _clearPreview: _clearPreview,
+      _doRecognize: _doRecognize,
+      _viewHistory: _viewHistory,
       _fileToBase64: fileToBase64,
       _callVisionAPI: callVisionAPI
     };
@@ -433,9 +441,30 @@
   }
 
   // ==================== UI渲染 ====================
-  function renderUI(containerId) {
+  // scenes: 可选数组，控制显示哪些场景tab，不传则全显示
+  // instanceId: 可选，多实例时用作用户区分（如 ir-food、ir-receipt）
+  function renderUI(containerId, scenes, instanceId) {
     var container = document.getElementById(containerId);
     if (!container) return;
+
+    // 默认全部场景
+    var allScenes = ['general', 'food', 'receipt'];
+    var sceneList = (scenes && scenes.length) ? scenes.filter(function(s) { return allScenes.indexOf(s) !== -1; }) : allScenes;
+    var singleScene = sceneList.length === 1;
+    var ns = instanceId || 'ir'; // namespace 前缀
+
+    // 场景名映射
+    var sceneNames = { general: '通用识别', food: '食物营养', receipt: '票据记账' };
+    var sceneHints = {
+      general: '上传任意图片，AI帮你分析内容',
+      food: '拍照识别食物营养成分、热量估算',
+      receipt: '拍照识别小票发票，一键记录收支'
+    };
+    var defaultScene = sceneList[0];
+    // 若传入的scenes含当前场景则保持，否则用第一个
+    if (sceneList.indexOf(_currentScene) === -1) {
+      _currentScene = defaultScene;
+    }
 
     var html = '<div class="image-recog-panel">';
     
@@ -443,57 +472,60 @@
     html += '<div class="ir-header">';
     html += '<div class="ir-title">';
     html += '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>';
-    html += '<span>图片识别</span>';
+    html += '<span>' + (singleScene ? sceneNames[defaultScene] : '图片识别') + '</span>';
     html += '</div>';
     html += '<span class="ir-status ' + (isConfigured() ? 'online' : 'offline') + '">' + (isConfigured() ? '已就绪' : '需配置') + '</span>';
     html += '</div>';
 
-    // 场景选择
-    html += '<div class="ir-scene-tabs">';
-    html += '<div class="ir-scene-tab active" data-scene="general" onclick="ImageRecognizer._switchScene(\'general\')">通用识别</div>';
-    html += '<div class="ir-scene-tab" data-scene="food" onclick="ImageRecognizer._switchScene(\'food\')">食物营养</div>';
-    html += '<div class="ir-scene-tab" data-scene="receipt" onclick="ImageRecognizer._switchScene(\'receipt\')">票据记账</div>';
-    html += '</div>';
+    // 场景选择（单场景时不显示tab）
+    if (!singleScene) {
+      html += '<div class="ir-scene-tabs">';
+      sceneList.forEach(function(s) {
+        var activeCls = s === _currentScene ? ' active' : '';
+        html += '<div class="ir-scene-tab' + activeCls + '" data-scene="' + s + '" data-ns="' + ns + '" onclick="ImageRecognizer._switchScene(\'' + s + '\', \'' + ns + '\')">' + sceneNames[s] + '</div>';
+      });
+      html += '</div>';
+    }
 
     // 上传区域
-    html += '<div class="ir-upload-area" id="irUploadArea" onclick="document.getElementById(\'irFileInput\').click()">';
-    html += '<input type="file" id="irFileInput" accept="image/*" capture="environment" style="display:none" onchange="ImageRecognizer._onFileSelected(event)" />';
+    html += '<div class="ir-upload-area" id="' + ns + 'UploadArea" onclick="document.getElementById(\'' + ns + 'FileInput\').click()">';
+    html += '<input type="file" id="' + ns + 'FileInput" accept="image/*" capture="environment" style="display:none" onchange="ImageRecognizer._onFileSelected(event, \'' + ns + '\')" />';
     html += '<div class="ir-upload-icon">';
     html += '<svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>';
     html += '</div>';
-    html += '<div class="ir-upload-text" id="irUploadText">点击上传或拍照识别</div>';
-    html += '<div class="ir-upload-hint" id="irUploadHint">支持 JPG、PNG 格式，自动压缩到 2MB 以内</div>';
+    html += '<div class="ir-upload-text" id="' + ns + 'UploadText">点击上传或拍照识别</div>';
+    html += '<div class="ir-upload-hint" id="' + ns + 'UploadHint">' + (sceneHints[_currentScene] || '支持 JPG、PNG 格式，自动压缩到 2MB 以内') + '</div>';
     html += '</div>';
 
     // 预览区
-    html += '<div class="ir-preview" id="irPreview" style="display:none">';
-    html += '<img id="irPreviewImg" alt="预览" />';
-    html += '<button class="ir-btn-clear" onclick="ImageRecognizer._clearPreview()">重新选择</button>';
+    html += '<div class="ir-preview" id="' + ns + 'Preview" style="display:none">';
+    html += '<img id="' + ns + 'PreviewImg" alt="预览" />';
+    html += '<button class="ir-btn-clear" onclick="ImageRecognizer._clearPreview(\'' + ns + '\')">重新选择</button>';
     html += '</div>';
 
     // 输入框（通用识别用）
-    html += '<div class="ir-input-row" id="irInputRow" style="display:none">';
-    html += '<input type="text" id="irCustomPrompt" placeholder="想让AI分析什么？（可选）" />';
-    html += '<button class="ir-btn-primary" id="irBtnRecognize" onclick="ImageRecognizer._doRecognize()">识别</button>';
+    html += '<div class="ir-input-row" id="' + ns + 'InputRow" style="display:none">';
+    html += '<input type="text" id="' + ns + 'CustomPrompt" placeholder="想让AI分析什么？（可选）" />';
+    html += '<button class="ir-btn-primary" id="' + ns + 'BtnRecognize" onclick="ImageRecognizer._doRecognize(\'' + ns + '\')">识别</button>';
     html += '</div>';
 
     // 结果区
-    html += '<div class="ir-result" id="irResult" style="display:none">';
+    html += '<div class="ir-result" id="' + ns + 'Result" style="display:none">';
     html += '<div class="ir-result-header">';
     html += '<span class="ir-result-title">识别结果</span>';
-    html += '<span class="ir-result-provider" id="irResultProvider"></span>';
+    html += '<span class="ir-result-provider" id="' + ns + 'ResultProvider"></span>';
     html += '</div>';
-    html += '<div class="ir-result-content" id="irResultContent"></div>';
-    html += '<div class="ir-result-actions" id="irResultActions"></div>';
+    html += '<div class="ir-result-content" id="' + ns + 'ResultContent"></div>';
+    html += '<div class="ir-result-actions" id="' + ns + 'ResultActions"></div>';
     html += '</div>';
 
     // 历史记录
     html += '<div class="ir-history">';
     html += '<div class="ir-history-header">';
     html += '<span>识别历史</span>';
-    html += '<span class="ir-history-count" id="irHistoryCount">0 条</span>';
+    html += '<span class="ir-history-count" id="' + ns + 'HistoryCount">0 条</span>';
     html += '</div>';
-    html += '<div class="ir-history-list" id="irHistoryList">';
+    html += '<div class="ir-history-list" id="' + ns + 'HistoryList">';
     html += '<div class="ir-empty">暂无识别记录</div>';
     html += '</div>';
     html += '</div>';
@@ -502,8 +534,24 @@
 
     container.innerHTML = html;
     
+    // 通用场景才显示输入框（上传前不显示，选中图片后显示）
     // 渲染历史
-    renderHistoryList();
+    renderHistoryList(ns, sceneList);
+  }
+
+  // 便捷方法：只渲染食物营养场景
+  function renderFood(containerId) {
+    renderUI(containerId, ['food'], 'ir-food');
+  }
+
+  // 便捷方法：只渲染票据记账场景
+  function renderReceipt(containerId) {
+    renderUI(containerId, ['receipt'], 'ir-receipt');
+  }
+
+  // 便捷方法：只渲染通用识别场景
+  function renderGeneral(containerId) {
+    renderUI(containerId, ['general'], 'ir-general');
   }
 
   function isConfigured() {
@@ -513,20 +561,21 @@
   // 当前场景
   var _currentScene = 'general';
 
-  function _switchScene(scene) {
+  function _switchScene(scene, ns) {
+    ns = ns || 'ir';
     _currentScene = scene;
-    // 更新tab样式
-    var tabs = document.querySelectorAll('.ir-scene-tab');
+    // 更新tab样式（按namespace筛选）
+    var tabs = document.querySelectorAll('.ir-scene-tab[data-ns="' + ns + '"]');
     tabs.forEach(function(t) {
       t.classList.toggle('active', t.dataset.scene === scene);
     });
     // 通用场景显示输入框
-    var inputRow = document.getElementById('irInputRow');
+    var inputRow = document.getElementById(ns + 'InputRow');
     if (inputRow) {
-      inputRow.style.display = scene === 'general' ? 'flex' : 'none';
+      inputRow.style.display = 'none'; // 选中图片后才显示
     }
     // 更新上传提示
-    var hint = document.getElementById('irUploadHint');
+    var hint = document.getElementById(ns + 'UploadHint');
     if (hint) {
       var hints = {
         general: '上传任意图片，AI帮你分析内容',
@@ -536,10 +585,11 @@
       hint.textContent = hints[scene] || '';
     }
     // 清空当前结果
-    _clearPreview();
+    _clearPreview(ns);
   }
 
-  function _onFileSelected(event) {
+  function _onFileSelected(event, ns) {
+    ns = ns || 'ir';
     var file = event.target.files[0];
     if (!file) return;
     if (!file.type.startsWith('image/')) {
@@ -547,9 +597,9 @@
       return;
     }
     
-    var uploadArea = document.getElementById('irUploadArea');
-    var preview = document.getElementById('irPreview');
-    var previewImg = document.getElementById('irPreviewImg');
+    var uploadArea = document.getElementById(ns + 'UploadArea');
+    var preview = document.getElementById(ns + 'Preview');
+    var previewImg = document.getElementById(ns + 'PreviewImg');
     
     // 显示预览
     var reader = new FileReader();
@@ -560,36 +610,39 @@
       
       // 非通用场景直接识别
       if (_currentScene !== 'general') {
-        _doRecognize();
+        _doRecognize(ns);
       } else {
-        document.getElementById('irInputRow').style.display = 'flex';
+        var inputRow = document.getElementById(ns + 'InputRow');
+        if (inputRow) inputRow.style.display = 'flex';
       }
     };
     reader.readAsDataURL(file);
   }
 
-  function _clearPreview() {
-    var uploadArea = document.getElementById('irUploadArea');
-    var preview = document.getElementById('irPreview');
-    var result = document.getElementById('irResult');
-    var inputRow = document.getElementById('irInputRow');
-    var fileInput = document.getElementById('irFileInput');
+  function _clearPreview(ns) {
+    ns = ns || 'ir';
+    var uploadArea = document.getElementById(ns + 'UploadArea');
+    var preview = document.getElementById(ns + 'Preview');
+    var result = document.getElementById(ns + 'Result');
+    var inputRow = document.getElementById(ns + 'InputRow');
+    var fileInput = document.getElementById(ns + 'FileInput');
     
     if (uploadArea) uploadArea.style.display = 'flex';
     if (preview) preview.style.display = 'none';
     if (result) result.style.display = 'none';
-    if (inputRow) inputRow.style.display = _currentScene === 'general' ? 'none' : 'none';
+    if (inputRow) inputRow.style.display = 'none';
     if (fileInput) fileInput.value = '';
   }
 
-  async function _doRecognize() {
-    var previewImg = document.getElementById('irPreviewImg');
+  async function _doRecognize(ns) {
+    ns = ns || 'ir';
+    var previewImg = document.getElementById(ns + 'PreviewImg');
     if (!previewImg || !previewImg.src) {
       showToast('请先选择图片');
       return;
     }
 
-    var btn = document.getElementById('irBtnRecognize');
+    var btn = document.getElementById(ns + 'BtnRecognize');
     if (btn) {
       btn.disabled = true;
       btn.textContent = '识别中...';
@@ -600,7 +653,7 @@
     var prompt = null;
     
     if (_currentScene === 'general') {
-      var input = document.getElementById('irCustomPrompt');
+      var input = document.getElementById(ns + 'CustomPrompt');
       prompt = input && input.value.trim() ? input.value.trim() : null;
     }
 
@@ -618,24 +671,25 @@
       btn.textContent = '识别';
     }
 
-    _showResult(result);
+    _showResult(result, ns);
   }
 
-  function _showResult(result) {
-    var resultDiv = document.getElementById('irResult');
-    var contentDiv = document.getElementById('irResultContent');
-    var providerSpan = document.getElementById('irResultProvider');
-    var actionsDiv = document.getElementById('irResultActions');
+  function _showResult(result, ns) {
+    ns = ns || 'ir';
+    var resultDiv = document.getElementById(ns + 'Result');
+    var contentDiv = document.getElementById(ns + 'ResultContent');
+    var providerSpan = document.getElementById(ns + 'ResultProvider');
+    var actionsDiv = document.getElementById(ns + 'ResultActions');
 
     if (!result.success) {
       contentDiv.innerHTML = '<div class="ir-error">识别失败：' + result.error + '</div>';
-      providerSpan.textContent = '';
-      actionsDiv.innerHTML = '';
+      if (providerSpan) providerSpan.textContent = '';
+      if (actionsDiv) actionsDiv.innerHTML = '';
       resultDiv.style.display = 'block';
       return;
     }
 
-    providerSpan.textContent = result.provider;
+    if (providerSpan) providerSpan.textContent = result.provider;
     
     // 格式化内容
     var content = result.content;
@@ -647,7 +701,7 @@
     var actions = [];
     if (_currentScene === 'receipt' && result.parsed) {
       actions.push({
-        text: '记一笔',
+        text: '一键记账',
         action: function() {
           if (window.dailyTxAddRecord) {
             var p = result.parsed;
@@ -685,27 +739,42 @@
       }
     });
 
-    actionsDiv.innerHTML = '';
-    actions.forEach(function(a) {
-      var btn = document.createElement('button');
-      btn.className = 'ir-action-btn';
-      btn.textContent = a.text;
-      btn.onclick = a.action;
-      actionsDiv.appendChild(btn);
-    });
+    if (actionsDiv) {
+      actionsDiv.innerHTML = '';
+      actions.forEach(function(a) {
+        var btn = document.createElement('button');
+        btn.className = 'ir-action-btn';
+        btn.textContent = a.text;
+        btn.onclick = a.action;
+        actionsDiv.appendChild(btn);
+      });
+    }
 
     resultDiv.style.display = 'block';
     
-    // 刷新历史
-    renderHistoryList();
+    // 刷新历史（所有实例都刷新）
+    _refreshAllHistory();
   }
 
-  function renderHistoryList() {
-    var list = document.getElementById('irHistoryList');
-    var count = document.getElementById('irHistoryCount');
+  function _refreshAllHistory() {
+    var allScenes = ['general', 'food', 'receipt'];
+    renderHistoryList('ir', allScenes);
+    renderHistoryList('ir-general', ['general']);
+    renderHistoryList('ir-food', ['food']);
+    renderHistoryList('ir-receipt', ['receipt']);
+  }
+
+  function renderHistoryList(ns, sceneFilter) {
+    ns = ns || 'ir';
+    var list = document.getElementById(ns + 'HistoryList');
+    var count = document.getElementById(ns + 'HistoryCount');
     if (!list) return;
 
     var history = getHistory();
+    // 按场景过滤
+    if (sceneFilter && sceneFilter.length) {
+      history = history.filter(function(h) { return sceneFilter.indexOf(h.scene) !== -1; });
+    }
     if (count) count.textContent = history.length + ' 条';
 
     if (history.length === 0) {
@@ -719,7 +788,7 @@
       var date = new Date(item.timestamp);
       var timeStr = date.getMonth()+1 + '/' + date.getDate() + ' ' + 
                     String(date.getHours()).padStart(2,'0') + ':' + String(date.getMinutes()).padStart(2,'0');
-      html += '<div class="ir-history-item" onclick="ImageRecognizer._viewHistory(\'' + item.id + '\')">';
+      html += '<div class="ir-history-item" onclick="ImageRecognizer._viewHistory(\'' + item.id + '\', \'' + ns + '\')">';
       if (item.imageData) {
         html += '<img src="' + item.imageData + '" class="ir-history-thumb" alt="" />';
       } else {
@@ -737,13 +806,14 @@
     list.innerHTML = html;
   }
 
-  function _viewHistory(id) {
+  function _viewHistory(id, ns) {
+    ns = ns || 'ir';
     var item = _history.find(function(h) { return h.id === id; });
     if (!item) return;
 
-    var previewImg = document.getElementById('irPreviewImg');
-    var uploadArea = document.getElementById('irUploadArea');
-    var preview = document.getElementById('irPreview');
+    var previewImg = document.getElementById(ns + 'PreviewImg');
+    var uploadArea = document.getElementById(ns + 'UploadArea');
+    var preview = document.getElementById(ns + 'Preview');
     
     if (item.imageData && previewImg) {
       previewImg.src = item.imageData;
@@ -752,7 +822,7 @@
     }
     
     _currentScene = item.scene;
-    _switchScene(item.scene);
+    _switchScene(item.scene, ns);
     
     _showResult({
       success: true,
@@ -760,7 +830,7 @@
       provider: item.provider,
       parsed: item.scene === 'receipt' ? parseReceiptJSON(item.result) : null,
       record: item
-    });
+    }, ns);
   }
 
   // 简易toast
