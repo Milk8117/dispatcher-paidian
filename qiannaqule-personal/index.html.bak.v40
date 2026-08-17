@@ -30,7 +30,7 @@ body {
 .container {
   max-width: 680px;
   margin: 0 auto;
-  padding: 68px 16px 80px;
+  padding: 68px 16px 68px;
 }
 
 /* ========== Header ========== */
@@ -749,9 +749,9 @@ body {
   background: #fff;
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 0 16px;
-  z-index: 100;
+  justify-content: space-between;
+  padding: 0 12px;
+  z-index: 2000;
   border-bottom: 1px solid #f1f5f9;
 }
 .app-topbar-title {
@@ -760,132 +760,109 @@ body {
   color: #0f172a;
   letter-spacing: -0.3px;
 }
-.topbar-right {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.topbar-notif-btn {
-  position: relative;
-  width: 36px; height: 36px;
-  border: none;
-  background: #fff7ed;
-  color: #ff6600;
-  border-radius: 50%;
+.nav-toggle {
+  width: 40px; height: 40px;
+  border: none; background: none;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-}
-.topbar-notif-btn:active { background: #ffedd5; }
-.topbar-notif-badge {
-  position: absolute;
-  top: -2px; right: -2px;
-  background: #ef4444;
-  color: #fff;
-  font-size: 10px; font-weight: 700;
-  min-width: 16px; height: 16px;
-  border-radius: 8px;
-  padding: 0 4px;
   display: flex; align-items: center; justify-content: center;
-  line-height: 1;
-  border: 2px solid #fff;
+  border-radius: 10px;
+  transition: background 0.2s;
 }
-.topbar-notif-badge:empty, .topbar-notif-badge[data-count="0"] { display: none; }
+.nav-toggle:active { background: #f1f5f9; }
+.nav-toggle svg { width: 22px; height: 22px; stroke: #1a2a3a; fill: none; stroke-width: 2; stroke-linecap: round; }
 
 /* ========== Nav Drawer ========== */
-/* ========== Bottom Tab Bar ========== */
-.bottom-tab-bar {
+.nav-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.3);
+  z-index: 2001;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s;
+}
+.nav-overlay.open { opacity: 1; pointer-events: auto; }
+.nav-drawer {
   position: fixed;
-  bottom: 0; left: 0; right: 0;
-  height: 64px;
+  top: 0; left: 0;
+  width: 260px; height: 100%;
   background: #fff;
-  border-top: 1px solid #f1f5f9;
-  display: flex;
-  align-items: stretch;
-  z-index: 100;
-  padding-bottom: env(safe-area-inset-bottom, 0);
+  z-index: 2002;
+  transform: translateX(-100%);
+  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+  padding: 0;
+  box-shadow: 2px 0 16px rgba(0,0,0,0.1);
 }
-.bottom-tab-item {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
-  cursor: pointer;
-  border: none; background: none;
-  color: #94a3b8;
-  transition: color 0.15s;
-  padding: 6px 0;
-  font-family: inherit;
-}
-.bottom-tab-item:active { opacity: 0.6; }
-.bottom-tab-item.active { color: #ff6600; }
-.bottom-tab-item svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-.bottom-tab-label { font-size: 11px; font-weight: 500; line-height: 1; }
-
-/* ========== Sub Tab Bar (分段切换) ========== */
-.sub-tab-bar {
-  display: flex;
-  background: #fff;
+.nav-drawer.open { transform: translateX(0); }
+.nav-drawer-header {
+  padding: 20px 20px 16px;
   border-bottom: 1px solid #f1f5f9;
-  padding: 0 12px;
-  position: sticky;
-  top: 56px;
-  z-index: 50;
 }
-.sub-tab-item {
-  flex: 1;
-  padding: 14px 8px;
-  text-align: center;
-  font-size: 14px;
-  color: #64748b;
+.nav-drawer-header h2 {
+  font-size: 18px; font-weight: 800; color: #0f172a; margin: 0;
+  letter-spacing: -0.3px;
+}
+.nav-drawer-header p {
+  font-size: 12px; color: #94a3b8; margin: 4px 0 0;
+}
+.nav-drawer-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 15px 20px;
+  color: #475569;
+  font-size: 15px;
   cursor: pointer;
-  border: none; background: none;
-  position: relative;
+  transition: background 0.15s;
+  border: none; background: none; width: 100%; text-align: left;
   font-family: inherit;
-  transition: color 0.15s;
 }
-.sub-tab-item:active { opacity: 0.6; }
-.sub-tab-item.active {
-  color: #ff6600;
-  font-weight: 600;
+.nav-drawer-item:active { background: #f8fafc; }
+.nav-drawer-item.active { color: #ff6600; background: #fff7ed; font-weight: 600; }
+.nav-drawer-item svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+
+/* 侧边栏品牌区 */
+.nav-brand-row {
+  display: flex; align-items: center; gap: 10px;
 }
-.sub-tab-item.active::after {
-  content: '';
-  position: absolute;
-  bottom: 0; left: 50%;
-  transform: translateX(-50%);
-  width: 24px; height: 2.5px;
-  background: #ff6600;
-  border-radius: 2px;
+.nav-brand-logo {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 10px rgba(99,102,241,0.3);
 }
-.sub-tab-content {
-  display: none;
+.nav-brand-name {
+  font-size: 15px; font-weight: 700; color: #0f172a;
+  line-height: 1.3;
 }
-.sub-tab-content.active {
-  display: block;
+.nav-brand-slogan {
+  font-size: 11px; color: #94a3b8;
+  margin-top: 2px;
+}
+.nav-drawer-header h2, .nav-drawer-header p { display: none; }
+
+/* 导航分组标签 */
+.nav-group-label {
+  font-size: 11px; font-weight: 600; color: #94a3b8;
+  padding: 16px 20px 8px;
+  letter-spacing: 0.5px; text-transform: uppercase;
+}
+.nav-drawer-item {
+  padding: 11px 20px;
+  margin: 0 10px;
+  border-radius: 10px;
+}
+.nav-drawer-item + .nav-drawer-item {
+  margin-top: 2px;
 }
 
-/* ========== Page Views (底部Tab安全距离) ========== */
-.container {
-  padding-bottom: 80px;
-}
 
 /* ========== Bottom Input Bar ========== */
 .app-input-bar {
   position: fixed;
-  bottom: 64px; left: 0; right: 0;
+  bottom: 0; left: 0; right: 0;
   background: #fff;
   border-top: 1px solid #f1f5f9;
-  padding: 8px 12px;
-  z-index: 99;
+  padding: 8px 12px calc(env(safe-area-inset-bottom, 8px) + 8px);
+  z-index: 2000;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -948,6 +925,7 @@ body {
   vertical-align: middle;
   object-fit: cover;
 }
+
 
 .app-input-response {
   margin-top: 12px;
@@ -2177,19 +2155,61 @@ body {
 
 <!-- ==================== Global Top Bar ==================== -->
 <header class="app-topbar">
-  <span class="app-topbar-title" id="topbarTitle">MiRun AI</span>
-  <div class="topbar-right">
-    <button class="topbar-notif-btn" id="topbarNotifBtn" onclick="togglePushPanel()" title="智能推送" style="display:none">
-      <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-      <span class="topbar-notif-badge" id="topbarNotifBadge">0</span>
-    </button>
-    <button class="ai-settings-icon" onclick="openAiSettings()" title="AI设置">
-      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#8b5cf6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-    </button>
+  <button class="nav-toggle" onclick="toggleNavDrawer()">
+    <svg viewBox="0 0 24 24"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+  </button>
+  <div style="display:flex;align-items:center;">
+    <img src="mierke-logo.png" alt="米儿客" style="height:26px;width:auto;margin-right:6px;vertical-align:middle" />
+    <span class="app-topbar-title" id="topbarTitle">MiRun AI</span>
   </div>
+  <button class="ai-settings-icon" onclick="openAiSettings()" title="AI设置">
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#8b5cf6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+  </button>
 </header>
 
 <!-- Nav Drawer Overlay -->
+<div class="nav-overlay" id="navOverlay" onclick="toggleNavDrawer()"></div>
+
+<!-- Nav Drawer -->
+<nav class="nav-drawer" id="navDrawer">
+  <div class="nav-drawer-header">
+    <h2>MiRun AI</h2>
+    <p>你的私人贾维斯</p>
+  </div>
+  <button class="nav-drawer-item active" data-module="home" onclick="switchModule('home')">
+    <svg viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9.5z"/><path d="M9 22V12h6v10"/></svg>
+    首页
+  </button>
+  <button class="nav-drawer-item" data-module="schedule" onclick="switchModule('schedule')">
+    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>
+    日程管理
+  </button>
+  <button class="nav-drawer-item" data-module="dailytx" onclick="switchModule('dailytx')">
+    <svg viewBox="0 0 24 24"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+    日常收支
+  </button>
+  <button class="nav-drawer-item" data-module="behavior" onclick="switchModule('behavior')">
+    <svg viewBox="0 0 24 24"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+    行为日志
+  </button>
+  <button class="nav-drawer-item" data-module="solar" onclick="switchModule('solar')">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    节气养生
+  </button>
+  <button class="nav-drawer-item" data-module="trend" onclick="switchModule('trend')">
+    <svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-5"/></svg>
+    趋势洞察
+  </button>
+  <button class="nav-drawer-item" data-module="imagerecog" onclick="switchModule('imagerecog')">
+    <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+    图片识别
+  </button>
+
+  <button class="nav-drawer-item" data-module="finance" onclick="switchModule('finance')">
+    <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 10h20"/><path d="M6 16h4"/><path d="M14 16h4"/></svg>
+    财富诊断CT
+  </button>
+</nav>
 
 <!-- ==================== PAGE: 首页 ==================== -->
 <div id="page-home" class="page-view page-active">
@@ -2205,7 +2225,13 @@ body {
           </div>
           <span class="home-brand-name">MiRun AI</span>
         </div>
-
+        <button class="home-push-bell" id="homePushBell" onclick="togglePushPanel()" style="display:none">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+          <span class="home-push-badge" id="homePushBadge">0</span>
+        </button>
       </div>
       <h1 class="home-greeting" id="homeGreeting">你好</h1>
       <p class="home-date-bar" id="homeDateBar"></p>
@@ -2234,13 +2260,6 @@ body {
 
 <!-- ==================== PAGE: 财富诊断 ==================== -->
 <div id="page-finance" class="page-view">
-  <div class="sub-tab-bar" id="financeSubTabBar">
-    <button class="sub-tab-item active" data-sub="ct" onclick="switchSubTab('finance', 'ct')">体检CT</button>
-    <button class="sub-tab-item" data-sub="dailytx" onclick="switchSubTab('finance', 'dailytx')">收支明细</button>
-    <button class="sub-tab-item" data-sub="trend" onclick="switchSubTab('finance', 'trend')">趋势洞察</button>
-  </div>
-  <div id="finance-ct" class="sub-tab-content active">
-
 
   <!-- Financial Reminder Banner -->
   <div id="_reminderContainer" style="display:none;"></div>
@@ -2496,6 +2515,7 @@ body {
       </div>
     </div>
   </div>
+
 
   <!-- 区域分隔：诊断依据 → 诊断区 -->
   <div class="zone-divider">
@@ -2768,18 +2788,13 @@ body {
     </span>
   </div>
 </div>
-
-  <div id="finance-dailytx" class="sub-tab-content">
-    <div id="dailyTxContainer"></div>
-  </div>
-  <div id="finance-trend" class="sub-tab-content">
-    <div class="trend-panel-wrap" id="trendPanelContainer" style="padding:16px;max-width:680px;margin:0 auto"></div>
-  </div>
-</div>
-
 <!-- END page-finance -->
 
-
+<!-- ==================== PAGE: 日常收支 ==================== -->
+<div id="page-dailytx" class="page-view">
+  <div id="dailyTxContainer"></div>
+</div>
+<!-- END page-dailytx -->
 
 <!-- ==================== PAGE: 节气养生 ==================== -->
 <div id="page-solar" class="page-view">
@@ -2787,103 +2802,30 @@ body {
 </div>
 <!-- END page-solar -->
 
-<!-- ==================== PAGE: 记录 ==================== -->
-<div id="page-record" class="page-view">
-  <div class="sub-tab-bar" id="recordSubTabBar">
-    <button class="sub-tab-item active" data-sub="schedule" onclick="switchSubTab('record', 'schedule')">日程</button>
-    <button class="sub-tab-item" data-sub="behavior" onclick="switchSubTab('record', 'behavior')">行为</button>
-    <button class="sub-tab-item" data-sub="imagerecog" onclick="switchSubTab('record', 'imagerecog')">识图</button>
-  </div>
-  <div id="record-schedule" class="sub-tab-content active">
-    <div id="scheduleContainer"></div>
-  </div>
-  <div id="record-behavior" class="sub-tab-content">
-    <div id="behaviorHubContainer"></div>
-  </div>
-  <div id="record-imagerecog" class="sub-tab-content">
-    <div class="image-recog-panel" id="imageRecogContainer"></div>
-  </div>
+<!-- ==================== PAGE: 日程管理 ==================== -->
+<div id="page-schedule" class="page-view">
+  <div id="scheduleContainer"></div>
 </div>
-<!-- END page-record -->
+<!-- END page-schedule -->
 
-
-<!-- ==================== PAGE: 我的 ==================== -->
-<div id="page-me" class="page-view">
-  <div class="me-page" style="padding:16px;max-width:680px;margin:0 auto">
-    <!-- 个人信息区 -->
-    <div class="me-profile-card" style="background:#fff;border-radius:16px;padding:24px 20px;margin-bottom:16px;border:1px solid #f1f5f9;text-align:center">
-      <div style="width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,#6366f1,#8b5cf6);margin:0 auto 12px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(99,102,241,0.3)">
-        <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 2a5 5 0 0 0-5 5v3a5 5 0 0 0 10 0V7a5 5 0 0 0-5-5z"/>
-          <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-        </svg>
-      </div>
-      <div style="font-size:17px;font-weight:700;color:#0f172a;margin-bottom:4px">MiRun AI</div>
-      <div style="font-size:12px;color:#94a3b8">你的私人智能操作系统</div>
-    </div>
-
-    <!-- 数据管理 -->
-    <div class="me-section-card" style="background:#fff;border-radius:16px;margin-bottom:16px;border:1px solid #f1f5f9;overflow:hidden">
-      <div class="me-section-title" style="padding:14px 16px 8px;font-size:13px;font-weight:600;color:#64748b;letter-spacing:0.3px">数据管理</div>
-      <div class="me-list-item" onclick="showDataStats()" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;border-top:1px solid #f8fafc">
-        <div style="display:flex;align-items:center;gap:10px">
-          <div style="width:32px;height:32px;border-radius:10px;background:#f0f9ff;display:flex;align-items:center;justify-content:center;color:#0ea5e9">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></svg>
-          </div>
-          <span style="font-size:14px;color:#1e293b">数据容量</span>
-        </div>
-        <span id="dataStorageSize" style="font-size:13px;color:#94a3b8">计算中...</span>
-      </div>
-      <div class="me-list-item" onclick="confirmClearAllData()" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;border-top:1px solid #f8fafc">
-        <div style="display:flex;align-items:center;gap:10px">
-          <div style="width:32px;height:32px;border-radius:10px;background:#fef2f2;display:flex;align-items:center;justify-content:center;color:#ef4444">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>
-          </div>
-          <span style="font-size:14px;color:#1e293b">清空所有数据</span>
-        </div>
-        <span style="font-size:13px;color:#94a3b8">→</span>
-      </div>
-    </div>
-
-    <!-- AI对话历史入口 -->
-    <div class="me-section-card" style="background:#fff;border-radius:16px;margin-bottom:16px;border:1px solid #f1f5f9;overflow:hidden">
-      <div class="me-section-title" style="padding:14px 16px 8px;font-size:13px;font-weight:600;color:#64748b;letter-spacing:0.3px">对话</div>
-      <div class="me-list-item" onclick="switchModule('home');setTimeout(function(){var c=document.getElementById('chatHistorySection');if(c){c.scrollIntoView({behavior:'smooth'})}},100)" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;border-top:1px solid #f8fafc">
-        <div style="display:flex;align-items:center;gap:10px">
-          <div style="width:32px;height:32px;border-radius:10px;background:#f5f3ff;display:flex;align-items:center;justify-content:center;color:#8b5cf6">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          </div>
-          <span style="font-size:14px;color:#1e293b">AI对话历史</span>
-        </div>
-        <span style="font-size:13px;color:#94a3b8">→</span>
-      </div>
-    </div>
-
-    <!-- 关于 -->
-    <div class="me-section-card" style="background:#fff;border-radius:16px;margin-bottom:16px;border:1px solid #f1f5f9;overflow:hidden">
-      <div class="me-section-title" style="padding:14px 16px 8px;font-size:13px;font-weight:600;color:#64748b;letter-spacing:0.3px">关于</div>
-      <div class="me-list-item" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-top:1px solid #f8fafc">
-        <span style="font-size:14px;color:#1e293b">版本</span>
-        <span style="font-size:13px;color:#94a3b8">v41</span>
-      </div>
-      <div class="me-list-item" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-top:1px solid #f8fafc">
-        <span style="font-size:14px;color:#1e293b">出品</span>
-        <span style="font-size:13px;color:#94a3b8">米儿客</span>
-      </div>
-      <div class="me-list-item" onclick="showPrivacyNotice()" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;border-top:1px solid #f8fafc">
-        <span style="font-size:14px;color:#1e293b">隐私声明</span>
-        <span style="font-size:13px;color:#94a3b8">→</span>
-      </div>
-    </div>
-
-    <div style="text-align:center;padding:20px 0 10px;font-size:12px;color:#cbd5e1">
-      MiRun AI v41 · 数据仅存本地
-    </div>
-  </div>
+<!-- ==================== PAGE: 行为日志 ==================== -->
+<div id="page-behavior" class="page-view">
+  <div id="behaviorHubContainer"></div>
 </div>
-<!-- END page-me -->
+<!-- ==================== PAGE: 趋势洞察 ==================== -->
+<div id="page-trend" class="page-view">
+  <div class="trend-panel-wrap" id="trendPanelContainer" style="padding:16px;max-width:680px;margin:0 auto"></div>
+</div>
+<!-- END page-trend -->
+
+<!-- ==================== PAGE: 图片识别 ==================== -->
+<div id="page-imagerecog" class="page-view">
+  <div class="image-recog-panel" id="imageRecogContainer"></div>
+</div>
+<!-- END page-imagerecog -->
 
 
+<!-- END page-behavior -->
 
 </div><!-- END container -->
 
@@ -2895,31 +2837,6 @@ body {
   </div>
   <div class="chat-history-list" id="chatHistoryList"></div>
 </div>
-
-
-<!-- ==================== Bottom Tab Bar ==================== -->
-<nav class="bottom-tab-bar" id="bottomTabBar">
-  <button class="bottom-tab-item active" data-module="home" onclick="switchModule('home')">
-    <svg viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9.5z"/><path d="M9 22V12h6v10"/></svg>
-    <span class="bottom-tab-label">首页</span>
-  </button>
-  <button class="bottom-tab-item" data-module="finance" onclick="switchModule('finance')">
-    <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 10h20"/><path d="M6 16h4"/><path d="M14 16h4"/></svg>
-    <span class="bottom-tab-label">财富</span>
-  </button>
-  <button class="bottom-tab-item" data-module="record" onclick="switchModule('record')">
-    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
-    <span class="bottom-tab-label">记录</span>
-  </button>
-  <button class="bottom-tab-item" data-module="solar" onclick="switchModule('solar')">
-    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
-    <span class="bottom-tab-label">养生</span>
-  </button>
-  <button class="bottom-tab-item" data-module="me" onclick="switchModule('me')">
-    <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-    <span class="bottom-tab-label">我的</span>
-  </button>
-</nav>
 
 <!-- Bottom Input Bar -->
 <div class="app-input-bar">
@@ -2948,32 +2865,14 @@ body {
   // ==================== Module Switching ====================
   var moduleTitles = {
     home: 'MiRun AI',
-    finance: '财富',
-    record: '记录',
-    solar: '养生',
-    me: '我的'
+    finance: '财富诊断CT',
+    dailytx: '日常收支',
+    solar: '节气养生',
+    schedule: '日程管理',
+    behavior: '行为日志',
+    trend: '趋势洞察',
+    imagerecog: '图片识别'
   };
-  var subTabTitles = {
-    'finance-ct': '财富诊断CT',
-    'finance-dailytx': '收支明细',
-    'finance-trend': '趋势洞察',
-    'record-schedule': '日程管理',
-    'record-behavior': '行为日志',
-    'record-imagerecog': '图片识别'
-  };
-  // 模块初始化标记（防止重复初始化）
-  var moduleInitFlags = {
-    finance_ct: false,
-    finance_dailytx: false,
-    finance_trend: false,
-    record_schedule: false,
-    record_behavior: false,
-    record_imagerecog: false,
-    solar: false
-  };
-  // 当前激活的主Tab和子Tab
-  var currentModule = 'home';
-  var currentSubTab = { finance: 'ct', record: 'schedule' };
 
   // 首页问候语（按时间动态更新）
   function updateGreeting() {
@@ -2989,8 +2888,8 @@ body {
   // ==================== 推送引擎 ====================
   function updatePushBadge() {
     try {
-      var bell = document.getElementById('topbarNotifBtn');
-      var badge = document.getElementById('topbarNotifBadge');
+      var bell = document.getElementById('homePushBell');
+      var badge = document.getElementById('homePushBadge');
       if (!bell || !badge || !window.PushEngine) return;
       var count = window.PushEngine.getUnreadCount();
       badge.textContent = count > 99 ? '99+' : count;
@@ -3094,17 +2993,17 @@ body {
     html += '<div class="home-overview-card">';
     // 三栏数据：待办 / 支出 / 收入
     html += '<div class="home-overview-row">';
-    html += '<div class="home-overview-item" onclick="switchModule(\'record\', \'schedule\')">';
+    html += '<div class="home-overview-item" onclick="switchModule(\'schedule\')">';
     html += '<div class="ov-num">' + tasks.length + '</div>';
     html += '<div class="ov-label">' + svg('<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>', 13, 13) + ' 待办</div>';
     html += '</div>';
     html += '<div class="home-overview-divider"></div>';
-    html += '<div class="home-overview-item" onclick="switchModule(\'finance\', \'dailytx\')">';
+    html += '<div class="home-overview-item" onclick="switchModule(\'dailytx\')">';
     html += '<div class="ov-num expense">-' + expToday.toFixed(0) + '</div>';
     html += '<div class="ov-label">' + svg('<path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>', 13, 13) + ' 支出</div>';
     html += '</div>';
     html += '<div class="home-overview-divider"></div>';
-    html += '<div class="home-overview-item" onclick="switchModule(\'finance\', \'dailytx\')">';
+    html += '<div class="home-overview-item" onclick="switchModule(\'dailytx\')">';
     html += '<div class="ov-num income">+' + incToday.toFixed(0) + '</div>';
     html += '<div class="ov-label">' + svg('<path d="M12 19V5M5 12l7-7 7 7"/>', 13, 13) + ' 收入</div>';
     html += '</div>';
@@ -3120,7 +3019,24 @@ body {
     }
     html += '</div>';
 
-    // （快捷入口已迁移到底部Tab导航）
+    // === 快捷入口（两行四列 → 6个核心入口） ===
+    var mods = [
+      {id:'finance',name:'财富CT',color:'#3b82f6',icon:'<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>'},
+      {id:'dailytx',name:'收支',color:'#8b5cf6',icon:'<path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>'},
+      {id:'solar',name:'养生',color:'#16a34a',icon:'<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>'},
+      {id:'schedule',name:'日程',color:'#f59e0b',icon:'<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>'},
+      {id:'trend',name:'趋势',color:'#0ea5e9',icon:'<path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-5"/>'},
+      {id:'imagerecog',name:'识图',color:'#f97316',icon:'<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>'}
+    ];
+    html += '<div class="home-quick-grid">';
+    mods.forEach(function(m) {
+      html += '<button class="home-quick-item" onclick="switchModule(\''+m.id+'\')">';
+      html += '<div class="quick-icon" style="color:'+m.color+'">' + svg(m.icon, 22, 22) + '</div>';
+      html += '<span class="quick-name">'+esc(m.name)+'</span>';
+      html += '</button>';
+    });
+    html += '</div>';
+
     // === 共生内核（思考工具 + 行为记录） ===
     html += '<div class="home-section-title">共生内核</div>';
     html += '<div class="home-tool-list">';
@@ -3132,7 +3048,7 @@ body {
     html += '<div class="tool-icon" style="background:#fef3c7;color:#d97706">' + svg('<circle cx="12" cy="12" r="9"/><polygon points="12 7 13.5 11 17.5 11 14.5 13.5 15.5 17.5 12 15 8.5 17.5 9.5 13.5 6.5 11 10.5 11 12 7"/>') + '</div>';
     html += '<div class="tool-body"><div class="tool-title">价值罗盘</div><div class="tool-desc">做你说过的自己</div></div>';
     html += '<div class="tool-arrow">→</div></div>';
-    html += '<div class="home-tool-item" onclick="switchModule(\'record\', \'behavior\')">';
+    html += '<div class="home-tool-item" onclick="switchModule(\'behavior\')">';
     html += '<div class="tool-icon" style="background:#f0fdf4;color:#16a34a">' + svg('<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>') + '</div>';
     html += '<div class="tool-body"><div class="tool-title">行为记录</div><div class="tool-desc">饮食/运动/睡眠/情绪</div></div>';
     html += '<div class="tool-arrow">→</div></div>';
@@ -3153,20 +3069,7 @@ body {
   renderSmartHome();
   renderChatHistory();
 
-  window.switchModule = function(moduleName, subTabName) {
-    // 兼容旧模块名的跳转映射
-    var legacyMap = {
-      schedule: ['record', 'schedule'],
-      behavior: ['record', 'behavior'],
-      imagerecog: ['record', 'imagerecog'],
-      dailytx: ['finance', 'dailytx'],
-      trend: ['finance', 'trend']
-    };
-    if (legacyMap[moduleName]) {
-      var mapped = legacyMap[moduleName];
-      return window.switchModule(mapped[0], mapped[1]);
-    }
-    currentModule = moduleName;
+  window.switchModule = function(moduleName) {
     // Hide all pages
     var pages = document.querySelectorAll('.page-view');
     for (var i = 0; i < pages.length; i++) {
@@ -3175,17 +3078,17 @@ body {
     // Show target page
     var target = document.getElementById('page-' + moduleName);
     if (target) target.classList.add('page-active');
-    // 对话记录和输入栏只在首页显示
+    // 对话记录只在首页显示
     var chatSection = document.getElementById('chatHistorySection');
-    var inputBar = document.querySelector('.app-input-bar');
     if (chatSection) {
-      chatSection.style.display = (moduleName === 'home') ? 'block' : 'none';
+      if (moduleName === 'home') {
+        chatSection.style.display = 'block';
+      } else {
+        chatSection.style.display = 'none';
+      }
     }
-    if (inputBar) {
-      inputBar.style.display = (moduleName === 'home') ? 'flex' : 'none';
-    }
-    // Update bottom tab active state
-    var items = document.querySelectorAll('.bottom-tab-item');
+    // Update nav drawer active state
+    var items = document.querySelectorAll('.nav-drawer-item');
     for (var i = 0; i < items.length; i++) {
       items[i].classList.remove('active');
       if (items[i].getAttribute('data-module') === moduleName) {
@@ -3194,193 +3097,82 @@ body {
     }
     // Update top bar title
     var titleEl = document.getElementById('topbarTitle');
-    if (titleEl) {
-      var title = moduleTitles[moduleName] || moduleName;
-      if (subTabName) {
-        var subKey = moduleName + '-' + subTabName;
-        title = subTabTitles[subKey] || title;
-      }
-      titleEl.textContent = title;
-    }
+    if (titleEl) titleEl.textContent = moduleTitles[moduleName] || moduleName;
     // 首页智能看板刷新
     if (moduleName === 'home') { renderSmartHome(); updateGreeting(); setTimeout(updatePushBadge, 100); }
-    // 节气养生模块初始化
+    // 节气养生模块初始化（用双重rAF确保页面布局完成后再渲染）
     if (moduleName === 'solar' && window.initSolarTerm) {
-      if (!moduleInitFlags.solar) {
-        moduleInitFlags.solar = true;
+      requestAnimationFrame(function() {
         requestAnimationFrame(function() {
-          requestAnimationFrame(function() {
-            window.initSolarTerm('solarTermContainer');
-          });
+          window.initSolarTerm('solarTermContainer');
         });
-      }
+      });
     }
-    // 财富Tab：初始化默认分段
-    if (moduleName === 'finance') {
-      var st = subTabName || currentSubTab.finance || 'ct';
-      switchSubTab('finance', st, true);
+    // 日程管理模块初始化
+    if (moduleName === 'schedule' && window.initSchedule) {
+      requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+          window.initSchedule('scheduleContainer');
+        });
+      });
     }
-    // 记录Tab：初始化默认分段
-    if (moduleName === 'record') {
-      var rs = subTabName || currentSubTab.record || 'schedule';
-      switchSubTab('record', rs, true);
+    // 日常收支模块初始化
+    if (moduleName === 'dailytx' && window.initDailyTx) {
+      requestAnimationFrame(function() {
+        window.initDailyTx('dailyTxContainer');
+      });
     }
-    // 我的Tab：计算存储用量
-    if (moduleName === 'me') {
-      setTimeout(updateDataStorageSize, 100);
+    // 图片识别模块初始化
+    if (moduleName === 'imagerecog' && window.ImageRecognizer) {
+      requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+          window.ImageRecognizer.renderUI('imageRecogContainer');
+        });
+      });
     }
+    // 财富诊断CT：刷新收支概览
+    if (moduleName === 'finance' && window.renderFinanceTxSummary) {
+      requestAnimationFrame(function() {
+        window.renderFinanceTxSummary();
+      });
+    }
+    // 行为日志模块初始化
+    if (moduleName === 'behavior' && window.initBehaviorHub) {
+      requestAnimationFrame(function() {
+        window.initBehaviorHub('behaviorHubContainer');
+      });
+    }
+    // 趋势洞察模块初始化
+    if (moduleName === 'trend' && window.TrendView) {
+      requestAnimationFrame(function() {
+        window.TrendView.render('trendPanelContainer');
+      });
+    }
+    // Close nav drawer
+    closeNavDrawer();
     // Scroll to top
     window.scrollTo(0, 0);
   };
 
-  // ==================== 子分段切换 ====================
-  window.switchSubTab = function(parent, subName, skipScroll) {
-    currentSubTab[parent] = subName;
-    // 隐藏该父Tab下所有子内容
-    var parentEl = document.getElementById('page-' + parent);
-    if (!parentEl) return;
-    var contents = parentEl.querySelectorAll('.sub-tab-content');
-    for (var i = 0; i < contents.length; i++) {
-      contents[i].classList.remove('active');
-    }
-    // 显示目标子内容
-    var target = document.getElementById(parent + '-' + subName);
-    if (target) target.classList.add('active');
-    // 更新分段按钮激活状态
-    var tabBar = document.getElementById(parent + 'SubTabBar');
-    if (tabBar) {
-      var btns = tabBar.querySelectorAll('.sub-tab-item');
-      for (var j = 0; j < btns.length; j++) {
-        btns[j].classList.remove('active');
-        if (btns[j].getAttribute('data-sub') === subName) {
-          btns[j].classList.add('active');
-        }
-      }
-    }
-    // 更新顶部标题
-    var titleEl = document.getElementById('topbarTitle');
-    if (titleEl) {
-      var subKey = parent + '-' + subName;
-      if (subTabTitles[subKey]) {
-        titleEl.textContent = subTabTitles[subKey];
-      }
-    }
-    // 按需初始化模块
-    var flagKey = parent + '_' + subName;
-    if (!moduleInitFlags[flagKey]) {
-      moduleInitFlags[flagKey] = true;
-      if (parent === 'finance') {
-        if (subName === 'ct' && window.renderFinanceTxSummary) {
-          requestAnimationFrame(function() {
-            window.renderFinanceTxSummary();
-          });
-        } else if (subName === 'dailytx' && window.initDailyTx) {
-          requestAnimationFrame(function() {
-            window.initDailyTx('dailyTxContainer');
-          });
-        } else if (subName === 'trend' && window.TrendView) {
-          requestAnimationFrame(function() {
-            window.TrendView.render('trendPanelContainer');
-          });
-        }
-      } else if (parent === 'record') {
-        if (subName === 'schedule' && window.initSchedule) {
-          requestAnimationFrame(function() {
-            requestAnimationFrame(function() {
-              window.initSchedule('scheduleContainer');
-            });
-          });
-        } else if (subName === 'behavior' && window.initBehaviorHub) {
-          requestAnimationFrame(function() {
-            window.initBehaviorHub('behaviorHubContainer');
-          });
-        } else if (subName === 'imagerecog' && window.ImageRecognizer) {
-          requestAnimationFrame(function() {
-            requestAnimationFrame(function() {
-              window.ImageRecognizer.renderUI('imageRecogContainer');
-            });
-          });
-        }
-      }
-    }
-    if (!skipScroll) {
-      window.scrollTo(0, 0);
+  // ==================== Nav Drawer ====================
+  window.toggleNavDrawer = function() {
+    var drawer = document.getElementById('navDrawer');
+    var overlay = document.getElementById('navOverlay');
+    var isOpen = drawer.classList.contains('open');
+    if (isOpen) {
+      closeNavDrawer();
+    } else {
+      drawer.classList.add('open');
+      overlay.classList.add('open');
     }
   };
 
-  // ==================== 我的Tab：数据管理 ====================
-  function updateDataStorageSize() {
-    var el = document.getElementById('dataStorageSize');
-    if (!el) return;
-    try {
-      var total = 0;
-      for (var i = 0; i < localStorage.length; i++) {
-        var key = localStorage.key(i);
-        var val = localStorage.getItem(key) || '';
-        total += key.length + val.length;
-      }
-      var kb = total / 1024;
-      if (kb < 1024) {
-        el.textContent = kb.toFixed(1) + ' KB';
-      } else {
-        el.textContent = (kb / 1024).toFixed(2) + ' MB';
-      }
-    } catch(e) {
-      el.textContent = '未知';
-    }
+  function closeNavDrawer() {
+    var drawer = document.getElementById('navDrawer');
+    var overlay = document.getElementById('navOverlay');
+    if (drawer) drawer.classList.remove('open');
+    if (overlay) overlay.classList.remove('open');
   }
-
-  function confirmClearAllData() {
-    if (!confirm('确定要清空所有本地数据吗？此操作不可恢复！')) return;
-    try {
-      // 保留设置项，只清业务数据
-      var keysToKeep = ['mijieai_ai_model', 'mijieai_ai_provider', 'mijieai_theme', 'wealth_ct_guide_read'];
-      var allKeys = [];
-      for (var i = 0; i < localStorage.length; i++) {
-        allKeys.push(localStorage.key(i));
-      }
-      allKeys.forEach(function(k) {
-        if (keysToKeep.indexOf(k) === -1) {
-          localStorage.removeItem(k);
-        }
-      });
-      // 清空 IndexedDB（行为日志等）
-      if (window.indexedDB && window.IDBFactory) {
-        try { indexedDB.deleteDatabase('mijieai_behavior'); } catch(e) {}
-        try { indexedDB.deleteDatabase('mijieai_recipes'); } catch(e) {}
-      }
-      alert('数据已清空，页面即将刷新');
-      setTimeout(function() { location.reload(); }, 500);
-    } catch(e) {
-      alert('清空失败: ' + e.message);
-    }
-  }
-
-  function showPrivacyNotice() {
-    alert('隐私声明：\n\nMiRun AI 所有数据均存储在您的设备本地（localStorage / IndexedDB），不会上传到任何服务器。\n\nAI 对话内容仅发送给您配置的 AI 服务商用于生成回复，我们不会存储或分析您的对话数据。\n\n您可以随时在"我的"页面清空所有本地数据。');
-  }
-
-  function showDataStats() {
-    // 简单显示各模块数据量统计
-    var stats = [];
-    try {
-      var tx = JSON.parse(localStorage.getItem('mijieai_daily_tx') || '[]');
-      stats.push('收支记录: ' + tx.length + ' 条');
-    } catch(e) {}
-    try {
-      var sched = JSON.parse(localStorage.getItem('mijieai_schedule') || '[]');
-      stats.push('日程任务: ' + sched.length + ' 条');
-    } catch(e) {}
-    try {
-      var chat = JSON.parse(localStorage.getItem('mijie_chat_history') || '[]');
-      stats.push('AI对话: ' + chat.length + ' 条');
-    } catch(e) {}
-    alert('本地数据统计：\n\n' + stats.join('\n'));
-  }
-
-  // ==================== 旧导航函数（兼容保留，防止报错） ====================
-  window.toggleNavDrawer = function() { };
-  function closeNavDrawer() { }
 
   // ==================== AI Chat History (Card-based) ====================
   var CHAT_STORAGE_KEY = 'mijie_chat_history';
@@ -3700,6 +3492,7 @@ body {
   // 延迟初始化图片上传按钮（等待DOM就绪）
   setTimeout(initImageUpload, 300);
 
+
     var field = document.getElementById('aiInputField');
     var text = field.value.trim();
     if (!text) { field.focus(); return; }
@@ -3946,6 +3739,7 @@ body {
     }, 2500);
   }
   window.showToast = showToast;
+
 
   // ========== 语音输入（微信式长按说话，松手自动发送）==========
   var voiceRecognition = null;
@@ -5615,6 +5409,7 @@ body {
       });
     });
   }
+
 
 })();
 </script>

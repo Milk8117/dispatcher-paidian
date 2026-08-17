@@ -245,6 +245,23 @@
       if (defaultProvider && defaultProvider.apiKey) {
         chain.push(defaultProvider);
       }
+      // 开启降级时，把其他配置了 apiKey 的 provider 也补进降级链
+      if (cfg.fallbackEnabled && cfg.providers) {
+        for (var k = 0; k < providers.length; k++) {
+          var prov = providers[k];
+          if (prov.id === defaultId) continue;
+          var pc = cfg.providers[prov.id];
+          if (pc && pc.apiKey) {
+            chain.push({
+              id: prov.id,
+              name: prov.name,
+              apiBase: pc.apiBase || prov.apiBase,
+              model: pc.model || prov.defaultModel || prov.model,
+              apiKey: pc.apiKey
+            });
+          }
+        }
+      }
     } else {
       // 高级模式：按 providers 配置顺序
       for (var j = 0; j < providers.length; j++) {
