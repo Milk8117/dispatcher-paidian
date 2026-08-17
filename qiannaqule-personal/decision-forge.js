@@ -641,6 +641,67 @@
   }
 
   // ==================== 面板控制 ====================
+  // ==================== 移动端键盘适配 ====================
+  var _dfVvHandler = null;
+  var _dfFocusHandler = null;
+
+  function _setupKeyboardHandler() {
+    if (!panelEl) return;
+    if (typeof visualViewport === 'undefined') return;
+
+    _dfVvHandler = function() {
+      var vh = visualViewport.height;
+      var vTop = visualViewport.offsetTop;
+      // 动态调整面板高度，适配软键盘弹起后的可视区域
+      panelEl.style.height = vh + 'px';
+      panelEl.style.top = vTop + 'px';
+      panelEl.style.bottom = 'auto';
+      // 滚动到最新消息（确保底部输入时能看到对话内容）
+      var bodyEl = panelEl.querySelector('.df-body');
+      if (bodyEl) {
+        bodyEl.scrollTop = bodyEl.scrollHeight;
+      }
+    };
+
+    visualViewport.addEventListener('resize', _dfVvHandler);
+    visualViewport.addEventListener('scroll', _dfVvHandler);
+
+    // 输入框聚焦时，延迟滚动到底部确保内容可见
+    var inputField = panelEl.querySelector('#dfInputField');
+    if (inputField) {
+      _dfFocusHandler = function() {
+        setTimeout(function() {
+          var bodyEl = panelEl.querySelector('.df-body');
+          if (bodyEl) {
+            bodyEl.scrollTop = bodyEl.scrollHeight;
+          }
+        }, 300);
+      };
+      inputField.addEventListener('focus', _dfFocusHandler);
+    }
+  }
+
+  function _teardownKeyboardHandler() {
+    if (typeof visualViewport !== 'undefined' && _dfVvHandler) {
+      visualViewport.removeEventListener('resize', _dfVvHandler);
+      visualViewport.removeEventListener('scroll', _dfVvHandler);
+      _dfVvHandler = null;
+    }
+    if (panelEl && _dfFocusHandler) {
+      var inputField = panelEl.querySelector('#dfInputField');
+      if (inputField) {
+        inputField.removeEventListener('focus', _dfFocusHandler);
+      }
+      _dfFocusHandler = null;
+    }
+    // 重置面板样式
+    if (panelEl) {
+      panelEl.style.height = '';
+      panelEl.style.top = '';
+      panelEl.style.bottom = '';
+    }
+  }
+
   function openPanel(sessionId) {
     ensurePanel();
     panelEl.style.display = 'flex';
@@ -654,10 +715,13 @@
     }
 
     document.body.style.overflow = 'hidden';
+    // 移动端键盘适配
+    _setupKeyboardHandler();
   }
 
   function closePanel() {
     if (!panelEl) return;
+    _teardownKeyboardHandler();
     panelEl.style.display = 'none';
     state.panelOpen = false;
     state.currentSessionId = null;

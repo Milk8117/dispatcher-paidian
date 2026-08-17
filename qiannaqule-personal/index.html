@@ -4601,6 +4601,64 @@ body {
     if (e.key === 'Enter') { e.preventDefault(); submitAiInput(); }
   });
 
+  // ==================== 移动端软键盘适配（首页 AI 输入栏） ====================
+  (function() {
+    if (typeof visualViewport === 'undefined') return;
+    var inputBar = document.querySelector('.app-input-bar');
+    var inputField = document.getElementById('aiInputField');
+    if (!inputBar || !inputField) return;
+
+    var originalBottom = '64px'; // 底部Tab栏高度
+    var isKeyboardOpen = false;
+
+    function handleViewportChange() {
+      // 计算键盘高度：初始视口高度 - 当前可视高度
+      var vvHeight = visualViewport.height;
+      var winHeight = window.innerHeight;
+      var keyboardHeight = winHeight - vvHeight - visualViewport.offsetTop;
+
+      if (keyboardHeight > 100) {
+        // 键盘弹起，将输入栏上移到键盘上方
+        isKeyboardOpen = true;
+        inputBar.style.bottom = keyboardHeight + 'px';
+        inputBar.style.zIndex = '999';
+        // 确保底部有足够空间，避免内容被遮挡
+        var container = document.querySelector('.container');
+        if (container) {
+          container.style.paddingBottom = (keyboardHeight + 80) + 'px';
+        }
+        // 滚动到对话记录区域
+        var chatSection = document.getElementById('chatHistorySection');
+        if (chatSection && document.activeElement === inputField) {
+          setTimeout(function() {
+            chatSection.scrollIntoView({ behavior: 'smooth', block: 'end' });
+          }, 100);
+        }
+      } else {
+        // 键盘收起，恢复原位
+        isKeyboardOpen = false;
+        inputBar.style.bottom = originalBottom;
+        var container = document.querySelector('.container');
+        if (container) {
+          container.style.paddingBottom = '';
+        }
+      }
+    }
+
+    visualViewport.addEventListener('resize', handleViewportChange);
+    visualViewport.addEventListener('scroll', handleViewportChange);
+
+    // 输入框聚焦时，再次确保滚动到对话区
+    inputField.addEventListener('focus', function() {
+      setTimeout(function() {
+        var chatSection = document.getElementById('chatHistorySection');
+        if (chatSection) {
+          chatSection.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }
+      }, 350);
+    });
+  })();
+
   // Debug: confirm JS is running
   
   // ==================== DOM ====================
