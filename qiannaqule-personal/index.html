@@ -2349,6 +2349,7 @@ body {
   <div class="sub-tab-bar" id="financeSubTabBar">
     <button class="sub-tab-item active" data-sub="trend" onclick="switchSubTab('finance', 'trend')">趋势洞察</button>
     <button class="sub-tab-item" data-sub="dailytx" onclick="switchSubTab('finance', 'dailytx')">收支明细</button>
+    <button class="sub-tab-item" data-sub="holdings" onclick="switchSubTab('finance', 'holdings')">投资持仓</button>
     <button class="sub-tab-item" data-sub="receipt" onclick="switchSubTab('finance', 'receipt')">票据记账</button>
     <button class="sub-tab-item" data-sub="ct" onclick="switchSubTab('finance', 'ct')">财务体检</button>
   </div>
@@ -2892,6 +2893,9 @@ body {
   <div id="finance-dailytx" class="sub-tab-content">
     <div id="dailyTxContainer"></div>
   </div>
+  <div id="finance-holdings" class="sub-tab-content">
+    <div id="stockHoldingsContainer"></div>
+  </div>
   <div id="finance-trend" class="sub-tab-content active">
     <div class="trend-panel-wrap" id="trendPanelContainer" style="padding:16px;max-width:680px;margin:0 auto"></div>
   </div>
@@ -3107,6 +3111,7 @@ body {
   var subTabTitles = {
     'finance-ct': '财务体检',
     'finance-dailytx': '收支明细',
+    'finance-holdings': '投资持仓',
     'finance-trend': '趋势洞察',
     'finance-receipt': '票据记账',
     'health-trend': '健康趋势',
@@ -3120,6 +3125,7 @@ body {
   var moduleInitFlags = {
     finance_ct: false,
     finance_dailytx: false,
+    finance_holdings: false,
     finance_trend: false,
     finance_receipt: false,
     health_trend: false,
@@ -3538,6 +3544,10 @@ body {
         } else if (subName === 'dailytx' && window.initDailyTx) {
           requestAnimationFrame(function() {
             window.initDailyTx('dailyTxContainer');
+          });
+        } else if (subName === 'holdings' && window.StockHoldings) {
+          requestAnimationFrame(function() {
+            window.StockHoldings.render('stockHoldingsContainer');
           });
         } else if (subName === 'trend' && window.TrendView) {
           requestAnimationFrame(function() {
@@ -6001,6 +6011,7 @@ function toggleGuideSection(index) {
 <script src="chronic-disease.js?v=42"></script>
 <script src="schedule.js?v=42"></script>
 <script src="daily-tx.js?v=42"></script>
+<script src="stock-holdings.js?v=43"></script>
 <script src="behavior-log.js?v=42"></script>
 <script src="user-profile.js?v=42"></script>
 <script src="insight-engine.js?v=42"></script>
