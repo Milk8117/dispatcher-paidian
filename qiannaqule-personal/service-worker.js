@@ -1,6 +1,6 @@
-// Service Worker for 米界AI — 个人智能操作系统
+// Service Worker for MiRun AI — 越用越懂你
 // Cache version: update this string to invalidate old caches
-const CACHE_VERSION = 'mijieai-v42';
+const CACHE_VERSION = 'mirunai-v43';
 const CACHE_NAME = CACHE_VERSION;
 
 // Resources to cache on install
@@ -8,9 +8,11 @@ const PRECACHE_URLS = [
   './',
   './index.html',
   './manifest.json',
-  './icon.png',
-  './icon-orange.png',
-  './icon-blue.png'
+  './assets/app-icon-192.png',
+  './assets/app-icon-512.png',
+  './assets/favicon.ico',
+  './assets/mirun-ai-logo.png',
+  './assets/mierke-logo.png'
 ];
 
 // Listen for skip waiting message from page
@@ -37,7 +39,7 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames
-          .filter((name) => (name.startsWith('mijieai-') || name.startsWith('wealth-ct-')) && name !== CACHE_NAME)
+          .filter((name) => (name.startsWith('mirunai-') || name.startsWith('mijieai-') || name.startsWith('wealth-ct-')) && name !== CACHE_NAME)
           .map((name) => caches.delete(name))
       );
     }).then(() => {
