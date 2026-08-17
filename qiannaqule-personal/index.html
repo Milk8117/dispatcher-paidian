@@ -1069,22 +1069,9 @@ body {
 /* ========== MiRun AI 简洁化样式 ========== */
 
 /* Hero区简化 */
-.home-hero-inner { padding: 28px 20px 24px; }
-.home-hero-top {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 18px;
-}
-.home-brand { display: flex; align-items: center; gap: 8px; }
-.home-logo-dot {
-  width: 32px; height: 32px; border-radius: 10px;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 4px 12px rgba(99,102,241,0.35);
-}
-.home-brand-name {
-  font-size: 15px; font-weight: 700; color: #1e293b;
-  letter-spacing: 0.3px;
-}
+.home-hero-inner { padding: 20px 20px 28px; text-align: center; }
+.home-hero-top { display: none; }
+.home-brand { display: none; }
 .home-greeting {
   font-size: 26px; font-weight: 700; color: #0f172a;
   margin: 0 0 4px 0; letter-spacing: -0.3px;
@@ -2331,15 +2318,7 @@ body {
 <div id="page-home" class="page-view page-active">
   <div class="home-hero">
     <div class="home-hero-inner">
-      <div class="home-hero-top">
-        <div class="home-brand">
-          <div class="home-logo-dot" style="background:#fff;border-radius:12px;padding:2px;box-shadow:0 2px 8px rgba(0,0,0,0.1)">
-            <img src="./assets/mirun-ai-logo.png" alt="MiRun AI" style="height:24px;width:auto;display:block">
-          </div>
-          <span class="home-brand-name">MiRun AI</span>
-        </div>
 
-      </div>
       <h1 class="home-greeting" id="homeGreeting">你好</h1>
       <p class="home-date-bar" id="homeDateBar"></p>
     </div>
