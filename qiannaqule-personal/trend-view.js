@@ -25,12 +25,35 @@
 
   // ==================== Tab 定义 ====================
   var TABS = [
-    { id: 'finance',  label: '财务诊断', icon: 'finance',  color: '#f59e0b' },
-    { id: 'income',   label: '收支趋势', icon: 'wallet',   color: '#10b981' },
-    { id: 'health',   label: '健康数据', icon: 'heart',    color: '#ef4444' },
-    { id: 'mood',     label: '情绪曲线', icon: 'smile',    color: '#8b5cf6' },
-    { id: 'report',   label: '月度报告', icon: 'fileText', color: '#3b82f6' }
+    { id: 'finance',  label: '财务诊断', icon: 'finance',  color: '#f59e0b', domain: 'finance' },
+    { id: 'income',   label: '收支趋势', icon: 'wallet',   color: '#10b981', domain: 'finance' },
+    { id: 'health',   label: '健康数据', icon: 'heart',    color: '#ef4444', domain: 'health' },
+    { id: 'mood',     label: '情绪曲线', icon: 'smile',    color: '#8b5cf6', domain: 'health' },
+    { id: 'report',   label: '月度报告', icon: 'fileText', color: '#3b82f6', domain: 'report' }
   ];
+
+  /** 获取当前 domain 下可见的 tabs */
+  function getVisibleTabs() {
+    if (_state.domain === 'finance') {
+      return TABS.filter(function(t) { return t.domain === 'finance' || t.domain === 'report'; });
+    } else if (_state.domain === 'health') {
+      return TABS.filter(function(t) { return t.domain === 'health' || t.domain === 'report'; });
+    } else if (_state.domain === 'record') {
+      return TABS.filter(function(t) { return t.domain === 'report'; });
+    }
+    return TABS; // all
+  }
+
+  /** 根据 domain 确定默认激活 tab */
+  function getDefaultTabForDomain() {
+    var visible = getVisibleTabs();
+    if (visible.length === 0) return 'finance';
+    // 优先取第一个非 report 的 tab
+    for (var i = 0; i < visible.length; i++) {
+      if (visible[i].domain !== 'report') return visible[i].id;
+    }
+    return visible[0].id;
+  }
 
   // ==================== SVG 图标库 (Lucide 线性风格) ====================
   var ICONS = {
@@ -582,6 +605,7 @@
       '.tv-ai-spinner { width: 18px; height: 18px; border: 2px solid #c7d2fe; border-top-color: #6366f1; border-radius: 50%; animation: tv-spin 0.8s linear infinite; }',
       '@keyframes tv-spin { to { transform: rotate(360deg); } }',
       '.tv-ai-error { color: #dc2626; font-size: 0.78rem; padding: 8px 0; }',
+      '.tv-ai-empty { text-align: center; padding: 20px 12px; color: #94a3b8; }',
 
       /* ===== 首页入口卡片 ===== */
       '.tv-entry-card { background: linear-gradient(135deg, #1e293b 0%, #334155 100%); border-radius: 14px; padding: 16px; color: #fff; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }',
@@ -623,6 +647,7 @@
 
   // ==================== 当前状态 ====================
   var _state = {
+    domain: 'all',      // 'all' | 'finance' | 'health' | 'record'
     activeTab: 'finance',
     selectedMonth: getCurrentMonthKey(),
     aiInsightCache: {}, // { 'YYYY-MM': 'insight text' }
@@ -1146,7 +1171,13 @@
     html += '<div class="tv-month-display">' + year + '年' + month + '月报告</div>';
     html += '<button class="tv-month-btn" onclick="TrendView._changeMonth(1)" ' + (isCurrent ? 'disabled' : '') + '>' + svgIcon('chevronRight', 14, '#64748b', 2) + '</button>';
     html += '</div>';
-    html += '<div class="tv-report-subtitle">数据驱动 · 看见生活的全貌</div>';
+    var subTitles = {
+      finance: '数据驱动 · 掌握财富脉搏',
+      health: '数据驱动 · 守护健康生活',
+      record: '数据驱动 · 记录点滴成长',
+      all: '数据驱动 · 看见生活的全貌'
+    };
+    html += '<div class="tv-report-subtitle">' + (subTitles[_state.domain] || '数据驱动 · 看见生活的全貌') + '</div>';
     html += '</div>';
     html += '</div>';
 
@@ -1240,10 +1271,17 @@
   /** 渲染报告数据统计 */
   function renderReportStats(data) {
     var html = '<div class="tv-card">';
-    html += '<h3 class="tv-card-title">' + svgIcon('barChart', 16, '#3b82f6') + '本月数据全景</h3>';
+    var domainTitle = {
+      finance: '本月财务全景',
+      health: '本月健康全景',
+      record: '本月记录全景',
+      all: '本月数据全景'
+    };
+    html += '<h3 class="tv-card-title">' + svgIcon('barChart', 16, '#3b82f6') + (domainTitle[_state.domain] || '本月数据全景') + '</h3>';
     html += '<div class="tv-report-stats">';
 
     // 财务评分
+    if (_state.domain === 'all' || _state.domain === 'finance') {
     var financeVal = data.finance ? data.finance.total + '分' : '--';
     var financeGrade = data.finance ? (data.finance.gradeLabel || gradeLabelFromGrade(data.finance.grade)) : '暂无诊断';
     html += '<div class="tv-stat-card">';
@@ -1254,8 +1292,10 @@
     html += '<div class="tv-stat-value">' + financeVal + '</div>';
     html += '<div class="tv-stat-sub">' + esc(financeGrade) + '</div>';
     html += '</div>';
+    }
 
     // 收支结余
+    if (_state.domain === 'all' || _state.domain === 'finance') {
     var balanceText = formatMoney(data.income.balance);
     html += '<div class="tv-stat-card">';
     html += '<div class="tv-stat-card-header">';
@@ -1265,8 +1305,10 @@
     html += '<div class="tv-stat-value">' + balanceText + '</div>';
     html += '<div class="tv-stat-sub">收入' + formatMoney(data.income.total) + ' · 支出' + formatMoney(data.income.expense) + '</div>';
     html += '</div>';
+    }
 
     // 健康步数
+    if (_state.domain === 'all' || _state.domain === 'health') {
     html += '<div class="tv-stat-card">';
     html += '<div class="tv-stat-card-header">';
     html += '<div class="tv-stat-icon red">' + svgIcon('heart', 16, '#ef4444') + '</div>';
@@ -1275,8 +1317,10 @@
     html += '<div class="tv-stat-value">' + data.health.avgSteps.toLocaleString() + '<span class="tv-stat-unit">步/日</span></div>';
     html += '<div class="tv-stat-sub">睡眠' + data.health.avgSleep + 'h · 心率' + data.health.avgHeartRate + 'bpm</div>';
     html += '</div>';
+    }
 
     // 情绪
+    if (_state.domain === 'all' || _state.domain === 'health') {
     var moodMl = MOOD_LABELS[Math.min(4, Math.max(0, Math.round(data.mood.avgScore) - 1))];
     var moodLabel = moodMl ? moodMl.label : '--';
     html += '<div class="tv-stat-card">';
@@ -1287,6 +1331,7 @@
     html += '<div class="tv-stat-value">' + data.mood.avgScore + '<span class="tv-stat-unit"> / 5分</span></div>';
     html += '<div class="tv-stat-sub">' + esc(moodLabel) + ' · ' + data.mood.count + '条记录</div>';
     html += '</div>';
+    }
 
     html += '</div>';
     html += '</div>';
@@ -1310,7 +1355,13 @@
       html += '<div class="tv-ai-content">' + _state.aiInsightCache[monthKey] + '</div>';
     } else {
       html += '<div class="tv-ai-content" id="tvAiContent">';
-      html += '<p style="color:#64748b;font-size:0.8rem">点击右上角按钮，AI将基于本月的财务、收支、健康和情绪数据，为你生成一份深度洞察报告。</p>';
+      var hintText = {
+        finance: '点击右上角按钮，AI将基于本月的财务和收支数据，为你生成一份深度财富洞察报告。',
+        health: '点击右上角按钮，AI将基于本月的健康和情绪数据，为你生成一份深度健康洞察报告。',
+        record: '点击右上角按钮，AI将基于本月的日程和识别记录，为你生成一份深度记录洞察报告。',
+        all: '点击右上角按钮，AI将基于本月的财务、收支、健康和情绪数据，为你生成一份深度洞察报告。'
+      };
+      html += '<p style="color:#64748b;font-size:0.8rem">' + (hintText[_state.domain] || hintText.all) + '</p>';
       html += '</div>';
     }
 
@@ -1330,6 +1381,27 @@
 
     try {
       var data = getMonthlyReportData(monthKey);
+
+      // 数据不足检查
+      var hasData = false;
+      if (_state.domain === 'all') {
+        hasData = data.finance || data.income.count > 0 || data.health.days > 0 || data.mood.count > 0;
+      } else if (_state.domain === 'finance') {
+        hasData = data.finance || data.income.count > 0;
+      } else if (_state.domain === 'health') {
+        hasData = data.health.days > 0 || data.mood.count > 0;
+      } else {
+        hasData = data.finance || data.income.count > 0 || data.health.days > 0 || data.mood.count > 0;
+      }
+      if (!hasData) {
+        if (content) {
+          content.innerHTML = '<div class="tv-ai-empty"><div style="font-size:24px;margin-bottom:10px">📝</div><div style="color:#64748b;font-size:0.85rem">本月数据较少，暂时无法生成洞察。<br>多记录一些数据后再来试试吧～</div></div>';
+        }
+        _state.aiLoading = false;
+        if (btn) { btn.disabled = false; btn.innerHTML = svgIcon('zap', 12, '#fff') + '生成洞察'; }
+        return;
+      }
+
       var prompt = buildInsightPrompt(monthKey, data);
 
       var result = null;
@@ -1353,7 +1425,18 @@
     } catch(e) {
       console.warn('[TrendView] AI洞察生成失败:', e);
       if (content) {
-        content.innerHTML = '<div class="tv-ai-error">洞察生成失败：' + esc(e.message || '未知错误') + '。请检查AI配置后重试。</div>';
+        var msg = e.message || '未知错误';
+        var friendlyMsg = '洞察生成失败。';
+        if (msg.indexOf('未配置') >= 0 || msg.indexOf('API Key') >= 0) {
+          friendlyMsg += '请先在设置中配置 AI 服务 API Key。';
+        } else if (msg.indexOf('余额不足') >= 0 || msg.indexOf('insufficient') >= 0 || msg.indexOf('quota') >= 0 || msg.indexOf('402') >= 0) {
+          friendlyMsg += '当前 AI 服务商额度不足，已尝试所有可用配置。请充值或更换其他 API 服务商。';
+        } else if (msg.indexOf('失败: 4') >= 0 || msg.indexOf('失败: 5') >= 0) {
+          friendlyMsg += '网络或服务端异常，已尝试所有可用配置。请稍后再试。';
+        } else {
+          friendlyMsg += '错误详情：' + esc(msg) + '。请检查网络或 AI 配置后重试。';
+        }
+        content.innerHTML = '<div class="tv-ai-error">' + friendlyMsg + '</div>';
       }
     } finally {
       _state.aiLoading = false;
@@ -1367,7 +1450,19 @@
     var month = monthKey.split('-')[1];
     var dateLabel = year + '年' + parseInt(month, 10) + '月';
 
-    var prompt = '你是一位贴心的生活洞察顾问。请根据以下用户的' + dateLabel + '多维度数据，生成一份温暖、有洞察力的月度总结报告。\n\n';
+    var roleMap = {
+      finance: '你是一位专业的财务顾问。',
+      health: '你是一位温暖的健康生活顾问。',
+      record: '你是一位贴心的生活记录顾问。',
+      all: '你是一位贴心的生活洞察顾问。'
+    };
+    var taskMap = {
+      finance: '生成一份专业、有洞察力的月度财务总结报告',
+      health: '生成一份温暖、有洞察力的月度健康总结报告',
+      record: '生成一份温暖、有洞察力的月度记录总结报告',
+      all: '生成一份温暖、有洞察力的月度总结报告'
+    };
+    var prompt = (roleMap[_state.domain] || roleMap.all) + '请根据以下用户的' + dateLabel + '数据，' + (taskMap[_state.domain] || taskMap.all) + '。\n\n';
     prompt += '【数据概览】\n';
 
     // 财务
@@ -1424,7 +1519,11 @@
     prompt += '1. 用温暖亲切的语气，像朋友一样总结\n';
     prompt += '2. 分3-4个段落：本月亮点、值得关注、跨维度关联发现、下月建议\n';
     prompt += '3. 每段3-4句话，不超过300字\n';
-    prompt += '4. 重点突出数据之间的关联性（如：支出高的日子情绪如何？睡眠和运动的关系？）\n';
+    if (_state.domain === 'all') {
+      prompt += '4. 重点突出数据之间的关联性（如：支出高的日子情绪如何？睡眠和运动的关系？）\n';
+    } else {
+      prompt += '4. 重点突出该维度下的核心洞察和趋势变化\n';
+    }
     prompt += '5. 使用HTML标签格式化，用<strong>加粗关键词，用<p>分段\n';
     prompt += '6. 不要使用markdown格式，直接输出HTML内容\n';
     prompt += '7. 如果某个维度没有数据，就跳过不提，不要编造\n';
@@ -1432,88 +1531,121 @@
     return prompt;
   }
 
-  /** 直接调用AI API (走AiEngine的配置) */
-  async function callAiDirect(prompt) {
-    try {
-      // 获取AiEngine配置
-      var cfg = null;
-      if (global.AiEngine && typeof global.AiEngine.getConfig === 'function') {
-        cfg = global.AiEngine.getConfig();
-      }
-
-      if (!cfg || !cfg.providers) {
-        // 尝试从DataStore读取
-        if (global.DataStore) {
-          cfg = global.DataStore.load('ai_engine', 'config', null);
-        }
-      }
-
-      if (!cfg || !cfg.providers) {
-        throw new Error('未找到AI配置');
-      }
-
-      // 找第一个有key的provider
-      var provider = null;
-      var providers = cfg.providers || {};
-      for (var pid in providers) {
-        if (providers[pid] && providers[pid].apiKey) {
-          // 获取provider的完整信息
-          var providerList = [];
-          if (global.AiEngine && typeof global.AiEngine.getProviders === 'function') {
-            providerList = global.AiEngine.getProviders();
-          }
-          for (var i = 0; i < providerList.length; i++) {
-            if (providerList[i].id === pid) {
-              provider = Object.assign({}, providerList[i], providers[pid]);
-              break;
-            }
-          }
-          if (provider) break;
-        }
-      }
-
-      if (!provider) {
-        throw new Error('未配置有效的AI API Key');
-      }
-
-      var apiBase = provider.apiBase;
-      var model = provider.model || provider.defaultModel;
-      var apiKey = provider.apiKey;
-
-      if (!apiBase || !model || !apiKey) {
-        throw new Error('AI配置不完整');
-      }
-
-      // 调用API
-      var response = await fetch(apiBase + '/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + apiKey
-        },
-        body: JSON.stringify({
-          model: model,
-          messages: [
-            { role: 'system', content: '你是一位温暖贴心的生活洞察顾问，擅长从数据中发现生活的规律和美好。' },
-            { role: 'user', content: prompt }
-          ],
-          max_tokens: 800,
-          temperature: 0.7
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('API请求失败: ' + response.status);
-      }
-
-      var result = await response.json();
-      if (result.choices && result.choices.length > 0 && result.choices[0].message) {
-        return result.choices[0].message.content || '';
-      }
-      throw new Error('API返回格式异常');
-    } catch(e) {
-      throw e;
+  /** 获取可用 provider 列表（按优先级排序，支持 fallback） */
+  function getAvailableProviders() {
+    var cfg = null;
+    if (global.AiEngine && typeof global.AiEngine.getConfig === 'function') {
+      cfg = global.AiEngine.getConfig();
     }
+    if (!cfg || !cfg.providers) {
+      if (global.DataStore) {
+        cfg = global.DataStore.load('ai_engine', 'config', null);
+      }
+    }
+    if (!cfg || !cfg.providers) return [];
+
+    var providerList = [];
+    if (global.AiEngine && typeof global.AiEngine.getProviders === 'function') {
+      providerList = global.AiEngine.getProviders();
+    }
+
+    var providers = cfg.providers || {};
+    var result = [];
+
+    // 按默认provider优先，然后其他有key的
+    var defaultPid = cfg.defaultProvider || 'deepseek';
+    if (providers[defaultPid] && providers[defaultPid].apiKey) {
+      for (var j = 0; j < providerList.length; j++) {
+        if (providerList[j].id === defaultPid) {
+          result.push(Object.assign({}, providerList[j], providers[defaultPid]));
+          break;
+        }
+      }
+    }
+
+    for (var pid in providers) {
+      if (pid === defaultPid) continue;
+      if (providers[pid] && providers[pid].apiKey) {
+        for (var k = 0; k < providerList.length; k++) {
+          if (providerList[k].id === pid) {
+            result.push(Object.assign({}, providerList[k], providers[pid]));
+            break;
+          }
+        }
+      }
+    }
+    return result;
+  }
+
+  /** 调用单个 provider */
+  async function callSingleProvider(provider, prompt) {
+    var apiBase = provider.apiBase;
+    var model = provider.model || provider.defaultModel;
+    var apiKey = provider.apiKey;
+
+    if (!apiBase || !model || !apiKey) {
+      throw new Error('AI配置不完整: ' + provider.id);
+    }
+
+    var sysPromptMap = {
+      finance: '你是一位专业的财务顾问，擅长从数据中发现财务趋势和给出理财建议。',
+      health: '你是一位温暖的健康生活顾问，擅长从数据中发现健康规律和给出生活建议。',
+      record: '你是一位贴心的生活记录顾问，擅长从记录中发现成长轨迹。',
+      all: '你是一位温暖贴心的生活洞察顾问，擅长从数据中发现生活的规律和美好。'
+    };
+    var sysPrompt = sysPromptMap[_state.domain] || sysPromptMap.all;
+
+    var response = await fetch(apiBase + '/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + apiKey
+      },
+      body: JSON.stringify({
+        model: model,
+        messages: [
+          { role: 'system', content: sysPrompt },
+          { role: 'user', content: prompt }
+        ],
+        max_tokens: 800,
+        temperature: 0.7
+      })
+    });
+
+    if (!response.ok) {
+      var errText = '';
+      try { errText = await response.text(); } catch(e) {}
+      throw new Error('API请求失败: ' + response.status + ' - ' + (errText || ''));
+    }
+
+    var result = await response.json();
+    if (result.choices && result.choices.length > 0 && result.choices[0].message) {
+      return result.choices[0].message.content || '';
+    }
+    throw new Error('API返回格式异常');
+  }
+
+  /** 调用AI API (带 provider 降级链) */
+  async function callAiDirect(prompt) {
+    var providers = getAvailableProviders();
+    if (providers.length === 0) {
+      throw new Error('未配置有效的AI API Key，请先在设置中配置');
+    }
+
+    var lastError = null;
+    for (var i = 0; i < providers.length; i++) {
+      try {
+        console.log('[TrendView] 尝试AI提供商:', providers[i].id);
+        var result = await callSingleProvider(providers[i], prompt);
+        console.log('[TrendView] AI调用成功:', providers[i].id);
+        return result;
+      } catch(e) {
+        console.warn('[TrendView] Provider ' + providers[i].id + ' 失败:', e.message);
+        lastError = e;
+        // 继续尝试下一个
+      }
+    }
+    throw lastError || new Error('所有AI服务商调用失败');
   }
 
   /** 格式化洞察结果为HTML */
@@ -1597,7 +1729,7 @@
   }
 
   // ==================== 主渲染 ====================
-  function render(containerId) {
+  function render(containerId, domain) {
     injectStyles();
     var container = document.getElementById(containerId);
     if (!container) {
@@ -1605,12 +1737,20 @@
       return;
     }
     _state.container = container;
+    if (domain) _state.domain = domain;
 
-    var html = '<div class="tv-panel">';
+    // 确保 activeTab 在当前 domain 可见范围内
+    var visibleTabs = getVisibleTabs();
+    var tabIds = visibleTabs.map(function(t) { return t.id; });
+    if (tabIds.indexOf(_state.activeTab) === -1) {
+      _state.activeTab = getDefaultTabForDomain();
+    }
+
+    var html = '<div class="tv-panel tv-domain-' + _state.domain + '">';
 
     // Tab 栏
     html += '<div class="tv-tabs">';
-    TABS.forEach(function(tab) {
+    visibleTabs.forEach(function(tab) {
       var activeCls = _state.activeTab === tab.id ? ' active' : '';
       html += '<div class="tv-tab' + activeCls + '" onclick="TrendView.switchTab(\'' + tab.id + '\')">';
       html += '<div class="tv-tab-icon">' + svgIcon(tab.icon, 18, _state.activeTab === tab.id ? tab.color : '#94a3b8') + '</div>';
@@ -1644,10 +1784,12 @@
   function switchTab(tabId) {
     _state.activeTab = tabId;
 
+    var visibleTabs = getVisibleTabs();
+
     // 更新Tab样式
     var tabs = document.querySelectorAll('.tv-tab');
     tabs.forEach(function(tabEl, idx) {
-      var tab = TABS[idx];
+      var tab = visibleTabs[idx];
       if (!tab) return;
       var isActive = tab.id === tabId;
       tabEl.classList.toggle('active', isActive);
@@ -1717,6 +1859,7 @@
   var TrendView = {
     version: VERSION,
     render: render,
+    setDomain: function(d) { _state.domain = d || 'all'; },
     switchTab: switchTab,
     renderEntryCard: renderEntryCard,
     openInsightPanel: openInsightPanel,

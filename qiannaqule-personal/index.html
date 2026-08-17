@@ -1002,27 +1002,28 @@ body {
 
 /* ========== Home Page ========== */
 .home-hero {
-  background: linear-gradient(135deg, #1e3a5f 0%, #4f46e5 60%, #7c3aed 100%);
+  background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 40%, #eef2ff 100%);
   padding: 40px 24px 32px;
   border-radius: 0 0 28px 28px;
   margin: -1px -1px 0 -1px;
+  border-bottom: 1px solid #e2e8f0;
 }
 .home-hero-inner { text-align: center; }
 .home-logo-ring {
   width: 80px; height: 80px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.12);
-  border: 2px solid rgba(255,255,255,0.25);
+  background: #fff;
+  border: 2px solid #e0e7ff;
   display: flex; align-items: center; justify-content: center;
   margin: 0 auto 16px;
-  box-shadow: 0 4px 20px rgba(79,70,229,0.4);
+  box-shadow: 0 4px 20px rgba(99,102,241,0.15);
 }
 .home-greeting {
-  font-size: 24px; font-weight: 700; color: #fff;
+  font-size: 24px; font-weight: 700; color: #0f172a;
   margin: 0 0 6px; letter-spacing: 0.5px;
 }
 .home-tagline {
-  font-size: 13px; color: rgba(255,255,255,0.7);
+  font-size: 13px; color: #64748b;
   margin: 0; letter-spacing: 1px;
 }
 .home-section {
@@ -2893,9 +2894,13 @@ body {
 <!-- ==================== PAGE: 健康 ==================== -->
 <div id="page-health" class="page-view">
   <div class="sub-tab-bar" id="healthSubTabBar">
+    <button class="sub-tab-item" data-sub="trend" onclick="switchSubTab('health', 'trend')">健康趋势</button>
     <button class="sub-tab-item active" data-sub="behavior" onclick="switchSubTab('health', 'behavior')">行为记录</button>
     <button class="sub-tab-item" data-sub="food" onclick="switchSubTab('health', 'food')">食物营养</button>
     <button class="sub-tab-item" data-sub="solar" onclick="switchSubTab('health', 'solar')">节气养生</button>
+  </div>
+  <div id="health-trend" class="sub-tab-content">
+    <div class="trend-panel-wrap" id="healthTrendContainer" style="padding:16px;max-width:680px;margin:0 auto"></div>
   </div>
   <div id="health-behavior" class="sub-tab-content active">
     <div class="sub-section-title"><span class="dot" style="background:#16a34a"></span>生活行为记录</div>
@@ -3090,6 +3095,7 @@ body {
     'finance-dailytx': '收支明细',
     'finance-trend': '趋势洞察',
     'finance-receipt': '票据记账',
+    'health-trend': '健康趋势',
     'health-behavior': '行为记录',
     'health-food': '食物营养',
     'health-solar': '节气养生',
@@ -3102,6 +3108,7 @@ body {
     finance_dailytx: false,
     finance_trend: false,
     finance_receipt: false,
+    health_trend: false,
     health_behavior: false,
     health_food: false,
     health_solar: false,
@@ -3520,7 +3527,7 @@ body {
           });
         } else if (subName === 'trend' && window.TrendView) {
           requestAnimationFrame(function() {
-            window.TrendView.render('trendPanelContainer');
+            window.TrendView.render('trendPanelContainer', 'finance');
           });
         } else if (subName === 'receipt' && window.ImageRecognizer) {
           requestAnimationFrame(function() {
@@ -3530,7 +3537,11 @@ body {
           });
         }
       } else if (parent === 'health') {
-        if (subName === 'behavior' && window.initBehaviorHub) {
+        if (subName === 'trend' && window.TrendView) {
+          requestAnimationFrame(function() {
+            window.TrendView.render('healthTrendContainer', 'health');
+          });
+        } else if (subName === 'behavior' && window.initBehaviorHub) {
           requestAnimationFrame(function() {
             requestAnimationFrame(function() {
               window.initBehaviorHub('behaviorHubContainer');
