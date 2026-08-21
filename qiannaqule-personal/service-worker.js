@@ -1,6 +1,6 @@
 // Service Worker for MiRun AI — 越用越懂你
 // Cache version: update this string to invalidate old caches
-const CACHE_VERSION = 'mirunai-v52.1';
+const CACHE_VERSION = 'mirunai-v52.2';
 const CACHE_NAME = CACHE_VERSION;
 
 // Resources to cache on install
