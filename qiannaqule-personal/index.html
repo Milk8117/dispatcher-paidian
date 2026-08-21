@@ -14,7 +14,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="MiRun AI">
-<title>MiRun AI</title>
+<title>MiRun AI v51</title>
 <style>
 /* ========== Reset & Base ========== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -831,7 +831,7 @@ body {
 .bottom-tab-item svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .bottom-tab-label { font-size: 11px; font-weight: 500; line-height: 1; }
 
-/* ========== v50 对话页顶部栏 ========== */
+/* ========== v51 对话页顶部栏 ========== */
 .chat-top-bar {
   padding: 28px 24px 12px;
   text-align: center;
@@ -854,7 +854,7 @@ body {
   padding: 0;
 }
 
-/* ========== v50 今日概览横条 ========== */
+/* ========== v51 今日概览横条 ========== */
 .today-overview-bar {
   display: flex;
   align-items: center;
@@ -892,7 +892,7 @@ body {
   opacity: 0.5;
 }
 
-/* ========== v50 快捷指令卡片 ========== */
+/* ========== v51 快捷指令卡片 ========== */
 .quick-commands-section {
   padding: 8px 16px 16px;
 }
@@ -936,7 +936,7 @@ body {
   color: #94a3b8;
 }
 
-/* ========== v50 看板卡片 ========== */
+/* ========== v51 看板卡片 ========== */
 .dashboard-section {
   padding: 16px;
 }
@@ -1029,15 +1029,15 @@ body {
   color: #94a3b8;
 }
 
-/* ========== v50 SubTab 主题色 ========== */
+/* ========== v51 SubTab 主题色 ========== */
 #workSubTabBar .sub-tab-item.active { color: #6366f1; }
 #workSubTabBar .sub-tab-item.active::after { background: #6366f1; }
 #healthSubTabBar .sub-tab-item.active { color: #16a34a; }
 #healthSubTabBar .sub-tab-item.active::after { background: #16a34a; }
-#lifeSubTabBar .sub-tab-item.active { color: #f97316; }
-#lifeSubTabBar .sub-tab-item.active::after { background: #f97316; }
+/* v51: 生活Tab主色改为 #2563eb */
+/* v51: 生活Tab主色改为 #2563eb */
 
-/* ========== v50 档案折叠区 ========== */
+/* ========== v51 档案折叠区 ========== */
 .profile-section {
   background: #fff;
   border-radius: 16px;
@@ -1130,7 +1130,7 @@ body {
 }
 .profile-edit-btn:active { background: #e2e8f0; }
 
-/* ========== v50 家庭空间 ========== */
+/* ========== v51 家庭空间 ========== */
 .family-space-card {
   background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
   border-radius: 18px;
@@ -2547,6 +2547,357 @@ body {
 .ir-entry-title { font-size: 14px; font-weight: 600; color: #1a2a3a; margin-bottom: 2px; }
 .ir-entry-desc { font-size: 12px; color: #64748b; }
 .ir-entry-arrow { flex-shrink: 0; }
+
+/* ========== v51 图标系统 ========== */
+.icon-svg {
+  flex-shrink: 0;
+  display: inline-block;
+  vertical-align: middle;
+}
+.icon-svg svg { width: 100%; height: 100%; }
+
+/* ========== v51 三层范式 - 第一层：整体看板 ========== */
+.dashboard-hero {
+  background: linear-gradient(135deg, var(--tab-color, #ff6600) 0%, var(--tab-color-dark, #e65c00) 100%);
+  border-radius: 20px;
+  padding: 28px 24px 24px;
+  margin: 16px;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+.dashboard-hero::before {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 140px; height: 140px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+}
+.dashboard-hero::after {
+  content: '';
+  position: absolute;
+  bottom: -30px; left: -20px;
+  width: 100px; height: 100px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+}
+.dashboard-hero-label {
+  font-size: 12px;
+  font-weight: 500;
+  opacity: 0.85;
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
+  position: relative;
+  z-index: 1;
+}
+.dashboard-hero-score {
+  font-size: 48px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -1.5px;
+  margin-bottom: 4px;
+  position: relative;
+  z-index: 1;
+}
+.dashboard-hero-score .unit {
+  font-size: 18px;
+  font-weight: 500;
+  opacity: 0.8;
+  margin-left: 2px;
+}
+.dashboard-hero-conclusion {
+  font-size: 13px;
+  opacity: 0.92;
+  line-height: 1.6;
+  margin-top: 10px;
+  position: relative;
+  z-index: 1;
+}
+.dashboard-hero-trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 20px;
+  margin-top: 12px;
+  position: relative;
+  z-index: 1;
+}
+.dashboard-hero-trend .icon-svg { width: 14px; height: 14px; }
+
+/* ========== v51 三层范式 - 第二层：明细卡片 ========== */
+.dashboard-detail-section {
+  padding: 0 16px 4px;
+}
+.dashboard-detail-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  margin-bottom: 10px;
+  padding-left: 2px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.dashboard-detail-title .icon-svg { width: 14px; height: 14px; color: #94a3b8; }
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.dashboard-detail-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  border: 1px solid #f1f5f9;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.dashboard-detail-card:active {
+  transform: scale(0.97);
+}
+.dashboard-detail-card .ddc-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+.dashboard-detail-card .ddc-icon .icon-svg { width: 20px; height: 20px; }
+.dashboard-detail-card .ddc-title {
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+.dashboard-detail-card .ddc-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.2;
+  margin-bottom: 2px;
+}
+.dashboard-detail-card .ddc-desc {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+/* ========== v51 三层范式 - 第三层：AI建议 ========== */
+.dashboard-ai-section {
+  padding: 4px 16px 20px;
+}
+.dashboard-ai-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  margin-bottom: 10px;
+  padding-left: 2px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.dashboard-ai-title .icon-svg { width: 14px; height: 14px; color: var(--tab-color, #ff6600); }
+.ai-suggestion-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  border: 1px solid #f1f5f9;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  border-left: 3px solid var(--tab-color, #ff6600);
+}
+.ai-suggestion-card .ai-sug-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--tab-color-light, #fff7ed);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.ai-suggestion-card .ai-sug-icon .icon-svg { width: 16px; height: 16px; color: var(--tab-color, #ff6600); }
+.ai-suggestion-card .ai-sug-content {
+  flex: 1;
+  min-width: 0;
+}
+.ai-suggestion-card .ai-sug-text {
+  font-size: 13px;
+  color: #334155;
+  line-height: 1.6;
+  font-weight: 500;
+}
+.ai-suggestion-card .ai-sug-detail {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+.ai-suggestion-card .ai-sug-detail .icon-svg { width: 12px; height: 12px; }
+
+/* ========== v51 SubTab 图标增强 ========== */
+.sub-tab-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 8px 4px;
+}
+.sub-tab-item .sub-tab-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sub-tab-item .sub-tab-icon .icon-svg { width: 18px; height: 18px; color: currentColor; }
+.sub-tab-item .sub-tab-text {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+/* ========== v51 各Tab主题色变量 ========== */
+#page-work { --tab-color: #8b5cf6; --tab-color-dark: #7c3aed; --tab-color-light: #f5f3ff; }
+#page-health { --tab-color: #16a34a; --tab-color-dark: #15803d; --tab-color-light: #f0fdf4; }
+#page-life { --tab-color: #2563eb; --tab-color-dark: #1d4ed8; --tab-color-light: #eff6ff; }
+#page-me { --tab-color: #64748b; --tab-color-dark: #475569; --tab-color-light: #f1f5f9; }
+
+/* ========== v51 底部Tab激活色 ========== */
+.bottom-tab-item[data-module="work"].active { color: #8b5cf6; }
+.bottom-tab-item[data-module="health"].active { color: #16a34a; }
+.bottom-tab-item[data-module="life"].active { color: #2563eb; }
+.bottom-tab-item[data-module="me"].active { color: #64748b; }
+
+/* ========== v51 SubTab 主题色修正 ========== */
+#workSubTabBar .sub-tab-item.active { color: #8b5cf6; }
+#workSubTabBar .sub-tab-item.active::after { background: #8b5cf6; }
+#healthSubTabBar .sub-tab-item.active { color: #16a34a; }
+#healthSubTabBar .sub-tab-item.active::after { background: #16a34a; }
+#lifeSubTabBar .sub-tab-item.active { color: #2563eb; }
+#lifeSubTabBar .sub-tab-item.active::after { background: #2563eb; }
+
+/* ========== v51 对话页顶部栏（带LOGO） ========== */
+.chat-top-bar-v51 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 20px 12px;
+  background: linear-gradient(180deg, #fff7ed 0%, #f0f4f8 100%);
+}
+.chat-top-bar-v51 .brand-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.chat-top-bar-v51 .brand-logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(255,102,0,0.15);
+}
+.chat-top-bar-v51 .brand-logo img { width: 24px; height: 24px; }
+.chat-top-bar-v51 .brand-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.5px;
+}
+.chat-top-bar-v51 .brand-subtitle {
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 500;
+  margin-top: 1px;
+}
+.chat-top-bar-v51 .notif-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid #fed7aa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ff6600;
+  cursor: pointer;
+  position: relative;
+}
+.chat-top-bar-v51 .notif-btn .icon-svg { width: 18px; height: 18px; }
+.chat-top-bar-v51 .notif-badge {
+  position: absolute;
+  top: -2px; right: -2px;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+}
+.chat-top-bar-v51 .notif-badge:empty,
+.chat-top-bar-v51 .notif-badge[data-count="0"] { display: none; }
+
+/* ========== v51 快捷指令卡片（SVG图标版） ========== */
+.quick-command-card-v51 {
+  background: #fff;
+  border-radius: 14px;
+  padding: 12px 10px;
+  text-align: center;
+  cursor: pointer;
+  border: 1px solid #f1f5f9;
+  transition: all 0.15s;
+}
+.quick-command-card-v51:active {
+  transform: scale(0.95);
+  background: #f8fafc;
+}
+.quick-command-card-v51 .qc-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  margin: 0 auto 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.quick-command-card-v51 .qc-icon .icon-svg { width: 22px; height: 22px; }
+.quick-command-card-v51 .qc-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #334155;
+}
+
+/* ========== v51 个人档案区图标 ========== */
+.profile-section-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.profile-section-icon .icon-svg { width: 20px; height: 20px; color: currentColor; }
+
 </style>
 </head>
 <body>
@@ -2677,28 +3028,74 @@ body {
 
 <!-- ==================== PAGE: 首页 ==================== -->
 <div id="page-home" class="page-view page-active">
-  <!-- 对话页顶部栏 -->
-  <div class="chat-top-bar">
-    <div class="chat-top-title" id="chatTopTitle">MiRun AI</div>
-    <div class="chat-top-sub" id="chatTopSub">越用越懂你的个人数字分身</div>
+  <!-- 对话页顶部栏 v51 -->
+  <div class="chat-top-bar-v51">
+    <div class="brand-area">
+      <div class="brand-logo">
+        <img src="./assets/mirun-ai-logo.png" alt="MiRun AI">
+      </div>
+      <div>
+        <div class="brand-title" id="chatTopTitle">早上好，小米</div>
+        <div class="brand-subtitle">今天也要元气满满</div>
+      </div>
+    </div>
+    <button class="notif-btn" onclick="openNotifications()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span class="notif-badge" id="pushBadge"></span>
+    </button>
   </div>
 
   <!-- 今日概览横条 -->
-  <div id="todayOverviewBar" class="today-overview-wrap"></div>
-
-  <!-- 快捷指令 -->
-  <div class="quick-commands-section">
-    <div class="quick-commands-title">常用指令</div>
-    <div id="quickCommandsContainer"></div>
+  <div class="today-overview-wrap">
+  <div class="today-overview-bar">
+    <div class="ov-item" onclick="switchModule('life'); switchSubTab('life', 'finance')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#c2410c" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" style="margin-bottom:4px"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      <span class="ov-value" id="todayExpenseAmt">-</span>
+      <span class="ov-label">今日支出</span>
+    </div>
+    <div class="ov-divider"></div>
+    <div class="ov-item" onclick="switchModule('health'); switchSubTab('health', 'exercise')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#c2410c" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" style="margin-bottom:4px"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      <span class="ov-value" id="todayStepCount">-</span>
+      <span class="ov-label">今日步数</span>
+    </div>
+    <div class="ov-divider"></div>
+    <div class="ov-item" onclick="switchModule('work'); switchSubTab('work', 'task')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#c2410c" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" style="margin-bottom:4px"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span class="ov-value" id="todayTodoCount">-</span>
+      <span class="ov-label">待办事项</span>
+    </div>
+  </div>
   </div>
 
-  <!-- 对话历史 -->
-  <div class="chat-history-section" id="chatHistorySection" style="display:block">
-    <div class="chat-history-header">
-      <span class="chat-history-title">💬 对话</span>
-      <button class="chat-history-clear-all" onclick="clearAllChatHistory()">清空</button>
+  <!-- 快捷指令 v51 -->
+  <div class="quick-commands-section">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+      <div class="quick-command-card-v51" onclick="quickCommand('记一笔')">
+        <div class="qc-icon" style="background:#fff7ed;color:#f97316">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </div>
+        <div class="qc-label">记一笔</div>
+      </div>
+      <div class="quick-command-card-v51" onclick="quickCommand('记录心情')">
+        <div class="qc-icon" style="background:#ecfdf5;color:#10b981">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+        </div>
+        <div class="qc-label">记录心情</div>
+      </div>
+      <div class="quick-command-card-v51" onclick="quickCommand('今日总结')">
+        <div class="qc-icon" style="background:#eff6ff;color:#3b82f6">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <div class="qc-label">今日总结</div>
+      </div>
+      <div class="quick-command-card-v51" onclick="quickCommand('问个问题')">
+        <div class="qc-icon" style="background:#faf5ff;color:#8b5cf6">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div class="qc-label">问个问题</div>
+      </div>
     </div>
-    <div class="chat-history-list" id="chatHistoryList"></div>
   </div>
 
   <div class="app-brand-footer">
@@ -2711,107 +3108,213 @@ body {
 <!-- ==================== PAGE: 工作 ==================== -->
 <div id="page-work" class="page-view">
   <div class="sub-tab-bar" id="workSubTabBar">
-    <button class="sub-tab-item active" data-sub="task" onclick="switchSubTab('work', 'task')">任务</button>
-    <button class="sub-tab-item" data-sub="decision" onclick="switchSubTab('work', 'decision')">决策</button>
-    <button class="sub-tab-item" data-sub="industry" onclick="switchSubTab('work', 'industry')">行业</button>
+    <button class="sub-tab-item active" data-sub="task" onclick="switchSubTab('work', 'task')">
+      <span class="sub-tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
+      <span class="sub-tab-text">任务</span>
+    </button>
+    <button class="sub-tab-item" data-sub="decision" onclick="switchSubTab('work', 'decision')">
+      <span class="sub-tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/></svg></span>
+      <span class="sub-tab-text">决策</span>
+    </button>
+    <button class="sub-tab-item" data-sub="insight" onclick="switchSubTab('work', 'insight')">
+      <span class="sub-tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg></span>
+      <span class="sub-tab-text">洞察</span>
+    </button>
   </div>
 
   <!-- 任务看板 -->
   <div id="work-task" class="sub-tab-content active">
-    <div class="dashboard-section">
-      <div class="dashboard-card">
-        <div class="dashboard-card-header">
-          <div>
-            <div class="dashboard-card-title">今日任务</div>
-            <div class="dashboard-card-subtitle">聚焦最重要的事</div>
+    <!-- 第一层：整体看板 -->
+    <div class="dashboard-hero">
+      <div class="dashboard-hero-label">任务完成率</div>
+      <div class="dashboard-hero-score"><span id="workTaskRate">-</span><span class="unit">%</span></div>
+      <div class="dashboard-hero-trend">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+        较昨日
+      </div>
+      <div class="dashboard-hero-conclusion" id="workTaskConclusion">
+        开始记录你的任务，我来帮你管理工作节奏。
+      </div>
+    </div>
+
+    <!-- 第二层：明细卡片 -->
+    <div class="dashboard-detail-section">
+      <div class="dashboard-detail-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        任务明细
+      </div>
+      <div class="dashboard-grid">
+        <div class="dashboard-detail-card" onclick="if(window.Schedule) Schedule.openPanel()">
+          <div class="ddc-icon" style="background:#f5f3ff;color:#8b5cf6">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
           </div>
-          <span class="dashboard-card-tag" id="workTaskTag">待更新</span>
+          <div class="ddc-title">今日待办</div>
+          <div class="ddc-value" id="workTaskCount">-</div>
+          <div class="ddc-desc">项待完成</div>
         </div>
-        <div class="dashboard-big-number"><span id="workTaskCount">-</span><span class="unit">件</span></div>
-        <div class="dashboard-conclusion">
-          今天还有 <span class="highlight" id="workTaskRemaining">-</span> 件待完成。<br>
-          用对话告诉我你的安排，我来帮你管理。
+        <div class="dashboard-detail-card" onclick="if(window.Schedule) Schedule.openPanel()">
+          <div class="ddc-icon" style="background:#fef3c7;color:#d97706">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div class="ddc-title">本周完成</div>
+          <div class="ddc-value" id="workWeekDone">-</div>
+          <div class="ddc-desc">项已完成</div>
+        </div>
+        <div class="dashboard-detail-card">
+          <div class="ddc-icon" style="background:#fee2e2;color:#ef4444">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div class="ddc-title">高优先级</div>
+          <div class="ddc-value" id="workHighPriority">-</div>
+          <div class="ddc-desc">项重点任务</div>
+        </div>
+        <div class="dashboard-detail-card">
+          <div class="ddc-icon" style="background:#ecfdf5;color:#10b981">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </div>
+          <div class="ddc-title">连续达标</div>
+          <div class="ddc-value" id="workStreak">0</div>
+          <div class="ddc-desc">天</div>
         </div>
       </div>
+    </div>
 
-      <div class="dashboard-duo">
-        <div class="dashboard-mini-card">
-          <div class="dm-title">本周完成</div>
-          <div class="dm-value" id="workWeekDone">-</div>
-          <div class="dm-trend">任务完成情况</div>
+    <!-- 第三层：AI建议 -->
+    <div class="dashboard-ai-section">
+      <div class="dashboard-ai-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M12 2l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3z"/></svg>
+        AI 效率建议
+      </div>
+      <div class="ai-suggestion-card">
+        <div class="ai-sug-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg>
         </div>
-        <div class="dashboard-mini-card">
-          <div class="dm-title">优先级</div>
-          <div class="dm-value" id="workHighPriority">-</div>
-          <div class="dm-trend">高优先级任务</div>
+        <div class="ai-sug-content">
+          <div class="ai-sug-text">每天早上花5分钟规划3件最重要的事，效率提升60%。</div>
+          <span class="ai-sug-detail">查看详情 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><polyline points="9 18 15 12 9 6"/></svg></span>
+        </div>
+      </div>
+      <div class="ai-suggestion-card">
+        <div class="ai-sug-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="ai-sug-content">
+          <div class="ai-sug-text">番茄工作法：25分钟专注 + 5分钟休息，保持高效节奏。</div>
+          <span class="ai-sug-detail">查看详情 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><polyline points="9 18 15 12 9 6"/></svg></span>
         </div>
       </div>
     </div>
   </div>
-
   <!-- 决策看板 -->
   <div id="work-decision" class="sub-tab-content">
-    <div class="dashboard-section">
-      <div class="dashboard-card">
-        <div class="dashboard-card-header">
-          <div>
-            <div class="dashboard-card-title">决策质量</div>
-            <div class="dashboard-card-subtitle">每一个选择都值得被认真对待</div>
-          </div>
-          <span class="dashboard-card-tag">思考中</span>
-        </div>
-        <div class="dashboard-big-number"><span id="workDecisionCount">0</span><span class="unit">次</span></div>
-        <div class="dashboard-conclusion">
-          纠结诊疗室已帮你进行 <span class="highlight">0</span> 次决策梳理。<br>
-          面对重大选择时，告诉我你的纠结，让我帮你拆解开。
-        </div>
-      </div>
-
-      <div class="dashboard-card" style="cursor:pointer" onclick="if(window.DecisionForge) DecisionForge.openPanel()">
-        <div class="dashboard-card-header">
-          <div class="dashboard-card-title">🔮 纠结诊疗室</div>
-        </div>
-        <div class="dashboard-conclusion">三轮对辩，把问题想清楚再决定。</div>
-      </div>
-
-      <div class="dashboard-card" style="cursor:pointer" onclick="if(window.ValueResonance) ValueResonance.openPanel()">
-        <div class="dashboard-card-header">
-          <div class="dashboard-card-title">🧭 价值罗盘</div>
-        </div>
-        <div class="dashboard-conclusion">做你说过的自己，每一步都不偏离。</div>
+    <!-- 第一层：整体看板 -->
+    <div class="dashboard-hero">
+      <div class="dashboard-hero-label">决策质量指数</div>
+      <div class="dashboard-hero-score"><span id="workDecisionScore">-</span><span class="unit">分</span></div>
+      <div class="dashboard-hero-conclusion" id="workDecisionConclusion">
+        每一个选择都值得被认真对待。<br>用对话告诉我你的纠结，我来帮你拆解开。
       </div>
     </div>
-  </div>
 
-  <!-- 行业看板 -->
-  <div id="work-industry" class="sub-tab-content">
-    <div class="dashboard-section">
-      <div class="dashboard-card">
-        <div class="dashboard-card-header">
-          <div>
-            <div class="dashboard-card-title">行业洞察</div>
-            <div class="dashboard-card-subtitle">你的职业领域动态</div>
+    <!-- 第二层：明细卡片 -->
+    <div class="dashboard-detail-section">
+      <div class="dashboard-detail-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/></svg>
+        决策数据
+      </div>
+      <div class="dashboard-grid">
+        <div class="dashboard-detail-card" style="cursor:pointer" onclick="if(window.DecisionForge) DecisionForge.openPanel()">
+          <div class="ddc-icon" style="background:#f5f3ff;color:#8b5cf6">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/></svg>
           </div>
-          <span class="dashboard-card-tag">待配置</span>
+          <div class="ddc-title">决策次数</div>
+          <div class="ddc-value" id="workDecisionCount">0</div>
+          <div class="ddc-desc">次深度思考</div>
         </div>
-        <div class="dashboard-conclusion">
-          在「我的」中设置你的职业信息后，<br>
-          这里将展示你所在行业的关键动态和趋势。
+        <div class="dashboard-detail-card" style="cursor:pointer" onclick="if(window.ValueResonance) ValueResonance.openPanel()">
+          <div class="ddc-icon" style="background:#fef3c7;color:#d97706">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+          </div>
+          <div class="ddc-title">价值罗盘</div>
+          <div class="ddc-value" id="workValueCount">0</div>
+          <div class="ddc-desc">项价值锚点</div>
         </div>
       </div>
+    </div>
 
-      <div class="dashboard-card">
-        <div class="dashboard-card-header">
-          <div class="dashboard-card-title">💡 每周洞察</div>
+    <!-- 第三层：AI建议 -->
+    <div class="dashboard-ai-section">
+      <div class="dashboard-ai-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M12 2l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3z"/></svg>
+        AI 决策建议
+      </div>
+      <div class="ai-suggestion-card">
+        <div class="ai-sug-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         </div>
-        <div class="dashboard-conclusion">
-          每周日晚，我会为你生成一份<br>
-          涵盖工作、健康、生活的周度总结。
+        <div class="ai-sug-content">
+          <div class="ai-sug-text">重大决策前先睡一觉，潜意识会帮你做更优判断。</div>
+          <span class="ai-sug-detail">查看详情 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><polyline points="9 18 15 12 9 6"/></svg></span>
         </div>
       </div>
     </div>
   </div>
+  <!-- 洞察看板 -->
+  <div id="work-insight" class="sub-tab-content">
+    <!-- 第一层：整体看板 -->
+    <div class="dashboard-hero">
+      <div class="dashboard-hero-label">行业洞察</div>
+      <div class="dashboard-hero-score">待配置<span class="unit"></span></div>
+      <div class="dashboard-hero-conclusion">
+        在「我的」中设置你的职业信息后，<br>
+        这里将展示你所在行业的关键动态和趋势。
+      </div>
+    </div>
 
+    <!-- 第二层：明细卡片 -->
+    <div class="dashboard-detail-section">
+      <div class="dashboard-detail-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg>
+        洞察中心
+      </div>
+      <div class="dashboard-grid">
+        <div class="dashboard-detail-card">
+          <div class="ddc-icon" style="background:#f5f3ff;color:#8b5cf6">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+          </div>
+          <div class="ddc-title">每周洞察</div>
+          <div class="ddc-value">--</div>
+          <div class="ddc-desc">每周日晚生成</div>
+        </div>
+        <div class="dashboard-detail-card">
+          <div class="ddc-icon" style="background:#eff6ff;color:#3b82f6">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </div>
+          <div class="ddc-title">行业动态</div>
+          <div class="ddc-value">--</div>
+          <div class="ddc-desc">设置职业后展示</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 第三层：AI建议 -->
+    <div class="dashboard-ai-section">
+      <div class="dashboard-ai-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M12 2l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3z"/></svg>
+        AI 成长建议
+      </div>
+      <div class="ai-suggestion-card">
+        <div class="ai-sug-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        </div>
+        <div class="ai-sug-content">
+          <div class="ai-sug-text">设置职业领域后，每周为你生成专属行业洞察报告。</div>
+          <span class="ai-sug-detail">去设置 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><polyline points="9 18 15 12 9 6"/></svg></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  
   <div class="app-brand-footer">
     <img src="./assets/mierke-logo.png" alt="米儿客" style="height:16px;vertical-align:middle;margin-right:6px;opacity:0.7">
     <span>米儿客出品 · 数据仅存本地</span>
@@ -2822,66 +3325,128 @@ body {
 <!-- ==================== PAGE: 健康 ==================== -->
 <div id="page-health" class="page-view">
   <div class="sub-tab-bar" id="healthSubTabBar">
-    <button class="sub-tab-item" data-sub="diet" onclick="switchSubTab('health', 'diet')">饮食</button>
-    <button class="sub-tab-item" data-sub="exercise" onclick="switchSubTab('health', 'exercise')">运动</button>
-    <button class="sub-tab-item active" data-sub="overview" onclick="switchSubTab('health', 'overview')">总览</button>
-    <button class="sub-tab-item" data-sub="sleep" onclick="switchSubTab('health', 'sleep')">睡眠</button>
-    <button class="sub-tab-item" data-sub="mood" onclick="switchSubTab('health', 'mood')">情绪</button>
+    <button class="sub-tab-item active" data-sub="overview" onclick="switchSubTab('health', 'overview')">
+      <span class="sub-tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>
+      <span class="sub-tab-text">总览</span>
+    </button>
+    <button class="sub-tab-item" data-sub="diet" onclick="switchSubTab('health', 'diet')">
+      <span class="sub-tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg></span>
+      <span class="sub-tab-text">饮食</span>
+    </button>
+    <button class="sub-tab-item" data-sub="exercise" onclick="switchSubTab('health', 'exercise')">
+      <span class="sub-tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
+      <span class="sub-tab-text">运动</span>
+    </button>
+    <button class="sub-tab-item" data-sub="sleep" onclick="switchSubTab('health', 'sleep')">
+      <span class="sub-tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span>
+      <span class="sub-tab-text">睡眠</span>
+    </button>
+    <button class="sub-tab-item" data-sub="mood" onclick="switchSubTab('health', 'mood')">
+      <span class="sub-tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></span>
+      <span class="sub-tab-text">情绪</span>
+    </button>
   </div>
 
   <!-- 健康总览 -->
   <div id="health-overview" class="sub-tab-content active">
-    <div class="dashboard-section">
-      <div class="dashboard-card">
-        <div class="dashboard-card-header">
-          <div>
-            <div class="dashboard-card-title">健康评分</div>
-            <div class="dashboard-card-subtitle">综合饮食·运动·睡眠·情绪</div>
+    <!-- 第一层：整体看板 -->
+    <div class="dashboard-hero">
+      <div class="dashboard-hero-label">健康指数</div>
+      <div class="dashboard-hero-score"><span id="healthScore">-</span><span class="unit">分</span></div>
+      <div class="dashboard-hero-trend">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+        本周趋势
+      </div>
+      <div class="dashboard-hero-conclusion" id="healthConclusion">
+        综合饮食·运动·睡眠·情绪四大维度<br>
+        开始记录，生成你的专属健康画像。
+      </div>
+    </div>
+
+    <!-- 第二层：明细卡片 -->
+    <div class="dashboard-detail-section">
+      <div class="dashboard-detail-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        四大维度
+      </div>
+      <div class="dashboard-grid">
+        <div class="dashboard-detail-card" onclick="switchSubTab('health', 'diet')">
+          <div class="ddc-icon" style="background:#f0fdf4;color:#16a34a">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>
           </div>
-          <span class="dashboard-card-tag good" id="healthScoreTag">良好</span>
+          <div class="ddc-title">饮食营养</div>
+          <div class="ddc-value" id="healthDietCount">0</div>
+          <div class="ddc-desc">条记录</div>
         </div>
-        <div class="dashboard-big-number"><span id="healthScore">-</span><span class="unit">分</span></div>
-        <div class="dashboard-conclusion" id="healthConclusion">
-          开始记录你的饮食、运动、睡眠和情绪，<br>
-          我会为你生成专属的健康画像。
+        <div class="dashboard-detail-card" onclick="switchSubTab('health', 'exercise')">
+          <div class="ddc-icon" style="background:#fef3c7;color:#d97706">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <div class="ddc-title">运动时长</div>
+          <div class="ddc-value" id="healthExerciseMin">0</div>
+          <div class="ddc-desc">分钟今日</div>
         </div>
-      </div>
-
-      <div class="dashboard-duo">
-        <div class="dashboard-mini-card" onclick="switchSubTab('health', 'diet')" style="cursor:pointer">
-          <div class="dm-title">🍽 今日饮食</div>
-          <div class="dm-value" id="healthDietCount">0</div>
-          <div class="dm-trend">条记录</div>
+        <div class="dashboard-detail-card" onclick="switchSubTab('health', 'sleep')">
+          <div class="ddc-icon" style="background:#f5f3ff;color:#8b5cf6">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+          </div>
+          <div class="ddc-title">睡眠质量</div>
+          <div class="ddc-value" id="healthSleepHour">-</div>
+          <div class="ddc-desc">小时昨晚</div>
         </div>
-        <div class="dashboard-mini-card" onclick="switchSubTab('health', 'exercise')" style="cursor:pointer">
-          <div class="dm-title">🏃 今日运动</div>
-          <div class="dm-value" id="healthExerciseMin">0</div>
-          <div class="dm-trend">分钟</div>
-        </div>
-        <div class="dashboard-mini-card" onclick="switchSubTab('health', 'sleep')" style="cursor:pointer">
-          <div class="dm-title">😴 昨晚睡眠</div>
-          <div class="dm-value" id="healthSleepHour">-</div>
-          <div class="dm-trend">小时</div>
-        </div>
-        <div class="dashboard-mini-card" onclick="switchSubTab('health', 'mood')" style="cursor:pointer">
-          <div class="dm-title">😊 当前心情</div>
-          <div class="dm-value" id="healthMood">--</div>
-          <div class="dm-trend">待记录</div>
+        <div class="dashboard-detail-card" onclick="switchSubTab('health', 'mood')">
+          <div class="ddc-icon" style="background:#ecfdf5;color:#10b981">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+          </div>
+          <div class="ddc-title">情绪状态</div>
+          <div class="ddc-value" id="healthMood">--</div>
+          <div class="ddc-desc">当前心情</div>
         </div>
       </div>
+    </div>
 
-      <div class="dashboard-card" id="solarTermEntryCard" style="cursor:pointer" onclick="switchModule('health', 'solar')">
-        <div class="dashboard-card-header">
-          <div class="dashboard-card-title">🌿 节气养生</div>
-          <span class="dashboard-card-tag">时令</span>
+    <!-- 节气养生入口 -->
+    <div style="padding:0 16px 4px">
+      <div class="dashboard-detail-card" id="solarTermEntryCard" style="cursor:pointer;grid-column:1/-1" onclick="switchSubTab('health', 'solar')">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="ddc-icon" style="background:#f0fdf4;color:#16a34a;margin-bottom:0;width:44px;height:44px;border-radius:12px">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="24" height="24"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19.2 2.96c.8 1.02 1.3 2.27 1.3 4.04 0 6.5-4.78 12-10.5 13Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+          </div>
+          <div style="flex:1">
+            <div style="font-size:14px;font-weight:600;color:#0f172a;margin-bottom:2px">节气养生</div>
+            <div style="font-size:12px;color:#94a3b8" id="solarTermSummary">顺应时节，食养有道</div>
+          </div>
+          <svg viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><polyline points="9 18 15 12 9 6"/></svg>
         </div>
-        <div class="dashboard-conclusion" id="solarTermSummary">
-          顺应时节，食养有道。
+      </div>
+    </div>
+
+    <!-- 第三层：AI建议 -->
+    <div class="dashboard-ai-section">
+      <div class="dashboard-ai-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M12 2l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3z"/></svg>
+        AI 健康建议
+      </div>
+      <div class="ai-suggestion-card">
+        <div class="ai-sug-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/></svg>
+        </div>
+        <div class="ai-sug-content">
+          <div class="ai-sug-text">均衡饮食+适量运动，是保持健康的两大基石。</div>
+          <span class="ai-sug-detail">查看详情 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><polyline points="9 18 15 12 9 6"/></svg></span>
+        </div>
+      </div>
+      <div class="ai-suggestion-card">
+        <div class="ai-sug-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+        </div>
+        <div class="ai-sug-content">
+          <div class="ai-sug-text">每晚11点前入睡，深度睡眠时间会显著增加。</div>
+          <span class="ai-sug-detail">查看详情 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><polyline points="9 18 15 12 9 6"/></svg></span>
         </div>
       </div>
     </div>
   </div>
-
   <!-- 饮食 -->
   <div id="health-diet" class="sub-tab-content">
     <div class="dashboard-section">
@@ -2946,7 +3511,7 @@ body {
 
       <div class="dashboard-card">
         <div class="dashboard-card-header">
-          <div class="dashboard-card-title">💡 睡眠小贴士</div>
+          <div class="dashboard-card-title">睡眠小贴士</div>
         </div>
         <div class="dashboard-conclusion">
           · 睡前1小时放下手机<br>
@@ -2977,7 +3542,7 @@ body {
 
       <div class="dashboard-card">
         <div class="dashboard-card-header">
-          <div class="dashboard-card-title">🌱 情绪调节</div>
+          <div class="dashboard-card-title">情绪调节</div>
         </div>
         <div class="dashboard-conclusion">
           感到焦虑时试试深呼吸：<br>
@@ -3004,10 +3569,22 @@ body {
 <!-- ==================== PAGE: 生活 ==================== -->
 <div id="page-life" class="page-view">
   <div class="sub-tab-bar" id="lifeSubTabBar">
-    <button class="sub-tab-item active" data-sub="finance" onclick="switchSubTab('life', 'finance')">收支</button>
-    <button class="sub-tab-item" data-sub="schedule" onclick="switchSubTab('life', 'schedule')">日程</button>
-    <button class="sub-tab-item" data-sub="shopping" onclick="switchSubTab('life', 'shopping')">购物</button>
-    <button class="sub-tab-item" data-sub="family" onclick="switchSubTab('life', 'family')">家庭</button>
+    <button class="sub-tab-item active" data-sub="finance" onclick="switchSubTab('life', 'finance')">
+      <span class="sub-tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></svg></span>
+      <span class="sub-tab-text">收支</span>
+    </button>
+    <button class="sub-tab-item" data-sub="schedule" onclick="switchSubTab('life', 'schedule')">
+      <span class="sub-tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+      <span class="sub-tab-text">日程</span>
+    </button>
+    <button class="sub-tab-item" data-sub="shopping" onclick="switchSubTab('life', 'shopping')">
+      <span class="sub-tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></span>
+      <span class="sub-tab-text">购物</span>
+    </button>
+    <button class="sub-tab-item" data-sub="family" onclick="switchSubTab('life', 'family')">
+      <span class="sub-tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+      <span class="sub-tab-text">家庭</span>
+    </button>
   </div>
 
   <!-- 收支看板 -->
@@ -3030,12 +3607,12 @@ body {
 
       <div class="dashboard-duo">
         <div class="dashboard-mini-card" style="cursor:pointer" onclick="showDailyTxDetail()">
-          <div class="dm-title">💰 今日支出</div>
+          <div class="dm-title">今日支出</div>
           <div class="dm-value" id="financeTodayExpense">0</div>
           <div class="dm-trend">查看明细 →</div>
         </div>
         <div class="dashboard-mini-card" style="cursor:pointer" onclick="showHoldingsDetail()">
-          <div class="dm-title">📈 投资持仓</div>
+          <div class="dm-title">投资持仓</div>
           <div class="dm-value" id="financeHoldings">-</div>
           <div class="dm-trend">查看详情 →</div>
         </div>
@@ -3094,7 +3671,7 @@ body {
 
       <div class="dashboard-card">
         <div class="dashboard-card-header">
-          <div class="dashboard-card-title">🛒 智能采购</div>
+          <div class="dashboard-card-title">智能采购</div>
         </div>
         <div class="dashboard-conclusion">
           未来将根据你的饮食习惯和库存，<br>
@@ -3108,11 +3685,11 @@ body {
   <div id="life-family" class="sub-tab-content">
     <div class="dashboard-section">
       <div class="family-space-card">
-        <div class="family-space-title">🏠 家庭空间</div>
+        <div class="family-space-title">家庭空间</div>
         <div class="family-space-desc">和家人共享数据，一起把日子过好</div>
         <div class="family-member-list" id="familyMemberList">
           <div class="family-member">
-            <div class="family-member-avatar">👤</div>
+            <div class="family-member-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
             <div class="family-member-name">我</div>
           </div>
           <div class="family-member-add" onclick="openFamilyInvite()">+</div>
@@ -3155,8 +3732,8 @@ body {
   <div class="me-page" style="padding:16px;max-width:680px;margin:0 auto">
     <!-- 个人信息顶卡 -->
     <div class="me-profile-card" style="background:#fff;border-radius:20px;padding:28px 24px 24px;margin-bottom:16px;border:1px solid #f1f5f9;text-align:center">
-      <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#fef3c7,#fde68a);margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:32px;box-shadow:0 4px 16px rgba(251,191,36,0.2);border:3px solid #fff">
-        <span id="meAvatarEmoji">👤</span>
+      <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#f1f5f9,#e2e8f0);margin:0 auto 14px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,0.08);border:3px solid #fff">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="36" height="36"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       </div>
       <div style="font-size:20px;font-weight:700;color:#0f172a;margin-bottom:4px" id="meName">未设置</div>
       <div style="font-size:13px;color:#94a3b8" id="meTagline">设置你的个人档案，让AI更懂你</div>
@@ -3166,13 +3743,13 @@ body {
     <div class="profile-section" id="profileSection1" onclick="toggleProfileSection(1)">
       <div class="profile-section-header">
         <div class="profile-section-title">
-          <div class="profile-section-icon" style="background:#f0f9ff;color:#0ea5e9">👤</div>
+          <div class="profile-section-icon" style="background:#f0f9ff;color:#0ea5e9"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
           <div>
             <div class="profile-section-name">基本信息</div>
             <div class="profile-section-summary" id="profileBasicSummary">点击设置</div>
           </div>
         </div>
-        <span class="profile-section-toggle">▼</span>
+        <span class="profile-section-toggle"><svg viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="6 9 12 15 18 9"/></svg></span>
       </div>
       <div class="profile-section-body">
         <div class="profile-field-row">
@@ -3198,13 +3775,13 @@ body {
     <div class="profile-section" id="profileSection2" onclick="toggleProfileSection(2)">
       <div class="profile-section-header">
         <div class="profile-section-title">
-          <div class="profile-section-icon" style="background:#f0fdf4;color:#16a34a">🏥</div>
+          <div class="profile-section-icon" style="background:#f0fdf4;color:#16a34a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M12 6v4"/><path d="M10 8h4"/><path d="M18 12h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2h2"/><path d="M18 22V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v18"/></svg></div>
           <div>
             <div class="profile-section-name">健康档案</div>
             <div class="profile-section-summary" id="profileHealthSummary">点击设置</div>
           </div>
         </div>
-        <span class="profile-section-toggle">▼</span>
+        <span class="profile-section-toggle"><svg viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="6 9 12 15 18 9"/></svg></span>
       </div>
       <div class="profile-section-body">
         <div class="profile-field-row">
@@ -3226,13 +3803,13 @@ body {
     <div class="profile-section" id="profileSection3" onclick="toggleProfileSection(3)">
       <div class="profile-section-header">
         <div class="profile-section-title">
-          <div class="profile-section-icon" style="background:#fef3c7;color:#d97706">⭐</div>
+          <div class="profile-section-icon" style="background:#fef3c7;color:#d97706"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
           <div>
             <div class="profile-section-name">个人偏好</div>
             <div class="profile-section-summary" id="profilePrefSummary">点击设置</div>
           </div>
         </div>
-        <span class="profile-section-toggle">▼</span>
+        <span class="profile-section-toggle"><svg viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="6 9 12 15 18 9"/></svg></span>
       </div>
       <div class="profile-section-body">
         <div class="profile-field-row">
@@ -3254,13 +3831,13 @@ body {
     <div class="profile-section" id="profileSection4" onclick="toggleProfileSection(4)">
       <div class="profile-section-header">
         <div class="profile-section-title">
-          <div class="profile-section-icon" style="background:#f5f3ff;color:#8b5cf6">🧭</div>
+          <div class="profile-section-icon" style="background:#f5f3ff;color:#8b5cf6"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></div>
           <div>
             <div class="profile-section-name">价值锚点</div>
             <div class="profile-section-summary" id="profileValueSummary">点击设置</div>
           </div>
         </div>
-        <span class="profile-section-toggle">▼</span>
+        <span class="profile-section-toggle"><svg viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="6 9 12 15 18 9"/></svg></span>
       </div>
       <div class="profile-section-body">
         <div class="profile-field-row">
@@ -3282,13 +3859,13 @@ body {
     <div class="profile-section" id="profileSection5" onclick="toggleProfileSection(5)">
       <div class="profile-section-header">
         <div class="profile-section-title">
-          <div class="profile-section-icon" style="background:#fee2e2;color:#ef4444">👨‍👩‍👧‍👦</div>
+          <div class="profile-section-icon" style="background:#fee2e2;color:#ef4444"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
           <div>
             <div class="profile-section-name">家庭成员</div>
             <div class="profile-section-summary" id="profileFamilySummary">点击查看</div>
           </div>
         </div>
-        <span class="profile-section-toggle">▼</span>
+        <span class="profile-section-toggle"><svg viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="6 9 12 15 18 9"/></svg></span>
       </div>
       <div class="profile-section-body">
         <div id="familyMembersList">
@@ -3337,7 +3914,7 @@ body {
       <div class="me-section-title" style="padding:14px 16px 8px;font-size:13px;font-weight:600;color:#64748b;letter-spacing:0.3px">关于</div>
       <div class="me-list-item" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-top:1px solid #f8fafc">
         <span style="font-size:14px;color:#1e293b">版本</span>
-        <span style="font-size:13px;color:#94a3b8">v50</span>
+        <span style="font-size:13px;color:#94a3b8">v51</span>
       </div>
       <div class="me-list-item" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-top:1px solid #f8fafc">
         <span style="font-size:14px;color:#1e293b">出品</span>
@@ -3350,7 +3927,7 @@ body {
     </div>
 
     <div style="text-align:center;padding:20px 0 10px;font-size:12px;color:#cbd5e1">
-      MiRun AI v50 · 越用越懂你的数字分身
+      MiRun AI v51 · 越用越懂你的数字分身
     </div>
   </div>
   <div class="app-brand-footer">
@@ -3367,7 +3944,7 @@ body {
 <!-- Chat History Section -->
 <div class="chat-history-section" id="chatHistorySection">
   <div class="chat-history-header">
-    <span class="chat-history-title">💬 对话</span>
+    <span class="chat-history-title">对话历史</span>
     <button class="chat-history-clear-all" onclick="clearAllChatHistory()">清空</button>
   </div>
   <div class="chat-history-list" id="chatHistoryList"></div>
@@ -3377,23 +3954,23 @@ body {
 <!-- ==================== Bottom Tab Bar ==================== -->
 <nav class="bottom-tab-bar" id="bottomTabBar">
   <button class="bottom-tab-item active" data-module="home" onclick="switchModule('home')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
     <span class="bottom-tab-label">对话</span>
   </button>
   <button class="bottom-tab-item" data-module="work" onclick="switchModule('work')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
     <span class="bottom-tab-label">工作</span>
   </button>
   <button class="bottom-tab-item" data-module="health" onclick="switchModule('health')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
     <span class="bottom-tab-label">健康</span>
   </button>
   <button class="bottom-tab-item" data-module="life" onclick="switchModule('life')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 10h20"/><path d="M6 16h4"/><path d="M14 16h4"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
     <span class="bottom-tab-label">生活</span>
   </button>
   <button class="bottom-tab-item" data-module="me" onclick="switchModule('me')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
     <span class="bottom-tab-label">我的</span>
   </button>
 </nav>
@@ -3401,22 +3978,22 @@ body {
 <!-- Bottom Input Bar -->
 <div class="app-input-bar">
   <button class="app-input-image" id="imageUploadBtn" title="发送图片">
-    <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
   </button>
   <input type="file" id="imageFileInput" accept="image/*" style="display:none" />
   <button class="app-input-voice" id="voiceBtn" title="语音输入">
-    <svg id="voiceIcon" viewBox="0 0 24 24"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z" stroke-linecap="round" stroke-linejoin="round"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <svg id="voiceIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>
   </button>
   <input type="text" class="app-input-field" id="aiInputField" placeholder="告诉AI你的需求..." />
   <button class="app-input-send" onclick="submitAiInput()">
-    <svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
   </button>
 </div>
 
-<script src="datastore.js?v=42"></script>
-<script src="diagnosis-engine.js?v=42"></script>
-<script src="reminder-engine.js?v=42"></script>
-<script src="trend-view.js?v=42"></script>
+<script src="datastore.js?v=51"></script>
+<script src="diagnosis-engine.js?v=51"></script>
+<script src="reminder-engine.js?v=51"></script>
+<script src="trend-view.js?v=51"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 (function() {
@@ -3433,7 +4010,7 @@ body {
   var subTabTitles = {
     'work-task': '任务',
     'work-decision': '决策',
-    'work-industry': '行业',
+    'work-insight': '洞察',
     'health-diet': '饮食',
     'health-exercise': '运动',
     'health-overview': '健康总览',
@@ -3449,7 +4026,7 @@ body {
   var moduleInitFlags = {
     work_task: false,
     work_decision: false,
-    work_industry: false,
+    work_insight: false,
     health_diet: false,
     health_exercise: false,
     health_overview: false,
@@ -3463,7 +4040,7 @@ body {
   };
   // 当前激活的主Tab和子Tab
   var currentModule = 'home';
-  var currentSubTab = { work: 'task', health: 'overview', life: 'finance' };
+  var currentSubTab = { work: 'task', health: 'overview',  // 默认总览在第一位 life: 'finance' };
 
   // 对话页问候语（按时间动态更新）
   function updateGreeting() {
@@ -3761,7 +4338,7 @@ body {
 
     container.innerHTML = html;
   }
-  // v50 初始化渲染
+  // v51 初始化渲染
   function initV50() {
     // 预加载记忆系统
     if (window.MemoryManager) {
@@ -3819,7 +4396,7 @@ body {
   });
 
   window.switchModule = function(moduleName, subTabName) {
-    // 兼容旧模块名的跳转映射（v46→v50 迁移）
+    // 兼容旧模块名的跳转映射（v46→v51 迁移）
     var legacyMap = {
       schedule: ['life', 'schedule'],
       behavior: ['health', 'exercise'],
@@ -4452,7 +5029,7 @@ body {
       return;
     }
 
-    // v50：走 ChatEngine 主循环（意图识别 → 工具路由 → ReAct → 回复）
+    // v51：走 ChatEngine 主循环（意图识别 → 工具路由 → ReAct → 回复）
     showAiThinking(text);
 
     if (window.ChatEngine) {
@@ -6316,7 +6893,7 @@ body {
     });
 
     window.addEventListener('load', function() {
-      navigator.serviceWorker.register('./service-worker.js?v=42', { updateViaCache: 'none' }).then(function(reg) {
+      navigator.serviceWorker.register('./service-worker.js?v=51', { updateViaCache: 'none' }).then(function(reg) {
         console.log('SW registered, scope:', reg.scope);
         
         // Force check for updates on every page load
@@ -6380,7 +6957,7 @@ function toggleGuideSection(index) {
     if (card) card.classList.add('guide-expanded');
   }
 
-  // ========== v50 看板数据更新 ==========
+  // ========== v51 看板数据更新 ==========
   function updateFinanceDashboard() {
     var now = new Date();
     var y = now.getFullYear(), m = now.getMonth() + 1;
@@ -6538,7 +7115,7 @@ function toggleGuideSection(index) {
     }
   }
 
-  // ========== v50 收支/持仓明细展开 ==========
+  // ========== v51 收支/持仓明细展开 ==========
   function showDailyTxDetail() {
     var c = document.getElementById('dailyTxDetailContainer');
     if (!c) return;
@@ -6558,7 +7135,7 @@ function toggleGuideSection(index) {
     }
   }
 
-  // ========== v50 个人档案折叠管理 ==========
+  // ========== v51 个人档案折叠管理 ==========
   function toggleProfileSection(num) {
     var section = document.getElementById('profileSection' + num);
     if (section) {
@@ -6673,7 +7250,7 @@ function toggleGuideSection(index) {
     }
   }
 
-  // ========== v50 家庭空间管理 ==========
+  // ========== v51 家庭空间管理 ==========
   function renderFamilyMembers() {
     var container = document.getElementById('familyMembersList');
     var topList = document.getElementById('familyMemberList');
@@ -6757,7 +7334,7 @@ function toggleGuideSection(index) {
     showToast('共享权限设置正在开发中');
   }
 
-  // ========== v50 数据模型：visibility/familyId 支持 ==========
+  // ========== v51 数据模型：visibility/familyId 支持 ==========
   // 全局混入：所有记录类数据默认 visibility="private"
   window.getDefaultVisibility = function() {
     try {
