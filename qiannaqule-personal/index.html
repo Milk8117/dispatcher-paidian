@@ -10324,6 +10324,33 @@ body {
     }
   });
 
+  // ==================== Version Mismatch Force Refresh ====================
+  // If page version doesn't match stored version, clear SW cache and hard reload
+  (function() {
+    var PAGE_VERSION = '52.2';
+    var storedVersion = localStorage.getItem('mirun_app_version');
+    if (storedVersion && storedVersion !== PAGE_VERSION) {
+      // Version changed — force clear caches and reload
+      if ('caches' in window) {
+        caches.keys().then(function(keys) {
+          return Promise.all(keys.map(function(k) {
+            if (k.indexOf('mirunai-') === 0 || k.indexOf('mijieai-') === 0 || k.indexOf('wealth-') === 0) {
+              return caches.delete(k);
+            }
+          }));
+        }).then(function() {
+          localStorage.setItem('mirun_app_version', PAGE_VERSION);
+          window.location.reload(true);
+        });
+      } else {
+        localStorage.setItem('mirun_app_version', PAGE_VERSION);
+        window.location.reload(true);
+      }
+      return; // stop rest of init
+    }
+    localStorage.setItem('mirun_app_version', PAGE_VERSION);
+  })();
+
   // ==================== Service Worker Registration ====================
   if ('serviceWorker' in navigator) {
     var refreshing = false;
@@ -10336,7 +10363,7 @@ body {
     });
 
     window.addEventListener('load', function() {
-      navigator.serviceWorker.register('./service-worker.js?v=52.1', { updateViaCache: 'none' }).then(function(reg) {
+      navigator.serviceWorker.register('./service-worker.js?v=52.2', { updateViaCache: 'none' }).then(function(reg) {
         console.log('SW registered, scope:', reg.scope);
         
         // Force check for updates on every page load
