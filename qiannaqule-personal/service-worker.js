@@ -54,12 +54,30 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
+  const url = new URL(event.request.url);
+
+  // NEVER cache the service worker file itself — this is the #1 cause of deadlock.
+  // If the SW is cached, browsers can never detect SW updates, trapping users on old versions forever.
+  if (url.pathname.endsWith('/service-worker.js')) {
+    return; // pass through to network directly, no caching at all
+  }
+
+  // Also pass through reset.html so it always loads fresh (never gets trapped by SW)
+  if (url.pathname.endsWith('/reset.html')) {
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       // Start network fetch in background to update cache
       const fetchPromise = fetch(event.request)
         .then((networkResponse) => {
           if (networkResponse && networkResponse.status === 200) {
+            // Double-check: never cache service-worker.js or reset.html
+            const reqUrl = new URL(event.request.url);
+            if (reqUrl.pathname.endsWith('/service-worker.js') || reqUrl.pathname.endsWith('/reset.html')) {
+              return networkResponse;
+            }
             const responseClone = networkResponse.clone();
             caches.open(CACHE_NAME).then((cache) => {
               cache.put(event.request, responseClone);
@@ -74,7 +92,6 @@ self.addEventListener('fetch', (event) => {
       // Return cache immediately if available, otherwise wait for network
       if (cachedResponse) {
         // For HTML/JS, also notify page that update is available
-        const url = new URL(event.request.url);
         if (url.pathname.endsWith('.html') || url.pathname.endsWith('/') || url.pathname.endsWith('index.html')) {
           // Return cached, but network still updating in background
           // Next navigation will get fresh content

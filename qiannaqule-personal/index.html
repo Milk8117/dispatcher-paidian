@@ -6118,6 +6118,15 @@ body {
         </div>
         <span style="font-size:13px;color:#94a3b8">→</span>
       </div>
+      <div class="me-list-item" onclick="clearCacheAndRestart()" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;border-top:1px solid #f8fafc">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:32px;height:32px;border-radius:10px;background:#fff7ed;display:flex;align-items:center;justify-content:center;color:#f97316">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          </div>
+          <span style="font-size:14px;color:#1e293b">清除缓存并重启</span>
+        </div>
+        <span style="font-size:13px;color:#94a3b8">→</span>
+      </div>
       <div class="me-list-item" onclick="confirmClearAllData()" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;border-top:1px solid #f8fafc">
         <div style="display:flex;align-items:center;gap:10px">
           <div style="width:32px;height:32px;border-radius:10px;background:#fef2f2;display:flex;align-items:center;justify-content:center;color:#ef4444">
@@ -7585,6 +7594,14 @@ body {
     } catch(e) {
       el.textContent = '未知';
     }
+  }
+
+  function clearCacheAndRestart() {
+    if (!confirm('确定要清除缓存并重启应用吗？
+这将卸载 Service Worker 并清理所有缓存数据，你的个人资料数据不会丢失。')) {
+      return;
+    }
+    window.location.href = './reset.html';
   }
 
   function confirmClearAllData() {
@@ -10377,6 +10394,44 @@ body {
   })();
 
   // ==================== Service Worker Registration ====================
+  // Double insurance: if URL contains ?reset=1, do full cache clear + reload first
+  (function() {
+    var urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('reset') === '1') {
+      console.log('Reset mode triggered via URL param');
+      function doResetRedirect() {
+        // Remove reset param and reload to clean URL
+        var newUrl = window.location.pathname;
+        window.location.replace(newUrl + '?_t=' + Date.now());
+      }
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+          var promises = registrations.map(function(r) { return r.unregister(); });
+          return Promise.all(promises);
+        }).catch(function() {}).then(function() {
+          if ('caches' in window) {
+            caches.keys().then(function(keys) {
+              return Promise.all(keys.map(function(k) { return caches.delete(k); }));
+            }).catch(function() {}).then(function() {
+              try { localStorage.removeItem('mirun_app_version'); } catch(e) {}
+              doResetRedirect();
+            });
+          } else {
+            try { localStorage.removeItem('mirun_app_version'); } catch(e) {}
+            doResetRedirect();
+          }
+        });
+      } else if ('caches' in window) {
+        caches.keys().then(function(keys) {
+          return Promise.all(keys.map(function(k) { return caches.delete(k); }));
+        }).catch(function() {}).then(doResetRedirect);
+      } else {
+        doResetRedirect();
+      }
+      return; // stop further execution, reset is happening
+    }
+  })();
+
   if ('serviceWorker' in navigator) {
     var refreshing = false;
     
@@ -10388,8 +10443,22 @@ body {
     });
 
     window.addEventListener('load', function() {
+      // Safety check: if there's an existing controller with unexpected scriptURL, skip registration
+      var existingController = navigator.serviceWorker.controller;
+      if (existingController && existingController.scriptURL && existingController.scriptURL.indexOf('service-worker.js') === -1) {
+        console.log('Skipping SW registration: existing controller is not service-worker.js');
+        return;
+      }
+
       navigator.serviceWorker.register('./service-worker.js?v=52.2', { updateViaCache: 'none' }).then(function(reg) {
         console.log('SW registered, scope:', reg.scope);
+        
+        // Verify the registered SW is our expected file
+        if (reg.active && reg.active.scriptURL && reg.active.scriptURL.indexOf('service-worker.js') === -1) {
+          console.warn('Unexpected SW scriptURL detected, unregistering:', reg.active.scriptURL);
+          reg.unregister();
+          return;
+        }
         
         // Force check for updates on every page load
         reg.update();

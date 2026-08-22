@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0f172a">
+<title>MiRun AI - 缓存清理</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    height: 100%;
+    width: 100%;
+    background: #0f172a;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    color: #f8fafc;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  .reset-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100%;
+    padding: 40px 24px;
+    background:
+      radial-gradient(ellipse at top, rgba(249, 115, 22, 0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at bottom, rgba(249, 115, 22, 0.08) 0%, transparent 40%),
+      #0f172a;
+  }
+  .brand-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 20px rgba(249, 115, 22, 0.3);
+  }
+  .brand-icon svg {
+    width: 32px;
+    height: 32px;
+    stroke: #fff;
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .brand-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #f8fafc;
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+  }
+  .brand-subtitle {
+    font-size: 13px;
+    color: #94a3b8;
+    margin-bottom: 48px;
+  }
+  .status-card {
+    width: 100%;
+    max-width: 320px;
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid rgba(249, 115, 22, 0.2);
+    border-radius: 16px;
+    padding: 28px 24px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(249, 115, 22, 0.2);
+    border-top-color: #f97316;
+    border-radius: 50%;
+    margin: 0 auto 20px;
+    animation: spin 0.9s linear infinite;
+  }
+  .check-icon {
+    width: 40px;
+    height: 40px;
+    margin: 0 auto 20px;
+    color: #10b981;
+    display: none;
+  }
+  .check-icon svg {
+    width: 40px;
+    height: 40px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  .status-text {
+    font-size: 15px;
+    color: #e2e8f0;
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+  .status-detail {
+    font-size: 12px;
+    color: #64748b;
+  }
+  .progress-bar {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 2px;
+    margin-top: 16px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #f97316, #fb923c);
+    border-radius: 2px;
+    transition: width 0.3s ease;
+  }
+  .footer-text {
+    position: absolute;
+    bottom: 30px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 11px;
+    color: #475569;
+  }
+</style>
+</head>
+<body>
+  <div class="reset-container">
+    <div class="brand-icon">
+      <svg viewBox="0 0 24 24">
+        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+        <path d="M2 17l10 5 10-5"/>
+        <path d="M2 12l10 5 10-5"/>
+      </svg>
+    </div>
+    <div class="brand-title">MiRun AI</div>
+    <div class="brand-subtitle">越用越懂你的数字分身</div>
+
+    <div class="status-card">
+      <div class="spinner" id="spinner"></div>
+      <div class="check-icon" id="checkIcon">
+        <svg viewBox="0 0 24 24">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </div>
+      <div class="status-text" id="statusText">正在清理缓存...</div>
+      <div class="status-detail" id="statusDetail">请稍候，正在卸载旧版本</div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-text">v52.2 · 米儿客出品</div>
+
+<script>
+(function() {
+  var statusText = document.getElementById('statusText');
+  var statusDetail = document.getElementById('statusDetail');
+  var progressFill = document.getElementById('progressFill');
+  var spinner = document.getElementById('spinner');
+  var checkIcon = document.getElementById('checkIcon');
+
+  var progress = 0;
+  var progressInterval = setInterval(function() {
+    if (progress < 80) {
+      progress += Math.random() * 10;
+      if (progress > 80) progress = 80;
+      progressFill.style.width = progress + '%';
+    }
+  }, 300);
+
+  function updateDetail(text) {
+    statusDetail.textContent = text;
+  }
+
+  function finishAndRedirect() {
+    clearInterval(progressInterval);
+    progressFill.style.width = '100%';
+    spinner.style.display = 'none';
+    checkIcon.style.display = 'block';
+    statusText.textContent = '清理完成';
+    statusDetail.textContent = '即将跳转...';
+
+    setTimeout(function() {
+      window.location.href = './index.html?_t=' + Date.now();
+    }, 2000);
+  }
+
+  function clearAll() {
+    var tasks = [];
+
+    // 1. Unregister all service workers
+    if ('serviceWorker' in navigator) {
+      updateDetail('正在卸载 Service Worker...');
+      tasks.push(
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+          var unregPromises = registrations.map(function(reg) {
+            return reg.unregister();
+          });
+          return Promise.all(unregPromises);
+        }).catch(function() {})
+      );
+    }
+
+    // 2. Clear all caches
+    if ('caches' in window) {
+      updateDetail('正在清理缓存数据...');
+      tasks.push(
+        caches.keys().then(function(keys) {
+          var deletePromises = keys.map(function(key) {
+            return caches.delete(key);
+          });
+          return Promise.all(deletePromises);
+        }).catch(function() {})
+      );
+    }
+
+    // 3. Clear localStorage version marker to force fresh start
+    try {
+      localStorage.removeItem('mirun_app_version');
+    } catch (e) {}
+
+    Promise.all(tasks).then(function() {
+      updateDetail('清理完成，准备跳转...');
+      progress = 95;
+      progressFill.style.width = '95%';
+      setTimeout(finishAndRedirect, 400);
+    }).catch(function() {
+      // Even if something fails, still redirect
+      finishAndRedirect();
+    });
+  }
+
+  // Start after a brief delay for visual feedback
+  setTimeout(clearAll, 500);
+})();
+</script>
+</body>
+</html>
