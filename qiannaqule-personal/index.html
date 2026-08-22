@@ -4093,7 +4093,7 @@ body {
           </div>
         </div>
         <p style="margin:0;color:#94a3b8;font-size:12px;text-align:center;">
-          <span style="display:block;font-size:11px;color:#94a3b8;margin-bottom:6px;letter-spacing:0.5px">v52.3</span>
+          <span style="display:block;font-size:11px;color:#94a3b8;margin-bottom:6px;letter-spacing:0.5px">v52.3.1</span>
           <img src="./assets/mierke-logo.png" alt="米儿客" style="height:12px;vertical-align:middle;margin-right:4px;opacity:0.6">
           米儿客出品
         </p>
@@ -6262,7 +6262,7 @@ body {
     </div>
 
     <div style="text-align:center;padding:20px 0 10px;font-size:12px;color:#cbd5e1">
-      MiRun AI v52.3 · 越用越懂你的数字分身
+      MiRun AI v52.3.1 · 越用越懂你的数字分身
     </div>
   </div>
   <div class="app-brand-footer">
@@ -9496,6 +9496,9 @@ body {
   }
 
   // ==================== Event (渲染由 DiagnosisEngine.render 处理) ====================
+  if (!btnSubmit) {
+    // btnSubmit 元素不存在（财富页重构后可能已移除），跳过事件绑定，避免空指针报错
+  } else {
   btnSubmit.addEventListener('click', function() {
     try {
     if (!validate()) return;
@@ -9575,6 +9578,7 @@ body {
         '<div style="position:fixed;top:0;left:0;right:0;background:red;color:#fff;padding:12px;z-index:99999;font-size:14px;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px"><path d="M18 6L6 18M6 6l12 12"/></svg> 错误: ' + e.message + '</div>');
     }
   });
+  }
 
   // Clear error on input
   document.querySelectorAll('.form-input, .form-select').forEach(function(el) {
@@ -11074,7 +11078,7 @@ function toggleGuideSection(index) {
 
   function getFeedbackAutoInfo() {
     var info = {
-      appVersion: 'v52.3',
+      appVersion: 'v52.3.1',
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent || '',
       screenSize: window.innerWidth + 'x' + window.innerHeight,
@@ -11950,7 +11954,7 @@ function toggleGuideSection(index) {
 <script src="image-recognizer.js?v=52.3"></script>
 
   <!-- Version Badge -->
-  <div id="versionBadge" style="position:fixed;bottom:80px;right:12px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;z-index:9999;letter-spacing:0.5px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;pointer-events:none">v52.3</div>
+  <div id="versionBadge" style="position:fixed;bottom:80px;right:12px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;z-index:9999;letter-spacing:0.5px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;pointer-events:none">v52.3.1</div>
   <script>
     setTimeout(function(){
       var b = document.getElementById('versionBadge');
