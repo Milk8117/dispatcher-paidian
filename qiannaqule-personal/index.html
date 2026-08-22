@@ -3987,6 +3987,7 @@ body {
           </div>
         </div>
         <p style="margin:0;color:#94a3b8;font-size:12px;text-align:center;">
+          <span style="display:block;font-size:11px;color:#94a3b8;margin-bottom:6px;letter-spacing:0.5px">v52.2</span>
           <img src="./assets/mierke-logo.png" alt="米儿客" style="height:12px;vertical-align:middle;margin-right:4px;opacity:0.6">
           米儿客出品
         </p>
@@ -11749,5 +11750,14 @@ function toggleGuideSection(index) {
 <script src="decision-forge.js?v=50"></script>
 <script src="value-resonance.js?v=50"></script>
 <script src="image-recognizer.js?v=50"></script>
+
+  <!-- Version Badge -->
+  <div id="versionBadge" style="position:fixed;bottom:80px;right:12px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;z-index:9999;letter-spacing:0.5px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;pointer-events:none">v52.2</div>
+  <script>
+    setTimeout(function(){
+      var b = document.getElementById('versionBadge');
+      if (b) { b.style.opacity = '1'; setTimeout(function(){ b.style.opacity = '0'; }, 3000); }
+    }, 500);
+  </script>
 </body>
 </html>
