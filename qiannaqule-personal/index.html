@@ -15,7 +15,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="MiRun AI">
 <title>MiRun AI v52</title>
-  <!-- 全局JS错误捕获 + 顶部错误条（v52.3 新增，便于排查问题） -->
+  <!-- 全局JS错误捕获 + 顶部错误条（v52.3.2 新增，便于排查问题） -->
   <script>
   (function() {
     // 错误收集（最多保留10条，避免内存泄漏）
@@ -4035,7 +4035,7 @@ body {
 </head>
 <body>
 
-<!-- 全局JS错误提示条（v52.3 新增） -->
+<!-- 全局JS错误提示条（v52.3.2 新增） -->
 <div id="jsErrorBar" style="display:none;position:fixed;top:0;left:0;right:0;z-index:99999;background:#f97316;color:#fff;padding:10px 16px;font-size:13px;flex-direction:column;gap:4px;box-shadow:0 2px 10px rgba(0,0,0,0.2);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;">
   <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
     <span id="jsErrorText" style="flex:1;line-height:1.4;">JS 错误</span>
@@ -4093,7 +4093,7 @@ body {
           </div>
         </div>
         <p style="margin:0;color:#94a3b8;font-size:12px;text-align:center;">
-          <span style="display:block;font-size:11px;color:#94a3b8;margin-bottom:6px;letter-spacing:0.5px">v52.3.1</span>
+          <span style="display:block;font-size:11px;color:#94a3b8;margin-bottom:6px;letter-spacing:0.5px">v52.3.2</span>
           <img src="./assets/mierke-logo.png" alt="米儿客" style="height:12px;vertical-align:middle;margin-right:4px;opacity:0.6">
           米儿客出品
         </p>
@@ -6262,7 +6262,7 @@ body {
     </div>
 
     <div style="text-align:center;padding:20px 0 10px;font-size:12px;color:#cbd5e1">
-      MiRun AI v52.3.1 · 越用越懂你的数字分身
+      MiRun AI v52.3.2 · 越用越懂你的数字分身
     </div>
   </div>
   <div class="app-brand-footer">
@@ -6431,10 +6431,10 @@ body {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
   </button>
 </div>
-<script src="datastore.js?v=52.3"></script>
-<script src="diagnosis-engine.js?v=52.3"></script>
-<script src="reminder-engine.js?v=52.3"></script>
-<script src="trend-view.js?v=52.3"></script>
+<script src="datastore.js?v=52.3.2"></script>
+<script src="diagnosis-engine.js?v=52.3.2"></script>
+<script src="reminder-engine.js?v=52.3.2"></script>
+<script src="trend-view.js?v=52.3.2"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 (function() {
@@ -9273,8 +9273,9 @@ body {
 
   // 更新贷款汇总
   function updateLoanSummary() {
-    var data = collectLoanData();
     var el = $('loanSummary');
+    if (!el) return;
+    var data = collectLoanData();
     if (data.count === 0) { el.style.display = 'none'; return; }
     el.style.display = 'block';
     var html = '<strong><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#6b7280" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:4px"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="6" width="4" height="15" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>贷款汇总</strong><br>';
@@ -9321,7 +9322,7 @@ body {
         '</div>' +
       '</div>' +
     '</div>';
-    $('loansContainer').insertAdjacentHTML('beforeend', html);
+    $('loansContainer') && $('loansContainer').insertAdjacentHTML('beforeend', html);
     updateLoanSummary();
   }
 
@@ -9346,12 +9347,18 @@ body {
 
   // ==================== Expense Categories ====================
   function updateExpenseTotal() {
-    var personal = parseFloat($('expensePersonal').value) || 0;
-    var family = parseFloat($('expenseFamily').value) || 0;
-    var education = parseFloat($('expenseEducation').value) || 0;
-    var medical = parseFloat($('expenseMedical').value) || 0;
+    var elPersonal = $('expensePersonal');
+    var elFamily = $('expenseFamily');
+    var elEducation = $('expenseEducation');
+    var elMedical = $('expenseMedical');
+    var elTotal = $('expenseTotal');
+    if (!elPersonal && !elFamily && !elEducation && !elMedical && !elTotal) return;
+    var personal = elPersonal ? (parseFloat(elPersonal.value) || 0) : 0;
+    var family = elFamily ? (parseFloat(elFamily.value) || 0) : 0;
+    var education = elEducation ? (parseFloat(elEducation.value) || 0) : 0;
+    var medical = elMedical ? (parseFloat(elMedical.value) || 0) : 0;
     var total = personal + family + education + medical;
-    $('expenseTotal').textContent = total.toLocaleString();
+    if (elTotal) elTotal.textContent = total.toLocaleString();
   }
 
   // Bind expense inputs to update total
@@ -9379,7 +9386,7 @@ body {
       '</select>' +
       '<button type="button" class="btn-remove-member" onclick="window.removeFamilyMember(this)"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>' +
     '</div>';
-    $('familyMembersContainer').insertAdjacentHTML('beforeend', html);
+    $('familyMembersContainer') && $('familyMembersContainer').insertAdjacentHTML('beforeend', html);
     // DEBUG: 确认元素已添加
     saveFamilyMembers();
   }
@@ -9435,7 +9442,7 @@ body {
         '<div class="insurance-field"><label>下次缴费日</label><input type="date" class="ins-paydate"></div>' +
       '</div>' +
     '</div>';
-    $('insuranceList').insertAdjacentHTML('beforeend', html);
+    $('insuranceList') && $('insuranceList').insertAdjacentHTML('beforeend', html);
   }
 
   function removeInsurance(btn) {
@@ -9631,15 +9638,17 @@ body {
     var entries = document.querySelectorAll('.loan-entry');
     var loans = [];
     entries.forEach(function(entry) {
-      loans.push({
-        amt: entry.querySelector('.loan-amt').value || '',
-        rate: entry.querySelector('.loan-rate').value || '',
-        term: entry.querySelector('.loan-term').value || '',
-        type: entry.querySelector('.loan-type').value || 'debx',
-        transTotal: entry.querySelector('.loan-trans-total') ? entry.querySelector('.loan-trans-total').value : '',
-        transLeft: entry.querySelector('.loan-trans-left') ? entry.querySelector('.loan-trans-left').value : '',
-        payDay: entry.querySelector('.loan-payday') ? entry.querySelector('.loan-payday').value : ''
-      });
+      try {
+        loans.push({
+          amt: entry.querySelector('.loan-amt') ? entry.querySelector('.loan-amt').value || '' : '',
+          rate: entry.querySelector('.loan-rate') ? entry.querySelector('.loan-rate').value || '' : '',
+          term: entry.querySelector('.loan-term') ? entry.querySelector('.loan-term').value || '' : '',
+          type: entry.querySelector('.loan-type') ? entry.querySelector('.loan-type').value || 'debx' : 'debx',
+          transTotal: entry.querySelector('.loan-trans-total') ? entry.querySelector('.loan-trans-total').value : '',
+          transLeft: entry.querySelector('.loan-trans-left') ? entry.querySelector('.loan-trans-left').value : '',
+          payDay: entry.querySelector('.loan-payday') ? entry.querySelector('.loan-payday').value : ''
+        });
+      } catch(e) {}
     });
     WealthCT.saveLoans(loans);
   }
@@ -9677,14 +9686,16 @@ body {
     var entries = document.querySelectorAll('.insurance-entry');
     var items = [];
     entries.forEach(function(entry) {
-      items.push({
-        type: entry.querySelector('.ins-type').value || 'life',
-        amount: entry.querySelector('.ins-amount').value || '',
-        premium: entry.querySelector('.ins-premium').value || '',
-        term: entry.querySelector('.ins-term').value || '',
-        paid: entry.querySelector('.ins-paid').value || '',
-        payDate: entry.querySelector('.ins-paydate') ? entry.querySelector('.ins-paydate').value : ''
-      });
+      try {
+        items.push({
+          type: entry.querySelector('.ins-type') ? entry.querySelector('.ins-type').value || 'life' : 'life',
+          amount: entry.querySelector('.ins-amount') ? entry.querySelector('.ins-amount').value || '' : '',
+          premium: entry.querySelector('.ins-premium') ? entry.querySelector('.ins-premium').value || '' : '',
+          term: entry.querySelector('.ins-term') ? entry.querySelector('.ins-term').value || '' : '',
+          paid: entry.querySelector('.ins-paid') ? entry.querySelector('.ins-paid').value || '' : '',
+          payDate: entry.querySelector('.ins-paydate') ? entry.querySelector('.ins-paydate').value : ''
+        });
+      } catch(e) {}
     });
     WealthCT.saveInsurance(items);
   }
@@ -9715,10 +9726,12 @@ body {
     var members = document.querySelectorAll('.family-member');
     var data = [];
     members.forEach(function(m) {
-      data.push({
-        name: m.querySelector('.member-name').value || '',
-        relation: m.querySelector('.member-relation').value || 'self'
-      });
+      try {
+        data.push({
+          name: m.querySelector('.member-name') ? m.querySelector('.member-name').value || '' : '',
+          relation: m.querySelector('.member-relation') ? m.querySelector('.member-relation').value || 'self' : 'self'
+        });
+      } catch(e) {}
     });
     WealthCT.saveFamilyMembers(data);
   }
@@ -9748,11 +9761,15 @@ body {
 
   // Restore all form data
   function restoreAllFields() {
-    LS_FIELDS.forEach(function(field) { restoreField(field); });
-    restoreLoans();
-    restoreInsurance();
-    restoreFamilyMembers();
-    updateExpenseTotal();
+    try {
+      LS_FIELDS.forEach(function(field) { restoreField(field); });
+      restoreLoans();
+      restoreInsurance();
+      restoreFamilyMembers();
+      updateExpenseTotal();
+    } catch(e) {
+      console.warn('[restoreAllFields] 恢复数据时出错:', e);
+    }
   }
 
   // Clear all saved data (using WealthCT DataStore)
@@ -9779,17 +9796,19 @@ body {
     // Reset loan/insurance counters for clean re-entry
     loanCount = 0;
     insuranceCount = 0;
-    updateLoanSummary();
+    if ($('loanSummary')) { updateLoanSummary(); }
   }
 
   // ---- Restore on load ----
-  restoreAllFields();
+  try { restoreAllFields(); } catch(e) { console.log("restoreAllFields skipped:", e.message); }
 
   // ---- Financial Reminder Engine ----
-  if (typeof ReminderEngine !== 'undefined') {
-    ReminderEngine.render('_reminderContainer');
-    ReminderEngine.checkAndNotify();
-  }
+  try {
+    if (typeof ReminderEngine !== 'undefined') {
+      ReminderEngine.render('_reminderContainer');
+      ReminderEngine.checkAndNotify();
+    }
+  } catch(e) { console.log('ReminderEngine init skipped:', e.message); }
 
   // ---- Trend View on load ----
   if (typeof TrendView !== 'undefined') {
@@ -10454,7 +10473,7 @@ body {
   // ==================== Version Sync + Force Refresh ====================
   // If stored version != page version → unregister SW, clear all caches, hard reload
   (function() {
-    var PAGE_VERSION = '52.3';
+    var PAGE_VERSION = '52.3.2';
     var storedVersion = localStorage.getItem('mirun_app_version');
     
     // First visitor — just store version
@@ -10559,7 +10578,7 @@ body {
         return;
       }
 
-      navigator.serviceWorker.register('./service-worker.js?v=52.3', { updateViaCache: 'none' }).then(function(reg) {
+      navigator.serviceWorker.register('./service-worker.js?v=52.3.2', { updateViaCache: 'none' }).then(function(reg) {
         console.log('SW registered, scope:', reg.scope);
         
         // Verify the registered SW is our expected file
@@ -11078,7 +11097,7 @@ function toggleGuideSection(index) {
 
   function getFeedbackAutoInfo() {
     var info = {
-      appVersion: 'v52.3.1',
+      appVersion: 'v52.3.2',
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent || '',
       screenSize: window.innerWidth + 'x' + window.innerHeight,
@@ -11936,25 +11955,25 @@ function toggleGuideSection(index) {
 })();
 </script>
 
-<script src="solar-term.js?v=52.3"></script>
-<script src="chronic-disease.js?v=52.3"></script>
-<script src="schedule.js?v=52.3"></script>
-<script src="daily-tx.js?v=52.3"></script>
-<script src="stock-holdings.js?v=52.3"></script>
-<script src="behavior-log.js?v=52.3"></script>
-<script src="user-profile.js?v=52.3"></script>
-<script src="insight-engine.js?v=52.3"></script>
-<script src="health-bridge.js?v=52.3"></script>
-<script src="push-engine.js?v=52.3"></script>
-<script src="memory-manager.js?v=52.3"></script>
-<script src="chat-engine.js?v=52.3"></script>
-<script src="ai-engine.js?v=52.3"></script>
-<script src="decision-forge.js?v=52.3"></script>
-<script src="value-resonance.js?v=52.3"></script>
-<script src="image-recognizer.js?v=52.3"></script>
+<script src="solar-term.js?v=52.3.2"></script>
+<script src="chronic-disease.js?v=52.3.2"></script>
+<script src="schedule.js?v=52.3.2"></script>
+<script src="daily-tx.js?v=52.3.2"></script>
+<script src="stock-holdings.js?v=52.3.2"></script>
+<script src="behavior-log.js?v=52.3.2"></script>
+<script src="user-profile.js?v=52.3.2"></script>
+<script src="insight-engine.js?v=52.3.2"></script>
+<script src="health-bridge.js?v=52.3.2"></script>
+<script src="push-engine.js?v=52.3.2"></script>
+<script src="memory-manager.js?v=52.3.2"></script>
+<script src="chat-engine.js?v=52.3.2"></script>
+<script src="ai-engine.js?v=52.3.2"></script>
+<script src="decision-forge.js?v=52.3.2"></script>
+<script src="value-resonance.js?v=52.3.2"></script>
+<script src="image-recognizer.js?v=52.3.2"></script>
 
   <!-- Version Badge -->
-  <div id="versionBadge" style="position:fixed;bottom:80px;right:12px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;z-index:9999;letter-spacing:0.5px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;pointer-events:none">v52.3.1</div>
+  <div id="versionBadge" style="position:fixed;bottom:80px;right:12px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;z-index:9999;letter-spacing:0.5px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;pointer-events:none">v52.3.2</div>
   <script>
     setTimeout(function(){
       var b = document.getElementById('versionBadge');

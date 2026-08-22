@@ -1,6 +1,6 @@
 // Service Worker for MiRun AI — 越用越懂你
 // App version: update this to invalidate old caches and trigger fresh HTML loads
-const APP_VERSION = 'v52.3';
+const APP_VERSION = 'v52.3.2';
 const CACHE_NAME = 'mirunai-' + APP_VERSION;
 
 // Resources to cache on install — ONLY static assets, NEVER HTML files
