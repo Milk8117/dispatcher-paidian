@@ -10325,31 +10325,55 @@ body {
     }
   });
 
-  // ==================== Version Mismatch Force Refresh ====================
-  // If page version doesn't match stored version, clear SW cache and hard reload
+  // ==================== Version Sync + Force Refresh ====================
+  // If stored version != page version → unregister SW, clear all caches, hard reload
   (function() {
     var PAGE_VERSION = '52.2';
     var storedVersion = localStorage.getItem('mirun_app_version');
-    if (storedVersion && storedVersion !== PAGE_VERSION) {
-      // Version changed — force clear caches and reload
-      if ('caches' in window) {
-        caches.keys().then(function(keys) {
-          return Promise.all(keys.map(function(k) {
-            if (k.indexOf('mirunai-') === 0 || k.indexOf('mijieai-') === 0 || k.indexOf('wealth-') === 0) {
-              return caches.delete(k);
-            }
-          }));
-        }).then(function() {
-          localStorage.setItem('mirun_app_version', PAGE_VERSION);
-          window.location.reload(true);
-        });
-      } else {
-        localStorage.setItem('mirun_app_version', PAGE_VERSION);
-        window.location.reload(true);
-      }
-      return; // stop rest of init
+    
+    // First visitor — just store version
+    if (!storedVersion) {
+      localStorage.setItem('mirun_app_version', PAGE_VERSION);
+      return;
     }
-    localStorage.setItem('mirun_app_version', PAGE_VERSION);
+    
+    // Same version — normal flow
+    if (storedVersion === PAGE_VERSION) {
+      return;
+    }
+    
+    // VERSION MISMATCH — full reset
+    console.log('Version mismatch:', storedVersion, '→', PAGE_VERSION, 'forcing refresh');
+    
+    function doHardReset() {
+      localStorage.setItem('mirun_app_version', PAGE_VERSION);
+      // Add cache-busting param to force bypass
+      var sep = window.location.href.indexOf('?') > -1 ? '&' : '?';
+      window.location.replace(window.location.href + sep + 'v=' + PAGE_VERSION + '&_t=' + Date.now());
+    }
+    
+    // Try to unregister all service workers first
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        var promises = registrations.map(function(r) { return r.unregister(); });
+        return Promise.all(promises);
+      }).catch(function() {}).then(function() {
+        // Then clear all caches
+        if ('caches' in window) {
+          caches.keys().then(function(keys) {
+            return Promise.all(keys.map(function(k) { return caches.delete(k); }));
+          }).catch(function() {}).then(doHardReset);
+        } else {
+          doHardReset();
+        }
+      });
+    } else if ('caches' in window) {
+      caches.keys().then(function(keys) {
+        return Promise.all(keys.map(function(k) { return caches.delete(k); }));
+      }).catch(function() {}).then(doHardReset);
+    } else {
+      doHardReset();
+    }
   })();
 
   // ==================== Service Worker Registration ====================

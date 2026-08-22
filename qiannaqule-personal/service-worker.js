@@ -48,21 +48,16 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch: network-first for HTML/JS, cache-first for images
+// Fetch: stale-while-revalidate for everything
+// Always return cached immediately if available, and update cache in background
+// This ensures fast load + always fresh on next visit
 self.addEventListener('fetch', (event) => {
-  // Only handle GET requests
   if (event.request.method !== 'GET') return;
 
-  const url = new URL(event.request.url);
-  const isHTMLorJS = url.pathname.endsWith('.html') || 
-                     url.pathname.endsWith('.js') || 
-                     url.pathname.endsWith('/') ||
-                     url.pathname.endsWith('index.html');
-
-  if (isHTMLorJS) {
-    // Network-first for HTML and JS: always try to get fresh content
-    event.respondWith(
-      fetch(event.request)
+  event.respondWith(
+    caches.match(event.request).then((cachedResponse) => {
+      // Start network fetch in background to update cache
+      const fetchPromise = fetch(event.request)
         .then((networkResponse) => {
           if (networkResponse && networkResponse.status === 200) {
             const responseClone = networkResponse.clone();
@@ -73,53 +68,20 @@ self.addEventListener('fetch', (event) => {
           return networkResponse;
         })
         .catch(() => {
-          // Network failed, try cache
-          return caches.match(event.request).then((cachedResponse) => {
-            return cachedResponse || new Response('离线模式：请检查网络连接后重试', {
-              status: 503,
-              headers: { 'Content-Type': 'text/plain; charset=utf-8' }
-            });
-          });
-        })
-    );
-  } else {
-    // Cache-first for images and other assets
-    event.respondWith(
-      caches.match(event.request).then((cachedResponse) => {
-        if (cachedResponse) {
-          // Return cached version, and update cache in background
-          const fetchPromise = fetch(event.request).then((networkResponse) => {
-            if (networkResponse && networkResponse.status === 200) {
-              const responseClone = networkResponse.clone();
-              caches.open(CACHE_NAME).then((cache) => {
-                cache.put(event.request, responseClone);
-              });
-            }
-            return networkResponse;
-          }).catch(() => {
-            // Network failed, but we already have cache
-          });
-
           return cachedResponse;
-        }
-
-        // No cache, try network
-        return fetch(event.request).then((networkResponse) => {
-          if (networkResponse && networkResponse.status === 200) {
-            const responseClone = networkResponse.clone();
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(event.request, responseClone);
-            });
-          }
-          return networkResponse;
-        }).catch(() => {
-          // Offline and no cache
-          return new Response('离线模式：请检查网络连接后重试', {
-            status: 503,
-            headers: { 'Content-Type': 'text/plain; charset=utf-8' }
-          });
         });
-      })
-    );
-  }
+
+      // Return cache immediately if available, otherwise wait for network
+      if (cachedResponse) {
+        // For HTML/JS, also notify page that update is available
+        const url = new URL(event.request.url);
+        if (url.pathname.endsWith('.html') || url.pathname.endsWith('/') || url.pathname.endsWith('index.html')) {
+          // Return cached, but network still updating in background
+          // Next navigation will get fresh content
+        }
+        return cachedResponse;
+      }
+      return fetchPromise;
+    })
+  );
 });
