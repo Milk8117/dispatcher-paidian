@@ -1,12 +1,11 @@
 // Service Worker for MiRun AI — 越用越懂你
-// Cache version: update this string to invalidate old caches
-const CACHE_VERSION = 'mirunai-v52.2';
-const CACHE_NAME = CACHE_VERSION;
+// App version: update this to invalidate old caches and trigger fresh HTML loads
+const APP_VERSION = 'v52.3';
+const CACHE_NAME = 'mirunai-' + APP_VERSION;
 
-// Resources to cache on install
+// Resources to cache on install — ONLY static assets, NEVER HTML files
+// HTML files (index.html, reset.html) use network-first strategy and are never precached
 const PRECACHE_URLS = [
-  './',
-  './index.html',
   './manifest.json',
   './assets/app-icon-192.png',
   './assets/app-icon-512.png',
@@ -15,43 +14,79 @@ const PRECACHE_URLS = [
   './assets/mierke-logo.png'
 ];
 
+// Static file extensions that use cache-first strategy
+const STATIC_EXTENSIONS = [
+  '.js', '.css', '.png', '.jpg', '.jpeg', '.gif', '.svg',
+  '.ico', '.woff', '.woff2', '.ttf', '.eot', '.webp', '.bmp'
+];
+
+// Determine if a request is for an HTML page (navigation or .html file)
+function isHtmlRequest(request) {
+  if (request.mode === 'navigate') return true;
+  const url = new URL(request.url);
+  const path = url.pathname;
+  if (path.endsWith('.html')) return true;
+  if (path.endsWith('/') || path === '') return true; // directory index = index.html
+  return false;
+}
+
+// Determine if a request is for a static asset
+function isStaticAsset(request) {
+  const url = new URL(request.url);
+  const path = url.pathname.toLowerCase();
+  // manifest.json is a static resource too
+  if (path.endsWith('/manifest.json')) return true;
+  return STATIC_EXTENSIONS.some(function(ext) {
+    return path.endsWith(ext);
+  });
+}
+
 // Listen for skip waiting message from page
-self.addEventListener('message', (event) => {
+self.addEventListener('message', function(event) {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
 });
 
-// Install: precache core resources
-self.addEventListener('install', (event) => {
+// Install: precache static resources only (no HTML!)
+self.addEventListener('install', function(event) {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
+    caches.open(CACHE_NAME).then(function(cache) {
       return cache.addAll(PRECACHE_URLS);
-    }).then(() => {
+    }).then(function() {
+      return self.skipWaiting();
+    }).catch(function(err) {
+      console.warn('SW precache failed (non-critical):', err);
       return self.skipWaiting();
     })
   );
 });
 
-// Activate: clean up old caches
-self.addEventListener('activate', (event) => {
+// Activate: clean up all old caches from previous versions
+self.addEventListener('activate', function(event) {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
+    caches.keys().then(function(cacheNames) {
       return Promise.all(
         cacheNames
-          .filter((name) => (name.startsWith('mirunai-') || name.startsWith('mijieai-') || name.startsWith('wealth-ct-')) && name !== CACHE_NAME)
-          .map((name) => caches.delete(name))
+          .filter(function(name) {
+            // Delete any cache that isn't our current version
+            return (name.startsWith('mirunai-') || name.startsWith('mijieai-') || name.startsWith('wealth-ct-')) && name !== CACHE_NAME;
+          })
+          .map(function(name) {
+            return caches.delete(name);
+          })
       );
-    }).then(() => {
+    }).then(function() {
       return self.clients.claim();
     })
   );
 });
 
-// Fetch: stale-while-revalidate for everything
-// Always return cached immediately if available, and update cache in background
-// This ensures fast load + always fresh on next visit
-self.addEventListener('fetch', (event) => {
+// Fetch handler — strategy per content type:
+//   HTML pages → network-first (always get fresh, fall back to cache if offline)
+//   Static assets → cache-first (fast, version-change handles invalidation)
+//   API / everything else → stale-while-revalidate
+self.addEventListener('fetch', function(event) {
   if (event.request.method !== 'GET') return;
 
   const url = new URL(event.request.url);
@@ -62,40 +97,92 @@ self.addEventListener('fetch', (event) => {
     return; // pass through to network directly, no caching at all
   }
 
-  // Also pass through reset.html so it always loads fresh (never gets trapped by SW)
+  // reset.html always loads fresh from network (it's the emergency escape hatch)
   if (url.pathname.endsWith('/reset.html')) {
     return;
   }
 
-  event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      // Start network fetch in background to update cache
-      const fetchPromise = fetch(event.request)
-        .then((networkResponse) => {
+  // ── Strategy 1: HTML pages → network-first ──
+  // Always try the network first. Only fall back to cache if the user is offline.
+  // This ensures every refresh gets the latest HTML from the server,
+  // completely eliminating "stale HTML trapping users on old versions" deadlock.
+  if (isHtmlRequest(event.request)) {
+    event.respondWith(
+      fetch(event.request)
+        .then(function(networkResponse) {
+          // On success, update the cache for offline fallback
           if (networkResponse && networkResponse.status === 200) {
-            // Double-check: never cache service-worker.js or reset.html
-            const reqUrl = new URL(event.request.url);
-            if (reqUrl.pathname.endsWith('/service-worker.js') || reqUrl.pathname.endsWith('/reset.html')) {
-              return networkResponse;
-            }
             const responseClone = networkResponse.clone();
-            caches.open(CACHE_NAME).then((cache) => {
+            caches.open(CACHE_NAME).then(function(cache) {
               cache.put(event.request, responseClone);
             });
           }
           return networkResponse;
         })
-        .catch(() => {
+        .catch(function() {
+          // Network failed — try cache for offline support
+          return caches.match(event.request).then(function(cachedResponse) {
+            if (cachedResponse) return cachedResponse;
+            // Last resort: for navigation requests, return cached index.html as SPA fallback
+            if (event.request.mode === 'navigate') {
+              return caches.match('./index.html');
+            }
+            return cachedResponse;
+          });
+        })
+    );
+    return;
+  }
+
+  // ── Strategy 2: Static assets → cache-first ──
+  // Return cached version immediately for speed.
+  // If not in cache, fetch from network and store for next time.
+  // Version changes (APP_VERSION bump) will create a new cache, naturally invalidating old assets.
+  if (isStaticAsset(event.request)) {
+    event.respondWith(
+      caches.match(event.request).then(function(cachedResponse) {
+        if (cachedResponse) {
+          return cachedResponse; // cache hit — return immediately
+        }
+        // Cache miss — fetch from network and cache for next time
+        return fetch(event.request)
+          .then(function(networkResponse) {
+            if (networkResponse && networkResponse.status === 200) {
+              const responseClone = networkResponse.clone();
+              caches.open(CACHE_NAME).then(function(cache) {
+                cache.put(event.request, responseClone);
+              });
+            }
+            return networkResponse;
+          })
+          .catch(function() {
+            return cachedResponse; // will be undefined, browser shows its own error
+          });
+      })
+    );
+    return;
+  }
+
+  // ── Strategy 3: API / everything else → stale-while-revalidate ──
+  // Return cached immediately if available, update in background.
+  // Good for API responses, dynamic data — fast but eventually fresh.
+  event.respondWith(
+    caches.match(event.request).then(function(cachedResponse) {
+      const fetchPromise = fetch(event.request)
+        .then(function(networkResponse) {
+          if (networkResponse && networkResponse.status === 200) {
+            const responseClone = networkResponse.clone();
+            caches.open(CACHE_NAME).then(function(cache) {
+              cache.put(event.request, responseClone);
+            });
+          }
+          return networkResponse;
+        })
+        .catch(function() {
           return cachedResponse;
         });
 
-      // Return cache immediately if available, otherwise wait for network
       if (cachedResponse) {
-        // For HTML/JS, also notify page that update is available
-        if (url.pathname.endsWith('.html') || url.pathname.endsWith('/') || url.pathname.endsWith('index.html')) {
-          // Return cached, but network still updating in background
-          // Next navigation will get fresh content
-        }
         return cachedResponse;
       }
       return fetchPromise;
