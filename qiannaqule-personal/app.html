@@ -15,7 +15,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="MiRun AI">
 <title>MiRun AI v52</title>
-  <!-- 全局JS错误捕获 + 顶部错误条（v52.3.7 新增，便于排查问题） -->
+  <!-- 全局JS错误捕获 + 顶部错误条（v52.3.8 新增，便于排查问题） -->
   <script>
   (function() {
     // 错误收集（最多保留10条，避免内存泄漏）
@@ -111,7 +111,7 @@
   </script>
 
   <script>
-  // === 前向函数占位（v52.3.7 防御机制） ===
+  // === 前向函数占位（v52.3.8 防御机制） ===
   // 后续script块正常加载后会覆盖这些占位；
   // 若后续任何script块异常终止，这些占位确保HTML事件调用不炸
   (function() {
@@ -1398,6 +1398,17 @@ body {
 
 
 /* ===== v52.2 意见反馈系统 ===== */
+/* ===== 智能推送面板 ===== */
+.push-overlay { position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:10000;display:none;align-items:flex-end;justify-content:center; }
+.push-overlay.show { display:flex; }
+.push-panel { background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;animation:pushSlideUp 0.3s ease; }
+@keyframes pushSlideUp { from { transform:translateY(100%); } to { transform:translateY(0); } }
+.push-panel-header { display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #f1f5f9;position:sticky;top:0;background:#fff;z-index:1; }
+.push-panel-title { font-size:16px;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:8px; }
+.push-panel-close { width:32px;height:32px;border-radius:50%;background:#f1f5f9;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#64748b; }
+.push-panel-close:active { background:#e2e8f0; }
+.push-panel-body { padding:16px 20px; }
+
 .feedback-overlay { position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:10000;display:flex;align-items:flex-end;justify-content:center; }
 .feedback-panel { background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;animation:feedbackSlideUp 0.3s ease; }
 @keyframes feedbackSlideUp { from { transform:translateY(100%); } to { transform:translateY(0); } }
@@ -4070,7 +4081,7 @@ body {
 </head>
 <body>
 
-<!-- 全局JS错误提示条（v52.3.7 新增） -->
+<!-- 全局JS错误提示条（v52.3.8 新增） -->
 <div id="jsErrorBar" style="display:none;position:fixed;top:0;left:0;right:0;z-index:99999;background:#f97316;color:#fff;padding:10px 16px;font-size:13px;flex-direction:column;gap:4px;box-shadow:0 2px 10px rgba(0,0,0,0.2);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;">
   <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
     <span id="jsErrorText" style="flex:1;line-height:1.4;">JS 错误</span>
@@ -4128,7 +4139,7 @@ body {
           </div>
         </div>
         <p style="margin:0;color:#94a3b8;font-size:12px;text-align:center;">
-          <span style="display:block;font-size:11px;color:#94a3b8;margin-bottom:6px;letter-spacing:0.5px">v52.3.7</span>
+          <span style="display:block;font-size:11px;color:#94a3b8;margin-bottom:6px;letter-spacing:0.5px">v52.3.8</span>
           <img src="./assets/mierke-logo.png" alt="米儿客" style="height:12px;vertical-align:middle;margin-right:4px;opacity:0.6">
           米儿客出品
         </p>
@@ -6297,7 +6308,7 @@ body {
     </div>
 
     <div style="text-align:center;padding:20px 0 10px;font-size:12px;color:#cbd5e1">
-      MiRun AI v52.3.7 · 越用越懂你的数字分身
+      MiRun AI v52.3.8 · 越用越懂你的数字分身
     </div>
   </div>
   <div class="app-brand-footer">
@@ -6307,6 +6318,26 @@ body {
 </div>
 <!-- END page-me -->
 
+<!-- ==================== 智能推送面板 ==================== -->
+<div class="push-overlay" id="pushPanelOverlay" onclick="if(event.target===this)closePushPanel()">
+  <div class="push-panel">
+    <div class="push-panel-header">
+      <div class="push-panel-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        智能推送
+      </div>
+      <button class="push-panel-close" onclick="closePushPanel()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="push-panel-body" id="pushPanelContent">
+      <div style="text-align:center;padding:40px 20px;color:#94a3b8;font-size:13px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="36" height="36" style="margin-bottom:12px;opacity:0.4"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <div>暂无推送消息</div>
+      </div>
+    </div>
+  </div>
+</div>
 <!-- ==================== 意见反馈系统 ==================== -->
 <div class="feedback-overlay" id="feedbackOverlay" style="display:none">
   <div class="feedback-panel" id="feedbackPanel">
@@ -6466,13 +6497,13 @@ body {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
   </button>
 </div>
-<script src="datastore.js?v=52.3.7"></script>
-<script src="diagnosis-engine.js?v=52.3.7"></script>
-<script src="reminder-engine.js?v=52.3.7"></script>
-<script src="trend-view.js?v=52.3.7"></script>
+<script src="datastore.js?v=52.3.8"></script>
+<script src="diagnosis-engine.js?v=52.3.8"></script>
+<script src="reminder-engine.js?v=52.3.8"></script>
+<script src="trend-view.js?v=52.3.8"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
-// [v52.3.7] Removed IIFE wrap — all functions now global for HTML event access
+// [v52.3.8] Removed IIFE wrap — all functions now global for HTML event access
 // 'use strict';
 
   // ==================== Module Switching ====================
@@ -10630,7 +10661,7 @@ body {
         return;
       }
 
-      navigator.serviceWorker.register('./sw-v53.js?v=52.3.7', { updateViaCache: 'none' }).then(function(reg) {
+      navigator.serviceWorker.register('./sw-v53.js?v=52.3.8', { updateViaCache: 'none' }).then(function(reg) {
         console.log('SW registered, scope:', reg.scope);
         
         // Verify the registered SW is our expected file
@@ -10681,8 +10712,8 @@ body {
   try { if (typeof showPrivacyNotice !== 'undefined') window.showPrivacyNotice = showPrivacyNotice; } catch(e) { console.log('expose skip showPrivacyNotice:', e.message); }
   try { if (typeof showThinkingMsg !== 'undefined') window.showThinkingMsg = showThinkingMsg; } catch(e) { console.log('expose skip showThinkingMsg:', e.message); }
   try { if (typeof updateGreeting !== 'undefined') window.updateGreeting = updateGreeting; } catch(e) { console.log('expose skip updateGreeting:', e.message); }
-// [v52.3.7] End of removed IIFE wrap
-// [v52.3.7] End of removed IIFE wrap (was: })()); )
+// [v52.3.8] End of removed IIFE wrap
+// [v52.3.8] End of removed IIFE wrap (was: })()); )
 </script>
 
 <script>
@@ -10709,7 +10740,7 @@ function toggleGuideSection(index) {
 }
 
 // First visit auto-expand
-// [v52.3.7] Removed outer IIFE wrap — functions need global scope for HTML event handlers
+// [v52.3.8] Removed outer IIFE wrap — functions need global scope for HTML event handlers
   var hasRead = localStorage.getItem('wealth_ct_guide_read');
   if (!hasRead) {
     var card = document.getElementById('wealthGuideCard');
@@ -11164,7 +11195,7 @@ function toggleGuideSection(index) {
 
   function getFeedbackAutoInfo() {
     var info = {
-      appVersion: 'v52.3.7',
+      appVersion: 'v52.3.8',
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent || '',
       screenSize: window.innerWidth + 'x' + window.innerHeight,
@@ -12019,28 +12050,28 @@ function toggleGuideSection(index) {
     try { return localStorage.getItem('mirunai_family_id') || null; } catch(e) { return null; }
   };
 
-// [v52.3.7] End of removed IIFE wrap
+// [v52.3.8] End of removed IIFE wrap
 </script>
 
-<script src="solar-term.js?v=52.3.7"></script>
-<script src="chronic-disease.js?v=52.3.7"></script>
-<script src="schedule.js?v=52.3.7"></script>
-<script src="daily-tx.js?v=52.3.7"></script>
-<script src="stock-holdings.js?v=52.3.7"></script>
-<script src="behavior-log.js?v=52.3.7"></script>
-<script src="user-profile.js?v=52.3.7"></script>
-<script src="insight-engine.js?v=52.3.7"></script>
-<script src="health-bridge.js?v=52.3.7"></script>
-<script src="push-engine.js?v=52.3.7"></script>
-<script src="memory-manager.js?v=52.3.7"></script>
-<script src="chat-engine.js?v=52.3.7"></script>
-<script src="ai-engine.js?v=52.3.7"></script>
-<script src="decision-forge.js?v=52.3.7"></script>
-<script src="value-resonance.js?v=52.3.7"></script>
-<script src="image-recognizer.js?v=52.3.7"></script>
+<script src="solar-term.js?v=52.3.8"></script>
+<script src="chronic-disease.js?v=52.3.8"></script>
+<script src="schedule.js?v=52.3.8"></script>
+<script src="daily-tx.js?v=52.3.8"></script>
+<script src="stock-holdings.js?v=52.3.8"></script>
+<script src="behavior-log.js?v=52.3.8"></script>
+<script src="user-profile.js?v=52.3.8"></script>
+<script src="insight-engine.js?v=52.3.8"></script>
+<script src="health-bridge.js?v=52.3.8"></script>
+<script src="push-engine.js?v=52.3.8"></script>
+<script src="memory-manager.js?v=52.3.8"></script>
+<script src="chat-engine.js?v=52.3.8"></script>
+<script src="ai-engine.js?v=52.3.8"></script>
+<script src="decision-forge.js?v=52.3.8"></script>
+<script src="value-resonance.js?v=52.3.8"></script>
+<script src="image-recognizer.js?v=52.3.8"></script>
 
   <!-- Version Badge -->
-  <div id="versionBadge" style="position:fixed;bottom:80px;right:12px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;z-index:9999;letter-spacing:0.5px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;pointer-events:none">v52.3.7</div>
+  <div id="versionBadge" style="position:fixed;bottom:80px;right:12px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;z-index:9999;letter-spacing:0.5px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;pointer-events:none">v52.3.8</div>
   <script>
     setTimeout(function(){
       var b = document.getElementById('versionBadge');
