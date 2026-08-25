@@ -15,7 +15,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="MiRun AI">
 <title>MiRun AI v52</title>
-  <!-- 全局JS错误捕获 + 顶部错误条（v52.3.13 新增，便于排查问题） -->
+  <!-- 全局JS错误捕获 + 顶部错误条（v52.3.14 新增，便于排查问题） -->
   <script>
   (function() {
     // 错误收集（最多保留10条，避免内存泄漏）
@@ -111,7 +111,7 @@
   </script>
 
   <script>
-  // === 前向函数占位（v52.3.13 防御机制） ===
+  // === 前向函数占位（v52.3.14 防御机制） ===
   // 后续script块正常加载后会覆盖这些占位；
   // 若后续任何script块异常终止，这些占位确保HTML事件调用不炸
   (function() {
@@ -4019,6 +4019,169 @@ body {
   margin: 8px 0;
 }
 
+
+/* 家庭成员卡片 */
+.family-member-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: #f8fafc;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+  position: relative;
+}
+.family-member-card:active { background: #f1f5f9; }
+.family-member-card:last-child { margin-bottom: 0; }
+.family-member-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #8b5cf6, #ec4899);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.family-member-info { flex: 1; min-width: 0; }
+.family-member-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 2px;
+}
+.family-member-subtitle {
+  font-size: 12px;
+  color: #94a3b8;
+}
+.family-member-delete {
+  background: none;
+  border: none;
+  color: #cbd5e1;
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  transition: color 0.2s;
+}
+.family-member-delete:hover { color: #ef4444; }
+
+/* 档案编辑弹窗 */
+.profile-edit-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 9999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.profile-edit-overlay.active { display: flex; }
+.profile-edit-modal {
+  background: #fff;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 420px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.profile-edit-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 16px;
+  font-weight: 600;
+  color: #0f172a;
+}
+.profile-edit-close {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+}
+.profile-edit-close:hover { color: #475569; }
+.profile-edit-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+.profile-edit-field {
+  margin-bottom: 16px;
+}
+.profile-edit-field:last-child { margin-bottom: 0; }
+.profile-edit-label {
+  display: block;
+  font-size: 13px;
+  color: #475569;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+.profile-edit-input,
+.profile-edit-select,
+.profile-edit-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #0f172a;
+  background: #f8fafc;
+  transition: border-color 0.2s, background 0.2s;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+.profile-edit-input:focus,
+.profile-edit-select:focus,
+.profile-edit-textarea:focus {
+  outline: none;
+  border-color: #8b5cf6;
+  background: #fff;
+}
+.profile-edit-textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+.profile-edit-footer {
+  display: flex;
+  gap: 10px;
+  padding: 12px 20px;
+  border-top: 1px solid #f1f5f9;
+}
+.profile-edit-cancel,
+.profile-edit-save {
+  flex: 1;
+  padding: 10px 0;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+  transition: opacity 0.2s;
+}
+.profile-edit-cancel {
+  background: #f1f5f9;
+  color: #475569;
+}
+.profile-edit-cancel:hover { opacity: 0.8; }
+.profile-edit-save {
+  background: #8b5cf6;
+  color: #fff;
+}
+.profile-edit-save:hover { opacity: 0.9; }
+
+
 /* 医疗记录列表 */
 .medical-record-list {
   margin-top: 12px;
@@ -4081,7 +4244,7 @@ body {
 </head>
 <body>
 
-<!-- 全局JS错误提示条（v52.3.13 新增） -->
+<!-- 全局JS错误提示条（v52.3.14 新增） -->
 <div id="jsErrorBar" style="display:none;position:fixed;top:0;left:0;right:0;z-index:99999;background:#f97316;color:#fff;padding:10px 16px;font-size:13px;flex-direction:column;gap:4px;box-shadow:0 2px 10px rgba(0,0,0,0.2);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;">
   <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
     <span id="jsErrorText" style="flex:1;line-height:1.4;">JS 错误</span>
@@ -4139,7 +4302,7 @@ body {
           </div>
         </div>
         <p style="margin:0;color:#94a3b8;font-size:12px;text-align:center;">
-          <span style="display:block;font-size:11px;color:#94a3b8;margin-bottom:6px;letter-spacing:0.5px">v52.3.13</span>
+          <span style="display:block;font-size:11px;color:#94a3b8;margin-bottom:6px;letter-spacing:0.5px">v52.3.14</span>
           <img src="./assets/mierke-logo.png" alt="米儿客" style="height:12px;vertical-align:middle;margin-right:4px;opacity:0.6">
           米儿客出品
         </p>
@@ -6005,7 +6168,7 @@ body {
             还没有添加家庭成员
           </div>
         </div>
-        <button class="profile-edit-btn" onclick="event.stopPropagation();addFamilyMember()">+ 添加家庭成员</button>
+        <button class="profile-edit-btn" onclick="event.stopPropagation();openFamilyEditor()">+ 添加家庭成员</button>
       </div>
     </div>
 
@@ -6308,7 +6471,7 @@ body {
     </div>
 
     <div style="text-align:center;padding:20px 0 10px;font-size:12px;color:#cbd5e1">
-      MiRun AI v52.3.13 · 越用越懂你的数字分身
+      MiRun AI v52.3.14 · 越用越懂你的数字分身
     </div>
   </div>
   <div class="app-brand-footer">
@@ -6497,13 +6660,13 @@ body {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
   </button>
 </div>
-<script src="datastore.js?v=52.3.13"></script>
-<script src="diagnosis-engine.js?v=52.3.13"></script>
-<script src="reminder-engine.js?v=52.3.13"></script>
-<script src="trend-view.js?v=52.3.13"></script>
+<script src="datastore.js?v=52.3.14"></script>
+<script src="diagnosis-engine.js?v=52.3.14"></script>
+<script src="reminder-engine.js?v=52.3.14"></script>
+<script src="trend-view.js?v=52.3.14"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
-// [v52.3.13] Removed IIFE wrap — all functions now global for HTML event access
+// [v52.3.14] Removed IIFE wrap — all functions now global for HTML event access
 // 'use strict';
 
   // ==================== Module Switching ====================
@@ -10667,7 +10830,7 @@ body {
         return;
       }
 
-      navigator.serviceWorker.register('./sw-v53.js?v=52.3.13', { updateViaCache: 'none' }).then(function(reg) {
+      navigator.serviceWorker.register('./sw-v53.js?v=52.3.14', { updateViaCache: 'none' }).then(function(reg) {
         console.log('SW registered, scope:', reg.scope);
         
         // Verify the registered SW is our expected file
@@ -10718,8 +10881,8 @@ body {
   try { if (typeof showPrivacyNotice !== 'undefined') window.showPrivacyNotice = showPrivacyNotice; } catch(e) { console.log('expose skip showPrivacyNotice:', e.message); }
   try { if (typeof showThinkingMsg !== 'undefined') window.showThinkingMsg = showThinkingMsg; } catch(e) { console.log('expose skip showThinkingMsg:', e.message); }
   try { if (typeof updateGreeting !== 'undefined') window.updateGreeting = updateGreeting; } catch(e) { console.log('expose skip updateGreeting:', e.message); }
-// [v52.3.13] End of removed IIFE wrap
-// [v52.3.13] End of removed IIFE wrap (was: })()); )
+// [v52.3.14] End of removed IIFE wrap
+// [v52.3.14] End of removed IIFE wrap (was: })()); )
 </script>
 
 <script>
@@ -10746,7 +10909,7 @@ function toggleGuideSection(index) {
 }
 
 // First visit auto-expand
-// [v52.3.13] Removed outer IIFE wrap — functions need global scope for HTML event handlers
+// [v52.3.14] Removed outer IIFE wrap — functions need global scope for HTML event handlers
   var hasRead = localStorage.getItem('wealth_ct_guide_read');
   if (!hasRead) {
     var card = document.getElementById('wealthGuideCard');
@@ -11116,43 +11279,120 @@ function toggleGuideSection(index) {
     renderFamilyMembers();
   }
 
-  function editProfileSection(section) {
-    // 简单实现：弹出 prompt 编辑核心字段
-    var fieldMap = {
-      basic: [
-        { key: 'name', label: '姓名', layer: 'user' },
-        { key: 'age', label: '年龄', layer: 'user' },
-        { key: 'occupation', label: '职业', layer: 'user' },
-        { key: 'city', label: '城市', layer: 'user' }
-      ],
-      health: [
-        { key: 'disease', label: '历史疾病', layer: 'user' },
-        { key: 'allergy', label: '过敏史', layer: 'user' },
-        { key: 'medication', label: '用药情况', layer: 'user' }
-      ],
-      preference: [
-        { key: 'dietPref', label: '饮食偏好', layer: 'user' },
-        { key: 'exerciseHabit', label: '运动习惯', layer: 'user' },
-        { key: 'sleepSchedule', label: '作息规律', layer: 'user' }
-      ],
-      values: [
-        { key: 'values', label: '价值观', layer: 'user' },
-        { key: 'lifeGoals', label: '人生目标', layer: 'user' },
-        { key: 'decisionRules', label: '决策原则', layer: 'user' }
+  // ===== 档案编辑弹窗 =====
+  var _editCurrentSection = null;
+  var _editFieldMap = null;
+
+  var PROFILE_FIELD_MAP = {
+    basic: {
+      title: '编辑基本信息',
+      fields: [
+        { key: 'name', label: '姓名', type: 'text', layer: 'user', placeholder: '请输入姓名' },
+        { key: 'birthday', label: '出生日期', type: 'date', layer: 'user', placeholder: '' },
+        { key: 'occupation', label: '职业', type: 'text', layer: 'user', placeholder: '请输入职业' },
+        { key: 'city', label: '所在城市', type: 'text', layer: 'user', placeholder: '请输入城市' },
+        { key: 'agentName', label: '分身名称', type: 'text', layer: 'user', placeholder: '给你的AI分身起个名字' }
       ]
-    };
-
-    var fields = fieldMap[section];
-    if (!fields || !fields.length) return;
-
-    var currentVal = window.MemoryManager.getSync(fields[0].layer, fields[0].key, '');
-    var input = prompt('编辑' + fields[0].label + '：', currentVal);
-    if (input !== null) {
-      window.MemoryManager.setSync(fields[0].layer, fields[0].key, input.trim() || '未设置');
-      loadProfileData();
-      updateGreeting();
-      showToast('已保存');
+    },
+    health: {
+      title: '编辑健康档案',
+      fields: [
+        { key: 'disease', label: '慢性病史', type: 'textarea', layer: 'user', placeholder: '如：高血压、糖尿病等，无则填无' },
+        { key: 'allergy', label: '过敏史', type: 'textarea', layer: 'user', placeholder: '如：青霉素、海鲜等' },
+        { key: 'medication', label: '长期用药', type: 'textarea', layer: 'user', placeholder: '正在服用的药物名称和剂量' },
+        { key: 'bloodType', label: '血型', type: 'select', layer: 'user', options: ['未设置', 'A型', 'B型', 'AB型', 'O型'] },
+        { key: 'height', label: '身高 (cm)', type: 'number', layer: 'user', placeholder: '如：175' },
+        { key: 'weight', label: '体重 (kg)', type: 'number', layer: 'user', placeholder: '如：68' }
+      ]
+    },
+    preference: {
+      title: '编辑个人偏好',
+      fields: [
+        { key: 'dietPref', label: '饮食偏好', type: 'textarea', layer: 'user', placeholder: '如：清淡、不吃辣、素食等' },
+        { key: 'exerciseHabit', label: '运动习惯', type: 'textarea', layer: 'user', placeholder: '如：每周跑步3次、瑜伽等' },
+        { key: 'sleepSchedule', label: '作息规律', type: 'textarea', layer: 'user', placeholder: '如：23点睡7点起、熬夜党等' },
+        { key: 'tastePref', label: '口味偏好', type: 'select', layer: 'user', options: ['未设置', '清淡', '适中', '偏重', '嗜辣', '嗜甜', '嗜咸'] }
+      ]
+    },
+    values: {
+      title: '编辑价值锚点',
+      fields: [
+        { key: 'values', label: '核心价值观', type: 'textarea', layer: 'user', placeholder: '你最看重的3-5条价值观' },
+        { key: 'lifeGoals', label: '人生目标', type: 'textarea', layer: 'user', placeholder: '短期/中期/长期目标' },
+        { key: 'decisionRules', label: '决策原则', type: 'textarea', layer: 'user', placeholder: '做重要决定时遵循的原则' }
+      ]
     }
+  };
+
+  function editProfileSection(section) {
+    var sectionConfig = PROFILE_FIELD_MAP[section];
+    if (!sectionConfig) return;
+    _editCurrentSection = section;
+    _editFieldMap = sectionConfig.fields;
+
+    document.getElementById('profileEditTitle').textContent = sectionConfig.title;
+    var body = document.getElementById('profileEditBody');
+
+    var html = '';
+    sectionConfig.fields.forEach(function(field, idx) {
+      var val = '';
+      try {
+        val = window.MemoryManager.getSync(field.layer, field.key, '') || '';
+      } catch(e) { val = ''; }
+      if (val === '未设置' || val === '--') val = '';
+
+      html += '<div class="profile-edit-field">';
+      html += '<label class="profile-edit-label">' + field.label + '</label>';
+
+      if (field.type === 'textarea') {
+        html += '<textarea class="profile-edit-textarea" data-field="' + field.key + '" data-layer="' + field.layer + '" placeholder="' + (field.placeholder || '') + '">' + escapeHtml(val) + '</textarea>';
+      } else if (field.type === 'select') {
+        html += '<select class="profile-edit-select" data-field="' + field.key + '" data-layer="' + field.layer + '">';
+        (field.options || []).forEach(function(opt) {
+          html += '<option value="' + opt + '"' + (val === opt ? ' selected' : '') + '>' + opt + '</option>';
+        });
+        html += '</select>';
+      } else if (field.type === 'date') {
+        html += '<input type="date" class="profile-edit-input" data-field="' + field.key + '" data-layer="' + field.layer + '" value="' + val + '" />';
+      } else if (field.type === 'number') {
+        html += '<input type="number" class="profile-edit-input" data-field="' + field.key + '" data-layer="' + field.layer + '" placeholder="' + (field.placeholder || '') + '" value="' + val + '" />';
+      } else {
+        html += '<input type="text" class="profile-edit-input" data-field="' + field.key + '" data-layer="' + field.layer + '" placeholder="' + (field.placeholder || '') + '" value="' + escapeHtml(val) + '" />';
+      }
+
+      html += '</div>';
+    });
+
+    body.innerHTML = html;
+    document.getElementById('profileEditOverlay').classList.add('active');
+  }
+
+  function closeProfileEdit() {
+    document.getElementById('profileEditOverlay').classList.remove('active');
+    _editCurrentSection = null;
+    _editFieldMap = null;
+  }
+
+  function saveProfileEdit() {
+    if (!_editFieldMap) return;
+    var body = document.getElementById('profileEditBody');
+    var inputs = body.querySelectorAll('[data-field]');
+
+    inputs.forEach(function(input) {
+      var key = input.getAttribute('data-field');
+      var layer = input.getAttribute('data-layer');
+      var val = input.value.trim();
+      try {
+        window.MemoryManager.setSync(layer, key, val || '未设置');
+      } catch(e) {
+        console.warn('保存字段失败:', key, e);
+      }
+    });
+
+    closeProfileEdit();
+    loadProfileData();
+    try { updateGreeting(); } catch(e) {}
+    showToast('已保存');
   }
 
 
@@ -11201,7 +11441,7 @@ function toggleGuideSection(index) {
 
   function getFeedbackAutoInfo() {
     var info = {
-      appVersion: 'v52.3.13',
+      appVersion: 'v52.3.14',
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent || '',
       screenSize: window.innerWidth + 'x' + window.innerHeight,
@@ -12010,32 +12250,148 @@ function toggleGuideSection(index) {
     }
   }
 
-  function addFamilyMember() {
-    var name = prompt('请输入家庭成员姓名：');
-    if (!name) return;
-    var relation = prompt('与你的关系（如：配偶/子女/父母）：', '家庭成员');
-    if (relation === null) return;
+  // ===== 家庭成员管理 =====
+  var FAMILY_STORAGE_KEY = 'mirunai_family_members';
+  var _familyEditIdx = -1; // -1表示新增，>=0表示编辑
 
-    var members = [];
+  function getFamilyMembers() {
     try {
-      var raw = localStorage.getItem('mirunai_family_members');
-      if (raw) members = JSON.parse(raw);
+      var raw = localStorage.getItem(FAMILY_STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch(e) { return []; }
+  }
+
+  function saveFamilyMembersList(list) {
+    try {
+      localStorage.setItem(FAMILY_STORAGE_KEY, JSON.stringify(list));
     } catch(e) {}
+  }
 
-    var avatars = ['👨', '👩', '👦', '👧', '👴', '👵', '🧑'];
-    members.push({
-      name: name,
-      relation: relation || '家庭成员',
-      avatar: avatars[members.length % avatars.length]
+  function calcAge(birthday) {
+    if (!birthday) return '--';
+    var b = new Date(birthday);
+    if (isNaN(b.getTime())) return '--';
+    var now = new Date();
+    var age = now.getFullYear() - b.getFullYear();
+    var m = now.getMonth() - b.getMonth();
+    if (m < 0 || (m === 0 && now.getDate() < b.getDate())) age--;
+    return age + '岁';
+  }
+
+  function renderFamilyMembers() {
+    var listEl = document.getElementById('familyMembersList');
+    if (!listEl) return;
+    var members = getFamilyMembers();
+
+    if (members.length === 0) {
+      listEl.innerHTML = '<div style="text-align:center;padding:20px 0;color:#94a3b8;font-size:13px">还没有添加家庭成员</div>';
+      return;
+    }
+
+    var html = '';
+    members.forEach(function(m, idx) {
+      var age = m.birthday ? calcAge(m.birthday) : '';
+      var subtitle = m.relation + (age ? ' · ' + age : '');
+      html += '<div class="family-member-card" onclick="event.stopPropagation();openFamilyEditor(' + idx + ')">';
+      html += '<div class="family-member-avatar">' + (m.name ? m.name.charAt(0) : '?') + '</div>';
+      html += '<div class="family-member-info">';
+      html += '<div class="family-member-name">' + (m.name || '未命名') + '</div>';
+      html += '<div class="family-member-subtitle">' + subtitle + '</div>';
+      html += '</div>';
+      html += '<button class="family-member-delete" onclick="event.stopPropagation();deleteFamilyMember(' + idx + ')" title="删除">';
+      html += '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>';
+      html += '</button>';
+      html += '</div>';
     });
+    listEl.innerHTML = html;
 
-    localStorage.setItem('mirunai_family_members', JSON.stringify(members));
+    // 更新摘要
+    var summaryEl = document.getElementById('profileFamilySummary');
+    if (summaryEl) summaryEl.textContent = members.length + ' 位成员';
+  }
+
+  function openFamilyEditor(idx) {
+    _familyEditIdx = (idx === undefined || idx === null) ? -1 : idx;
+    var titleEl = document.getElementById('familyEditTitle');
+    var nameEl = document.getElementById('familyEditName');
+    var relationEl = document.getElementById('familyEditRelation');
+    var birthdayEl = document.getElementById('familyEditBirthday');
+    var healthEl = document.getElementById('familyEditHealth');
+
+    if (_familyEditIdx >= 0) {
+      var members = getFamilyMembers();
+      var m = members[_familyEditIdx] || {};
+      titleEl.textContent = '编辑家庭成员';
+      nameEl.value = m.name || '';
+      relationEl.value = m.relation || '配偶';
+      birthdayEl.value = m.birthday || '';
+      healthEl.value = m.healthProfile || '';
+    } else {
+      titleEl.textContent = '添加家庭成员';
+      nameEl.value = '';
+      relationEl.value = '配偶';
+      birthdayEl.value = '';
+      healthEl.value = '';
+    }
+
+    document.getElementById('familyEditOverlay').classList.add('active');
+  }
+
+  function closeFamilyEditor() {
+    document.getElementById('familyEditOverlay').classList.remove('active');
+    _familyEditIdx = -1;
+  }
+
+  function saveFamilyMember() {
+    var name = document.getElementById('familyEditName').value.trim();
+    if (!name) {
+      showToast('请输入姓名');
+      return;
+    }
+    var relation = document.getElementById('familyEditRelation').value;
+    var birthday = document.getElementById('familyEditBirthday').value;
+    var healthProfile = document.getElementById('familyEditHealth').value.trim();
+
+    var members = getFamilyMembers();
+    var data = {
+      name: name,
+      relation: relation,
+      birthday: birthday,
+      healthProfile: healthProfile,
+      visibility: 'private'
+    };
+
+    if (_familyEditIdx >= 0) {
+      // 保留原id和其他字段
+      if (members[_familyEditIdx]) {
+        data.id = members[_familyEditIdx].id;
+        data.createdAt = members[_familyEditIdx].createdAt;
+      }
+      members[_familyEditIdx] = data;
+    } else {
+      data.id = 'fam_' + Date.now();
+      data.createdAt = new Date().toISOString();
+      members.push(data);
+    }
+
+    saveFamilyMembersList(members);
     renderFamilyMembers();
-    showToast('已添加家庭成员');
+    closeFamilyEditor();
+    showToast('已保存');
+  }
+
+  function deleteFamilyMember(idx) {
+    var members = getFamilyMembers();
+    var name = (members[idx] && members[idx].name) || '该成员';
+    if (!confirm('确定删除' + name + '吗？此操作不可恢复。')) return;
+    members.splice(idx, 1);
+    saveFamilyMembersList(members);
+    renderFamilyMembers();
+    showToast('已删除');
   }
 
   function openFamilyInvite() {
-    addFamilyMember();
+    openFamilyEditor();
   }
 
   function openShareSettings() {
@@ -12056,33 +12412,96 @@ function toggleGuideSection(index) {
     try { return localStorage.getItem('mirunai_family_id') || null; } catch(e) { return null; }
   };
 
-// [v52.3.13] End of removed IIFE wrap
+// [v52.3.14] End of removed IIFE wrap
 </script>
 
-<script src="solar-term.js?v=52.3.13"></script>
-<script src="chronic-disease.js?v=52.3.13"></script>
-<script src="schedule.js?v=52.3.13"></script>
-<script src="daily-tx.js?v=52.3.13"></script>
-<script src="stock-holdings.js?v=52.3.13"></script>
-<script src="behavior-log.js?v=52.3.13"></script>
-<script src="user-profile.js?v=52.3.13"></script>
-<script src="insight-engine.js?v=52.3.13"></script>
-<script src="health-bridge.js?v=52.3.13"></script>
-<script src="push-engine.js?v=52.3.13"></script>
-<script src="memory-manager.js?v=52.3.13"></script>
-<script src="chat-engine.js?v=52.3.13"></script>
-<script src="ai-engine.js?v=52.3.13"></script>
-<script src="decision-forge.js?v=52.3.13"></script>
-<script src="value-resonance.js?v=52.3.13"></script>
-<script src="image-recognizer.js?v=52.3.13"></script>
+<script src="solar-term.js?v=52.3.14"></script>
+<script src="chronic-disease.js?v=52.3.14"></script>
+<script src="schedule.js?v=52.3.14"></script>
+<script src="daily-tx.js?v=52.3.14"></script>
+<script src="stock-holdings.js?v=52.3.14"></script>
+<script src="behavior-log.js?v=52.3.14"></script>
+<script src="user-profile.js?v=52.3.14"></script>
+<script src="insight-engine.js?v=52.3.14"></script>
+<script src="health-bridge.js?v=52.3.14"></script>
+<script src="push-engine.js?v=52.3.14"></script>
+<script src="memory-manager.js?v=52.3.14"></script>
+<script src="chat-engine.js?v=52.3.14"></script>
+<script src="ai-engine.js?v=52.3.14"></script>
+<script src="decision-forge.js?v=52.3.14"></script>
+<script src="value-resonance.js?v=52.3.14"></script>
+<script src="image-recognizer.js?v=52.3.14"></script>
 
   <!-- Version Badge -->
-  <div id="versionBadge" style="position:fixed;bottom:80px;right:12px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;z-index:9999;letter-spacing:0.5px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;pointer-events:none">v52.3.13</div>
+  <div id="versionBadge" style="position:fixed;bottom:80px;right:12px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;z-index:9999;letter-spacing:0.5px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;pointer-events:none">v52.3.14</div>
   <script>
     setTimeout(function(){
       var b = document.getElementById('versionBadge');
       if (b) { b.style.opacity = '1'; setTimeout(function(){ b.style.opacity = '0'; }, 3000); }
     }, 500);
   </script>
+
+  <!-- 档案编辑弹窗 -->
+  
+  <!-- 家庭成员编辑弹窗 -->
+  <div class="profile-edit-overlay" id="familyEditOverlay" onclick="if(event.target===this)closeFamilyEditor()">
+    <div class="profile-edit-modal">
+      <div class="profile-edit-header">
+        <span id="familyEditTitle">添加家庭成员</span>
+        <button class="profile-edit-close" onclick="closeFamilyEditor()">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="profile-edit-body">
+        <div class="profile-edit-field">
+          <label class="profile-edit-label">姓名</label>
+          <input type="text" class="profile-edit-input" id="familyEditName" placeholder="请输入姓名" maxlength="20" />
+        </div>
+        <div class="profile-edit-field">
+          <label class="profile-edit-label">关系</label>
+          <select class="profile-edit-select" id="familyEditRelation">
+            <option value="配偶">配偶</option>
+            <option value="儿子">儿子</option>
+            <option value="女儿">女儿</option>
+            <option value="父亲">父亲</option>
+            <option value="母亲">母亲</option>
+            <option value="兄弟">兄弟</option>
+            <option value="姐妹">姐妹</option>
+            <option value="其他">其他</option>
+          </select>
+        </div>
+        <div class="profile-edit-field">
+          <label class="profile-edit-label">出生日期</label>
+          <input type="date" class="profile-edit-input" id="familyEditBirthday" />
+        </div>
+        <div class="profile-edit-field">
+          <label class="profile-edit-label">健康档案（选填）</label>
+          <textarea class="profile-edit-textarea" id="familyEditHealth" placeholder="慢性病史、过敏史、长期用药等"></textarea>
+        </div>
+      </div>
+      <div class="profile-edit-footer">
+        <button class="profile-edit-cancel" onclick="closeFamilyEditor()">取消</button>
+        <button class="profile-edit-save" onclick="saveFamilyMember()">保存</button>
+      </div>
+    </div>
+  </div>
+
+<div class="profile-edit-overlay" id="profileEditOverlay" onclick="if(event.target===this)closeProfileEdit()">
+    <div class="profile-edit-modal">
+      <div class="profile-edit-header">
+        <span id="profileEditTitle">编辑</span>
+        <button class="profile-edit-close" onclick="closeProfileEdit()">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="profile-edit-body" id="profileEditBody">
+        <!-- 动态渲染字段 -->
+      </div>
+      <div class="profile-edit-footer">
+        <button class="profile-edit-cancel" onclick="closeProfileEdit()">取消</button>
+        <button class="profile-edit-save" onclick="saveProfileEdit()">保存</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
