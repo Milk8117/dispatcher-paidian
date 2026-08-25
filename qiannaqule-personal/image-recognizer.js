@@ -383,7 +383,7 @@
       throw new Error('未配置任何支持图片识别的AI服务商，请先在AI引擎中配置API Key（支持百炼/Kimi/DeepSeek）');
     }
 
-    var lastError = null;
+    var errors = [];
     for (var i = 0; i < chain.length; i++) {
       try {
         var result = await callVisionAPI(chain[i], messages);
@@ -394,14 +394,18 @@
         return result;
       } catch(e) {
         console.warn('[ImageRecognizer] Provider ' + chain[i].id + ' 失败:', e.message);
-        lastError = e;
+        errors.push(chain[i].name + ': ' + e.message);
         if (!_settings.fallbackEnabled || i === chain.length - 1) {
-          throw e;
+          // 降级关闭或已是最后一个，抛出完整错误
+          var detailMsg = errors.length > 1
+            ? ('所有' + chain.length + '个图片识别服务商均失败：\n' + errors.join('\n'))
+            : e.message;
+          throw new Error(detailMsg);
         }
         // 继续降级
       }
     }
-    throw lastError || new Error('所有图片识别服务商调用失败');
+    throw new Error(errors.length > 0 ? errors.join('\n') : '所有图片识别服务商调用失败');
   }
 
   function callVisionAPI(provider, messages) {
@@ -467,9 +471,29 @@
 
   // 适配不同provider的消息格式
   function adaptMessagesForProvider(providerId, messages) {
-    // 百炼和Kimi都兼容OpenAI多模态格式（content为数组，含image_url）
-    // DeepSeek V4也兼容
-    // 如有特殊格式，在此处适配
+    // DeepSeek V4 / Kimi 兼容OpenAI多模态格式，直接返回
+    if (providerId === 'deepseek' || providerId === 'kimi') {
+      return messages;
+    }
+    // 百炼Qwen-VL：需要将image_url转为image格式，且URL为base64时需加data:image/前缀
+    if (providerId === 'bailian') {
+      return messages.map(function(msg) {
+        if (!msg.content || !Array.isArray(msg.content)) return msg;
+        var newContent = msg.content.map(function(item) {
+          if (item.type === 'image_url') {
+            var url = item.image_url && item.image_url.url ? item.image_url.url : '';
+            // 百炼格式：{ "type": "image_url", "image_url": { "url": "..." } } 兼容
+            // 确保base64前缀正确
+            if (url && url.indexOf('data:image') !== 0 && url.indexOf('http') !== 0) {
+              url = 'data:image/jpeg;base64,' + url;
+            }
+            return { type: 'image_url', image_url: { url: url } };
+          }
+          return item;
+        });
+        return { role: msg.role, content: newContent };
+      });
+    }
     return messages;
   }
 
