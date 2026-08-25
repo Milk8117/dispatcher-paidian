@@ -66,6 +66,10 @@
     receipt: {
       system: '你是专业的票据识别助手。请识别图片中的小票或发票，提取以下信息：消费金额、消费日期、商家名称、商品明细。如果是多张商品，请逐一列出。用JSON格式返回，字段：{amount(数字), date(YYYY-MM-DD), merchant, items:[{name, price, quantity}], category(餐饮/购物/交通/医疗/其他)}',
       user: '请识别这张票据的内容，按指定JSON格式返回。'
+    },
+    chat: {
+      system: '你是MiRun AI的图片理解助手，风格类似钢铁侠的贾维斯，专业又有人情味。请分析用户发送的图片，理解其内容和含义，并用简洁友好的中文回复用户（2-3句话）。\n\n你还可以根据图片内容判断是否需要执行操作，以JSON格式返回：\n```json\n{\n  "reply": "对图片内容的回复，简洁友好",\n  "description": "图片内容的简短摘要（用于历史记录标题，不超过20字）",\n  "actions": []\n}\n```\n\n可选actions：\n- navigate(module): 切换模块。可选: home, finance, dailytx, health, schedule, profile\n- add_expense(amount, ctField, note?): 记录支出。ctField: expensePersonal/expenseFamily/expenseEducation/expenseMedical/loanPayment/insurance\n- add_income(amount, ctField, note?): 记录收入。ctField: jobIncome/rentalIncome/investIncome/sideIncome\n- add_schedule(title, date?, group?): 添加日程\n\n严禁使用emoji。必须严格返回合法JSON。',
+      user: '请分析这张图片并给出回复。'
     }
   };
 
@@ -84,6 +88,8 @@
       recognizeFood: recognizeFood,
       recognizeReceipt: recognizeReceipt,
       recognizeGeneral: recognizeGeneral,
+      recognizeChat: recognizeChat,
+      parseChatResult: parseChatResult,
       getHistory: getHistory,
       clearHistory: clearHistory,
       getSettings: getSettings,
@@ -272,6 +278,33 @@
 
   function recognizeGeneral(imageData, prompt) {
     return recognize(imageData, 'general', prompt);
+  }
+
+  function recognizeChat(imageData, userContext) {
+    // 对话场景：视觉模型直接输出回复+actions，省一次二次调用
+    var extraPrompt = userContext ? ('\n\n补充上下文：' + userContext) : '';
+    return recognize(imageData, 'chat', extraPrompt);
+  }
+
+  function parseChatResult(content) {
+    // 尝试从视觉模型输出中提取JSON
+    var jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/);
+    var jsonStr = jsonMatch ? jsonMatch[1] : content;
+    var start = jsonStr.indexOf('{');
+    var end = jsonStr.lastIndexOf('}');
+    if (start === -1 || end === -1) {
+      return { reply: content, description: content.substring(0, 20), actions: [] };
+    }
+    try {
+      var parsed = JSON.parse(jsonStr.substring(start, end + 1));
+      return {
+        reply: parsed.reply || content,
+        description: parsed.description || (parsed.reply ? parsed.reply.substring(0, 20) : '图片'),
+        actions: parsed.actions || []
+      };
+    } catch(e) {
+      return { reply: content, description: content.substring(0, 20), actions: [] };
+    }
   }
 
   function recognizeFood(imageData, prompt) {

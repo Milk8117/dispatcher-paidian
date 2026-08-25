@@ -108,7 +108,7 @@
 
   var DEFAULT_CONFIG = {
     mode: 'default',
-    defaultProvider: 'deepseek',
+    defaultProvider: 'bailian',
     defaultApiKey: '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',
     providers: {
       deepseek: { apiKey: 'sk-25c588ba49b243f08e743c788e92cf15', apiBase: '', model: '' },
