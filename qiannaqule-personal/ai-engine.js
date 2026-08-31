@@ -532,23 +532,26 @@
 
   // ==================== Provider降级链 ====================
 
+  // 降级优先级：成本低、可用性高的排前面（v52.3.15 优化）
+  var FALLBACK_PRIORITY = ['bailian', 'kimi', 'nvidia', 'deepseek'];
+
   function getProviderChain(cfg) {
     var chain = [];
 
     if (cfg.mode === 'default') {
-      // 默认模式：只使用默认provider
+      // 默认模式：默认provider排最前
       var defaultP = PROVIDER_MAP[cfg.defaultProvider || 'nvidia'];
       if (defaultP && cfg.defaultApiKey) {
         var p = mergeProviderConfig(defaultP, { apiKey: cfg.defaultApiKey });
         chain.push(p);
       }
-      // 如果启用了降级，也把其他有key的provider加进来
+      // 如果启用了降级，其余provider按FALLBACK_PRIORITY排序追加
       if (cfg.fallbackEnabled) {
-        var providerKeys = Object.keys(cfg.providers || {});
-        for (var i = 0; i < providerKeys.length; i++) {
-          var pid = providerKeys[i];
-          var pCfg = cfg.providers[pid];
-          if (pid !== cfg.defaultProvider && pCfg && pCfg.apiKey) {
+        for (var i = 0; i < FALLBACK_PRIORITY.length; i++) {
+          var pid = FALLBACK_PRIORITY[i];
+          if (pid === cfg.defaultProvider) continue;
+          var pCfg = (cfg.providers || {})[pid];
+          if (pCfg && pCfg.apiKey) {
             var prov = PROVIDER_MAP[pid];
             if (prov) {
               chain.push(mergeProviderConfig(prov, pCfg));
@@ -557,13 +560,26 @@
         }
       }
     } else {
-      // 高级模式：按PROVIDERS定义的优先级排列
-      PROVIDERS.forEach(function(prov) {
-        var pCfg = (cfg.providers || {})[prov.id];
-        if (pCfg && pCfg.apiKey) {
-          chain.push(mergeProviderConfig(prov, pCfg));
+      // 高级模式：按FALLBACK_PRIORITY优先级排列
+      for (var j = 0; j < FALLBACK_PRIORITY.length; j++) {
+        var provId = FALLBACK_PRIORITY[j];
+        var prov = PROVIDER_MAP[provId];
+        if (!prov) continue;
+        var pCfg = (cfg.providers || {})[provId];
+        // 检查是否有可用key（defaultProvider的key在defaultApiKey里）
+        var key = (pCfg && pCfg.apiKey) ? pCfg.apiKey : '';
+        if (!key && cfg.defaultProvider === provId && cfg.defaultApiKey) {
+          key = cfg.defaultApiKey;
         }
-      });
+        if (key) {
+          chain.push(mergeProviderConfig(prov, { apiKey: key }));
+        }
+      }
+      // 兜底：自定义provider
+      var customCfg = (cfg.providers || {}).custom;
+      if (customCfg && customCfg.apiKey && PROVIDER_MAP.custom) {
+        chain.push(mergeProviderConfig(PROVIDER_MAP.custom, customCfg));
+      }
     }
 
     return chain;

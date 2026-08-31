@@ -26,9 +26,9 @@
   var VISION_PROVIDERS = [
     {
       id: 'bailian',
-      name: '阿里云百炼 (Qwen-VL)',
+      name: '阿里云百炼 (Qwen3.7 Flash)',
       apiBase: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
-      model: 'qwen-vl-max-latest',
+      model: 'qwen3.7-flash',
       supportsImage: true,
       keyHint: '阿里云百炼API Key',
       keyUrl: 'https://bailian.console.aliyun.com/'
