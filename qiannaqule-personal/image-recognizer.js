@@ -77,6 +77,88 @@
   var _history = null;
   var _settings = null;
 
+  // ==================== 图片多轮对话上下文 ====================
+  var _activeImageContext = null; // { imageData, messages: [..], roundsLeft }
+  var MAX_IMAGE_FOLLOWUP_ROUNDS = 3;
+
+  function setActiveImageContext(imageData, firstReply) {
+    // 激活图片对话模式，保留多轮历史
+    _activeImageContext = {
+      imageData: imageData,
+      messages: [
+        // 第一轮：系统 + 用户图 + AI回复
+        { role: 'user', content: '请分析这张图片并给出回复。' },
+        { role: 'assistant', content: firstReply || '好的，我看到了这张图片。' }
+      ],
+      roundsLeft: MAX_IMAGE_FOLLOWUP_ROUNDS
+    };
+  }
+
+  function hasActiveImageContext() {
+    return _activeImageContext && _activeImageContext.roundsLeft > 0;
+  }
+
+  function clearActiveImageContext() {
+    _activeImageContext = null;
+  }
+
+  async function followupOnImage(userText) {
+    // 图片对话多轮：带着图片和历史继续聊
+    if (!hasActiveImageContext()) {
+      return { success: false, error: '没有活跃的图片上下文' };
+    }
+
+    var ctx = _activeImageContext;
+    // 构造多轮消息：system + 历史 + 新问题（图片始终在首轮）
+    var chatPrompt = SCENE_PROMPTS.chat;
+    var messages = [{ role: 'system', content: chatPrompt.system }];
+
+    // 第一轮带图
+    messages.push({
+      role: 'user',
+      content: [
+        { type: 'text', text: ctx.messages[0].content },
+        { type: 'image_url', image_url: { url: ctx.imageData } }
+      ]
+    });
+
+    // 后续历史轮次（纯文本）
+    for (var i = 1; i < ctx.messages.length; i++) {
+      var m = ctx.messages[i];
+      if (typeof m.content === 'string') {
+        messages.push({ role: m.role, content: m.content });
+      } else {
+        messages.push(m);
+      }
+    }
+
+    // 加入当前用户问题
+    messages.push({ role: 'user', content: userText });
+
+    try {
+      var result = await callVisionWithFallback(messages, 'chat');
+      ctx.messages.push({ role: 'user', content: userText });
+      ctx.messages.push({ role: 'assistant', content: result.content });
+      ctx.roundsLeft--;
+
+      if (ctx.roundsLeft <= 0) {
+        _activeImageContext = null;
+      }
+
+      // 解析返回
+      var parsed = parseChatResult(result.content);
+      return {
+        success: true,
+        reply: parsed.reply,
+        actions: parsed.actions || [],
+        provider: result.providerId,
+        roundsLeft: ctx.roundsLeft
+      };
+    } catch(e) {
+      return { success: false, error: e.message };
+    }
+  }
+
   // ==================== 初始化 ====================
   function init() {
     loadSettings();
@@ -90,6 +172,10 @@
       recognizeGeneral: recognizeGeneral,
       recognizeChat: recognizeChat,
       parseChatResult: parseChatResult,
+      setActiveImageContext: setActiveImageContext,
+      hasActiveImageContext: hasActiveImageContext,
+      clearActiveImageContext: clearActiveImageContext,
+      followupOnImage: followupOnImage,
       getHistory: getHistory,
       clearHistory: clearHistory,
       getSettings: getSettings,

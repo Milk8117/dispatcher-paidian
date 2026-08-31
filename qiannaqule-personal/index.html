@@ -15,7 +15,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="MiRun AI">
 <title>MiRun AI v52</title>
-  <!-- 全局JS错误捕获 + 顶部错误条（v52.3.15 新增，便于排查问题） -->
+  <!-- 全局JS错误捕获 + 顶部错误条（v52.3.16 新增，便于排查问题） -->
   <script>
   (function() {
     // 错误收集（最多保留10条，避免内存泄漏）
@@ -111,7 +111,7 @@
   </script>
 
   <script>
-  // === 前向函数占位（v52.3.15 防御机制） ===
+  // === 前向函数占位（v52.3.16 防御机制） ===
   // 后续script块正常加载后会覆盖这些占位；
   // 若后续任何script块异常终止，这些占位确保HTML事件调用不炸
   (function() {
@@ -4241,7 +4241,7 @@ body {
 </head>
 <body>
 
-<!-- 全局JS错误提示条（v52.3.15 新增） -->
+<!-- 全局JS错误提示条（v52.3.16 新增） -->
 <div id="jsErrorBar" style="display:none;position:fixed;top:0;left:0;right:0;z-index:99999;background:#f97316;color:#fff;padding:10px 16px;font-size:13px;flex-direction:column;gap:4px;box-shadow:0 2px 10px rgba(0,0,0,0.2);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;">
   <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
     <span id="jsErrorText" style="flex:1;line-height:1.4;">JS 错误</span>
@@ -4299,7 +4299,7 @@ body {
           </div>
         </div>
         <p style="margin:0;color:#94a3b8;font-size:12px;text-align:center;">
-          <span style="display:block;font-size:11px;color:#94a3b8;margin-bottom:6px;letter-spacing:0.5px">v52.3.15</span>
+          <span style="display:block;font-size:11px;color:#94a3b8;margin-bottom:6px;letter-spacing:0.5px">v52.3.16</span>
           <img src="./assets/mierke-logo.png" alt="米儿客" style="height:12px;vertical-align:middle;margin-right:4px;opacity:0.6">
           米儿客出品
         </p>
@@ -6468,7 +6468,7 @@ body {
     </div>
 
     <div style="text-align:center;padding:20px 0 10px;font-size:12px;color:#cbd5e1">
-      MiRun AI v52.3.15 · 越用越懂你的数字分身
+      MiRun AI v52.3.16 · 越用越懂你的数字分身
     </div>
   </div>
   <div class="app-brand-footer">
@@ -6663,7 +6663,7 @@ body {
 <script src="trend-view.js?v=52.3.14"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
-// [v52.3.15] Removed IIFE wrap — all functions now global for HTML event access
+// [v52.3.16] Removed IIFE wrap — all functions now global for HTML event access
 // 'use strict';
 
   // ==================== Module Switching ====================
@@ -8247,7 +8247,7 @@ body {
       var desc = parsed.description || '图片识别结果';
       updateImageCardResult(id, parsed.reply, thumbBase64);
       // 直接存历史，不再二次调用AI引擎
-      finishImageChatResult(id, parsed, thumbBase64, desc);
+      finishImageChatResult(id, parsed, thumbBase64, desc, fullBase64);
     }).catch(function(err) {
       var errMsg = '图片识别失败：' + (err.message || err);
       updateImageCardResult(id, errMsg, thumbBase64);
@@ -8263,11 +8263,16 @@ body {
     }
   }
 
-  function finishImageChatResult(cardId, parsed, thumbBase64, desc) {
+  function finishImageChatResult(cardId, parsed, thumbBase64, desc, fullBase64) {
     // 视觉模型直接返回了回复+actions，一步到位，省掉二次AI调用
     // 保存到对话历史
     saveChatToHistory('[图片] ' + (desc || '图片识别结果'), parsed.reply || '好的。');
     renderChatHistory();
+
+    // 激活图片多轮对话上下文（v52.3.16）
+    if (fullBase64 && window.ImageRecognizer && window.ImageRecognizer.setActiveImageContext) {
+      try { window.ImageRecognizer.setActiveImageContext(fullBase64, parsed.reply || '好的。'); } catch(e) {}
+    }
 
     // 执行actions
     if (parsed.actions && parsed.actions.length > 0) {
@@ -8798,6 +8803,52 @@ body {
       addChatMessage('user', text);
       setAgentName(renameName);
       addChatMessage('ai', '好的！以后我就叫「' + renameName + '」了，很高兴认识你～');
+      return;
+    }
+
+    // 图片多轮对话模式（v52.3.16）：刚发完图且在3轮内，走视觉模型继续聊
+    // 但如果是明确的工具意图（记账/日程/记录/查询等），不走图片多轮
+    var _isImageFollowup = false;
+    if (window.ImageRecognizer && window.ImageRecognizer.hasActiveImageContext && window.ImageRecognizer.hasActiveImageContext()) {
+      // 简单意图过滤：如果明显是记账/日程/记录/命令类，清除图片上下文
+      var _t = text.toLowerCase();
+      var _toolKeywords = ['记', '收入', '支出', '花费', '花了', '元', '块', '日程', '待办', '提醒', '添加', '查看', '统计', '汇总', '多少', '设置', '帮我', '打开'];
+      var _isToolIntent = false;
+      for (var _ki = 0; _ki < _toolKeywords.length; _ki++) {
+        if (_t.indexOf(_toolKeywords[_ki]) !== -1) { _isToolIntent = true; break; }
+      }
+      // 如果是疑问句或者话题不明确，且不包含工具关键词，走图片多轮
+      if (!_isToolIntent) {
+        _isImageFollowup = true;
+      } else {
+        // 工具意图，清除图片上下文
+        try { window.ImageRecognizer.clearActiveImageContext(); } catch(e) {}
+      }
+    }
+    if (_isImageFollowup) {
+      showThinkingMsg();
+      addChatMessage('user', text);
+      window.ImageRecognizer.followupOnImage(text).then(function(fuResult) {
+        removeThinkingMsg();
+        if (fuResult.success) {
+          addChatMessage('ai', fuResult.reply || '好的。');
+          saveChatToHistory(text, fuResult.reply || '好的。');
+          // 执行actions
+          if (fuResult.actions && fuResult.actions.length > 0) {
+            fuResult.actions.forEach(function(action) {
+              try {
+                if (action.type === 'navigate' && action.module) switchModule(action.module, action.subTab);
+              } catch(e) {}
+            });
+          }
+        } else {
+          addChatMessage('ai', '图片对话失败：' + (fuResult.error || '未知错误'));
+        }
+        refreshAgentPanel();
+      }).catch(function(e) {
+        removeThinkingMsg();
+        addChatMessage('ai', '抱歉，图片对话出了点问题：' + (e.message || e));
+      });
       return;
     }
 
@@ -10827,7 +10878,7 @@ body {
         return;
       }
 
-      navigator.serviceWorker.register('./sw-v53.js?v=52.3.15', { updateViaCache: 'none' }).then(function(reg) {
+      navigator.serviceWorker.register('./sw-v53.js?v=52.3.16', { updateViaCache: 'none' }).then(function(reg) {
         console.log('SW registered, scope:', reg.scope);
         
         // Verify the registered SW is our expected file
@@ -10878,8 +10929,8 @@ body {
   try { if (typeof showPrivacyNotice !== 'undefined') window.showPrivacyNotice = showPrivacyNotice; } catch(e) { console.log('expose skip showPrivacyNotice:', e.message); }
   try { if (typeof showThinkingMsg !== 'undefined') window.showThinkingMsg = showThinkingMsg; } catch(e) { console.log('expose skip showThinkingMsg:', e.message); }
   try { if (typeof updateGreeting !== 'undefined') window.updateGreeting = updateGreeting; } catch(e) { console.log('expose skip updateGreeting:', e.message); }
-// [v52.3.15] End of removed IIFE wrap
-// [v52.3.15] End of removed IIFE wrap (was: })()); )
+// [v52.3.16] End of removed IIFE wrap
+// [v52.3.16] End of removed IIFE wrap (was: })()); )
 </script>
 
 <script>
@@ -10906,7 +10957,7 @@ function toggleGuideSection(index) {
 }
 
 // First visit auto-expand
-// [v52.3.15] Removed outer IIFE wrap — functions need global scope for HTML event handlers
+// [v52.3.16] Removed outer IIFE wrap — functions need global scope for HTML event handlers
   var hasRead = localStorage.getItem('wealth_ct_guide_read');
   if (!hasRead) {
     var card = document.getElementById('wealthGuideCard');
@@ -11434,7 +11485,7 @@ function toggleGuideSection(index) {
 
   function getFeedbackAutoInfo() {
     var info = {
-      appVersion: 'v52.3.15',
+      appVersion: 'v52.3.16',
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent || '',
       screenSize: window.innerWidth + 'x' + window.innerHeight,
@@ -12404,7 +12455,7 @@ function toggleGuideSection(index) {
     try { return localStorage.getItem('mirunai_family_id') || null; } catch(e) { return null; }
   };
 
-// [v52.3.15] End of removed IIFE wrap
+// [v52.3.16] End of removed IIFE wrap
 </script>
 
 <script src="solar-term.js?v=52.3.14"></script>
@@ -12425,7 +12476,7 @@ function toggleGuideSection(index) {
 <script src="image-recognizer.js?v=52.3.14"></script>
 
   <!-- Version Badge -->
-  <div id="versionBadge" style="position:fixed;bottom:80px;right:12px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;z-index:9999;letter-spacing:0.5px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;pointer-events:none">v52.3.15</div>
+  <div id="versionBadge" style="position:fixed;bottom:80px;right:12px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;z-index:9999;letter-spacing:0.5px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;pointer-events:none">v52.3.16</div>
   <script>
     setTimeout(function(){
       var b = document.getElementById('versionBadge');
@@ -12433,7 +12484,7 @@ function toggleGuideSection(index) {
     }, 500);
   </script>
 
-<!-- 档案编辑弹窗（v52.3.15 修复） -->
+<!-- 档案编辑弹窗（v52.3.16 修复） -->
 <div class="profile-edit-overlay" id="profileEditOverlay" onclick="if(event.target===this)closeProfileEdit()">
   <div class="profile-edit-modal">
     <div class="profile-edit-header">
