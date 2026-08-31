@@ -15,7 +15,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="MiRun AI">
 <title>MiRun AI v52</title>
-  <!-- 全局JS错误捕获 + 顶部错误条（v52.3.16 新增，便于排查问题） -->
+  <!-- 全局JS错误捕获 + 顶部错误条（v52.3.17 新增，便于排查问题） -->
   <script>
   (function() {
     // 错误收集（最多保留10条，避免内存泄漏）
@@ -111,7 +111,7 @@
   </script>
 
   <script>
-  // === 前向函数占位（v52.3.16 防御机制） ===
+  // === 前向函数占位（v52.3.17 防御机制） ===
   // 后续script块正常加载后会覆盖这些占位；
   // 若后续任何script块异常终止，这些占位确保HTML事件调用不炸
   (function() {
@@ -4159,6 +4159,22 @@ body {
   border-top: 1px solid #f1f5f9;
 }
 .profile-edit-cancel,
+.profile-date-row { display: flex; gap: 8px; }
+.profile-date-select {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #1e293b;
+  background: #fff;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2394a3b8' stroke-width='1.2' fill='none'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
+}
 .profile-edit-save {
   flex: 1;
   padding: 10px 0;
@@ -4244,7 +4260,7 @@ body {
 </head>
 <body>
 
-<!-- 全局JS错误提示条（v52.3.16 新增） -->
+<!-- 全局JS错误提示条（v52.3.17 新增） -->
 <div id="jsErrorBar" style="display:none;position:fixed;top:0;left:0;right:0;z-index:99999;background:#f97316;color:#fff;padding:10px 16px;font-size:13px;flex-direction:column;gap:4px;box-shadow:0 2px 10px rgba(0,0,0,0.2);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;">
   <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
     <span id="jsErrorText" style="flex:1;line-height:1.4;">JS 错误</span>
@@ -4302,7 +4318,7 @@ body {
           </div>
         </div>
         <p style="margin:0;color:#94a3b8;font-size:12px;text-align:center;">
-          <span style="display:block;font-size:11px;color:#94a3b8;margin-bottom:6px;letter-spacing:0.5px">v52.3.16</span>
+          <span style="display:block;font-size:11px;color:#94a3b8;margin-bottom:6px;letter-spacing:0.5px">v52.3.17</span>
           <img src="./assets/mierke-logo.png" alt="米儿客" style="height:12px;vertical-align:middle;margin-right:4px;opacity:0.6">
           米儿客出品
         </p>
@@ -6471,7 +6487,7 @@ body {
     </div>
 
     <div style="text-align:center;padding:20px 0 10px;font-size:12px;color:#cbd5e1">
-      MiRun AI v52.3.16 · 越用越懂你的数字分身
+      MiRun AI v52.3.17 · 越用越懂你的数字分身
     </div>
   </div>
   <div class="app-brand-footer">
@@ -6666,7 +6682,7 @@ body {
 <script src="trend-view.js?v=52.3.14"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
-// [v52.3.16] Removed IIFE wrap — all functions now global for HTML event access
+// [v52.3.17] Removed IIFE wrap — all functions now global for HTML event access
 // 'use strict';
 
   // ==================== Module Switching ====================
@@ -8272,7 +8288,7 @@ body {
     saveChatToHistory('[图片] ' + (desc || '图片识别结果'), parsed.reply || '好的。');
     renderChatHistory();
 
-    // 激活图片多轮对话上下文（v52.3.16）
+    // 激活图片多轮对话上下文（v52.3.17）
     if (fullBase64 && window.ImageRecognizer && window.ImageRecognizer.setActiveImageContext) {
       try { window.ImageRecognizer.setActiveImageContext(fullBase64, parsed.reply || '好的。'); } catch(e) {}
     }
@@ -8809,7 +8825,7 @@ body {
       return;
     }
 
-    // 图片多轮对话模式（v52.3.16）：刚发完图且在3轮内，走视觉模型继续聊
+    // 图片多轮对话模式（v52.3.17）：刚发完图且在3轮内，走视觉模型继续聊
     // 但如果是明确的工具意图（记账/日程/记录/查询等），不走图片多轮
     var _isImageFollowup = false;
     if (window.ImageRecognizer && window.ImageRecognizer.hasActiveImageContext && window.ImageRecognizer.hasActiveImageContext()) {
@@ -10932,8 +10948,8 @@ body {
   try { if (typeof showPrivacyNotice !== 'undefined') window.showPrivacyNotice = showPrivacyNotice; } catch(e) { console.log('expose skip showPrivacyNotice:', e.message); }
   try { if (typeof showThinkingMsg !== 'undefined') window.showThinkingMsg = showThinkingMsg; } catch(e) { console.log('expose skip showThinkingMsg:', e.message); }
   try { if (typeof updateGreeting !== 'undefined') window.updateGreeting = updateGreeting; } catch(e) { console.log('expose skip updateGreeting:', e.message); }
-// [v52.3.16] End of removed IIFE wrap
-// [v52.3.16] End of removed IIFE wrap (was: })()); )
+// [v52.3.17] End of removed IIFE wrap
+// [v52.3.17] End of removed IIFE wrap (was: })()); )
 </script>
 
 <script>
@@ -10960,7 +10976,7 @@ function toggleGuideSection(index) {
 }
 
 // First visit auto-expand
-// [v52.3.16] Removed outer IIFE wrap — functions need global scope for HTML event handlers
+// [v52.3.17] Removed outer IIFE wrap — functions need global scope for HTML event handlers
   var hasRead = localStorage.getItem('wealth_ct_guide_read');
   if (!hasRead) {
     var card = document.getElementById('wealthGuideCard');
@@ -11267,7 +11283,22 @@ function toggleGuideSection(index) {
 
     // 基本信息
     var name = window.MemoryManager.getSync('user', 'name', '未设置');
-    var age = window.MemoryManager.getSync('user', 'age', '--');
+    var birthday = window.MemoryManager.getSync('user', 'birthday', '');
+    var age = '--';
+    if (birthday && birthday !== '未设置') {
+      var b = new Date(birthday);
+      if (!isNaN(b.getTime())) {
+        var now = new Date();
+        age = now.getFullYear() - b.getFullYear();
+        var m = now.getMonth() - b.getMonth();
+        if (m < 0 || (m === 0 && now.getDate() < b.getDate())) age--;
+      }
+    }
+    // 兼容旧 age 字段
+    if (age === '--') {
+      var oldAge = window.MemoryManager.getSync('user', 'age', '--');
+      if (oldAge && oldAge !== '--') age = oldAge;
+    }
     var occupation = window.MemoryManager.getSync('user', 'occupation', '未设置');
     var city = window.MemoryManager.getSync('user', 'city', '未设置');
 
@@ -11277,14 +11308,14 @@ function toggleGuideSection(index) {
     };
 
     setVal('profileName', name);
-    setVal('profileAge', age ? age + '岁' : '--');
+    setVal('profileAge', (age && age !== '--') ? age + '岁' : '--');
     setVal('profileOccupation', occupation);
     setVal('profileCity', city);
     setVal('meName', name === '未设置' ? '未设置' : name);
 
     if (name !== '未设置') {
       var summary = document.getElementById('profileBasicSummary');
-      if (summary) summary.textContent = (age ? age + '岁 · ' : '') + occupation;
+      if (summary) summary.textContent = ((age && age !== '--') ? age + '岁 · ' : '') + occupation;
     }
 
     // 健康档案
@@ -11404,7 +11435,33 @@ function toggleGuideSection(index) {
         });
         html += '</select>';
       } else if (field.type === 'date') {
-        html += '<input type="date" class="profile-edit-input" data-field="' + field.key + '" data-layer="' + field.layer + '" value="' + val + '" />';
+        // 年/月/日三列选择器
+        var y = '', m = '', d = '';
+        if (val) {
+          var parts = val.split('-');
+          if (parts.length >= 3) { y = parts[0]; m = parts[1]; d = parts[2]; }
+        }
+        var now = new Date();
+        var curY = now.getFullYear();
+        var yOpts = '';
+        for (var yi = curY; yi >= 1900; yi--) {
+          yOpts += '<option value="' + yi + '"' + (String(yi) === y ? ' selected' : '') + '>' + yi + '年</option>';
+        }
+        var mOpts = '';
+        for (var mi = 1; mi <= 12; mi++) {
+          var ms = mi < 10 ? '0' + mi : String(mi);
+          mOpts += '<option value="' + ms + '"' + (ms === m ? ' selected' : '') + '>' + mi + '月</option>';
+        }
+        var dOpts = '';
+        for (var di = 1; di <= 31; di++) {
+          var ds = di < 10 ? '0' + di : String(di);
+          dOpts += '<option value="' + ds + '"' + (ds === d ? ' selected' : '') + '>' + di + '日</option>';
+        }
+        html += '<div class="profile-date-row" data-field="' + field.key + '" data-layer="' + field.layer + '">';
+        html += '<select class="profile-date-select" data-date-part="year">' + yOpts + '</select>';
+        html += '<select class="profile-date-select" data-date-part="month">' + mOpts + '</select>';
+        html += '<select class="profile-date-select" data-date-part="day">' + dOpts + '</select>';
+        html += '</div>';
       } else if (field.type === 'number') {
         html += '<input type="number" class="profile-edit-input" data-field="' + field.key + '" data-layer="' + field.layer + '" placeholder="' + (field.placeholder || '') + '" value="' + val + '" />';
       } else {
@@ -11427,10 +11484,35 @@ function toggleGuideSection(index) {
   function saveProfileEdit() {
     if (!_editFieldMap) return;
     var body = document.getElementById('profileEditBody');
-    var inputs = body.querySelectorAll('[data-field]');
 
-    inputs.forEach(function(input) {
+    // 先处理日期字段（三列select组合）
+    var dateRows = body.querySelectorAll('.profile-date-row');
+    dateRows.forEach(function(row) {
+      var key = row.getAttribute('data-field');
+      var layer = row.getAttribute('data-layer');
+      var ySel = row.querySelector('[data-date-part="year"]');
+      var mSel = row.querySelector('[data-date-part="month"]');
+      var dSel = row.querySelector('[data-date-part="day"]');
+      if (ySel && mSel && dSel) {
+        var val = ySel.value + '-' + mSel.value + '-' + dSel.value;
+        try {
+          window.MemoryManager.setSync(layer, key, val || '未设置');
+        } catch(e) {
+          console.warn('保存日期字段失败:', key, e);
+        }
+      }
+    });
+
+    // 再处理普通输入/选择框（排除日期行里的select，它们已单独处理）
+    var allInputs = body.querySelectorAll('input, select, textarea');
+    allInputs.forEach(function(input) {
+      var field = input.closest('[data-field]');
+      if (!field) return;
+      // 日期行的select已在上文处理，跳过
+      if (field.classList && field.classList.contains('profile-date-row')) return;
+      // input自身带data-field（非日期行内元素）
       var key = input.getAttribute('data-field');
+      if (!key) return;
       var layer = input.getAttribute('data-layer');
       var val = input.value.trim();
       try {
@@ -11492,7 +11574,7 @@ function toggleGuideSection(index) {
 
   function getFeedbackAutoInfo() {
     var info = {
-      appVersion: 'v52.3.16',
+      appVersion: 'v52.3.17',
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent || '',
       screenSize: window.innerWidth + 'x' + window.innerHeight,
@@ -12463,7 +12545,7 @@ function toggleGuideSection(index) {
     try { return localStorage.getItem('mirunai_family_id') || null; } catch(e) { return null; }
   };
 
-// [v52.3.16] End of removed IIFE wrap
+// [v52.3.17] End of removed IIFE wrap
 </script>
 
 <script src="solar-term.js?v=52.3.14"></script>
@@ -12484,7 +12566,7 @@ function toggleGuideSection(index) {
 <script src="image-recognizer.js?v=52.3.14"></script>
 
   <!-- Version Badge -->
-  <div id="versionBadge" style="position:fixed;bottom:80px;right:12px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;z-index:9999;letter-spacing:0.5px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;pointer-events:none">v52.3.16</div>
+  <div id="versionBadge" style="position:fixed;bottom:80px;right:12px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;z-index:9999;letter-spacing:0.5px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;pointer-events:none">v52.3.17</div>
   <script>
     setTimeout(function(){
       var b = document.getElementById('versionBadge');
