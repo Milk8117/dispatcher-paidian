@@ -15,7 +15,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="MiRun AI">
 <title>MiRun AI v52</title>
-  <!-- 全局JS错误捕获 + 顶部错误条（v52.3.17 新增，便于排查问题） -->
+  <!-- 全局JS错误捕获 + 顶部错误条（v52.3.18 新增，便于排查问题） -->
   <script>
   (function() {
     // 错误收集（最多保留10条，避免内存泄漏）
@@ -111,7 +111,7 @@
   </script>
 
   <script>
-  // === 前向函数占位（v52.3.17 防御机制） ===
+  // === 前向函数占位（v52.3.18 防御机制） ===
   // 后续script块正常加载后会覆盖这些占位；
   // 若后续任何script块异常终止，这些占位确保HTML事件调用不炸
   (function() {
@@ -4257,7 +4257,7 @@ body {
 </head>
 <body>
 
-<!-- 全局JS错误提示条（v52.3.17 新增） -->
+<!-- 全局JS错误提示条（v52.3.18 新增） -->
 <div id="jsErrorBar" style="display:none;position:fixed;top:0;left:0;right:0;z-index:99999;background:#f97316;color:#fff;padding:10px 16px;font-size:13px;flex-direction:column;gap:4px;box-shadow:0 2px 10px rgba(0,0,0,0.2);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;">
   <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
     <span id="jsErrorText" style="flex:1;line-height:1.4;">JS 错误</span>
@@ -4315,7 +4315,7 @@ body {
           </div>
         </div>
         <p style="margin:0;color:#94a3b8;font-size:12px;text-align:center;">
-          <span style="display:block;font-size:11px;color:#94a3b8;margin-bottom:6px;letter-spacing:0.5px">v52.3.17</span>
+          <span style="display:block;font-size:11px;color:#94a3b8;margin-bottom:6px;letter-spacing:0.5px">v52.3.18</span>
           <img src="./assets/mierke-logo.png" alt="米儿客" style="height:12px;vertical-align:middle;margin-right:4px;opacity:0.6">
           米儿客出品
         </p>
@@ -6484,7 +6484,7 @@ body {
     </div>
 
     <div style="text-align:center;padding:20px 0 10px;font-size:12px;color:#cbd5e1">
-      MiRun AI v52.3.17 · 越用越懂你的数字分身
+      MiRun AI v52.3.18 · 越用越懂你的数字分身
     </div>
   </div>
   <div class="app-brand-footer">
@@ -6679,7 +6679,7 @@ body {
 <script src="trend-view.js?v=52.3.14"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
-// [v52.3.17] Removed IIFE wrap — all functions now global for HTML event access
+// [v52.3.18] Removed IIFE wrap — all functions now global for HTML event access
 // 'use strict';
 
   // ==================== Module Switching ====================
@@ -8285,7 +8285,7 @@ body {
     saveChatToHistory('[图片] ' + (desc || '图片识别结果'), parsed.reply || '好的。');
     renderChatHistory();
 
-    // 激活图片多轮对话上下文（v52.3.17）
+    // 激活图片多轮对话上下文（v52.3.18）
     if (fullBase64 && window.ImageRecognizer && window.ImageRecognizer.setActiveImageContext) {
       try { window.ImageRecognizer.setActiveImageContext(fullBase64, parsed.reply || '好的。'); } catch(e) {}
     }
@@ -8822,7 +8822,7 @@ body {
       return;
     }
 
-    // 图片多轮对话模式（v52.3.17）：刚发完图且在3轮内，走视觉模型继续聊
+    // 图片多轮对话模式（v52.3.18）：刚发完图且在3轮内，走视觉模型继续聊
     // 但如果是明确的工具意图（记账/日程/记录/查询等），不走图片多轮
     var _isImageFollowup = false;
     if (window.ImageRecognizer && window.ImageRecognizer.hasActiveImageContext && window.ImageRecognizer.hasActiveImageContext()) {
@@ -10945,8 +10945,8 @@ body {
   try { if (typeof showPrivacyNotice !== 'undefined') window.showPrivacyNotice = showPrivacyNotice; } catch(e) { console.log('expose skip showPrivacyNotice:', e.message); }
   try { if (typeof showThinkingMsg !== 'undefined') window.showThinkingMsg = showThinkingMsg; } catch(e) { console.log('expose skip showThinkingMsg:', e.message); }
   try { if (typeof updateGreeting !== 'undefined') window.updateGreeting = updateGreeting; } catch(e) { console.log('expose skip updateGreeting:', e.message); }
-// [v52.3.17] End of removed IIFE wrap
-// [v52.3.17] End of removed IIFE wrap (was: })()); )
+// [v52.3.18] End of removed IIFE wrap
+// [v52.3.18] End of removed IIFE wrap (was: })()); )
 </script>
 
 <script>
@@ -10973,7 +10973,7 @@ function toggleGuideSection(index) {
 }
 
 // First visit auto-expand
-// [v52.3.17] Removed outer IIFE wrap — functions need global scope for HTML event handlers
+// [v52.3.18] Removed outer IIFE wrap — functions need global scope for HTML event handlers
   var hasRead = localStorage.getItem('wealth_ct_guide_read');
   if (!hasRead) {
     var card = document.getElementById('wealthGuideCard');
@@ -11567,7 +11567,7 @@ function toggleGuideSection(index) {
 
   function getFeedbackAutoInfo() {
     var info = {
-      appVersion: 'v52.3.17',
+      appVersion: 'v52.3.18',
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent || '',
       screenSize: window.innerWidth + 'x' + window.innerHeight,
@@ -12435,12 +12435,68 @@ function toggleGuideSection(index) {
     if (summaryEl) summaryEl.textContent = members.length + ' 位成员';
   }
 
+  function _initFamilyBirthdaySelects() {
+    var ySel = document.getElementById('familyEditYear');
+    var mSel = document.getElementById('familyEditMonth');
+    var dSel = document.getElementById('familyEditDay');
+    if (!ySel || ySel.options.length > 0) return; // 已初始化
+    var now = new Date();
+    var curY = now.getFullYear();
+    for (var yi = curY; yi >= 1900; yi--) {
+      var opt = document.createElement('option');
+      opt.value = yi;
+      opt.textContent = yi + '年';
+      ySel.appendChild(opt);
+    }
+    for (var mi = 1; mi <= 12; mi++) {
+      var opt = document.createElement('option');
+      var ms = mi < 10 ? '0' + mi : String(mi);
+      opt.value = ms;
+      opt.textContent = mi + '月';
+      mSel.appendChild(opt);
+    }
+    for (var di = 1; di <= 31; di++) {
+      var opt = document.createElement('option');
+      var ds = di < 10 ? '0' + di : String(di);
+      opt.value = ds;
+      opt.textContent = di + '日';
+      dSel.appendChild(opt);
+    }
+  }
+
+  function _setFamilyBirthday(val) {
+    _initFamilyBirthdaySelects();
+    var ySel = document.getElementById('familyEditYear');
+    var mSel = document.getElementById('familyEditMonth');
+    var dSel = document.getElementById('familyEditDay');
+    if (!val) {
+      var now = new Date();
+      if (ySel) ySel.value = now.getFullYear();
+      if (mSel) mSel.value = '01';
+      if (dSel) dSel.value = '01';
+      return;
+    }
+    var parts = val.split('-');
+    if (parts.length >= 3) {
+      if (ySel) ySel.value = parts[0];
+      if (mSel) mSel.value = parts[1];
+      if (dSel) dSel.value = parts[2];
+    }
+  }
+
+  function _getFamilyBirthday() {
+    var ySel = document.getElementById('familyEditYear');
+    var mSel = document.getElementById('familyEditMonth');
+    var dSel = document.getElementById('familyEditDay');
+    if (!ySel || !mSel || !dSel) return '';
+    return ySel.value + '-' + mSel.value + '-' + dSel.value;
+  }
+
   function openFamilyEditor(idx) {
     _familyEditIdx = (idx === undefined || idx === null) ? -1 : idx;
     var titleEl = document.getElementById('familyEditTitle');
     var nameEl = document.getElementById('familyEditName');
     var relationEl = document.getElementById('familyEditRelation');
-    var birthdayEl = document.getElementById('familyEditBirthday');
     var healthEl = document.getElementById('familyEditHealth');
 
     if (_familyEditIdx >= 0) {
@@ -12449,13 +12505,13 @@ function toggleGuideSection(index) {
       titleEl.textContent = '编辑家庭成员';
       nameEl.value = m.name || '';
       relationEl.value = m.relation || '配偶';
-      birthdayEl.value = m.birthday || '';
+      _setFamilyBirthday(m.birthday || '');
       healthEl.value = m.healthProfile || '';
     } else {
       titleEl.textContent = '添加家庭成员';
       nameEl.value = '';
       relationEl.value = '配偶';
-      birthdayEl.value = '';
+      _setFamilyBirthday('');
       healthEl.value = '';
     }
 
@@ -12474,7 +12530,7 @@ function toggleGuideSection(index) {
       return;
     }
     var relation = document.getElementById('familyEditRelation').value;
-    var birthday = document.getElementById('familyEditBirthday').value;
+    var birthday = _getFamilyBirthday();
     var healthProfile = document.getElementById('familyEditHealth').value.trim();
 
     var members = getFamilyMembers();
@@ -12537,7 +12593,7 @@ function toggleGuideSection(index) {
     try { return localStorage.getItem('mirunai_family_id') || null; } catch(e) { return null; }
   };
 
-// [v52.3.17] End of removed IIFE wrap
+// [v52.3.18] End of removed IIFE wrap
 </script>
 
 <script src="solar-term.js?v=52.3.14"></script>
@@ -12558,7 +12614,7 @@ function toggleGuideSection(index) {
 <script src="image-recognizer.js?v=52.3.14"></script>
 
   <!-- Version Badge -->
-  <div id="versionBadge" style="position:fixed;bottom:80px;right:12px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;z-index:9999;letter-spacing:0.5px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;pointer-events:none">v52.3.17</div>
+  <div id="versionBadge" style="position:fixed;bottom:80px;right:12px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;z-index:9999;letter-spacing:0.5px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;pointer-events:none">v52.3.18</div>
   <script>
     setTimeout(function(){
       var b = document.getElementById('versionBadge');
@@ -12566,7 +12622,7 @@ function toggleGuideSection(index) {
     }, 500);
   </script>
 
-<!-- 档案编辑弹窗（v52.3.17 修复） -->
+<!-- 档案编辑弹窗（v52.3.18 修复） -->
 <div class="profile-edit-overlay" id="profileEditOverlay" onclick="if(event.target===this)closeProfileEdit()">
   <div class="profile-edit-modal">
     <div class="profile-edit-header">
@@ -12579,6 +12635,51 @@ function toggleGuideSection(index) {
     <div class="profile-edit-footer">
       <button class="profile-edit-cancel" onclick="closeProfileEdit()">取消</button>
       <button class="profile-edit-save" onclick="saveProfileEdit()">保存</button>
+    </div>
+  </div>
+</div>
+<div class="profile-edit-overlay" id="familyEditOverlay" onclick="if(event.target===this)closeFamilyEditor()">
+  <div class="profile-edit-modal">
+    <div class="profile-edit-header">
+      <span id="familyEditTitle">添加家庭成员</span>
+      <button class="profile-edit-close" onclick="closeFamilyEditor()">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+    <div class="profile-edit-body">
+      <div class="profile-edit-field">
+        <label class="profile-edit-label">姓名</label>
+        <input type="text" class="profile-edit-input" id="familyEditName" placeholder="请输入姓名" />
+      </div>
+      <div class="profile-edit-field">
+        <label class="profile-edit-label">关系</label>
+        <select class="profile-edit-select" id="familyEditRelation">
+          <option value="配偶">配偶</option>
+          <option value="父亲">父亲</option>
+          <option value="母亲">母亲</option>
+          <option value="儿子">儿子</option>
+          <option value="女儿">女儿</option>
+          <option value="兄弟">兄弟</option>
+          <option value="姐妹">姐妹</option>
+          <option value="其他">其他</option>
+        </select>
+      </div>
+      <div class="profile-edit-field">
+        <label class="profile-edit-label">出生日期</label>
+        <div class="profile-date-row" id="familyEditBirthdayRow">
+          <select class="profile-date-select" data-date-part="year" id="familyEditYear"></select>
+          <select class="profile-date-select" data-date-part="month" id="familyEditMonth"></select>
+          <select class="profile-date-select" data-date-part="day" id="familyEditDay"></select>
+        </div>
+      </div>
+      <div class="profile-edit-field">
+        <label class="profile-edit-label">健康状况</label>
+        <textarea class="profile-edit-textarea" id="familyEditHealth" placeholder="如：高血压、糖尿病等，无则填无"></textarea>
+      </div>
+    </div>
+    <div class="profile-edit-footer">
+      <button class="profile-edit-cancel" onclick="closeFamilyEditor()">取消</button>
+      <button class="profile-edit-save" onclick="saveFamilyMember()">保存</button>
     </div>
   </div>
 </div>
