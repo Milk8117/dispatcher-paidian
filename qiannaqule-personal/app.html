@@ -6200,65 +6200,8 @@ body {
         <span class="profile-section-toggle"><svg viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="6 9 12 15 18 9"/></svg></span>
       </div>
       <div class="profile-section-body">
-        <!-- 个人穿戴 -->
-        <div class="device-group">
-          <div class="device-group-title">个人穿戴</div>
-          <div class="device-list" id="devicePersonalList">
-            <div class="device-item" onclick="event.stopPropagation();openDeviceDetail('phone')">
-              <div class="device-icon" style="background:#eff6ff;color:#2563eb">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
-              </div>
-              <div class="device-info">
-                <div class="device-name">智能手机</div>
-                <div class="device-desc">健康 · 效率 · 位置数据</div>
-              </div>
-              <div class="device-status status-connected">已连接</div>
-            </div>
-            <div class="device-item" onclick="event.stopPropagation();openDeviceDetail('watch')">
-              <div class="device-icon" style="background:#f5f3ff;color:#8b5cf6">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><rect x="6" y="3" width="12" height="18" rx="2"/><line x1="9" y1="1" x2="15" y2="1"/><line x1="9" y1="23" x2="15" y2="23"/></svg>
-              </div>
-              <div class="device-info">
-                <div class="device-name">智能手表</div>
-                <div class="device-desc">运动 · 心率 · 睡眠数据</div>
-              </div>
-              <div class="device-status status-disconnected">未连接</div>
-            </div>
-          </div>
-        </div>
-        <!-- 家庭健康 -->
-        <div class="device-group">
-          <div class="device-group-title">家庭健康</div>
-          <div class="device-list" id="deviceHealthList">
-            <div class="device-item" onclick="event.stopPropagation();openDeviceDetail('scale')">
-              <div class="device-icon" style="background:#ecfdf5;color:#10b981">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M3 16h18l-2-5H5L3 16Z"/><path d="M5 16v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3"/><path d="M12 8v4"/></svg>
-              </div>
-              <div class="device-info">
-                <div class="device-name">体脂秤</div>
-                <div class="device-desc">体重 · 体脂 · 肌肉量</div>
-              </div>
-              <div class="device-status status-disconnected">未连接</div>
-            </div>
-          </div>
-        </div>
-        <!-- 智能家居 -->
-        <div class="device-group">
-          <div class="device-group-title">智能家居</div>
-          <div class="device-list" id="deviceHomeList">
-            <div class="device-item" onclick="event.stopPropagation();openDeviceDetail('speaker')">
-              <div class="device-icon" style="background:#fef3c7;color:#d97706">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
-              </div>
-              <div class="device-info">
-                <div class="device-name">智能音箱</div>
-                <div class="device-desc">语音助手 · 日程提醒</div>
-              </div>
-              <div class="device-status status-disconnected">未连接</div>
-            </div>
-          </div>
-        </div>
-        <button class="profile-edit-btn" onclick="event.stopPropagation();addDevice()">+ 添加智能设备</button>
+          <div id="deviceContainer"></div>
+          <button class="profile-edit-btn" onclick="event.stopPropagation();openDeviceEditor()">+ 添加智能设备</button>
         <div class="device-tip">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
           设备数据自动流向对应业务Tab，无需手动导入
@@ -7644,13 +7587,17 @@ body {
       }
       // 食材推荐
       var foodEl = document.getElementById('solarFoodRecommend');
-      if (foodEl && td.foods) {
-        var html = '';
-        td.foods.forEach(function(f) {
-          html += '· ' + f + '<br>';
-        });
-        html += '<br><span style="color:#94a3b8;font-size:12px">顺应时节，食养有道</span>';
-        foodEl.innerHTML = html;
+      if (foodEl) {
+        if (td.foods && td.foods.length) {
+          var html = '';
+          td.foods.forEach(function(f) {
+            html += '· ' + f + '<br>';
+          });
+          html += '<br><span style="color:#94a3b8;font-size:12px">顺应时节，食养有道</span>';
+          foodEl.innerHTML = html;
+        } else {
+          foodEl.innerHTML = '暂无节气食养数据';
+        }
       }
     } catch(e) {}
   }
@@ -12604,7 +12551,7 @@ function toggleGuideSection(index) {
 // [v52.3.18] End of removed IIFE wrap
 </script>
 
-<script src="solar-term.js?v=52.3.14"></script>
+<script src="solar-term.js?v=52.3.19"></script>
 <script src="chronic-disease.js?v=52.3.14"></script>
 <script src="schedule.js?v=52.3.14"></script>
 <script src="daily-tx.js?v=52.3.14"></script>
@@ -12616,10 +12563,10 @@ function toggleGuideSection(index) {
 <script src="push-engine.js?v=52.3.14"></script>
 <script src="memory-manager.js?v=52.3.14"></script>
 <script src="chat-engine.js?v=52.3.14"></script>
-<script src="ai-engine.js?v=52.3.14"></script>
+<script src="ai-engine.js?v=52.3.19"></script>
 <script src="decision-forge.js?v=52.3.14"></script>
 <script src="value-resonance.js?v=52.3.14"></script>
-<script src="image-recognizer.js?v=52.3.14"></script>
+<script src="image-recognizer.js?v=52.3.19"></script>
 
   <!-- Version Badge -->
   <div id="versionBadge" style="position:fixed;bottom:80px;right:12px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;z-index:9999;letter-spacing:0.5px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;pointer-events:none">v52.3.18</div>

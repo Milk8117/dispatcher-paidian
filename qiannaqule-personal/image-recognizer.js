@@ -507,6 +507,10 @@
         max_tokens: 2048,
         temperature: 0.3
       };
+      // 百炼qwen3.x系列默认开启思考模式，免费额度可能不支持，显式关闭
+      if (provider.id === 'bailian') {
+        body.enable_thinking = false;
+      }
 
       var ctrl = new AbortController();
       var timer = setTimeout(function() { ctrl.abort(); }, 30000); // 30s超时，图片识别慢一些

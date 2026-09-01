@@ -610,6 +610,10 @@
       max_tokens: maxTokens || 1024,
       temperature: temperature || 0.7
     };
+    // 百炼qwen3.x系列默认开启思考模式，免费额度可能不支持，显式关闭
+    if (provider.id === 'bailian') {
+      body.enable_thinking = false;
+    }
 
     var resp;
     try {
