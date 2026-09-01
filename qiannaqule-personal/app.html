@@ -6915,7 +6915,7 @@ body {
     } catch(e) {}
     var balance = incMonth - expMonth;
     
-    html += '<div class="pano-domain" onclick="switchModule(\'finance')">';
+    html += '<div class="pano-domain" onclick="switchModule(\'finance\')">';
     html += '<div class="pano-domain-header">';
     html += '<span class="pano-dot" style="background:#2563eb"></span>';
     html += '<span class="pano-domain-name">财富域</span>';
@@ -6954,7 +6954,7 @@ body {
       }
     } catch(e) {}
     
-    html += '<div class="pano-domain" onclick="switchModule(\'health\', \'trend')">';
+    html += '<div class="pano-domain" onclick="switchModule(\'health\', \'trend\')">';
     html += '<div class="pano-domain-header">';
     html += '<span class="pano-dot" style="background:#16a34a"></span>';
     html += '<span class="pano-domain-name">健康域</span>';
@@ -6979,7 +6979,7 @@ body {
       }
     } catch(e) {}
     
-    html += '<div class="pano-domain" onclick="switchModule(\'record')">';
+    html += '<div class="pano-domain" onclick="switchModule(\'record\')">';
     html += '<div class="pano-domain-header">';
     html += '<span class="pano-dot" style="background:#ea580c"></span>';
     html += '<span class="pano-domain-name">记录域</span>';
@@ -7051,17 +7051,17 @@ body {
     html += '<div class="home-overview-card">';
     // 三栏数据：待办 / 支出 / 收入
     html += '<div class="home-overview-row">';
-    html += '<div class="home-overview-item" onclick="switchModule(\'record\', \'schedule')">';
+    html += '<div class="home-overview-item" onclick="switchModule(\'record\', \'schedule\')">';
     html += '<div class="ov-num">' + tasks.length + '</div>';
     html += '<div class="ov-label">' + svg('<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>', 13, 13) + ' 待办</div>';
     html += '</div>';
     html += '<div class="home-overview-divider"></div>';
-    html += '<div class="home-overview-item" onclick="switchModule(\'finance\', \'dailytx')">';
+    html += '<div class="home-overview-item" onclick="switchModule(\'finance\', \'dailytx\')">';
     html += '<div class="ov-num expense">-' + expToday.toFixed(0) + '</div>';
     html += '<div class="ov-label">' + svg('<path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>', 13, 13) + ' 支出</div>';
     html += '</div>';
     html += '<div class="home-overview-divider"></div>';
-    html += '<div class="home-overview-item" onclick="switchModule(\'finance\', \'dailytx')">';
+    html += '<div class="home-overview-item" onclick="switchModule(\'finance\', \'dailytx\')">';
     html += '<div class="ov-num income">+' + incToday.toFixed(0) + '</div>';
     html += '<div class="ov-label">' + svg('<path d="M12 19V5M5 12l7-7 7 7"/>', 13, 13) + ' 收入</div>';
     html += '</div>';
@@ -7069,7 +7069,7 @@ body {
     // 节气食养一行
     if (termData) {
       var foods = (termData.foods || []).slice(0, 3);
-      html += '<div class="home-overview-wellness" onclick="switchModule(\'solar')">';
+      html += '<div class="home-overview-wellness" onclick="switchModule(\'solar\')">';
       html += '<span class="ov-wellness-icon">' + svg('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>', 13, 13) + '</span>';
       html += '<span class="ov-wellness-text">' + esc(termData.name) + ' · 宜 ' + foods.map(function(f){return esc(f);}).join('、') + '</span>';
       html += '<span class="ov-wellness-arrow">→</span>';
@@ -7093,7 +7093,7 @@ body {
     html += '<div class="tool-icon" style="background:#fef3c7;color:#d97706">' + svg('<circle cx="12" cy="12" r="9"/><polygon points="12 7 13.5 11 17.5 11 14.5 13.5 15.5 17.5 12 15 8.5 17.5 9.5 13.5 6.5 11 10.5 11 12 7"/>') + '</div>';
     html += '<div class="tool-body"><div class="tool-title">价值罗盘</div><div class="tool-desc">做你说过的自己</div></div>';
     html += '<div class="tool-arrow">→</div></div>';
-    html += '<div class="home-tool-item" onclick="switchModule(\'record\', \'behavior')">';
+    html += '<div class="home-tool-item" onclick="switchModule(\'record\', \'behavior\')">';
     html += '<div class="tool-icon" style="background:#f0fdf4;color:#16a34a">' + svg('<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>') + '</div>';
     html += '<div class="tool-body"><div class="tool-title">行为记录</div><div class="tool-desc">饮食/运动/睡眠/情绪</div></div>';
     html += '<div class="tool-arrow">→</div></div>';
@@ -7826,7 +7826,7 @@ body {
         var t = DEVICE_TYPE_MAP[dev.type] || DEVICE_TYPE_MAP.other;
         var statusClass = dev.status === 'connected' ? 'status-connected' : 'status-disconnected';
         var statusText = dev.status === 'connected' ? '已连接' : '未连接';
-        html += '<div class="device-item" onclick="event.stopPropagation();openDeviceDetail(\'' + dev.id + '')">';
+        html += '<div class="device-item" onclick="event.stopPropagation();openDeviceDetail(\'' + dev.id + '\')">';
         html += '<div class="device-icon" style="background:' + t.bg + ';color:' + t.color + '">' + t.icon + '</div>';
         html += '<div class="device-info">';
         html += '<div class="device-name">' + (dev.name || t.name) + '</div>';
@@ -12272,7 +12272,7 @@ function toggleGuideSection(index) {
       html += '<div class="fli-content">' + escapeHtml(fb.description) + '</div>';
       html += '<div class="fli-meta"><span>' + dateStr + '</span>';
       // 导出按钮
-      html += '<span style="margin-left:auto;cursor:pointer;color:#8b5cf6" onclick="exportFeedbackItem(\'' + fb.id + '')">导出</span></div>';
+      html += '<span style="margin-left:auto;cursor:pointer;color:#8b5cf6" onclick="exportFeedbackItem(\'' + fb.id + '\')">导出</span></div>';
       html += '</div>';
     });
     container.innerHTML = html;
