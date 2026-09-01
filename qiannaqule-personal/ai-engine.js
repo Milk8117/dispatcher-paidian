@@ -86,6 +86,32 @@
       keyUrl: 'https://platform.moonshot.cn/console/api-keys'
     },
     {
+      id: 'doubao',
+      name: '豆包 (火山引擎)',
+      apiBase: 'https://ark.cn-beijing.volces.com/api/v3',
+      model: 'doubao-seed-1.6-flash',
+      free: true,
+      costPerMIn: 0.15,
+      costPerMOut: 1.5,
+      models: ['doubao-seed-1.6-flash', 'doubao-seed-1.6', 'doubao-seed-1.6-vision', 'doubao-1.5-pro-32k', 'doubao-1.5-lite-32k'],
+      defaultModel: 'doubao-seed-1.6-flash',
+      keyHint: '火山引擎方舟API Key + 接入点ID（填入model字段）',
+      keyUrl: 'https://console.volcengine.com/ark/'
+    },
+    {
+      id: 'zhipu',
+      name: '智谱AI (GLM)',
+      apiBase: 'https://open.bigmodel.cn/api/paas/v4',
+      model: 'glm-4.7-flash',
+      free: true,
+      costPerMIn: 0,
+      costPerMOut: 0,
+      models: ['glm-4.7-flash', 'glm-4-flash', 'glm-4.6v-flash', 'glm-4.5-air', 'glm-5'],
+      defaultModel: 'glm-4.7-flash',
+      keyHint: '智谱开放平台API Key（新用户送2000万Token，Flash系列永久免费）',
+      keyUrl: 'https://open.bigmodel.cn/'
+    },
+    {
       id: 'custom',
       name: '自定义 (OpenAI兼容)',
       apiBase: '',
@@ -114,6 +140,8 @@
       deepseek: { apiKey: 'sk-25c588ba49b243f08e743c788e92cf15', apiBase: '', model: '' },
       bailian: { apiKey: 'sk-ws-H.ELEXHRD.2Xmm.MEUCIQD8FduqTxbuANZ3ttnoQKjMEmqxkpG7ZpJK4th7jrpO8wIgeeQVwro_HTzZywrGoEFSAVZPcuuvnpJTdiP2sp5H0JA', apiBase: '', model: '' },
       kimi: { apiKey: 'sk-hoZEU79yH5oklgZvS7SfNg2TJ36ZoQR0Ks5D9laP1exPoFT0', apiBase: '', model: '' },
+      doubao: { apiKey: '', apiBase: '', model: '' },
+      zhipu: { apiKey: '', apiBase: '', model: '' },
       custom: { apiKey: '', apiBase: '', model: '' }
     },
     fallbackEnabled: true,
@@ -533,7 +561,7 @@
   // ==================== Provider降级链 ====================
 
   // 降级优先级：成本低、可用性高的排前面（v52.3.15 优化）
-  var FALLBACK_PRIORITY = ['bailian', 'kimi', 'nvidia', 'deepseek'];
+  var FALLBACK_PRIORITY = ['bailian', 'doubao', 'zhipu', 'kimi', 'nvidia', 'deepseek'];
 
   function getProviderChain(cfg) {
     var chain = [];
