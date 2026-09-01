@@ -15,7 +15,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="MiRun AI">
 <title>MiRun AI v52</title>
-  <!-- 全局JS错误捕获 + 顶部错误条（v52.3.18 新增，便于排查问题） -->
+  <!-- 全局JS错误捕获 + 顶部错误条（v52.4.2 新增，便于排查问题） -->
   <script>
   (function() {
     // 错误收集（最多保留10条，避免内存泄漏）
@@ -111,7 +111,7 @@
   </script>
 
   <script>
-  // === 前向函数占位（v52.3.18 防御机制） ===
+  // === 前向函数占位（v52.4.2 防御机制） ===
   // 后续script块正常加载后会覆盖这些占位；
   // 若后续任何script块异常终止，这些占位确保HTML事件调用不炸
   (function() {
@@ -3285,6 +3285,26 @@ body {
   gap: 2px;
 }
 .ai-suggestion-card .ai-sug-detail .icon-svg { width: 12px; height: 12px; }
+.ai-sug-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--tab-color, #ff6600);
+  background: var(--tab-color-soft, #fff7ed);
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: all 0.2s;
+}
+.ai-sug-action-btn:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
+}
+.ai-sug-action-btn .icon-svg { width: 14px; height: 14px; }
 
 /* ========== v51 SubTab 图标增强 ========== */
 .sub-tab-item {
@@ -4328,7 +4348,7 @@ body {
 </head>
 <body>
 
-<!-- 全局JS错误提示条（v52.3.18 新增） -->
+<!-- 全局JS错误提示条（v52.4.2 新增） -->
 <div id="jsErrorBar" style="display:none;position:fixed;top:0;left:0;right:0;z-index:99999;background:#f97316;color:#fff;padding:10px 16px;font-size:13px;flex-direction:column;gap:4px;box-shadow:0 2px 10px rgba(0,0,0,0.2);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;">
   <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
     <span id="jsErrorText" style="flex:1;line-height:1.4;">JS 错误</span>
@@ -4386,7 +4406,7 @@ body {
           </div>
         </div>
         <p style="margin:0;color:#94a3b8;font-size:12px;text-align:center;">
-          <span style="display:block;font-size:11px;color:#94a3b8;margin-bottom:6px;letter-spacing:0.5px">v52.3.18</span>
+          <span style="display:block;font-size:11px;color:#94a3b8;margin-bottom:6px;letter-spacing:0.5px">v52.4.2</span>
           <img src="./assets/mierke-logo.png" alt="米儿客" style="height:12px;vertical-align:middle;margin-right:4px;opacity:0.6">
           米儿客出品
         </p>
@@ -4781,7 +4801,7 @@ body {
         </div>
         <div class="ai-sug-content">
           <div class="ai-sug-text">番茄工作法：25分钟专注+5分钟休息，效率提升40%。</div>
-          <span class="ai-sug-detail">查看详情 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><polyline points="9 18 15 12 9 6"/></svg></span>
+          <button class="ai-sug-action-btn" onclick="AIAction.doAction(\'pomodoro\')">开始专注 → <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
         </div>
       </div>
       <div class="ai-suggestion-card">
@@ -4790,7 +4810,7 @@ body {
         </div>
         <div class="ai-sug-content">
           <div class="ai-sug-text">每天早上规划3件最重要的事，优先完成再处理其他。</div>
-          <span class="ai-sug-detail">查看详情 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><polyline points="9 18 15 12 9 6"/></svg></span>
+          <button class="ai-sug-action-btn" onclick="AIAction.doAction(\'daily3\')">去规划 → <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
         </div>
       </div>
     </div>
@@ -4908,6 +4928,7 @@ body {
         <div class="ai-sug-content">
           <div class="ai-sug-title">设定你的第一个目标</div>
           <div class="ai-sug-text">不知道从哪开始？告诉我你想提升的方向，我来帮你制定可执行的成长计划。</div>
+          <button class="ai-sug-action-btn" onclick="AIAction.doAction(\'growth-plan\')">制定计划 → <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
           <button class="ai-sug-btn" onclick="askGrowthGoal()">
             开始制定目标
           </button>
@@ -4920,6 +4941,7 @@ body {
         <div class="ai-sug-content">
           <div class="ai-sug-title">番茄工作法</div>
           <div class="ai-sug-text">25分钟专注+5分钟休息，效率提升40%。每天4个番茄钟，持续21天养成习惯。</div>
+          <button class="ai-sug-action-btn" onclick="AIAction.doAction(\'pomodoro\')">开始专注 → <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
         </div>
       </div>
     </div>
@@ -5014,6 +5036,7 @@ body {
         <div class="ai-sug-content">
           <div class="ai-sug-title">开始构建你的知识库</div>
           <div class="ai-sug-text">任何有价值的信息都可以让我记住：读书笔记、工作经验、灵感想法、人脉资料... 越用越懂你。</div>
+          <button class="ai-sug-action-btn" onclick="AIAction.doAction(\'remember\')">去记录 → <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
           <button class="ai-sug-btn" onclick="askKbAdd()">
             添加第一条知识
           </button>
@@ -5191,7 +5214,7 @@ body {
         </div>
         <div class="ai-sug-content">
           <div class="ai-sug-text">均衡饮食+适量运动，是保持健康的两大基石。</div>
-          <span class="ai-sug-detail">查看详情 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><polyline points="9 18 15 12 9 6"/></svg></span>
+          <button class="ai-sug-action-btn" onclick="AIAction.doAction(\'balanced-diet\')">查看食谱 → <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
         </div>
       </div>
       <div class="ai-suggestion-card">
@@ -5200,7 +5223,7 @@ body {
         </div>
         <div class="ai-sug-content">
           <div class="ai-sug-text">每晚11点前入睡，深度睡眠时间会显著增加。</div>
-          <span class="ai-sug-detail">查看详情 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><polyline points="9 18 15 12 9 6"/></svg></span>
+          <button class="ai-sug-action-btn" onclick="AIAction.doAction(\'early-sleep\')">记录睡眠 → <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
         </div>
       </div>
     </div>
@@ -5468,7 +5491,7 @@ body {
           <div class="ai-sug-content">
             <div class="ai-sug-title">用药提醒</div>
             <div class="ai-sug-text">按时服药是康复的关键。可以设置服药提醒，避免漏服。</div>
-            <span class="ai-sug-detail">设置提醒 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><polyline points="9 18 15 12 9 6"/></svg></span>
+          <button class="ai-sug-action-btn" onclick="AIAction.doAction(\'medicine-remind\')">设置提醒 → <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
           </div>
         </div>
         <div class="ai-suggestion-card">
@@ -5478,7 +5501,7 @@ body {
           <div class="ai-sug-content">
             <div class="ai-sug-title">定期体检</div>
             <div class="ai-sug-text">建议每年做一次全面体检，及时发现潜在健康问题。</div>
-            <span class="ai-sug-detail">查看体检套餐 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><polyline points="9 18 15 12 9 6"/></svg></span>
+          <button class="ai-sug-action-btn" onclick="AIAction.doAction(\'yearly-checkup\')">设置提醒 → <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
           </div>
         </div>
       </div>
@@ -5863,6 +5886,7 @@ body {
         <div class="ai-sug-content">
           <div class="ai-sug-title">财富健康诊断</div>
           <div class="ai-sug-text" id="wealthDiagnosisSummary">基于收支·投资·保障三大维度，全面评估你的财务健康状况，生成个性化诊断报告</div>
+          <button class="ai-sug-action-btn" onclick="AIAction.doAction(\'wealth-diagnosis\')">开始诊断 → <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
           <button class="ai-sug-btn" onclick="runWealthDiagnosis()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
             <span id="wealthDiagnosisBtnText">生成诊断报告</span>
@@ -5878,6 +5902,7 @@ body {
         <div class="ai-sug-content">
           <div class="ai-sug-title">资产配置建议</div>
           <div class="ai-sug-text">参考标准普尔家庭资产象限图，建议按 4321 比例分配：40%投资增值、30%日常开销、20%储蓄保本、10%保障保险。</div>
+          <button class="ai-sug-action-btn" onclick="AIAction.doAction(\'asset-alloc\')">查看资产 → <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
         </div>
       </div>
 
@@ -5889,6 +5914,7 @@ body {
         <div class="ai-sug-content">
           <div class="ai-sug-title">财富成长路径</div>
           <div class="ai-sug-text">当前处于财务生存阶段。下一步目标：建立 3-6 个月应急基金，配置基础保障，进入财务安全阶段。</div>
+          <button class="ai-sug-action-btn" onclick="AIAction.doAction(\'emergency-fund\')">设置目标 → <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
         </div>
       </div>
 
@@ -5900,6 +5926,7 @@ body {
         <div class="ai-sug-content">
           <div class="ai-sug-title">风险预警</div>
           <div class="ai-sug-text">暂无明显风险。建议：尽快配置基础保障（重疾+医疗+意外），为家庭经济支柱建立安全垫。</div>
+          <button class="ai-sug-action-btn" onclick="AIAction.doAction(\'insurance-check\')">查看保障 → <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
         </div>
       </div>
     </div>
@@ -6025,7 +6052,7 @@ body {
           </div>
           <div class="ai-sug-content">
             <div class="ai-sug-text">每天15分钟高质量陪伴，胜过整天的"无效陪同"。</div>
-            <span class="ai-sug-detail">查看详情 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><polyline points="9 18 15 12 9 6"/></svg></span>
+          <button class="ai-sug-action-btn" onclick="AIAction.doAction(\'quality-time\')">去记录 → <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
           </div>
         </div>
         <div class="ai-suggestion-card">
@@ -6034,7 +6061,7 @@ body {
           </div>
           <div class="ai-sug-content">
             <div class="ai-sug-text">教育金越早规划越好，复利的力量需要时间来体现。</div>
-            <span class="ai-sug-detail">查看详情 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><polyline points="9 18 15 12 9 6"/></svg></span>
+          <button class="ai-sug-action-btn" onclick="AIAction.doAction(\'education-fund\')">规划一下 → <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
           </div>
         </div>
       </div>
@@ -6534,7 +6561,7 @@ body {
     </div>
 
     <div style="text-align:center;padding:20px 0 10px;font-size:12px;color:#cbd5e1">
-      MiRun AI v52.3.18 · 越用越懂你的数字分身
+      MiRun AI v52.4.2 · 越用越懂你的数字分身
     </div>
   </div>
   <div class="app-brand-footer">
@@ -6729,7 +6756,7 @@ body {
 <script src="trend-view.js?v=52.3.14"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
-// [v52.3.18] Removed IIFE wrap — all functions now global for HTML event access
+// [v52.4.2] Removed IIFE wrap — all functions now global for HTML event access
 // 'use strict';
 
   // ==================== Module Switching ====================
@@ -8831,7 +8858,7 @@ body {
     saveChatToHistory('[图片] ' + (desc || '图片识别结果'), parsed.reply || '好的。');
     renderChatHistory();
 
-    // 激活图片多轮对话上下文（v52.3.18）
+    // 激活图片多轮对话上下文（v52.4.2）
     if (fullBase64 && window.ImageRecognizer && window.ImageRecognizer.setActiveImageContext) {
       try { window.ImageRecognizer.setActiveImageContext(fullBase64, parsed.reply || '好的。'); } catch(e) {}
     }
@@ -9368,7 +9395,7 @@ body {
       return;
     }
 
-    // 图片多轮对话模式（v52.3.18）：刚发完图且在3轮内，走视觉模型继续聊
+    // 图片多轮对话模式（v52.4.2）：刚发完图且在3轮内，走视觉模型继续聊
     // 但如果是明确的工具意图（记账/日程/记录/查询等），不走图片多轮
     var _isImageFollowup = false;
     if (window.ImageRecognizer && window.ImageRecognizer.hasActiveImageContext && window.ImageRecognizer.hasActiveImageContext()) {
@@ -11440,7 +11467,7 @@ body {
         return;
       }
 
-      navigator.serviceWorker.register('./sw-v53.js?v=52.4.1', { updateViaCache: 'none' }).then(function(reg) {
+      navigator.serviceWorker.register('./sw-v53.js?v=52.4.2', { updateViaCache: 'none' }).then(function(reg) {
         console.log('SW registered, scope:', reg.scope);
         
         // Verify the registered SW is our expected file
@@ -11491,8 +11518,8 @@ body {
   try { if (typeof showPrivacyNotice !== 'undefined') window.showPrivacyNotice = showPrivacyNotice; } catch(e) { console.log('expose skip showPrivacyNotice:', e.message); }
   try { if (typeof showThinkingMsg !== 'undefined') window.showThinkingMsg = showThinkingMsg; } catch(e) { console.log('expose skip showThinkingMsg:', e.message); }
   try { if (typeof updateGreeting !== 'undefined') window.updateGreeting = updateGreeting; } catch(e) { console.log('expose skip updateGreeting:', e.message); }
-// [v52.3.18] End of removed IIFE wrap
-// [v52.3.18] End of removed IIFE wrap (was: })()); )
+// [v52.4.2] End of removed IIFE wrap
+// [v52.4.2] End of removed IIFE wrap (was: })()); )
 </script>
 
 <script>
@@ -11519,7 +11546,7 @@ function toggleGuideSection(index) {
 }
 
 // First visit auto-expand
-// [v52.3.18] Removed outer IIFE wrap — functions need global scope for HTML event handlers
+// [v52.4.2] Removed outer IIFE wrap — functions need global scope for HTML event handlers
   var hasRead = localStorage.getItem('wealth_ct_guide_read');
   if (!hasRead) {
     var card = document.getElementById('wealthGuideCard');
@@ -12120,7 +12147,7 @@ function toggleGuideSection(index) {
 
   function getFeedbackAutoInfo() {
     var info = {
-      appVersion: 'v52.3.18',
+      appVersion: 'v52.4.2',
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent || '',
       screenSize: window.innerWidth + 'x' + window.innerHeight,
@@ -13147,7 +13174,7 @@ function toggleGuideSection(index) {
     try { return localStorage.getItem('mirunai_family_id') || null; } catch(e) { return null; }
   };
 
-// [v52.3.18] End of removed IIFE wrap
+// [v52.4.2] End of removed IIFE wrap
 </script>
 
 <script src="solar-term.js?v=52.3.20"></script>
@@ -13162,13 +13189,13 @@ function toggleGuideSection(index) {
 <script src="push-engine.js?v=52.3.14"></script>
 <script src="memory-manager.js?v=52.3.14"></script>
 <script src="chat-engine.js?v=52.3.14"></script>
-<script src="ai-engine.js?v=52.4.1"></script>
+<script src="ai-engine.js?v=52.4.2"></script>
 <script src="decision-forge.js?v=52.3.14"></script>
 <script src="value-resonance.js?v=52.3.14"></script>
 <script src="image-recognizer.js?v=52.3.20"></script>
 
   <!-- Version Badge -->
-  <div id="versionBadge" style="position:fixed;bottom:80px;right:12px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;z-index:9999;letter-spacing:0.5px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;pointer-events:none">v52.3.18</div>
+  <div id="versionBadge" style="position:fixed;bottom:80px;right:12px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;z-index:9999;letter-spacing:0.5px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;pointer-events:none">v52.4.2</div>
   <script>
     setTimeout(function(){
       var b = document.getElementById('versionBadge');
