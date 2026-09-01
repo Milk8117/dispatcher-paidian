@@ -11520,6 +11520,133 @@ body {
   try { if (typeof updateGreeting !== 'undefined') window.updateGreeting = updateGreeting; } catch(e) { console.log('expose skip updateGreeting:', e.message); }
 // [v52.4.2] End of removed IIFE wrap
 // [v52.4.2] End of removed IIFE wrap (was: })()); )
+
+  // ==================== AIAction 一键行动模块 ====================
+  // 统一管理AI建议卡片的一键行动按钮，减少用户操作步骤
+  window.AIAction = {
+    // 行动映射表
+    actions: {
+      // 工作模块
+      'pomodoro': function() {
+        // 开始番茄钟 - 先切到工作Tab，再弹专注任务添加
+        AIAction._switchTo('work');
+        AIAction._toast('已切换到工作页，可直接对话开始番茄钟');
+      },
+      'daily3': function() {
+        // 每日3件事 - 弹添加今日任务输入框
+        AIAction._switchTo('work');
+        setTimeout(function() {
+          // 尝试触发今日任务添加
+          var addBtn = document.querySelector('#workPage .today-task-add-btn, #workPage [onclick*="addTodayTask"]');
+          if (addBtn) addBtn.click();
+          else AIAction._toast('去工作页添加今日3件事');
+        }, 100);
+      },
+      'growth-plan': function() {
+        // 成长计划 - 跳成长Tab
+        AIAction._switchTo('work');
+        AIAction._toast('成长计划正在规划中');
+      },
+      'remember': function() {
+        // 记录信息 - 跳知识Tab
+        AIAction._switchTo('me', 'knowledge');
+        AIAction._toast('已切换到知识记录');
+      },
+      // 健康模块
+      'balanced-diet': function() {
+        // 均衡饮食 - 跳节气食养
+        AIAction._switchTo('health', 'diet');
+        AIAction._toast('已切换到饮食·节气食养');
+      },
+      'early-sleep': function() {
+        // 早睡提醒 - 跳睡眠记录
+        AIAction._switchTo('health', 'sleep');
+        AIAction._toast('已切换到睡眠记录');
+      },
+      'medicine-remind': function() {
+        // 服药提醒 - 跳医疗Tab
+        AIAction._switchTo('health', 'medical');
+        AIAction._toast('已切换到医疗·用药提醒');
+      },
+      'yearly-checkup': function() {
+        // 年度体检 - 跳医疗Tab
+        AIAction._switchTo('health', 'medical');
+        AIAction._toast('已切换到医疗·体检报告');
+      },
+      // 财务模块
+      'wealth-diagnosis': function() {
+        // 财务诊断
+        if (typeof runWealthDiagnosis === 'function') {
+          AIAction._switchTo('finance');
+          setTimeout(runWealthDiagnosis, 200);
+        } else {
+          AIAction._switchTo('finance');
+          AIAction._toast('已切换到财务页');
+        }
+      },
+      'asset-alloc': function() {
+        // 4321配置 - 跳财务Tab
+        AIAction._switchTo('finance');
+        AIAction._toast('已切换到资产配置');
+      },
+      'emergency-fund': function() {
+        // 应急基金 - 跳财务Tab
+        AIAction._switchTo('finance');
+        AIAction._toast('已切换到财务目标');
+      },
+      'insurance-check': function() {
+        // 保险配置 - 跳保障页
+        AIAction._switchTo('finance', 'insurance');
+        AIAction._toast('已切换到保险保障');
+      },
+      // 家庭模块
+      'quality-time': function() {
+        // 高质量陪伴 - 跳家庭记录
+        AIAction._switchTo('life');
+        AIAction._toast('已切换到生活·家庭');
+      },
+      'education-fund': function() {
+        // 教育金规划 - 跳家庭Tab
+        AIAction._switchTo('finance');
+        AIAction._toast('已切换到财务·教育金');
+      },
+    },
+
+    // 执行行动
+    doAction: function(actionKey) {
+      var action = this.actions[actionKey];
+      if (action) {
+        action();
+      } else {
+        this._toast('功能开发中，敬请期待');
+      }
+    },
+
+    // 切换模块（内部）
+    _switchTo: function(moduleName, subTab) {
+      if (typeof switchModule === 'function') {
+        switchModule(moduleName, subTab);
+      } else if (window.switchModule) {
+        window.switchModule(moduleName, subTab);
+      }
+    },
+
+    // Toast提示（内部）
+    _toast: function(msg) {
+      if (typeof showToast === 'function') {
+        showToast(msg);
+      } else if (window.showToast) {
+        window.showToast(msg);
+      } else {
+        // 兜底toast
+        var t = document.createElement('div');
+        t.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.75);color:#fff;padding:10px 18px;border-radius:8px;z-index:9999;font-size:14px;';
+        t.textContent = msg;
+        document.body.appendChild(t);
+        setTimeout(function(){ t.remove(); }, 1500);
+      }
+    }
+  };
 </script>
 
 <script>
