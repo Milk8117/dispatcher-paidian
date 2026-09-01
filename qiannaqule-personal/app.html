@@ -1296,6 +1296,74 @@ body {
   color: #0369a1;
   line-height: 1.5;
 }
+.device-edit-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 10px 12px;
+  background: #f0f9ff;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #0369a1;
+  line-height: 1.5;
+  margin-top: 8px;
+}
+.device-edit-tip svg { flex-shrink: 0; margin-top: 1px; }
+.device-detail-desc {
+  font-size: 13px;
+  color: #64748b;
+  padding: 8px 0 12px;
+  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 8px;
+}
+.device-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+.device-detail-label { font-size: 13px; color: #64748b; }
+.device-detail-value { font-size: 13px; color: #1e293b; }
+.device-detail-status {
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 500;
+}
+.device-detail-status.status-connected {
+  background: #dcfce7;
+  color: #15803d;
+}
+.device-detail-status.status-disconnected {
+  background: #f1f5f9;
+  color: #64748b;
+}
+.device-detail-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+.device-detail-btn {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  font-weight: 500;
+}
+.device-detail-btn-primary {
+  background: #3b82f6;
+  color: #fff;
+}
+.device-detail-btn-primary:active { background: #2563eb; }
+.device-detail-btn-danger {
+  background: #fef2f2;
+  color: #dc2626;
+}
+.device-detail-btn-danger:active { background: #fee2e2; }
+
 .device-tip svg { flex-shrink: 0; color: #0ea5e9; }
 
 /* v52 效率分析卡片 */
@@ -7352,36 +7420,259 @@ body {
   }
 
   // ==================== v52 新增：设备详情 & 添加设备 ====================
-  window.openDeviceDetail = function(deviceId) {
-    var names = {
-      phone: '智能手机',
-      watch: '智能手表',
-      scale: '体脂秤',
-      speaker: '智能音箱'
-    };
-    var name = names[deviceId] || deviceId;
-    var desc = {
-      phone: '健康数据 · 屏幕时间 · 位置信息',
-      watch: '心率监测 · 运动记录 · 睡眠分析',
-      scale: '体重 · 体脂率 · 肌肉量 · 基础代谢',
-      speaker: '语音助手 · 日程提醒 · 音乐播放'
-    };
-    alert(name + '\n\n' + (desc[deviceId] || '') + '\n\n连接方式：\n· 手机APP同步（推荐）\n· CSV数据导入\n· 手动录入\n\nMVP阶段正在完善设备直连功能');
+  // ==================== v52.3.20 智能设备管理模块 ====================
+  var DEVICE_STORAGE_KEY = 'mirun_smart_devices';
+  var DEVICE_TYPE_MAP = {
+    phone: { name: '智能手机', group: 'wearable', desc: '健康数据 · 屏幕时间 · 位置信息', color: '#2563eb', bg: '#eff6ff',
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><rect x="6" y="2" width="12" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>' },
+    watch: { name: '智能手表', group: 'wearable', desc: '心率监测 · 运动记录 · 睡眠分析', color: '#8b5cf6', bg: '#f5f3ff',
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="12" cy="12" r="6"></circle><polyline points="12 10 12 12 14 13"></polyline><path d="M12 2v1m0 18v1M4.22 4.22l.7.7m14.16 14.16l.7.7M2 12h1m20 0h1M4.22 19.78l.7-.7m14.16-14.16l.7-.7"></path></svg>' },
+    band: { name: '智能手环', group: 'wearable', desc: '步数 · 心率 · 睡眠', color: '#0ea5e9', bg: '#f0f9ff',
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><rect x="6" y="4" width="12" height="16" rx="2"></rect><path d="M12 8v4"></path></svg>' },
+    scale: { name: '体脂秤', group: 'health', desc: '体重 · 体脂率 · 肌肉量 · 基础代谢', color: '#10b981', bg: '#ecfdf5',
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M12 2v20M2 12h20"></path><rect x="4" y="8" width="16" height="8" rx="2"></rect></svg>' },
+    bp: { name: '血压计', group: 'health', desc: '收缩压 · 舒张压 · 心率', color: '#ef4444', bg: '#fef2f2',
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>' },
+    glucometer: { name: '血糖仪', group: 'health', desc: '血糖 · 糖化血红蛋白', color: '#f59e0b', bg: '#fffbeb',
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="M12 8v4"></path></svg>' },
+    speaker: { name: '智能音箱', group: 'home', desc: '语音助手 · 日程提醒 · 音乐播放', color: '#d97706', bg: '#fef3c7',
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M12 2a8 8 0 0 0-8 8v6l-2 2h20l-2-2v-6a8 8 0 0 0-8-8z"></path><path d="M10 20a2 2 0 0 0 4 0"></path></svg>' },
+    camera: { name: '智能摄像头', group: 'home', desc: '安防 · 远程查看 · 移动侦测', color: '#64748b', bg: '#f1f5f9',
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>' },
+    bulb: { name: '智能灯泡', group: 'home', desc: '亮度调节 · 场景模式 · 定时开关', color: '#fbbf24', bg: '#fffbeb',
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M9 18h6"></path><path d="M10 22h4"></path><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"></path></svg>' },
+    other: { name: '其他设备', group: 'other', desc: '自定义智能设备', color: '#64748b', bg: '#f1f5f9',
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>' }
   };
-  window.addDevice = function() {
-    var choice = prompt('添加智能设备\n\n请输入设备名称（如：智能手表、体脂秤等），或直接对AI说"添加智能手表"\n\n支持的设备类型：\n· 智能手表\n· 体脂秤\n· 智能音箱\n· 智能手环');
-    if (choice && choice.trim()) {
-      showToast('已记录设备: ' + choice.trim());
-      // 跳转到对话并发送消息
-      switchModule('home');
-      setTimeout(function() {
-        var ta = document.getElementById('aiInputField');
-        if (ta) {
-          ta.value = '我添加了一个' + choice.trim() + '，帮我记录一下';
-          ta.focus();
-        }
-      }, 300);
+  var DEVICE_GROUPS = [
+    { id: 'wearable', name: '个人穿戴' },
+    { id: 'health', name: '家庭健康' },
+    { id: 'home', name: '智能家居' },
+    { id: 'other', name: '其他设备' }
+  ];
+
+  function getDevices() {
+    try {
+      var raw = localStorage.getItem(DEVICE_STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch(e) { return []; }
+  }
+  function saveDevices(list) {
+    try { localStorage.setItem(DEVICE_STORAGE_KEY, JSON.stringify(list)); } catch(e) {}
+  }
+
+  // 初始化默认设备（首次使用时）
+  function initDefaultDevices() {
+    var devices = getDevices();
+    if (devices.length > 0) return;
+    // 手机作为默认已连接设备
+    devices = [
+      { id: 'dev_phone_default', type: 'phone', name: '智能手机', status: 'connected', source: 'manual', createdAt: new Date().toISOString() }
+    ];
+    saveDevices(devices);
+  }
+
+  function renderDevices() {
+    initDefaultDevices();
+    var container = document.getElementById('deviceContainer');
+    if (!container) return;
+    var devices = getDevices();
+    var html = '';
+
+    DEVICE_GROUPS.forEach(function(group) {
+      var groupDevices = devices.filter(function(d) {
+        var t = DEVICE_TYPE_MAP[d.type];
+        return t && t.group === group.id;
+      });
+      if (groupDevices.length === 0) return;
+
+      html += '<div class="device-group">';
+      html += '<div class="device-group-title">' + group.name + '</div>';
+      html += '<div class="device-list">';
+
+      groupDevices.forEach(function(dev, idx) {
+        var t = DEVICE_TYPE_MAP[dev.type] || DEVICE_TYPE_MAP.other;
+        var statusClass = dev.status === 'connected' ? 'status-connected' : 'status-disconnected';
+        var statusText = dev.status === 'connected' ? '已连接' : '未连接';
+        html += '<div class="device-item" onclick="event.stopPropagation();openDeviceDetail(\'' + dev.id + '\')">';
+        html += '<div class="device-icon" style="background:' + t.bg + ';color:' + t.color + '">' + t.icon + '</div>';
+        html += '<div class="device-info">';
+        html += '<div class="device-name">' + (dev.name || t.name) + '</div>';
+        html += '<div class="device-desc">' + t.desc + '</div>';
+        html += '</div>';
+        html += '<div class="device-status ' + statusClass + '">' + statusText + '</div>';
+        html += '</div>';
+      });
+
+      html += '</div></div>';
+    });
+
+    container.innerHTML = html;
+
+    // 更新摘要
+    var summaryEl = document.getElementById('profileDeviceSummary');
+    if (summaryEl) summaryEl.textContent = devices.length + ' 台设备';
+  }
+
+  var _deviceEditId = null;
+
+  function openDeviceEditor(deviceId) {
+    _deviceEditId = deviceId || null;
+    var titleEl = document.getElementById('deviceEditTitle');
+    var typeEl = document.getElementById('deviceEditType');
+    var nameEl = document.getElementById('deviceEditName');
+    var statusEl = document.getElementById('deviceEditStatus');
+    var sourceEl = document.getElementById('deviceEditSource');
+
+    if (titleEl) titleEl.textContent = deviceId ? '编辑设备' : '添加智能设备';
+
+    // 填充类型选项
+    if (typeEl && typeEl.options.length <= 1) {
+      Object.keys(DEVICE_TYPE_MAP).forEach(function(typeKey) {
+        var t = DEVICE_TYPE_MAP[typeKey];
+        var opt = document.createElement('option');
+        opt.value = typeKey;
+        opt.textContent = t.name;
+        typeEl.appendChild(opt);
+      });
     }
+
+    if (deviceId) {
+      var devices = getDevices();
+      var dev = devices.find(function(d) { return d.id === deviceId; });
+      if (dev) {
+        if (typeEl) typeEl.value = dev.type;
+        if (nameEl) nameEl.value = dev.name || '';
+        if (statusEl) statusEl.value = dev.status || 'disconnected';
+        if (sourceEl) sourceEl.value = dev.source || 'manual';
+      }
+    } else {
+      if (typeEl) typeEl.value = 'watch';
+      if (nameEl) nameEl.value = '';
+      if (statusEl) statusEl.value = 'disconnected';
+      if (sourceEl) sourceEl.value = 'manual';
+    }
+
+    document.getElementById('deviceEditOverlay').classList.add('active');
+  }
+
+  function closeDeviceEditor() {
+    document.getElementById('deviceEditOverlay').classList.remove('active');
+    _deviceEditId = null;
+  }
+
+  function saveDevice() {
+    var typeEl = document.getElementById('deviceEditType');
+    var nameEl = document.getElementById('deviceEditName');
+    var statusEl = document.getElementById('deviceEditStatus');
+    var sourceEl = document.getElementById('deviceEditSource');
+
+    var type = typeEl ? typeEl.value : 'other';
+    var name = nameEl ? nameEl.value.trim() : '';
+    var status = statusEl ? statusEl.value : 'disconnected';
+    var source = sourceEl ? sourceEl.value : 'manual';
+
+    if (!name) {
+      // 用类型名称当默认名
+      var t = DEVICE_TYPE_MAP[type];
+      name = t ? t.name : '新设备';
+    }
+
+    var devices = getDevices();
+    if (_deviceEditId) {
+      var idx = devices.findIndex(function(d) { return d.id === _deviceEditId; });
+      if (idx >= 0) {
+        devices[idx].type = type;
+        devices[idx].name = name;
+        devices[idx].status = status;
+        devices[idx].source = source;
+      }
+    } else {
+      devices.push({
+        id: 'dev_' + Date.now(),
+        type: type,
+        name: name,
+        status: status,
+        source: source,
+        createdAt: new Date().toISOString()
+      });
+    }
+    saveDevices(devices);
+    renderDevices();
+    closeDeviceEditor();
+    showToast('已保存');
+  }
+
+  function deleteDevice(deviceId) {
+    var devices = getDevices();
+    var dev = devices.find(function(d) { return d.id === deviceId; });
+    var name = dev && dev.name ? dev.name : '该设备';
+    if (!confirm('确定删除' + name + '吗？此操作不可恢复。')) return;
+    devices = devices.filter(function(d) { return d.id !== deviceId; });
+    saveDevices(devices);
+    renderDevices();
+    closeDeviceDetail();
+    showToast('已删除');
+  }
+
+  function openDeviceDetail(deviceId) {
+    var devices = getDevices();
+    var dev = devices.find(function(d) { return d.id === deviceId; });
+    if (!dev) {
+      // 旧版直接传type字符串的情况（兼容）
+      if (DEVICE_TYPE_MAP[deviceId]) {
+        showToast('请先添加该设备');
+        return;
+      }
+      return;
+    }
+    var t = DEVICE_TYPE_MAP[dev.type] || DEVICE_TYPE_MAP.other;
+    var nameEl = document.getElementById('deviceDetailName');
+    var descEl = document.getElementById('deviceDetailDesc');
+    var statusEl = document.getElementById('deviceDetailStatus');
+    var lastSyncEl = document.getElementById('deviceDetailLastSync');
+
+    if (nameEl) nameEl.textContent = dev.name || t.name;
+    if (descEl) descEl.textContent = t.desc;
+    if (statusEl) {
+      statusEl.textContent = dev.status === 'connected' ? '已连接' : '未连接';
+      statusEl.className = 'device-detail-status ' + (dev.status === 'connected' ? 'status-connected' : 'status-disconnected');
+    }
+    if (lastSyncEl) {
+      lastSyncEl.textContent = dev.lastSync ? ('最后同步：' + new Date(dev.lastSync).toLocaleDateString()) : '暂无数据同步记录';
+    }
+
+    // 存当前ID给编辑/删除用
+    document.getElementById('deviceDetailOverlay').dataset.deviceId = deviceId;
+    document.getElementById('deviceDetailOverlay').classList.add('active');
+  }
+
+  function closeDeviceDetail() {
+    document.getElementById('deviceDetailOverlay').classList.remove('active');
+  }
+
+  function editCurrentDevice() {
+    var overlay = document.getElementById('deviceDetailOverlay');
+    var deviceId = overlay && overlay.dataset.deviceId;
+    if (deviceId) {
+      closeDeviceDetail();
+      setTimeout(function() { openDeviceEditor(deviceId); }, 200);
+    }
+  }
+
+  function deleteCurrentDevice() {
+    var overlay = document.getElementById('deviceDetailOverlay');
+    var deviceId = overlay && overlay.dataset.deviceId;
+    if (deviceId) {
+      deleteDevice(deviceId);
+    }
+  }
+
+  // 页面加载时渲染设备列表
+  document.addEventListener('DOMContentLoaded', function() {
+    try { renderDevices(); } catch(e) {}
+  });
+
   };
   window.openWeatherPanel = function() {
     alert('天气功能开发中\n后续将接入天气API，提供实时天气与生活指数');
@@ -11306,6 +11597,9 @@ function toggleGuideSection(index) {
 
     // 家庭成员
     renderFamilyMembers();
+
+    // 智能设备
+    try { renderDevices(); } catch(e) {}
   }
 
   // ===== 档案编辑弹窗 =====
@@ -12551,7 +12845,7 @@ function toggleGuideSection(index) {
 // [v52.3.18] End of removed IIFE wrap
 </script>
 
-<script src="solar-term.js?v=52.3.19"></script>
+<script src="solar-term.js?v=52.3.20"></script>
 <script src="chronic-disease.js?v=52.3.14"></script>
 <script src="schedule.js?v=52.3.14"></script>
 <script src="daily-tx.js?v=52.3.14"></script>
@@ -12563,10 +12857,10 @@ function toggleGuideSection(index) {
 <script src="push-engine.js?v=52.3.14"></script>
 <script src="memory-manager.js?v=52.3.14"></script>
 <script src="chat-engine.js?v=52.3.14"></script>
-<script src="ai-engine.js?v=52.3.19"></script>
+<script src="ai-engine.js?v=52.3.20"></script>
 <script src="decision-forge.js?v=52.3.14"></script>
 <script src="value-resonance.js?v=52.3.14"></script>
-<script src="image-recognizer.js?v=52.3.19"></script>
+<script src="image-recognizer.js?v=52.3.20"></script>
 
   <!-- Version Badge -->
   <div id="versionBadge" style="position:fixed;bottom:80px;right:12px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;z-index:9999;letter-spacing:0.5px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;pointer-events:none">v52.3.18</div>
@@ -12681,6 +12975,78 @@ function toggleGuideSection(index) {
     <div class="profile-edit-footer">
       <button class="profile-edit-cancel" onclick="closeFamilyEditor()">取消</button>
       <button class="profile-edit-save" onclick="saveFamilyMember()">保存</button>
+    </div>
+  </div>
+</div>
+<!-- 设备编辑弹窗 -->
+<div class="profile-edit-overlay" id="deviceEditOverlay" onclick="if(event.target===this)closeDeviceEditor()">
+  <div class="profile-edit-modal">
+    <div class="profile-edit-header">
+      <span id="deviceEditTitle">添加智能设备</span>
+      <button class="profile-edit-close" onclick="closeDeviceEditor()">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+    <div class="profile-edit-body">
+      <div class="profile-edit-field">
+        <label class="profile-edit-label">设备类型</label>
+        <select class="profile-edit-select" id="deviceEditType">
+          <option value="">请选择类型</option>
+        </select>
+      </div>
+      <div class="profile-edit-field">
+        <label class="profile-edit-label">设备名称</label>
+        <input type="text" class="profile-edit-input" id="deviceEditName" placeholder="给设备起个名字，留空用默认" />
+      </div>
+      <div class="profile-edit-field">
+        <label class="profile-edit-label">连接状态</label>
+        <select class="profile-edit-select" id="deviceEditStatus">
+          <option value="disconnected">未连接</option>
+          <option value="connected">已连接</option>
+        </select>
+      </div>
+      <div class="profile-edit-field">
+        <label class="profile-edit-label">数据来源</label>
+        <select class="profile-edit-select" id="deviceEditSource">
+          <option value="manual">手动录入</option>
+          <option value="app">APP同步</option>
+          <option value="csv">CSV导入</option>
+        </select>
+      </div>
+      <div class="device-edit-tip">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+        设备数据会自动流向对应业务Tab（如体脂秤→健康-体重，手表→健康-运动）
+      </div>
+    </div>
+    <div class="profile-edit-footer">
+      <button class="profile-edit-cancel" onclick="closeDeviceEditor()">取消</button>
+      <button class="profile-edit-save" onclick="saveDevice()">保存</button>
+    </div>
+  </div>
+</div>
+<!-- 设备详情弹窗 -->
+<div class="profile-edit-overlay" id="deviceDetailOverlay" onclick="if(event.target===this)closeDeviceDetail()">
+  <div class="profile-edit-modal">
+    <div class="profile-edit-header">
+      <span id="deviceDetailName">设备详情</span>
+      <button class="profile-edit-close" onclick="closeDeviceDetail()">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+    <div class="profile-edit-body">
+      <div class="device-detail-desc" id="deviceDetailDesc"></div>
+      <div class="device-detail-row">
+        <span class="device-detail-label">状态</span>
+        <span class="device-detail-status status-disconnected" id="deviceDetailStatus">未连接</span>
+      </div>
+      <div class="device-detail-row">
+        <span class="device-detail-label">最后同步</span>
+        <span class="device-detail-value" id="deviceDetailLastSync">暂无数据</span>
+      </div>
+      <div class="device-detail-actions">
+        <button class="device-detail-btn device-detail-btn-primary" onclick="editCurrentDevice()">编辑设备</button>
+        <button class="device-detail-btn device-detail-btn-danger" onclick="deleteCurrentDevice()">删除设备</button>
+      </div>
     </div>
   </div>
 </div>
