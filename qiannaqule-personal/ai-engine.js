@@ -141,7 +141,7 @@
       bailian: { apiKey: 'sk-ws-H.ELEXHRD.2Xmm.MEUCIQD8FduqTxbuANZ3ttnoQKjMEmqxkpG7ZpJK4th7jrpO8wIgeeQVwro_HTzZywrGoEFSAVZPcuuvnpJTdiP2sp5H0JA', apiBase: '', model: '' },
       kimi: { apiKey: 'sk-hoZEU79yH5oklgZvS7SfNg2TJ36ZoQR0Ks5D9laP1exPoFT0', apiBase: '', model: '' },
       doubao: { apiKey: '', apiBase: '', model: '' },
-      zhipu: { apiKey: '', apiBase: '', model: '' },
+      zhipu: { apiKey: '61b88e12500e4543ac55b740c77ec78b.Y9zh8nv6gkzpAau1', apiBase: '', model: '' },
       custom: { apiKey: '', apiBase: '', model: '' }
     },
     fallbackEnabled: true,
