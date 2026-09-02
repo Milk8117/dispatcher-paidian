@@ -3559,7 +3559,7 @@ body {
 .chat-main-area {
   flex: 1;
   overflow-y: auto;
-  padding: 16px 16px 20px;
+  padding: 8px 16px 20px;
   max-width: 680px;
   margin: 0 auto;
   min-height: 300px;
@@ -3582,6 +3582,154 @@ body {
 .chat-welcome-desc {
   font-size: 13px; color: #94a3b8; line-height: 1.7;
 }
+/* v52.5 对话流顶部过滤条 */
+.chat-flow-filter {
+  background: #fff;
+  border-bottom: 1px solid #f1f5f9;
+  padding: 10px 16px 12px;
+  animation: filterSlideDown 0.25s ease;
+}
+@keyframes filterSlideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.cff-search-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.cff-search-input-wrap {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.cff-search-icon {
+  position: absolute;
+  left: 12px;
+  width: 16px; height: 16px;
+  color: #94a3b8;
+  pointer-events: none;
+}
+.cff-search-input {
+  width: 100%;
+  height: 36px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0 36px 0 36px;
+  font-size: 13px;
+  background: #f8fafc;
+  outline: none;
+  box-sizing: border-box;
+}
+.cff-search-input:focus {
+  border-color: #8b5cf6;
+  background: #fff;
+}
+.cff-search-clear {
+  position: absolute;
+  right: 8px;
+  width: 22px; height: 22px;
+  border: none;
+  background: #e2e8f0;
+  color: #64748b;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cff-close-btn {
+  width: 32px; height: 32px;
+  border: none;
+  background: #f1f5f9;
+  color: #64748b;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.cff-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.cff-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  color: #64748b;
+  border-radius: 16px;
+  font-size: 11px;
+  cursor: pointer;
+}
+.cff-filter-btn:active { background: #f1f5f9; }
+.cff-result-count {
+  font-size: 11px;
+  color: #8b5cf6;
+  font-weight: 500;
+}
+.cff-date-filter {
+  margin-top: 10px;
+  padding: 10px;
+  background: #f8fafc;
+  border-radius: 10px;
+  border: 1px solid #f1f5f9;
+}
+.cff-df-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.cff-df-row label {
+  width: 32px;
+  font-size: 11px;
+  color: #64748b;
+  flex-shrink: 0;
+}
+.cff-df-row input[type="date"] {
+  flex: 1;
+  height: 30px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 0 8px;
+  font-size: 12px;
+  background: #fff;
+}
+.cff-df-quick {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed #e2e8f0;
+}
+.cff-df-quick button {
+  flex: 1;
+  padding: 5px 0;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  color: #64748b;
+  border-radius: 6px;
+  font-size: 11px;
+  cursor: pointer;
+}
+.cff-df-quick button:active { background: #f0f9ff; color: #0284c7; }
+
+/* v52.5 对话流内搜索高亮 */
+.chat-msg-bubble .search-hl {
+  background: #fef08a;
+  color: #854d0e;
+  padding: 1px 2px;
+  border-radius: 2px;
+}
+
 .chat-message-list {
   display: flex;
   flex-direction: column;
@@ -4691,10 +4839,10 @@ body {
 }
 </style>
   <script>
-  // ===== 版本守护（v52.4.6起）：SW缓存死锁根治方案 =====
+  // ===== 版本守护（v52.5.0起）：SW缓存死锁根治方案 =====
   // 放在所有JS之前执行，确保版本不对时立即清理并重载
   (function() {
-    var CURRENT_VERSION = '52.4.6';
+    var CURRENT_VERSION = '52.5.0';
     var STORAGE_KEY = 'mirun_app_version';
     
     function wipeAndReload(reason) {
@@ -4888,83 +5036,55 @@ body {
       </div>
     </div>
     <div class="chat-top-right">
+      <button class="chat-top-btn" onclick="toggleChatSearchBar()" title="搜索对话">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      </button>
       <button class="chat-top-btn" onclick="toggleAgentPanel()" title="分身状态">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M12 2l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3z"/></svg>
       </button>
-      <button class="chat-top-btn" onclick="toggleChatHistoryPanel()" title="对话历史">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    </div>
+  </div>
+
+  <!-- v52.5 对话流顶部过滤条（可收起） -->
+  <div class="chat-flow-filter" id="chatFlowFilter" style="display:none">
+    <div class="cff-search-row">
+      <div class="cff-search-input-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="cff-search-icon"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="chatFlowSearchInput" class="cff-search-input" placeholder="搜索对话内容..." oninput="onChatFlowSearchInput()"/>
+        <button class="cff-search-clear" id="chatFlowSearchClearBtn" onclick="clearChatFlowSearch()" style="display:none">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+        </button>
+      </div>
+      <button class="cff-close-btn" onclick="toggleChatSearchBar()" title="收起">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
       </button>
     </div>
-  </div>
-
-  <!-- 今日概览：3项卡片式 -->
-  <div class="today-overview-v52">
-    <div class="ov-card" onclick="switchModule('work'); switchSubTab('work', 'schedule')">
-      <div class="ov-card-icon" style="background:#f5f3ff;color:#8b5cf6">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-      </div>
-      <div class="ov-card-body">
-        <div class="ov-card-value" id="ovTodoCount">0</div>
-        <div class="ov-card-label">待办事项</div>
-      </div>
+    <div class="cff-filter-row">
+      <button class="cff-filter-btn" onclick="toggleChatFlowDateFilter()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>
+        按日期
+      </button>
+      <span class="cff-result-count" id="chatFlowSearchCount" style="display:none"></span>
     </div>
-    <div class="ov-card" onclick="openWeatherPanel()">
-      <div class="ov-card-icon" style="background:#eff6ff;color:#2563eb">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="M4.93 4.93l1.41 1.41"/><path d="M17.66 17.66l1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="M4.93 19.07l1.41-1.41"/><path d="M17.66 6.34l1.41-1.41"/></svg>
+    <div class="cff-date-filter" id="chatFlowDateFilter" style="display:none">
+      <div class="cff-df-row">
+        <label>开始</label>
+        <input type="date" id="chatFlowFilterStart" onchange="onChatFlowSearchInput()"/>
       </div>
-      <div class="ov-card-body">
-        <div class="ov-card-value" id="ovWeatherTemp">--°</div>
-        <div class="ov-card-label">今天天气</div>
+      <div class="cff-df-row">
+        <label>结束</label>
+        <input type="date" id="chatFlowFilterEnd" onchange="onChatFlowSearchInput()"/>
       </div>
-    </div>
-    <div class="ov-card" onclick="switchModule('health'); switchSubTab('health', 'solar')">
-      <div class="ov-card-icon" style="background:#f0fdf4;color:#16a34a">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19.2 2.96c.8 1.02 1.3 2.27 1.3 4.04 0 6.5-4.78 12-10.5 13Z"/><path d="MM2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
-      </div>
-      <div class="ov-card-body">
-        <div class="ov-card-value" id="ovSolarFood">--</div>
-        <div class="ov-card-label">时令食材</div>
+      <div class="cff-df-quick">
+        <button onclick="setChatFlowDateQuick('today')">今天</button>
+        <button onclick="setChatFlowDateQuick('week')">近7天</button>
+        <button onclick="setChatFlowDateQuick('month')">近30天</button>
+        <button onclick="setChatFlowDateQuick('clear')">清除</button>
       </div>
     </div>
   </div>
 
-  <!-- v52.4.1 今日任务聚合卡片 -->
-  <div class="today-tasks-card" id="todayTasksCard">
-    <div class="today-tasks-header">
-      <div class="today-tasks-title">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-        今日任务
-        <span style="font-size:11px;color:#94a3b8;font-weight:400" id="ttDateLabel"></span>
-      </div>
-      <div class="today-tasks-actions">
-        <button class="tt-action-btn" onclick="TodayTasks.openAddInput()" title="添加任务">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        </button>
-        <button class="tt-action-btn primary" onclick="TodayTasks.generateByAI()" title="AI生成今日任务">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M12 2l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3z"/></svg>
-        </button>
-      </div>
-    </div>
-    <div class="tt-progress-bar">
-      <div class="tt-progress-fill" id="ttProgressFill"></div>
-    </div>
-    <div class="tt-progress-text">
-      <span id="ttProgressLabel">0 / 0 项已完成</span>
-      <span id="ttProgressPercent">0%</span>
-    </div>
-    <div class="tt-task-list" id="ttTaskList">
-      <div class="tt-empty">
-        <div class="tt-empty-icon">✦</div>
-        今天还没有任务，点右上角 ✨ 让AI帮你生成
-      </div>
-    </div>
-    <div class="tt-add-row" id="ttAddRow" style="display:none">
-      <input type="text" class="tt-add-input" id="ttAddInput" placeholder="输入任务内容..." maxlength="50">
-      <button class="tt-add-btn" onclick="TodayTasks.addManualTask()">添加</button>
-    </div>
-  </div>
-
-  <!-- 对话主区域（仿扣子风格） -->
+    <!-- 对话主区域（仿扣子风格） -->
   <div class="chat-main-area" id="chatMainArea">
     <!-- 欢迎页（无消息时显示） -->
     <div class="chat-welcome" id="chatWelcome">
@@ -6947,7 +7067,7 @@ body {
     </div>
 
     <div style="text-align:center;padding:20px 0 10px;font-size:12px;color:#cbd5e1">
-      MiRun AI v52.4.6 · 越用越懂你的数字分身
+      MiRun AI v52.5.0 · 越用越懂你的数字分身
     </div>
   </div>
   <div class="app-brand-footer">
@@ -7053,49 +7173,6 @@ body {
 
 </div><!-- END container -->
 
-<!-- Chat History Section -->
-<div class="chat-history-section" id="chatHistorySection">
-  <div class="chat-history-header">
-    <span class="chat-history-title">对话历史</span>
-    <button class="chat-history-clear-all" onclick="clearAllChatHistory()">清空</button>
-  </div>
-  <!-- 搜索栏 -->
-  <div class="chat-search-bar">
-    <div class="chat-search-input-wrap">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="chat-search-icon"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <input type="text" id="chatSearchInput" class="chat-search-input" placeholder="搜索对话内容或按日期筛选" oninput="onChatSearchInput()"/>
-      <button class="chat-search-clear" id="chatSearchClearBtn" onclick="clearChatSearch()" style="display:none">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
-      </button>
-    </div>
-    <div class="chat-search-filters">
-      <button class="cs-filter-btn" onclick="openChatDateFilter()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>
-        按日期
-      </button>
-      <span class="cs-result-count" id="chatSearchResultCount" style="display:none"></span>
-    </div>
-  </div>
-  <!-- 日期筛选器 -->
-  <div class="chat-date-filter" id="chatDateFilter" style="display:none">
-    <div class="cdf-row">
-      <label>开始日期</label>
-      <input type="date" id="chatFilterStartDate" onchange="onChatSearchInput()"/>
-    </div>
-    <div class="cdf-row">
-      <label>结束日期</label>
-      <input type="date" id="chatFilterEndDate" onchange="onChatSearchInput()"/>
-    </div>
-    <div class="cdf-quick">
-      <button onclick="setChatDateQuick('today')">今天</button>
-      <button onclick="setChatDateQuick('week')">近7天</button>
-      <button onclick="setChatDateQuick('month')">近30天</button>
-      <button onclick="setChatDateQuick('clear')">清除</button>
-    </div>
-  </div>
-  <div class="chat-history-list" id="chatHistoryList"></div>
-</div>
-
 
 <!-- ==================== Bottom Tab Bar ==================== -->
 <nav class="bottom-tab-bar" id="bottomTabBar">
@@ -7170,10 +7247,10 @@ body {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
   </button>
 </div>
-<script src="datastore.js?v=52.4.6"></script>
-<script src="diagnosis-engine.js?v=52.4.6"></script>
-<script src="reminder-engine.js?v=52.4.6"></script>
-<script src="trend-view.js?v=52.4.6"></script>
+<script src="datastore.js?v=52.5.0"></script>
+<script src="diagnosis-engine.js?v=52.5.0"></script>
+<script src="reminder-engine.js?v=52.5.0"></script>
+<script src="trend-view.js?v=52.5.0"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 // [v52.4.2] Removed IIFE wrap — all functions now global for HTML event access
@@ -7753,14 +7830,17 @@ body {
   }
 
   // ==================== v52 新增：对话历史面板 ====================
-  window.toggleChatHistoryPanel = function() {
-    var panel = document.getElementById('chatHistorySection');
-    if (!panel) return;
-    if (panel.style.display === 'none' || panel.style.display === '') {
-      panel.style.display = 'block';
-      renderChatHistory();
+  window.toggleChatSearchBar = function() {
+    var bar = document.getElementById('chatFlowFilter');
+    if (!bar) return;
+    if (bar.style.display === 'none' || bar.style.display === '') {
+      bar.style.display = 'block';
+      var input = document.getElementById('chatFlowSearchInput');
+      if (input) setTimeout(function(){ input.focus(); }, 100);
     } else {
-      panel.style.display = 'none';
+      bar.style.display = 'none';
+      // 收起时清除搜索
+      clearChatFlowSearch();
     }
   };
 
@@ -9053,13 +9133,8 @@ body {
   }
 
   function saveChatToHistory(question, reply) {
-    var now = new Date();
-    var ts = now.getTime();
-    var dateStr = now.getFullYear() + '-' + ('0'+(now.getMonth()+1)).slice(-2) + '-' + ('0'+now.getDate()).slice(-2) + ' ' + ('0'+now.getHours()).slice(-2) + ':' + ('0'+now.getMinutes()).slice(-2);
-    var history = getChatHistory();
-    history.unshift({ id: ts, question: question, reply: reply, timestamp: dateStr, collapsed: false });
-    setChatHistory(history);
-    renderChatHistory();
+    // v52.5: 不再写入旧卡片式历史，对话流已经通过 addChatMessage 直接管理
+    // 保留此函数仅为兼容旧调用点，实际不再操作 mijie_chat_history
   }
 
   window.toggleChatCard = function(id) {
@@ -9270,8 +9345,7 @@ body {
     hideAiThinking();
     saveChatToHistory(userText, replyText);
     // Scroll to chat history section
-    var section = document.getElementById('chatHistorySection');
-    if (section) { section.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    scrollChatToBottom();
   }
 
   function escapeHtml(text) {
@@ -9487,6 +9561,11 @@ body {
 
   // ========== v52.2 对话气泡消息管理 ==========
   var CHAT_MSGS_KEY = 'mirun_chat_messages_v1';
+  // v52.5 对话流搜索状态
+  var _chatFlowKeyword = '';
+  var _chatFlowDateStart = '';
+  var _chatFlowDateEnd = '';
+  var _chatFlowMigrated = false; // 是否已完成旧数据迁移
   var _chatMsgIdSeq = 0;
 
   function getChatMessages() {
@@ -9513,15 +9592,33 @@ body {
   function _escHtml(t) {
     var d = document.createElement('div'); d.textContent = t; return d.innerHTML;
   }
+  function _highlightInHtml(html, keyword) {
+    if (!keyword || !html) return html;
+    try {
+      var safeKw = keyword.replace(/[.*+?^$()|[\]\\]/g, '\\$&');
+      var re = new RegExp('(' + safeKw + ')', 'gi');
+      return html.replace(re, '<span class="search-hl">$1</span>');
+    } catch(e) {
+      return html;
+    }
+  }
 
-  function renderChatMessages() {
+  function renderChatMessages(filteredMsgs) {
     var list = document.getElementById('chatMessageList');
     var welcome = document.getElementById('chatWelcome');
     if (!list) return;
-    var msgs = getChatMessages();
+
+    var msgs = filteredMsgs || getChatMessages();
+    var hasFilter = !!filteredMsgs || _chatFlowKeyword || _chatFlowDateStart || _chatFlowDateEnd;
+
     if (msgs.length === 0) {
       list.innerHTML = '';
-      if (welcome) welcome.style.display = '';
+      if (welcome && !hasFilter) {
+        welcome.style.display = '';
+      } else if (welcome) {
+        welcome.style.display = 'none';
+        list.innerHTML = '<div style="text-align:center;padding:40px 20px;color:#94a3b8;font-size:13px">没有找到匹配的对话</div>';
+      }
       return;
     }
     if (welcome) welcome.style.display = 'none';
@@ -9549,7 +9646,11 @@ body {
       } else if (msg.type === 'thinking') {
         html += '<div class="chat-msg-thinking"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div><span style="font-size:12px;color:#94a3b8;margin-left:6px">思考中...</span></div>';
       } else {
-        html += '<div class="chat-msg-bubble">' + _escHtml(msg.content||'').replace(/\n/g,'<br>') + '</div>';
+        var bubbleContent = _escHtml(msg.content||'').replace(/\n/g,'<br>');
+        if (_chatFlowKeyword && msg.content) {
+          bubbleContent = _highlightInHtml(bubbleContent, _chatFlowKeyword);
+        }
+        html += '<div class="chat-msg-bubble">' + bubbleContent + '</div>';
       }
       html += '<div class="chat-msg-time">' + _msgTime(msg.timestamp) + '</div>';
       if (isUser && msg.status && msg.status !== 'sent') {
@@ -9559,12 +9660,188 @@ body {
       html += '</div></div>';
     }
     list.innerHTML = html;
-    scrollChatToBottom();
+    // 搜索模式不自动滚动到底
+    if (!hasFilter) {
+      scrollChatToBottom();
+    }
   }
-
   function scrollChatToBottom() {
     var m = document.getElementById('chatMainArea');
     if (m) m.scrollTop = m.scrollHeight;
+  }
+
+  // ========== v52.5 对话流搜索与筛选 ==========
+  function filterChatMessages(keyword, startDate, endDate) {
+    var msgs = getChatMessages();
+    var kw = (keyword || '').trim().toLowerCase();
+    return msgs.filter(function(msg) {
+      // 关键词过滤（排除 thinking 类型）
+      if (kw && msg.type !== 'thinking') {
+        var content = (msg.content || '').toLowerCase();
+        if (content.indexOf(kw) === -1) return false;
+      }
+      // 日期过滤
+      if (startDate || endDate) {
+        var msgDate = new Date(msg.timestamp);
+        var dateStr = msgDate.getFullYear() + '-' +
+          String(msgDate.getMonth()+1).padStart(2,'0') + '-' +
+          String(msgDate.getDate()).padStart(2,'0');
+        if (startDate && dateStr < startDate) return false;
+        if (endDate && dateStr > endDate) return false;
+      }
+      return true;
+    });
+  }
+
+  window.onChatFlowSearchInput = function() {
+    var input = document.getElementById('chatFlowSearchInput');
+    var clearBtn = document.getElementById('chatFlowSearchClearBtn');
+    var countEl = document.getElementById('chatFlowSearchCount');
+    if (!input) return;
+
+    _chatFlowKeyword = input.value;
+    if (clearBtn) clearBtn.style.display = input.value ? 'flex' : 'none';
+
+    var filtered = filterChatMessages(_chatFlowKeyword, _chatFlowDateStart, _chatFlowDateEnd);
+
+    if (countEl) {
+      var hasFilter = _chatFlowKeyword || _chatFlowDateStart || _chatFlowDateEnd;
+      if (hasFilter) {
+        countEl.style.display = 'inline';
+        countEl.textContent = '找到 ' + filtered.length + ' 条';
+      } else {
+        countEl.style.display = 'none';
+      }
+    }
+
+    renderChatMessages(filtered.length > 0 || hasFilter ? filtered : null);
+  };
+
+  window.clearChatFlowSearch = function() {
+    var input = document.getElementById('chatFlowSearchInput');
+    if (input) input.value = '';
+    _chatFlowKeyword = '';
+    _chatFlowDateStart = '';
+    _chatFlowDateEnd = '';
+    var startEl = document.getElementById('chatFlowFilterStart');
+    var endEl = document.getElementById('chatFlowFilterEnd');
+    if (startEl) startEl.value = '';
+    if (endEl) endEl.value = '';
+    var clearBtn = document.getElementById('chatFlowSearchClearBtn');
+    if (clearBtn) clearBtn.style.display = 'none';
+    var countEl = document.getElementById('chatFlowSearchCount');
+    if (countEl) countEl.style.display = 'none';
+    var dateFilter = document.getElementById('chatFlowDateFilter');
+    if (dateFilter) dateFilter.style.display = 'none';
+    renderChatMessages();
+  };
+
+  window.toggleChatFlowDateFilter = function() {
+    var panel = document.getElementById('chatFlowDateFilter');
+    if (!panel) return;
+    panel.style.display = panel.style.display === 'none' || panel.style.display === '' ? 'block' : 'none';
+  };
+
+  window.setChatFlowDateQuick = function(type) {
+    var startEl = document.getElementById('chatFlowFilterStart');
+    var endEl = document.getElementById('chatFlowFilterEnd');
+    if (!startEl || !endEl) return;
+
+    var now = new Date();
+    var endStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+
+    if (type === 'today') {
+      startEl.value = endStr;
+      endEl.value = endStr;
+    } else if (type === 'week') {
+      var weekAgo = new Date(now.getTime() - 6 * 24 * 3600 * 1000);
+      startEl.value = weekAgo.getFullYear() + '-' + String(weekAgo.getMonth()+1).padStart(2,'0') + '-' + String(weekAgo.getDate()).padStart(2,'0');
+      endEl.value = endStr;
+    } else if (type === 'month') {
+      var monthAgo = new Date(now.getTime() - 29 * 24 * 3600 * 1000);
+      startEl.value = monthAgo.getFullYear() + '-' + String(monthAgo.getMonth()+1).padStart(2,'0') + '-' + String(monthAgo.getDate()).padStart(2,'0');
+      endEl.value = endStr;
+    } else if (type === 'clear') {
+      startEl.value = '';
+      endEl.value = '';
+    }
+
+    _chatFlowDateStart = startEl.value;
+    _chatFlowDateEnd = endEl.value;
+    onChatFlowSearchInput();
+  };
+
+  // ========== v52.5 旧数据迁移（mijie_chat_history → mirun_chat_messages_v1）==========
+  function migrateOldChatHistory() {
+    if (_chatFlowMigrated) return;
+    var oldData = null;
+    try {
+      oldData = JSON.parse(localStorage.getItem('mijie_chat_history') || '[]');
+    } catch(e) { oldData = []; }
+
+    if (!oldData || oldData.length === 0) {
+      _chatFlowMigrated = true;
+      try { localStorage.setItem('mirun_chat_migrated_v525', '1'); } catch(e) {}
+      return;
+    }
+
+    // 检查是否已迁移过
+    try {
+      var migratedFlag = localStorage.getItem('mirun_chat_migrated_v525');
+      if (migratedFlag === '1') {
+        _chatFlowMigrated = true;
+        return;
+      }
+    } catch(e) {}
+
+    var currentMsgs = getChatMessages();
+    var newMsgs = [];
+    var idSeq = currentMsgs.length;
+
+    // 旧数据是按时间倒序（最新在前），要转成正序
+    // 格式: { id, question, reply, timestamp("YYYY-MM-DD HH:MM"), collapsed }
+    for (var i = oldData.length - 1; i >= 0; i--) {
+      var item = oldData[i];
+      var ts = 0;
+      try {
+        ts = new Date(item.timestamp.replace(' ', 'T')).getTime();
+      } catch(e) { ts = item.id || Date.now(); }
+
+      // 用户消息
+      idSeq++;
+      newMsgs.push({
+        id: 'm' + idSeq + '_' + (ts + 1),
+        role: 'user',
+        content: item.question || '',
+        type: 'text',
+        timestamp: ts + 1,
+        status: 'sent'
+      });
+
+      // AI 回复
+      idSeq++;
+      newMsgs.push({
+        id: 'm' + idSeq + '_' + (ts + 2000),
+        role: 'ai',
+        content: item.reply || '',
+        type: 'text',
+        timestamp: ts + 2000,
+        status: 'sent'
+      });
+    }
+
+    // 合并：旧消息在前，现有新消息在后
+    var merged = newMsgs.concat(currentMsgs);
+    if (merged.length > 200) merged = merged.slice(merged.length - 200);
+
+    try {
+      localStorage.setItem(CHAT_MSGS_KEY, JSON.stringify(merged));
+      localStorage.setItem('mirun_chat_migrated_v525', '1');
+      _chatFlowMigrated = true;
+      console.log('[v52.5] 已迁移 ' + oldData.length + ' 条旧对话 → ' + newMsgs.length + ' 条消息');
+    } catch(e) {
+      console.warn('[v52.5] 迁移失败:', e);
+    }
   }
 
   function addChatMessage(role, content, opts) {
@@ -9904,6 +10181,7 @@ body {
   }
 
   function initChatV521() {
+    migrateOldChatHistory();
     renderChatMessages();
     refreshTodayOverview();
     initTextareaAutoResize();
@@ -11917,7 +12195,7 @@ body {
   // ==================== Version Sync + Force Refresh ====================
   // If stored version != page version → unregister SW, clear all caches, hard reload
   (function() {
-    var PAGE_VERSION = '52.4.6';
+    var PAGE_VERSION = '52.5.0';
     var storedVersion = localStorage.getItem('mirun_app_version');
     
     // First visitor — just store version
@@ -12017,7 +12295,7 @@ body {
     // Immediate: if old service-worker.js is controlling, unregister it to break deadlock
     if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
       var ctrlURL = navigator.serviceWorker.controller.scriptURL || '';
-      if (ctrlURL.indexOf('sw-v52.4.6.js') === -1 && ctrlURL.indexOf('service-worker.js') !== -1) {
+      if (ctrlURL.indexOf('sw-v52.5.0.js') === -1 && ctrlURL.indexOf('service-worker.js') !== -1) {
         console.log('Old SW detected, unregistering to break cache deadlock...');
         navigator.serviceWorker.getRegistrations().then(function(regs) {
           regs.forEach(function(r) {
@@ -12034,19 +12312,19 @@ body {
       var existingController = navigator.serviceWorker.controller;
       var isAllowedSW = false;
       if (existingController && existingController.scriptURL) {
-        isAllowedSW = existingController.scriptURL.indexOf('sw-v52.4.6.js') !== -1 || existingController.scriptURL.indexOf('service-worker.js') !== -1;
+        isAllowedSW = existingController.scriptURL.indexOf('sw-v52.5.0.js') !== -1 || existingController.scriptURL.indexOf('service-worker.js') !== -1;
       }
       if (existingController && !isAllowedSW) {
         console.log('Skipping SW registration: existing controller is unknown');
         return;
       }
 
-      navigator.serviceWorker.register('./sw-v52.4.6.js', { updateViaCache: 'none' }).then(function(reg) {
+      navigator.serviceWorker.register('./sw-v52.5.0.js', { updateViaCache: 'none' }).then(function(reg) {
         console.log('SW registered, scope:', reg.scope);
         
         // Verify the registered SW is our expected file
         var isExpected = reg.active && reg.active.scriptURL && 
-          (reg.active.scriptURL.indexOf('sw-v52.4.6.js') !== -1 || reg.active.scriptURL.indexOf('service-worker.js') !== -1);
+          (reg.active.scriptURL.indexOf('sw-v52.5.0.js') !== -1 || reg.active.scriptURL.indexOf('service-worker.js') !== -1);
         if (reg.active && !isExpected) {
           console.warn('Unexpected SW scriptURL detected, unregistering:', reg.active.scriptURL);
           reg.unregister();
@@ -12848,7 +13126,7 @@ function toggleGuideSection(index) {
 
   function getFeedbackAutoInfo() {
     var info = {
-      appVersion: 'v52.4.6',
+      appVersion: 'v52.5.0',
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent || '',
       screenSize: window.innerWidth + 'x' + window.innerHeight,
@@ -13878,25 +14156,25 @@ function toggleGuideSection(index) {
 // [v52.4.2] End of removed IIFE wrap
 </script>
 
-<script src="solar-term.js?v=52.4.6"></script>
-<script src="chronic-disease.js?v=52.4.6"></script>
-<script src="schedule.js?v=52.4.6"></script>
-<script src="daily-tx.js?v=52.4.6"></script>
-<script src="stock-holdings.js?v=52.4.6"></script>
-<script src="behavior-log.js?v=52.4.6"></script>
-<script src="user-profile.js?v=52.4.6"></script>
-<script src="insight-engine.js?v=52.4.6"></script>
-<script src="health-bridge.js?v=52.4.6"></script>
-<script src="push-engine.js?v=52.4.6"></script>
-<script src="memory-manager.js?v=52.4.6"></script>
-<script src="chat-engine.js?v=52.4.6"></script>
-    <script src="ai-engine.js?v=52.4.6"></script>
-<script src="decision-forge.js?v=52.4.6"></script>
-<script src="value-resonance.js?v=52.4.6"></script>
-<script src="image-recognizer.js?v=52.4.6"></script>
+<script src="solar-term.js?v=52.5.0"></script>
+<script src="chronic-disease.js?v=52.5.0"></script>
+<script src="schedule.js?v=52.5.0"></script>
+<script src="daily-tx.js?v=52.5.0"></script>
+<script src="stock-holdings.js?v=52.5.0"></script>
+<script src="behavior-log.js?v=52.5.0"></script>
+<script src="user-profile.js?v=52.5.0"></script>
+<script src="insight-engine.js?v=52.5.0"></script>
+<script src="health-bridge.js?v=52.5.0"></script>
+<script src="push-engine.js?v=52.5.0"></script>
+<script src="memory-manager.js?v=52.5.0"></script>
+<script src="chat-engine.js?v=52.5.0"></script>
+    <script src="ai-engine.js?v=52.5.0"></script>
+<script src="decision-forge.js?v=52.5.0"></script>
+<script src="value-resonance.js?v=52.5.0"></script>
+<script src="image-recognizer.js?v=52.5.0"></script>
 
   <!-- Version Badge -->
-  <div id="versionBadge" style="position:fixed;bottom:80px;right:12px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;z-index:9999;letter-spacing:0.5px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;pointer-events:none">v52.4.6</div>
+  <div id="versionBadge" style="position:fixed;bottom:80px;right:12px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;z-index:9999;letter-spacing:0.5px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;pointer-events:none">v52.5.0</div>
   <script>
     setTimeout(function(){
       var b = document.getElementById('versionBadge');
