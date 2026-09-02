@@ -3532,7 +3532,7 @@ body {
 #page-health { --tab-color: #16a34a; --tab-color-dark: #15803d; --tab-color-light: #f0fdf4; }
 
 
-/* ========== v52.5.2 健康专项页样式 ========== */
+/* ========== v52.5.3 健康专项页样式 ========== */
 /* 运动专项 */
 .exercise-stats-card {
   background: #fff;
@@ -3835,7 +3835,7 @@ body {
   margin-top: -4px;
 }
 
-/* ========== v52.5.2 财富页完整样式 ========== */
+/* ========== v52.5.3 财富页完整样式 ========== */
 .wealth-pillar-switcher {
   display: flex;
   gap: 4px;
@@ -4215,7 +4215,7 @@ body {
 }
 .ai-holdings-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(37,99,235,0.4); }
 
-/* ========== v52.5.2 教育模块样式 ========== */
+/* ========== v52.5.3 教育模块样式 ========== */
 .edu-learning-card,
 .edu-growth-card,
 .edu-fund-card,
@@ -4531,7 +4531,7 @@ body {
   color: #8b5cf6;
 }
 
-/* ========== v52.5.2 健康饮食 - 三餐列表样式 ========== */
+/* ========== v52.5.3 健康饮食 - 三餐列表样式 ========== */
 .diet-meal-list-card {
   background: #fff;
   border-radius: 16px;
@@ -5991,10 +5991,10 @@ body {
 }
 </style>
   <script>
-  // ===== 版本守护（v52.5.2起）：SW缓存死锁根治方案 =====
+  // ===== 版本守护（v52.5.3起）：SW缓存死锁根治方案 =====
   // 放在所有JS之前执行，确保版本不对时立即清理并重载
   (function() {
-    var CURRENT_VERSION = '52.5.2';
+    var CURRENT_VERSION = '52.5.3';
     var STORAGE_KEY = 'mirun_app_version';
     
     function wipeAndReload(reason) {
@@ -6721,6 +6721,10 @@ body {
       <span class="sub-tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg></span>
       <span class="sub-tab-text">饮食</span>
     </button>
+    <button class="sub-tab-item" data-sub="solar" onclick="switchSubTab('health', 'solar')">
+      <span class="sub-tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg></span>
+      <span class="sub-tab-text">节气</span>
+    </button>
     <button class="sub-tab-item" data-sub="sleep" onclick="switchSubTab('health', 'sleep')">
       <span class="sub-tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span>
       <span class="sub-tab-text">睡眠</span>
@@ -6756,7 +6760,7 @@ body {
     </div>
 
     <!-- 节气养生重点卡片 -->
-    <div class="solar-term-banner" id="solarTermBanner" onclick="switchSubTab('health', 'diet')">
+    <div class="solar-term-banner" id="solarTermBanner" onclick="switchSubTab('health', 'solar')">
       <div class="solar-term-left">
         <div class="solar-term-name" id="solarTermName">--</div>
         <div class="solar-term-tip" id="solarTermTip">顺应时节，食养有道</div>
@@ -6924,7 +6928,7 @@ body {
         </div>
       </div>
 
-<div class="dashboard-card">
+<div class="dashboard-card" onclick="switchSubTab('health', 'solar')" style="cursor:pointer">
         <div class="dashboard-card-header">
           <div>
             <div class="dashboard-card-title">节气食养</div>
@@ -6937,6 +6941,11 @@ body {
       </div>
       <div id="foodRecogContainer" style="max-width:680px;margin:0 auto"></div>
     </div>
+  </div>
+
+  <!-- 节气养生 -->
+  <div id="health-solar" class="sub-tab-content">
+    <div id="healthSolarView" style="padding:16px"></div>
   </div>
 
   <!-- 睡眠 -->
@@ -8514,6 +8523,29 @@ body {
       </div>
     </div>
 
+    <!-- 数据备份与恢复 -->
+    <div class="me-section-card" style="background:#fff;border-radius:16px;margin-bottom:16px;border:1px solid #f1f5f9;overflow:hidden">
+      <div class="me-section-title" style="padding:14px 16px 8px;font-size:13px;font-weight:600;color:#64748b;letter-spacing:0.3px">数据备份与恢复</div>
+      <div style="padding:4px 16px 10px;font-size:12px;color:#94a3b8;line-height:1.7">
+        将本机全部数据（个人档案、健康、财富、教育、对话记录等）导出为 JSON 备份文件。<br>换机或清理缓存导致数据丢失后，选择备份文件即可一键恢复。
+      </div>
+      <div style="display:flex;gap:10px;padding:0 16px 14px">
+        <button onclick="mirunExportBackup()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:11px;border-radius:12px;border:none;background:#ecfdf5;color:#059669;font-size:14px;font-weight:600;cursor:pointer">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          导出备份
+        </button>
+        <button onclick="mirunImportBackup()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:11px;border-radius:12px;border:none;background:#f5f3ff;color:#7c3aed;font-size:14px;font-weight:600;cursor:pointer">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          导入恢复
+        </button>
+      </div>
+      <div style="padding:0 16px 14px;display:flex;align-items:center;gap:6px;font-size:11px;color:#94a3b8">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        备份文件仅保存在您选择的位置，不会上传到任何服务器
+      </div>
+      <input type="file" id="mirunBackupFile" accept="application/json,.json" style="display:none" />
+    </div>
+
     <!-- 关于 -->
     <div class="me-section-card" style="background:#fff;border-radius:16px;margin-bottom:16px;border:1px solid #f1f5f9;overflow:hidden">
       <div class="me-section-title" style="padding:14px 16px 8px;font-size:13px;font-weight:600;color:#64748b;letter-spacing:0.3px">关于</div>
@@ -8532,7 +8564,7 @@ body {
     </div>
 
     <div style="text-align:center;padding:20px 0 10px;font-size:12px;color:#cbd5e1">
-      MiRun AI v52.5.2 · 越用越懂你的数字分身
+      MiRun AI v52.5.3 · 越用越懂你的数字分身
     </div>
   </div>
   <div class="app-brand-footer">
@@ -8640,7 +8672,7 @@ body {
 
 
 <!-- ==================== Bottom Tab Bar ==================== -->
-  <!-- [v52.5.2] 模块切换早定义 — 防止底部Tab点击报错 ReferenceError: Can't find variable: switchModule -->
+  <!-- [v52.5.3] 模块切换早定义 — 防止底部Tab点击报错 ReferenceError: Can't find variable: switchModule -->
   <script>
   (function() {
     var moduleTitlesBoot = { home: '对话', work: '工作', health: '健康', life: '生活', me: '我的' };
@@ -8737,10 +8769,10 @@ body {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
   </button>
 </div>
-<script src="datastore.js?v=52.5.2"></script>
-<script src="diagnosis-engine.js?v=52.5.2"></script>
-<script src="reminder-engine.js?v=52.5.2"></script>
-<script src="trend-view.js?v=52.5.2"></script>
+<script src="datastore.js?v=52.5.3"></script>
+<script src="diagnosis-engine.js?v=52.5.3"></script>
+<script src="reminder-engine.js?v=52.5.3"></script>
+<script src="trend-view.js?v=52.5.3"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 // [v52.4.2] Removed IIFE wrap — all functions now global for HTML event access
@@ -8748,7 +8780,7 @@ body {
 
   // ==================== Module Switching ====================
 
-  // ==================== v52.5.2 饮食记录存储与渲染 ====================
+  // ==================== v52.5.3 饮食记录存储与渲染 ====================
   window.DietRecords = {
     STORAGE_KEY: 'mirun_diet_records',
     
@@ -8878,7 +8910,7 @@ body {
 
 
 
-  // ==================== v52.5.2 健康专项页数据渲染 ====================
+  // ==================== v52.5.3 健康专项页数据渲染 ====================
   window.HealthSpecial = {
     // 情绪分数对应 emoji 和标签
     moodMap: {
@@ -9174,7 +9206,7 @@ body {
     }, 600);
   });
 
-  // ==================== v52.5.2 教育模块示例数据初始化 ====================
+  // ==================== v52.5.3 教育模块示例数据初始化 ====================
   window.EduSampleData = {
     init: function() {
       // 如果localStorage没有真实数据，用示例数据填充显示
@@ -10919,7 +10951,7 @@ body {
         } else if (subName === 'solar' && window.initSolarTerm) {
           requestAnimationFrame(function() {
             requestAnimationFrame(function() {
-              window.initSolarTerm('solarTermContainer');
+              window.initSolarTerm('healthSolarView');
             });
           });
         } else if (subName === 'diet') {
@@ -14161,7 +14193,7 @@ body {
   // ==================== Version Sync + Force Refresh ====================
   // If stored version != page version → unregister SW, clear all caches, hard reload
   (function() {
-    var PAGE_VERSION = '52.5.2';
+    var PAGE_VERSION = '52.5.3';
     var storedVersion = localStorage.getItem('mirun_app_version');
     
     // First visitor — just store version
@@ -14261,7 +14293,7 @@ body {
     // Immediate: if old service-worker.js is controlling, unregister it to break deadlock
     if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
       var ctrlURL = navigator.serviceWorker.controller.scriptURL || '';
-      if (ctrlURL.indexOf('sw-v52.5.2.js') === -1 && ctrlURL.indexOf('service-worker.js') !== -1) {
+      if (ctrlURL.indexOf('sw-v52.5.3.js') === -1 && ctrlURL.indexOf('service-worker.js') !== -1) {
         console.log('Old SW detected, unregistering to break cache deadlock...');
         navigator.serviceWorker.getRegistrations().then(function(regs) {
           regs.forEach(function(r) {
@@ -14278,19 +14310,19 @@ body {
       var existingController = navigator.serviceWorker.controller;
       var isAllowedSW = false;
       if (existingController && existingController.scriptURL) {
-        isAllowedSW = existingController.scriptURL.indexOf('sw-v52.5.2.js') !== -1 || existingController.scriptURL.indexOf('service-worker.js') !== -1;
+        isAllowedSW = existingController.scriptURL.indexOf('sw-v52.5.3.js') !== -1 || existingController.scriptURL.indexOf('service-worker.js') !== -1;
       }
       if (existingController && !isAllowedSW) {
         console.log('Skipping SW registration: existing controller is unknown');
         return;
       }
 
-      navigator.serviceWorker.register('./sw-v52.5.2.js', { updateViaCache: 'none' }).then(function(reg) {
+      navigator.serviceWorker.register('./sw-v52.5.3.js', { updateViaCache: 'none' }).then(function(reg) {
         console.log('SW registered, scope:', reg.scope);
         
         // Verify the registered SW is our expected file
         var isExpected = reg.active && reg.active.scriptURL && 
-          (reg.active.scriptURL.indexOf('sw-v52.5.2.js') !== -1 || reg.active.scriptURL.indexOf('service-worker.js') !== -1);
+          (reg.active.scriptURL.indexOf('sw-v52.5.3.js') !== -1 || reg.active.scriptURL.indexOf('service-worker.js') !== -1);
         if (reg.active && !isExpected) {
           console.warn('Unexpected SW scriptURL detected, unregistering:', reg.active.scriptURL);
           reg.unregister();
@@ -15092,7 +15124,7 @@ function toggleGuideSection(index) {
 
   function getFeedbackAutoInfo() {
     var info = {
-      appVersion: 'v52.5.2',
+      appVersion: 'v52.5.3',
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent || '',
       screenSize: window.innerWidth + 'x' + window.innerHeight,
@@ -16122,25 +16154,196 @@ function toggleGuideSection(index) {
 // [v52.4.2] End of removed IIFE wrap
 </script>
 
-<script src="solar-term.js?v=52.5.2"></script>
-<script src="chronic-disease.js?v=52.5.2"></script>
-<script src="schedule.js?v=52.5.2"></script>
-<script src="daily-tx.js?v=52.5.2"></script>
-<script src="stock-holdings.js?v=52.5.2"></script>
-<script src="behavior-log.js?v=52.5.2"></script>
-<script src="user-profile.js?v=52.5.2"></script>
-<script src="insight-engine.js?v=52.5.2"></script>
-<script src="health-bridge.js?v=52.5.2"></script>
-<script src="push-engine.js?v=52.5.2"></script>
-<script src="memory-manager.js?v=52.5.2"></script>
-<script src="chat-engine.js?v=52.5.2"></script>
-    <script src="ai-engine.js?v=52.5.2"></script>
-<script src="decision-forge.js?v=52.5.2"></script>
-<script src="value-resonance.js?v=52.5.2"></script>
-<script src="image-recognizer.js?v=52.5.2"></script>
+<script>
+  // ==================== v52.5.3 数据备份与恢复 ====================
+  window.mirunExportBackup = function() {
+    try {
+      var data = {
+        app: 'MiRun-AI',
+        version: 'v52.5.3',
+        exportedAt: new Date().toISOString(),
+        localStorage: {},
+        indexedDB: {}
+      };
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (k && (k.indexOf('mirun_') === 0 || k.indexOf('mijie_') === 0)) {
+          data.localStorage[k] = localStorage.getItem(k);
+        }
+      }
+      function readStore(db, sn, out, done) {
+        var st = db.transaction(sn, 'readonly').objectStore(sn);
+        var meta = { keyPath: (st.keyPath || null), autoIncrement: (st.autoIncrement === true), data: [] };
+        var req = st.openCursor();
+        req.onsuccess = function(ev) {
+          var cur = ev.target.result;
+          if (cur) { meta.data.push({ key: cur.key, value: cur.value }); cur['continue'](); }
+          else { out[sn] = meta; done(); }
+        };
+        req.onerror = function() { out[sn] = meta; done(); };
+      }
+      function collectDB(dbName, cb) {
+        try {
+          var req = indexedDB.open(dbName);
+          req.onsuccess = function(ev) {
+            var db = ev.target.result;
+            var sns = Array.prototype.slice.call(db.objectStoreNames);
+            var out = {};
+            if (sns.length === 0) { db.close(); cb(out); return; }
+            var idx = 0;
+            (function next() {
+              if (idx >= sns.length) { db.close(); cb(out); }
+              else readStore(db, sns[idx++], out, next);
+            })();
+          };
+          req.onerror = function() { cb({}); };
+        } catch(e) { cb({}); }
+      }
+      function finalize() {
+        var json = JSON.stringify(data, null, 2);
+        var d = new Date();
+        function p(n){ return n<10?'0'+n:''+n; }
+        var fname = 'mirun-backup-' + d.getFullYear() + p(d.getMonth()+1) + p(d.getDate()) + '.json';
+        var blob = new Blob([json], { type: 'application/json' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url; a.download = fname;
+        document.body.appendChild(a); a.click();
+        setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 120);
+        if (window.showToast) showToast('备份已导出，请妥善保存备份文件');
+      }
+      function processDBs(names) {
+        var pending = names.length;
+        if (pending === 0) { finalize(); return; }
+        names.forEach(function(dbName) {
+          collectDB(dbName, function(storeData) {
+            if (storeData) data.indexedDB[dbName] = storeData;
+            pending--; if (pending <= 0) finalize();
+          });
+        });
+      }
+      var knownDBs = ['mijieai_behavior','mijieai_recipes','mijieai_datastore','mirunai_memory'];
+      if (typeof indexedDB.databases === 'function') {
+        indexedDB.databases().then(function(list) {
+          var names = (list && list.length) ? list.map(function(x){ return x.name; }) : knownDBs;
+          processDBs(names);
+        })['catch'](function(){ processDBs(knownDBs); });
+      } else {
+        processDBs(knownDBs);
+      }
+    } catch(e) {
+      if (window.showToast) showToast('导出失败: ' + e.message);
+      else alert('导出失败: ' + e.message);
+    }
+  };
+
+  window.mirunImportBackup = function() {
+    var input = document.getElementById('mirunBackupFile');
+    if (!input) return;
+    input.value = '';
+    input.onchange = function() {
+      var file = input.files && input.files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function() {
+        var data;
+        try { data = JSON.parse(reader.result); }
+        catch(e) { alert('备份文件解析失败，请选择有效的 JSON 备份文件'); return; }
+        if (!data || data.app !== 'MiRun-AI') {
+          alert('这不是 MiRun AI 的备份文件，无法导入');
+          return;
+        }
+        if (!confirm('导入将用备份数据覆盖当前本机数据并刷新页面，确定继续吗？')) return;
+        if (data.localStorage) {
+          for (var k in data.localStorage) {
+            if (data.localStorage.hasOwnProperty(k)) {
+              try { localStorage.setItem(k, data.localStorage[k]); } catch(e) {}
+            }
+          }
+        }
+        var idb = data.indexedDB || {};
+        var dbNames = Object.keys(idb);
+        if (dbNames.length === 0) { finishImport(); }
+        else restoreAllDBs(dbNames, idb, finishImport);
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+    function finishImport() {
+      alert('数据恢复成功，正在刷新页面...');
+      location.reload();
+    }
+  };
+
+  function restoreAllDBs(names, metaMap, done) {
+    var idx = 0;
+    function next() {
+      if (idx >= names.length) { done(); return; }
+      restoreOneDB(names[idx++], metaMap[names[idx-1]] || {}, next);
+    }
+    function restoreOneDB(dbName, meta, cb) {
+      try {
+        var delReq = indexedDB.deleteDatabase(dbName);
+        var opened = false;
+        delReq.onsuccess = delReq.onblocked = function() { recreate(); };
+        delReq.onerror = function() { cb(); };
+        function recreate() {
+          var storeNames = Object.keys(meta);
+          var openReq = indexedDB.open(dbName);
+          openReq.onupgradeneeded = function(ev) {
+            var db = ev.target.result;
+            storeNames.forEach(function(sn) {
+              if (!db.objectStoreNames.contains(sn)) {
+                var opt = {};
+                if (meta[sn] && meta[sn].keyPath) opt.keyPath = meta[sn].keyPath;
+                if (meta[sn] && meta[sn].autoIncrement) opt.autoIncrement = true;
+                db.createObjectStore(sn, opt);
+              }
+            });
+          };
+          openReq.onsuccess = function(ev) {
+            var db = ev.target.result;
+            if (storeNames.length === 0) { db.close(); cb(); return; }
+            var tx = db.transaction(storeNames, 'readwrite');
+            tx.oncomplete = function(){ db.close(); cb(); };
+            tx.onerror = function(){ db.close(); cb(); };
+            tx.onabort = function(){ db.close(); cb(); };
+            storeNames.forEach(function(sn) {
+              var st = tx.objectStore(sn);
+              var items = (meta[sn] && meta[sn].data) || [];
+              items.forEach(function(it) {
+                try { if (it.key !== null && it.key !== undefined) st.put(it.value, it.key); else st.put(it.value); }
+                catch(e) {}
+              });
+            });
+          };
+          openReq.onerror = function(){ cb(); };
+        }
+      } catch(e) { cb(); }
+    }
+    next();
+  }
+</script>
+
+<script src="solar-term.js?v=52.5.3"></script>
+<script src="chronic-disease.js?v=52.5.3"></script>
+<script src="schedule.js?v=52.5.3"></script>
+<script src="daily-tx.js?v=52.5.3"></script>
+<script src="stock-holdings.js?v=52.5.3"></script>
+<script src="behavior-log.js?v=52.5.3"></script>
+<script src="user-profile.js?v=52.5.3"></script>
+<script src="insight-engine.js?v=52.5.3"></script>
+<script src="health-bridge.js?v=52.5.3"></script>
+<script src="push-engine.js?v=52.5.3"></script>
+<script src="memory-manager.js?v=52.5.3"></script>
+<script src="chat-engine.js?v=52.5.3"></script>
+    <script src="ai-engine.js?v=52.5.3"></script>
+<script src="decision-forge.js?v=52.5.3"></script>
+<script src="value-resonance.js?v=52.5.3"></script>
+<script src="image-recognizer.js?v=52.5.3"></script>
 
   <!-- Version Badge -->
-  <div id="versionBadge" style="position:fixed;bottom:80px;right:12px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;z-index:9999;letter-spacing:0.5px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;pointer-events:none">v52.5.2</div>
+  <div id="versionBadge" style="position:fixed;bottom:80px;right:12px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;z-index:9999;letter-spacing:0.5px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;pointer-events:none">v52.5.3</div>
   <script>
     setTimeout(function(){
       var b = document.getElementById('versionBadge');
