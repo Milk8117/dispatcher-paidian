@@ -175,7 +175,28 @@
         // 补全缺失字段
         if (!cfg.mode) cfg.mode = 'default';
         if (!cfg.defaultProvider) cfg.defaultProvider = 'nvidia';
-        if (!cfg.providers) cfg.providers = DEFAULT_CONFIG.providers;
+        // 深度合并：用户配置中为空的 apiKey 用 DEFAULT_CONFIG 内置值补上
+    if (!cfg.providers) cfg.providers = {};
+    for (var key in DEFAULT_CONFIG.providers) {
+      if (DEFAULT_CONFIG.providers.hasOwnProperty(key)) {
+        if (!cfg.providers[key]) {
+          cfg.providers[key] = JSON.parse(JSON.stringify(DEFAULT_CONFIG.providers[key]));
+        } else {
+          if (!cfg.providers[key].apiKey) {
+            cfg.providers[key].apiKey = DEFAULT_CONFIG.providers[key].apiKey;
+          }
+          if (DEFAULT_CONFIG.providers[key].baseUrl && !cfg.providers[key].baseUrl) {
+            cfg.providers[key].baseUrl = DEFAULT_CONFIG.providers[key].baseUrl;
+          }
+          if (DEFAULT_CONFIG.providers[key].models && !cfg.providers[key].models) {
+            cfg.providers[key].models = DEFAULT_CONFIG.providers[key].models;
+          }
+        }
+      }
+    }
+    if (!cfg.defaultApiKey) {
+      cfg.defaultApiKey = DEFAULT_CONFIG.defaultApiKey;
+    }
         if (!cfg.tokenBudget) cfg.tokenBudget = DEFAULT_CONFIG.tokenBudget;
         if (cfg.tokenBudget.dailyLimit === undefined) cfg.tokenBudget.dailyLimit = 500000;
         if (cfg.tokenBudget.cacheEnabled === undefined) cfg.tokenBudget.cacheEnabled = true;

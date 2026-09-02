@@ -2026,4 +2026,19 @@
     return result;
   };
 
+
+  // ===== 提前初始化：不依赖 initSolarTerm 调用，首页/食养卡片可直接使用 =====
+  (function() {
+    var now = new Date();
+    var year = now.getFullYear();
+    // 动态更新当年节气日期
+    var termDates = getYearTermDates(year);
+    for (var k = 0; k < SOLAR_TERMS.length; k++) {
+      SOLAR_TERMS[k].date = termDates[k].month + '月' + termDates[k].day + '日';
+    }
+    var _solarCurrentIdx = getCurrentTermIndex();
+    
+    window.solarGetCurrentTerm = function() { return _solarCurrentIdx; };
+    window.solarGetCurrentTermData = function() { return SOLAR_TERMS[_solarCurrentIdx]; };
+  })();
 })();
