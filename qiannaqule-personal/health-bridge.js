@@ -74,6 +74,80 @@
     } catch(e) {}
   }
 
+  // ==================== 体质档案 ====================
+  // 存储用户中医体质类型，供AI对话、节气食养、饮食推荐个性化调用
+  // 九种体质：平和质、气虚质、阳虚质、阴虚质、痰湿质、湿热质、血瘀质、气郁质、特禀质
+  // 可叠加：如"阳虚质+痰湿质"= 脾胃虚寒寒湿体质
+
+  var PROFILE_KEY = 'mijieai_health_profile';
+
+  function defaultProfile() {
+    return {
+      constitutions: [],
+      symptoms: '',
+      dietPreference: '',
+      chronicTags: [],
+      updatedAt: ''
+    };
+  }
+
+  function loadProfile() {
+    try {
+      var data = DataStore.load(MODULE, FIELD_PROFILE, null);
+      if (!data) return defaultProfile();
+      return Object.assign(defaultProfile(), data);
+    } catch(e) {
+      return defaultProfile();
+    }
+  }
+
+  function saveProfile(profile) {
+    try {
+      profile.updatedAt = new Date().toISOString();
+      DataStore.save(MODULE, FIELD_PROFILE, profile);
+      return true;
+    } catch(e) {
+      console.warn('[HealthBridge] 体质档案保存失败:', e.message);
+      return false;
+    }
+  }
+
+  function addConstitution(type) {
+    var profile = loadProfile();
+    if (profile.constitutions.indexOf(type) === -1) {
+      profile.constitutions.push(type);
+      saveProfile(profile);
+    }
+    return profile;
+  }
+
+  function addChronicTag(tagId) {
+    var profile = loadProfile();
+    if (profile.chronicTags.indexOf(tagId) === -1) {
+      profile.chronicTags.push(tagId);
+      saveProfile(profile);
+    }
+    return profile;
+  }
+
+  function getConstitutionPrompt() {
+    var profile = loadProfile();
+    var parts = [];
+    if (profile.constitutions.length) {
+      parts.push('用户中医体质：' + profile.constitutions.join('、'));
+    }
+    if (profile.chronicTags.length) {
+      parts.push('用户关注的慢病/调养方向：' + profile.chronicTags.join('、'));
+    }
+    if (profile.symptoms) {
+      parts.push('主要症状：' + profile.symptoms);
+    }
+    if (profile.dietPreference) {
+      parts.push('饮食偏好与禁忌：' + profile.dietPreference);
+    }
+    return parts.join('；');
+  }
+
   // ==================== 工具函数 ====================
 
   /** 生成今天日期字符串 YYYY-MM-DD */
@@ -693,6 +767,13 @@
     getRecentDays: getRecentDays,
     getHealthSummary: getHealthSummary,
     getStats: getStats,
+    // 体质档案API
+    loadProfile: loadProfile,
+    saveProfile: saveProfile,
+    addConstitution: addConstitution,
+    addChronicTag: addChronicTag,
+    getConstitutionPrompt: getConstitutionPrompt,
+
     exportHealthCSV: exportHealthCSV,
 
     // 原生API预留
