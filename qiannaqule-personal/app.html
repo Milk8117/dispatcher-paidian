@@ -4480,6 +4480,215 @@ body {
   background: #dcfce7;
 }
 /* ========== v52.2 样式 END ========== */
+
+/* ========== v52.4.1 今日任务聚合卡片 ========== */
+.today-tasks-card {
+  margin: 0 16px 12px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 14px 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.today-tasks-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.today-tasks-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.today-tasks-title svg { color: #8b5cf6; }
+.today-tasks-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.tt-action-btn {
+  width: 28px; height: 28px;
+  border: none;
+  background: #f5f3ff;
+  border-radius: 8px;
+  color: #8b5cf6;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.tt-action-btn:active { transform: scale(0.93); background: #ede9fe; }
+.tt-action-btn.primary { background: #8b5cf6; color: #fff; }
+.tt-action-btn.primary:active { background: #7c3aed; }
+
+.tt-progress-bar {
+  height: 4px;
+  background: #f1f5f9;
+  border-radius: 2px;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+.tt-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #8b5cf6, #a78bfa);
+  border-radius: 2px;
+  transition: width 0.3s;
+  width: 0%;
+}
+.tt-progress-text {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.tt-task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.tt-task-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #f8fafc;
+  transition: all 0.2s;
+}
+.tt-task-item.done {
+  opacity: 0.5;
+}
+.tt-task-item.done .tt-task-text {
+  text-decoration: line-through;
+  color: #94a3b8;
+}
+.tt-checkbox {
+  width: 20px; height: 20px;
+  border: 2px solid #cbd5e1;
+  border-radius: 6px;
+  flex-shrink: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+  transition: all 0.2s;
+  background: #fff;
+}
+.tt-checkbox.checked {
+  background: #8b5cf6;
+  border-color: #8b5cf6;
+}
+.tt-task-body {
+  flex: 1;
+  min-width: 0;
+}
+.tt-task-text {
+  font-size: 13px;
+  color: #1e293b;
+  line-height: 1.4;
+  word-break: break-all;
+}
+.tt-task-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  font-size: 11px;
+  color: #94a3b8;
+}
+.tt-task-tag {
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 500;
+}
+.tt-tag-health { background: #dcfce7; color: #16a34a; }
+.tt-tag-work { background: #dbeafe; color: #2563eb; }
+.tt-tag-finance { background: #fef3c7; color: #d97706; }
+.tt-tag-life { background: #fce7f3; color: #db2777; }
+.tt-tag-ai { background: #f3e8ff; color: #7c3aed; }
+
+.tt-task-delete {
+  width: 20px; height: 20px;
+  border: none;
+  background: transparent;
+  color: #cbd5e1;
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+.tt-task-delete:hover { color: #ef4444; background: #fef2f2; }
+
+.tt-empty {
+  text-align: center;
+  padding: 20px 10px;
+  color: #94a3b8;
+  font-size: 12px;
+}
+.tt-empty-icon {
+  font-size: 24px;
+  margin-bottom: 6px;
+  opacity: 0.5;
+}
+
+.tt-add-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+.tt-add-input {
+  flex: 1;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 12px;
+  outline: none;
+  background: #fff;
+  color: #1e293b;
+}
+.tt-add-input:focus { border-color: #8b5cf6; }
+.tt-add-btn {
+  border: none;
+  background: #8b5cf6;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.tt-add-btn:active { background: #7c3aed; }
+
+.tt-generating {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+  color: #8b5cf6;
+  font-size: 12px;
+}
+.tt-spinner {
+  width: 16px; height: 16px;
+  border: 2px solid #e9d5ff;
+  border-top-color: #8b5cf6;
+  border-radius: 50%;
+  animation: tt-spin 0.8s linear infinite;
+}
+@keyframes tt-spin {
+  to { transform: rotate(360deg); }
+}
 </style>
   <script>
   // ===== 版本守护（v52.4.6起）：SW缓存死锁根治方案 =====
@@ -13877,212 +14086,3 @@ function toggleGuideSection(index) {
 </div>
 </body>
 </html>
-
-/* ========== v52.4.1 今日任务聚合卡片 ========== */
-.today-tasks-card {
-  margin: 0 16px 12px;
-  background: #fff;
-  border-radius: 16px;
-  padding: 14px 16px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-}
-.today-tasks-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-.today-tasks-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: #0f172a;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.today-tasks-title svg { color: #8b5cf6; }
-.today-tasks-actions {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.tt-action-btn {
-  width: 28px; height: 28px;
-  border: none;
-  background: #f5f3ff;
-  border-radius: 8px;
-  color: #8b5cf6;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-}
-.tt-action-btn:active { transform: scale(0.93); background: #ede9fe; }
-.tt-action-btn.primary { background: #8b5cf6; color: #fff; }
-.tt-action-btn.primary:active { background: #7c3aed; }
-
-.tt-progress-bar {
-  height: 4px;
-  background: #f1f5f9;
-  border-radius: 2px;
-  margin-bottom: 12px;
-  overflow: hidden;
-}
-.tt-progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #8b5cf6, #a78bfa);
-  border-radius: 2px;
-  transition: width 0.3s;
-  width: 0%;
-}
-.tt-progress-text {
-  font-size: 11px;
-  color: #94a3b8;
-  margin-bottom: 8px;
-  display: flex;
-  justify-content: space-between;
-}
-
-.tt-task-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.tt-task-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 8px 10px;
-  border-radius: 10px;
-  background: #f8fafc;
-  transition: all 0.2s;
-}
-.tt-task-item.done {
-  opacity: 0.5;
-}
-.tt-task-item.done .tt-task-text {
-  text-decoration: line-through;
-  color: #94a3b8;
-}
-.tt-checkbox {
-  width: 20px; height: 20px;
-  border: 2px solid #cbd5e1;
-  border-radius: 6px;
-  flex-shrink: 0;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 1px;
-  transition: all 0.2s;
-  background: #fff;
-}
-.tt-checkbox.checked {
-  background: #8b5cf6;
-  border-color: #8b5cf6;
-}
-.tt-task-body {
-  flex: 1;
-  min-width: 0;
-}
-.tt-task-text {
-  font-size: 13px;
-  color: #1e293b;
-  line-height: 1.4;
-  word-break: break-all;
-}
-.tt-task-meta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 4px;
-  font-size: 11px;
-  color: #94a3b8;
-}
-.tt-task-tag {
-  padding: 1px 6px;
-  border-radius: 4px;
-  font-size: 10px;
-  font-weight: 500;
-}
-.tt-tag-health { background: #dcfce7; color: #16a34a; }
-.tt-tag-work { background: #dbeafe; color: #2563eb; }
-.tt-tag-finance { background: #fef3c7; color: #d97706; }
-.tt-tag-life { background: #fce7f3; color: #db2777; }
-.tt-tag-ai { background: #f3e8ff; color: #7c3aed; }
-
-.tt-task-delete {
-  width: 20px; height: 20px;
-  border: none;
-  background: transparent;
-  color: #cbd5e1;
-  cursor: pointer;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: all 0.2s;
-}
-.tt-task-delete:hover { color: #ef4444; background: #fef2f2; }
-
-.tt-empty {
-  text-align: center;
-  padding: 20px 10px;
-  color: #94a3b8;
-  font-size: 12px;
-}
-.tt-empty-icon {
-  font-size: 24px;
-  margin-bottom: 6px;
-  opacity: 0.5;
-}
-
-.tt-add-row {
-  display: flex;
-  gap: 8px;
-  margin-top: 10px;
-}
-.tt-add-input {
-  flex: 1;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 6px 10px;
-  font-size: 12px;
-  outline: none;
-  background: #fff;
-  color: #1e293b;
-}
-.tt-add-input:focus { border-color: #8b5cf6; }
-.tt-add-btn {
-  border: none;
-  background: #8b5cf6;
-  color: #fff;
-  padding: 6px 12px;
-  border-radius: 8px;
-  font-size: 12px;
-  cursor: pointer;
-  white-space: nowrap;
-}
-.tt-add-btn:active { background: #7c3aed; }
-
-.tt-generating {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 16px;
-  color: #8b5cf6;
-  font-size: 12px;
-}
-.tt-spinner {
-  width: 16px; height: 16px;
-  border: 2px solid #e9d5ff;
-  border-top-color: #8b5cf6;
-  border-radius: 50%;
-  animation: tt-spin 0.8s linear infinite;
-}
-@keyframes tt-spin {
-  to { transform: rotate(360deg); }
-}
