@@ -6561,7 +6561,7 @@ body {
     </div>
 
     <div style="text-align:center;padding:20px 0 10px;font-size:12px;color:#cbd5e1">
-      MiRun AI v52.4.4 · 越用越懂你的数字分身
+      MiRun AI v52.4.5 · 越用越懂你的数字分身
     </div>
   </div>
   <div class="app-brand-footer">
@@ -7516,6 +7516,12 @@ body {
       try {
         if (window.HealthBridge && HealthBridge.getHealthSummary) ctx.health = HealthBridge.getHealthSummary();
       } catch(e) {}
+      try {
+        if (window.HealthBridge && HealthBridge.getConstitutionPrompt) {
+          var cp = HealthBridge.getConstitutionPrompt();
+          if (cp) ctx.constitution = cp;
+        }
+      } catch(e) {}
 
       var prompt = '请根据以下信息，为用户生成今天（' + getTodayStr() + '）的待办任务清单，3-5条即可，要具体可执行，不要空泛。\n\n';
       prompt += '用户画像：' + JSON.stringify(ctx.profile || {}) + '\n';
@@ -7527,6 +7533,9 @@ body {
       }
       if (ctx.health) {
         prompt += '健康概况：' + JSON.stringify(ctx.health).slice(0, 200) + '\n';
+      }
+      if (ctx.constitution) {
+        prompt += '体质档案：' + ctx.constitution + '\n';
       }
       prompt += '\n请只输出JSON数组，不要其他文字，格式：[{"text":"任务内容","tag":"health/work/finance/life"}]。' +
         'tag分类：health=健康运动饮食，work=工作学习，finance=财务记账，life=生活杂事。' +
@@ -12274,7 +12283,7 @@ function toggleGuideSection(index) {
 
   function getFeedbackAutoInfo() {
     var info = {
-      appVersion: 'v52.4.4',
+      appVersion: 'v52.4.5',
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent || '',
       screenSize: window.innerWidth + 'x' + window.innerHeight,
@@ -13312,17 +13321,17 @@ function toggleGuideSection(index) {
 <script src="behavior-log.js?v=52.3.14"></script>
 <script src="user-profile.js?v=52.3.14"></script>
 <script src="insight-engine.js?v=52.3.14"></script>
-<script src="health-bridge.js?v=52.4.4"></script>
+<script src="health-bridge.js?v=52.4.5"></script>
 <script src="push-engine.js?v=52.3.14"></script>
 <script src="memory-manager.js?v=52.3.14"></script>
-<script src="chat-engine.js?v=52.3.14"></script>
-<script src="ai-engine.js?v=52.4.2"></script>
+<script src="chat-engine.js?v=52.4.5"></script>
+<script src="ai-engine.js?v=52.4.5"></script>
 <script src="decision-forge.js?v=52.3.14"></script>
 <script src="value-resonance.js?v=52.3.14"></script>
 <script src="image-recognizer.js?v=52.3.20"></script>
 
   <!-- Version Badge -->
-  <div id="versionBadge" style="position:fixed;bottom:80px;right:12px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;z-index:9999;letter-spacing:0.5px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;pointer-events:none">v52.4.4</div>
+  <div id="versionBadge" style="position:fixed;bottom:80px;right:12px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;z-index:9999;letter-spacing:0.5px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;pointer-events:none">v52.4.5</div>
   <script>
     setTimeout(function(){
       var b = document.getElementById('versionBadge');

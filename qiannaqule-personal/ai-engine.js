@@ -390,11 +390,20 @@
       }
     } catch(e) {}
 
-    // 健康档案
+    // 健康档案（体质档案 + 慢病标签）
     try {
-      var hp = DataStore.load('health', 'profile', {}) || {};
-      if (hp.screened && hp.conditions && hp.conditions.length > 0) {
-        ctx.healthProfile = { conditions: hp.conditions };
+      if (window.HealthBridge && HealthBridge.getConstitutionPrompt) {
+        var constPrompt = HealthBridge.getConstitutionPrompt();
+        if (constPrompt) {
+          ctx.healthProfile = { constitutionText: constPrompt };
+        }
+      }
+      // 兼容旧数据
+      if (!ctx.healthProfile) {
+        var hp = DataStore.load('health', 'profile', {}) || {};
+        if (hp.screened && hp.conditions && hp.conditions.length > 0) {
+          ctx.healthProfile = { conditions: hp.conditions };
+        }
       }
     } catch(e) {}
 
@@ -469,7 +478,11 @@
       prompt += '- 宜食：' + context.solarTerm.foods.join('、') + '\n';
     }
     if (context.healthProfile) {
-      prompt += '- 用户健康状况：' + context.healthProfile.conditions.join('、') + '\n';
+      if (context.healthProfile.constitutionText) {
+        prompt += '- ' + context.healthProfile.constitutionText + '\n';
+      } else if (context.healthProfile.conditions) {
+        prompt += '- 用户健康状况：' + context.healthProfile.conditions.join('、') + '\n';
+      }
     }
     if (context.todaySchedule.length > 0) {
       prompt += '- 今日待办日程：\n';
