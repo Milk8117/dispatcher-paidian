@@ -132,16 +132,21 @@
 
   // ==================== 配置管理 ====================
 
+  // v52.4.6: 密钥从 ai-secrets.js 注入（本地文件，不提交Git）
+  // 没有 ai-secrets.js 时留空，用户在设置面板自行配置
+  var _secrets = (typeof window !== 'undefined' && window.__AI_SECRETS__) || {};
+  var _secretProviders = _secrets.providers || {};
+
   var DEFAULT_CONFIG = {
     mode: 'default',
     defaultProvider: 'bailian',
-    defaultApiKey: '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',
+    defaultApiKey: _secrets.defaultApiKey || '',
     providers: {
-      deepseek: { apiKey: 'sk-25c588ba49b243f08e743c788e92cf15', apiBase: '', model: '' },
-      bailian: { apiKey: 'sk-ws-H.ELEXHRD.2Xmm.MEUCIQD8FduqTxbuANZ3ttnoQKjMEmqxkpG7ZpJK4th7jrpO8wIgeeQVwro_HTzZywrGoEFSAVZPcuuvnpJTdiP2sp5H0JA', apiBase: '', model: '' },
-      kimi: { apiKey: 'sk-hoZEU79yH5oklgZvS7SfNg2TJ36ZoQR0Ks5D9laP1exPoFT0', apiBase: '', model: '' },
-      doubao: { apiKey: '', apiBase: '', model: '' },
-      zhipu: { apiKey: '', apiBase: '', model: '' }, // 用户自行配置：智谱开放平台API Key,
+      deepseek: { apiKey: (_secretProviders.deepseek || {}).apiKey || '', apiBase: '', model: '' },
+      bailian: { apiKey: (_secretProviders.bailian || {}).apiKey || '', apiBase: '', model: '' },
+      kimi: { apiKey: (_secretProviders.kimi || {}).apiKey || '', apiBase: '', model: '' },
+      doubao: { apiKey: (_secretProviders.doubao || {}).apiKey || '', apiBase: '', model: (_secretProviders.doubao || {}).model || '' },
+      zhipu: { apiKey: (_secretProviders.zhipu || {}).apiKey || '', apiBase: '', model: '' },
       custom: { apiKey: '', apiBase: '', model: '' }
     },
     fallbackEnabled: true,

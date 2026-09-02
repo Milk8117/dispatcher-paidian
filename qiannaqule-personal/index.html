@@ -2082,6 +2082,142 @@ body {
   margin-top: 8px;
   padding-bottom: 120px;
 }
+
+/* 搜索栏 */
+.chat-search-bar {
+  padding: 8px 16px 10px;
+  position: sticky;
+  top: 56px;
+  background: #f8fafc;
+  z-index: 10;
+}
+.chat-search-input-wrap {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 6px 12px;
+  transition: border-color 0.2s;
+}
+.chat-search-input-wrap:focus-within {
+  border-color: #ff6600;
+}
+.chat-search-icon {
+  width: 16px;
+  height: 16px;
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+.chat-search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 14px;
+  padding: 4px 8px;
+  color: #1e293b;
+}
+.chat-search-input::placeholder {
+  color: #94a3b8;
+}
+.chat-search-clear {
+  background: #e2e8f0;
+  border: none;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+}
+.chat-search-filters {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+.cs-filter-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 4px 10px;
+  font-size: 12px;
+  color: #475569;
+  cursor: pointer;
+}
+.cs-filter-btn:active {
+  background: #f1f5f9;
+}
+.cs-result-count {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+/* 日期筛选器 */
+.chat-date-filter {
+  margin: 0 16px 10px;
+  padding: 12px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+}
+.cdf-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.cdf-row label {
+  font-size: 12px;
+  color: #64748b;
+  width: 56px;
+  flex-shrink: 0;
+}
+.cdf-row input[type="date"] {
+  flex: 1;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 6px 8px;
+  font-size: 13px;
+  color: #1e293b;
+  background: #f8fafc;
+}
+.cdf-quick {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+.cdf-quick button {
+  flex: 1;
+  min-width: 60px;
+  background: #f1f5f9;
+  border: none;
+  border-radius: 12px;
+  padding: 5px 8px;
+  font-size: 12px;
+  color: #475569;
+  cursor: pointer;
+}
+.cdf-quick button:active {
+  background: #e2e8f0;
+}
+
+/* 搜索结果高亮 */
+.search-highlight {
+  background: #fef3c7;
+  color: #92400e;
+  padding: 0 2px;
+  border-radius: 3px;
+}
 .chat-history-card {
   margin: 0 16px 10px;
   border-radius: 14px;
@@ -6767,7 +6903,7 @@ body {
     </div>
 
     <div style="text-align:center;padding:20px 0 10px;font-size:12px;color:#cbd5e1">
-      MiRun AI v52.4.5 · 越用越懂你的数字分身
+      MiRun AI v52.4.6 · 越用越懂你的数字分身
     </div>
   </div>
   <div class="app-brand-footer">
@@ -6878,6 +7014,40 @@ body {
   <div class="chat-history-header">
     <span class="chat-history-title">对话历史</span>
     <button class="chat-history-clear-all" onclick="clearAllChatHistory()">清空</button>
+  </div>
+  <!-- 搜索栏 -->
+  <div class="chat-search-bar">
+    <div class="chat-search-input-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="chat-search-icon"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="chatSearchInput" class="chat-search-input" placeholder="搜索对话内容或按日期筛选" oninput="onChatSearchInput()"/>
+      <button class="chat-search-clear" id="chatSearchClearBtn" onclick="clearChatSearch()" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+      </button>
+    </div>
+    <div class="chat-search-filters">
+      <button class="cs-filter-btn" onclick="openChatDateFilter()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>
+        按日期
+      </button>
+      <span class="cs-result-count" id="chatSearchResultCount" style="display:none"></span>
+    </div>
+  </div>
+  <!-- 日期筛选器 -->
+  <div class="chat-date-filter" id="chatDateFilter" style="display:none">
+    <div class="cdf-row">
+      <label>开始日期</label>
+      <input type="date" id="chatFilterStartDate" onchange="onChatSearchInput()"/>
+    </div>
+    <div class="cdf-row">
+      <label>结束日期</label>
+      <input type="date" id="chatFilterEndDate" onchange="onChatSearchInput()"/>
+    </div>
+    <div class="cdf-quick">
+      <button onclick="setChatDateQuick('today')">今天</button>
+      <button onclick="setChatDateQuick('week')">近7天</button>
+      <button onclick="setChatDateQuick('month')">近30天</button>
+      <button onclick="setChatDateQuick('clear')">清除</button>
+    </div>
   </div>
   <div class="chat-history-list" id="chatHistoryList"></div>
 </div>
@@ -8874,6 +9044,149 @@ body {
     setChatHistory([]);
     renderChatHistory();
   };
+
+  // ==================== 对话搜索功能 ====================
+  var _chatSearchKeyword = '';
+  var _chatDateStart = '';
+  var _chatDateEnd = '';
+
+  function highlightText(text, keyword) {
+    if (!keyword) return escapeHtml(text);
+    var safe = escapeHtml(text);
+    var kw = escapeHtml(keyword);
+    try {
+      var re = new RegExp('(' + kw.replace(/[.*+?^$()|[\]\\]/g, '\\$&') + ')', 'gi');
+      return safe.replace(re, '<span class="search-highlight">$1</span>');
+    } catch(e) {
+      return safe;
+    }
+  }
+
+  function filterChatHistory(history, keyword, startDate, endDate) {
+    var kw = keyword.trim().toLowerCase();
+    return history.filter(function(item) {
+      if (kw) {
+        var q = (item.question || '').toLowerCase();
+        var r = (item.reply || '').toLowerCase();
+        if (q.indexOf(kw) === -1 && r.indexOf(kw) === -1) return false;
+      }
+      if (startDate || endDate) {
+        var itemDate = (item.timestamp || '').split(' ')[0];
+        if (!itemDate) return false;
+        if (startDate && itemDate < startDate) return false;
+        if (endDate && itemDate > endDate) return false;
+      }
+      return true;
+    });
+  }
+
+  window.onChatSearchInput = function() {
+    var input = document.getElementById('chatSearchInput');
+    var clearBtn = document.getElementById('chatSearchClearBtn');
+    var countEl = document.getElementById('chatSearchResultCount');
+    if (!input) return;
+
+    _chatSearchKeyword = input.value;
+    if (clearBtn) clearBtn.style.display = input.value ? 'flex' : 'none';
+
+    var history = getChatHistory();
+    var filtered = filterChatHistory(history, _chatSearchKeyword, _chatDateStart, _chatDateEnd);
+
+    if (countEl) {
+      if (_chatSearchKeyword || _chatDateStart || _chatDateEnd) {
+        countEl.style.display = 'inline';
+        countEl.textContent = '找到 ' + filtered.length + ' 条';
+      } else {
+        countEl.style.display = 'none';
+      }
+    }
+
+    renderChatHistoryFiltered(filtered, _chatSearchKeyword);
+  };
+
+  window.clearChatSearch = function() {
+    var input = document.getElementById('chatSearchInput');
+    if (input) input.value = '';
+    _chatSearchKeyword = '';
+    _chatDateStart = '';
+    _chatDateEnd = '';
+    var startEl = document.getElementById('chatFilterStartDate');
+    var endEl = document.getElementById('chatFilterEndDate');
+    if (startEl) startEl.value = '';
+    if (endEl) endEl.value = '';
+    var clearBtn = document.getElementById('chatSearchClearBtn');
+    if (clearBtn) clearBtn.style.display = 'none';
+    var countEl = document.getElementById('chatSearchResultCount');
+    if (countEl) countEl.style.display = 'none';
+    var filterPanel = document.getElementById('chatDateFilter');
+    if (filterPanel) filterPanel.style.display = 'none';
+    renderChatHistory();
+  };
+
+  window.openChatDateFilter = function() {
+    var panel = document.getElementById('chatDateFilter');
+    if (!panel) return;
+    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+  };
+
+  window.setChatDateQuick = function(type) {
+    var startEl = document.getElementById('chatFilterStartDate');
+    var endEl = document.getElementById('chatFilterEndDate');
+    if (!startEl || !endEl) return;
+
+    var now = new Date();
+    var endStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+
+    if (type === 'today') {
+      startEl.value = endStr;
+      endEl.value = endStr;
+    } else if (type === 'week') {
+      var weekAgo = new Date(now.getTime() - 6 * 24 * 3600 * 1000);
+      startEl.value = weekAgo.getFullYear() + '-' + String(weekAgo.getMonth()+1).padStart(2,'0') + '-' + String(weekAgo.getDate()).padStart(2,'0');
+      endEl.value = endStr;
+    } else if (type === 'month') {
+      var monthAgo = new Date(now.getTime() - 29 * 24 * 3600 * 1000);
+      startEl.value = monthAgo.getFullYear() + '-' + String(monthAgo.getMonth()+1).padStart(2,'0') + '-' + String(monthAgo.getDate()).padStart(2,'0');
+      endEl.value = endStr;
+    } else if (type === 'clear') {
+      startEl.value = '';
+      endEl.value = '';
+    }
+
+    _chatDateStart = startEl.value;
+    _chatDateEnd = endEl.value;
+    onChatSearchInput();
+  };
+
+  function renderChatHistoryFiltered(filtered, keyword) {
+    var list = document.getElementById('chatHistoryList');
+    if (!list) return;
+
+    if (filtered.length === 0) {
+      var hasFilter = keyword || _chatDateStart || _chatDateEnd;
+      list.innerHTML = '<div class="chat-history-empty">' + (hasFilter ? '没有找到匹配的对话' : '暂无对话记录') + '</div>';
+      return;
+    }
+
+    var html = '';
+    for (var i = 0; i < filtered.length; i++) {
+      var item = filtered[i];
+      var isExpanded = keyword ? true : (item.collapsed === false) || (i === 0 && item.collapsed !== true);
+      var collapsedClass = isExpanded ? ' expanded' : '';
+      html += '<div class="chat-history-card' + collapsedClass + '" id="chat-card-' + item.id + '">';
+      html += '<div class="card-header" onclick="toggleChatCard(' + item.id + ')">';
+      html += '<span class="card-question">' + highlightText(truncateText(item.question, 30), keyword) + '</span>';
+      html += '<span class="card-time">' + item.timestamp.split(' ')[0].substring(5) + '</span>';
+      html += '<span class="card-toggle">▼</span>';
+      html += '</div>';
+      html += '<div class="card-content" id="card-content-' + item.id + '">';
+      html += '<div class="card-ai-r">' + highlightText(item.reply, keyword) + '</div>';
+      html += '</div>';
+      html += '<div class="card-footer"><button class="card-delete-btn" onclick="event.stopPropagation();deleteChatCard(' + item.id + ')">删除</button></div>';
+      html += '</div>';
+    }
+    list.innerHTML = html;
+  }
 
   function showAiThinking(userText) {
     var list = document.getElementById('chatHistoryList');
@@ -12476,7 +12789,7 @@ function toggleGuideSection(index) {
 
   function getFeedbackAutoInfo() {
     var info = {
-      appVersion: 'v52.4.5',
+      appVersion: 'v52.4.6',
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent || '',
       screenSize: window.innerWidth + 'x' + window.innerHeight,
@@ -13517,7 +13830,8 @@ function toggleGuideSection(index) {
 <script src="push-engine.js?v=52.3.14"></script>
 <script src="memory-manager.js?v=52.3.14"></script>
 <script src="chat-engine.js?v=52.4.5"></script>
-<script src="ai-engine.js?v=52.4.5"></script>
+<script src="ai-secrets.js?v=52.4.6"></script>
+    <script src="ai-engine.js?v=52.4.6"></script>
 <script src="decision-forge.js?v=52.3.14"></script>
 <script src="value-resonance.js?v=52.3.14"></script>
 <script src="image-recognizer.js?v=52.3.20"></script>
