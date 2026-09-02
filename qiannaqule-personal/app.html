@@ -3530,6 +3530,1094 @@ body {
 /* ========== v51 各Tab主题色变量 ========== */
 #page-work { --tab-color: #8b5cf6; --tab-color-dark: #7c3aed; --tab-color-light: #f5f3ff; }
 #page-health { --tab-color: #16a34a; --tab-color-dark: #15803d; --tab-color-light: #f0fdf4; }
+
+
+/* ========== v52.5.2 健康专项页样式 ========== */
+/* 运动专项 */
+.exercise-stats-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+  border: 1px solid #f1f5f9;
+}
+.exercise-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  text-align: center;
+}
+.ex-stat-item {
+  padding: 8px 4px;
+}
+.ex-stat-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  margin: 0 auto 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ex-stat-icon.steps { background: #f0fdf4; color: #16a34a; }
+.ex-stat-icon.duration { background: #ecfdf5; color: #059669; }
+.ex-stat-icon.calories { background: #fef3c7; color: #d97706; }
+.ex-stat-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.2;
+}
+.ex-stat-unit {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+.ex-stat-label {
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+/* 记录列表通用 */
+.record-list-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+  border: 1px solid #f1f5f9;
+}
+.record-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.record-list-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.record-list-action {
+  font-size: 12px;
+  color: #16a34a;
+  cursor: pointer;
+  font-weight: 500;
+}
+.record-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+.record-item:last-child { border-bottom: none; }
+.record-item-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.record-item-content {
+  flex: 1;
+  min-width: 0;
+}
+.record-item-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 2px;
+}
+.record-item-meta {
+  font-size: 11px;
+  color: #94a3b8;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.record-item-right {
+  text-align: right;
+  flex-shrink: 0;
+}
+.record-item-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+}
+.record-item-sub {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+.record-empty {
+  text-align: center;
+  padding: 20px 0;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+/* 睡眠记录列表 */
+.sleep-record-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+.sleep-record-item:last-child { border-bottom: none; }
+.sleep-record-date {
+  width: 48px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.sleep-record-day {
+  font-size: 10px;
+  color: #94a3b8;
+  margin-bottom: 2px;
+}
+.sleep-record-num {
+  font-size: 16px;
+  font-weight: 700;
+  color: #8b5cf6;
+  line-height: 1;
+}
+.sleep-record-info {
+  flex: 1;
+  min-width: 0;
+}
+.sleep-record-times {
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+.sleep-quality-bar {
+  height: 4px;
+  background: #e2e8f0;
+  border-radius: 2px;
+  overflow: hidden;
+  width: 100%;
+}
+.sleep-quality-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #8b5cf6, #a78bfa);
+  border-radius: 2px;
+}
+.sleep-record-quality {
+  width: 32px;
+  text-align: right;
+  flex-shrink: 0;
+}
+.sleep-quality-num {
+  font-size: 14px;
+  font-weight: 700;
+  color: #8b5cf6;
+}
+.sleep-quality-label {
+  font-size: 10px;
+  color: #94a3b8;
+}
+
+/* 情绪记录 */
+.mood-today-card {
+  background: linear-gradient(135deg, #fdf2f8, #fce7f3);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 12px;
+  text-align: center;
+  border: 1px solid #fbcfe8;
+}
+.mood-today-label {
+  font-size: 12px;
+  color: #be185d;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+.mood-today-emoji {
+  font-size: 40px;
+  margin-bottom: 4px;
+  line-height: 1;
+}
+.mood-today-score {
+  font-size: 24px;
+  font-weight: 700;
+  color: #9d174d;
+}
+.mood-today-score .unit {
+  font-size: 12px;
+  font-weight: 500;
+  color: #be185d;
+}
+.mood-today-label-desc {
+  font-size: 11px;
+  color: #be185d;
+  margin-top: 4px;
+}
+
+.mood-record-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+.mood-record-item:last-child { border-bottom: none; }
+.mood-record-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+  background: #fdf2f8;
+}
+.mood-record-content { flex: 1; min-width: 0; }
+.mood-record-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 2px;
+}
+.mood-record-time {
+  font-size: 11px;
+  color: #94a3b8;
+}
+.mood-record-score {
+  font-size: 14px;
+  font-weight: 700;
+  color: #ec4899;
+  flex-shrink: 0;
+}
+
+/* 快速记录按钮（各专项页） */
+.quick-record-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, #16a34a, #15803d);
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(22,163,74,0.25);
+}
+.quick-record-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(22,163,74,0.35);
+}
+.quick-record-btn.purple {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  box-shadow: 0 2px 8px rgba(139,92,246,0.25);
+}
+.quick-record-btn.purple:hover { box-shadow: 0 4px 12px rgba(139,92,246,0.35); }
+.quick-record-btn.pink {
+  background: linear-gradient(135deg, #ec4899, #db2777);
+  box-shadow: 0 2px 8px rgba(236,72,153,0.25);
+}
+.quick-record-btn.pink:hover { box-shadow: 0 4px 12px rgba(236,72,153,0.35); }
+
+/* 总览Tab的 behaviorHub 容器 */
+.health-overview-hub {
+  margin-top: -4px;
+}
+
+/* ========== v52.5.2 财富页完整样式 ========== */
+.wealth-pillar-switcher {
+  display: flex;
+  gap: 4px;
+  padding: 8px 16px 0;
+  margin-bottom: 12px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.wealth-pillar-switcher::-webkit-scrollbar { display: none; }
+.wps-item {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748b;
+  background: #f8fafc;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+.wps-item:hover { background: #f1f5f9; }
+.wps-item.active {
+  color: #2563eb;
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  font-weight: 600;
+}
+.wps-item .icon-svg { width: 14px; height: 14px; }
+
+.wealth-pillar-content { display: none; }
+.wealth-pillar-content.active { display: block; }
+
+/* 图表卡片 */
+.wealth-chart-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+  border: 1px solid #f1f5f9;
+}
+.wcc-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.wcc-body {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.wcc-pie {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.wcc-legend {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.wccl-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #475569;
+}
+.wccl-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.wcc-mini-chart {
+  width: 100%;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.wcc-mini-chart svg { width: 100%; height: 100%; }
+
+/* 列表卡片 */
+.wealth-list-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+  border: 1px solid #f1f5f9;
+}
+.wlc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.wlc-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+}
+.wlc-more {
+  font-size: 12px;
+  color: #2563eb;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-weight: 500;
+}
+.wlc-more .icon-svg { width: 12px; height: 12px; }
+.wlc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.wlc-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+.wlc-list-item:last-child { border-bottom: none; }
+.wlc-item-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+.wlc-item-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 600;
+}
+.wlc-item-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.wlc-item-desc {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+.wlc-item-right {
+  text-align: right;
+  flex-shrink: 0;
+}
+.wlc-item-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+}
+.wlc-item-change {
+  font-size: 11px;
+  font-weight: 500;
+  margin-top: 2px;
+}
+.wlc-item-change.up { color: #ef4444; }
+.wlc-item-change.down { color: #10b981; }
+.wlc-empty {
+  text-align: center;
+  padding: 20px 0;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+/* 英雄区数据 */
+.wealth-hero-stats {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  margin-top: 16px;
+  padding: 12px 0;
+  background: rgba(255,255,255,0.1);
+  border-radius: 12px;
+}
+.whs-item { text-align: center; flex: 1; }
+.whs-label {
+  font-size: 11px;
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 4px;
+}
+.whs-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+}
+.whs-unit {
+  font-size: 10px;
+  color: rgba(255,255,255,0.6);
+  margin-top: 2px;
+}
+.whs-divider {
+  width: 1px;
+  height: 32px;
+  background: rgba(255,255,255,0.2);
+}
+
+/* 英雄区底部 */
+.wealth-hero-bottom {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 14px;
+}
+.wealth-pie-wrap {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.wealth-pie-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.wpl-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: rgba(255,255,255,0.8);
+}
+.wpl-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.wealth-stage-mini {
+  flex: 1;
+  background: rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+.wsm-title {
+  font-size: 11px;
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+.wsm-steps {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.wsm-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.wsm-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.3);
+}
+.wsm-step.active .wsm-dot {
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.2);
+}
+.wsm-label {
+  font-size: 10px;
+  color: rgba(255,255,255,0.6);
+  white-space: nowrap;
+}
+.wsm-step.active .wsm-label {
+  color: #fff;
+  font-weight: 500;
+}
+.wsm-line {
+  flex: 1;
+  height: 2px;
+  background: rgba(255,255,255,0.2);
+  margin: 0 2px;
+  margin-bottom: 14px;
+}
+
+/* AI建议按钮补充 */
+.ai-sug-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 4px;
+}
+.ai-sug-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #64748b;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  cursor: pointer;
+  margin-top: 6px;
+  margin-left: 8px;
+  transition: all 0.2s;
+}
+.ai-sug-btn:hover { background: #f1f5f9; }
+.ai-sug-btn svg { width: 12px; height: 12px; }
+
+/* AI持仓分析卡片（投资分段底部） */
+.ai-holdings-analysis-card {
+  background: linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%);
+  border-radius: 16px;
+  padding: 16px;
+  margin-top: 4px;
+  margin-bottom: 12px;
+  border: 1px solid #bfdbfe;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.ai-holdings-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #2563eb;
+  box-shadow: 0 2px 8px rgba(37,99,235,0.1);
+}
+.ai-holdings-content { flex: 1; min-width: 0; }
+.ai-holdings-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 3px;
+}
+.ai-holdings-desc {
+  font-size: 12px;
+  color: #64748b;
+  line-height: 1.5;
+}
+.ai-holdings-btn {
+  flex-shrink: 0;
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(37,99,235,0.3);
+}
+.ai-holdings-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(37,99,235,0.4); }
+
+/* ========== v52.5.2 教育模块样式 ========== */
+.edu-learning-card,
+.edu-growth-card,
+.edu-fund-card,
+.edu-activity-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+  border: 1px solid #f1f5f9;
+}
+.edu-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.edu-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.edu-card-badge {
+  font-size: 10px;
+  color: #94a3b8;
+  background: #f1f5f9;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+/* 学习计划项 */
+.learning-plan-item {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+.learning-plan-item:last-child { margin-bottom: 0; }
+.learning-plan-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.learning-plan-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
+}
+.learning-plan-status {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 500;
+}
+.learning-plan-status.doing { background: #dbeafe; color: #2563eb; }
+.learning-plan-status.pending { background: #f1f5f9; color: #64748b; }
+.learning-plan-status.done { background: #dcfce7; color: #16a34a; }
+.learning-progress-bar {
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+.learning-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #2563eb, #8b5cf6);
+  border-radius: 3px;
+  transition: width 0.3s;
+}
+.learning-progress-text {
+  font-size: 11px;
+  color: #94a3b8;
+  text-align: right;
+}
+
+/* 学习小贴士 */
+.tip-list-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+.tip-list-item:last-child { border-bottom: none; }
+.tip-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: #fef3c7;
+  color: #d97706;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.tip-text {
+  flex: 1;
+  font-size: 13px;
+  color: #334155;
+  line-height: 1.5;
+}
+
+/* 成长时间线 */
+.growth-timeline { position: relative; padding-left: 24px; }
+.growth-timeline::before {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: 6px;
+  bottom: 6px;
+  width: 2px;
+  background: #e2e8f0;
+}
+.growth-timeline-item {
+  position: relative;
+  margin-bottom: 16px;
+}
+.growth-timeline-item:last-child { margin-bottom: 0; }
+.growth-timeline-dot {
+  position: absolute;
+  left: -21px;
+  top: 4px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid #8b5cf6;
+  z-index: 1;
+}
+.growth-timeline-card {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 12px;
+  border: 1px solid #f1f5f9;
+}
+.growth-timeline-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 4px;
+}
+.growth-timeline-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: #94a3b8;
+}
+.growth-tag {
+  padding: 2px 8px;
+  border-radius: 8px;
+  background: #f5f3ff;
+  color: #8b5cf6;
+  font-weight: 500;
+}
+
+/* 教育金 */
+.edu-fund-hero {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 12px;
+  text-align: center;
+}
+.edu-fund-hero-label {
+  font-size: 12px;
+  color: #92400e;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+.edu-fund-hero-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #78350f;
+  line-height: 1.2;
+}
+.edu-fund-hero-value .unit {
+  font-size: 14px;
+  font-weight: 500;
+  color: #92400e;
+  margin-left: 2px;
+}
+.edu-fund-hero-target {
+  font-size: 12px;
+  color: #a16207;
+  margin-top: 4px;
+}
+.edu-fund-progress {
+  margin: 14px 0 6px;
+}
+.edu-fund-progress-bar {
+  height: 10px;
+  background: rgba(255,255,255,0.5);
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+.edu-fund-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #f59e0b, #d97706);
+  border-radius: 5px;
+}
+.edu-fund-progress-text {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #92400e;
+  font-weight: 500;
+}
+
+/* 教育金建议 */
+.edu-fund-suggestion-item {
+  display: flex;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+.edu-fund-suggestion-item:last-child { border-bottom: none; }
+.edu-fund-sug-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: #fef3c7;
+  color: #d97706;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.edu-fund-sug-content { flex: 1; }
+.edu-fund-sug-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 2px;
+}
+.edu-fund-sug-desc {
+  font-size: 12px;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+/* 亲子活动卡片 */
+.activity-item {
+  display: flex;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+.activity-item:last-child { border-bottom: none; }
+.activity-date-tag {
+  flex-shrink: 0;
+  width: 48px;
+  text-align: center;
+  background: #f5f3ff;
+  border-radius: 10px;
+  padding: 8px 4px;
+}
+.activity-date-day {
+  font-size: 16px;
+  font-weight: 700;
+  color: #8b5cf6;
+  line-height: 1;
+}
+.activity-date-label {
+  font-size: 10px;
+  color: #a78bfa;
+  margin-top: 2px;
+}
+.activity-content { flex: 1; min-width: 0; }
+.activity-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 4px;
+}
+.activity-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.activity-tag {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 8px;
+  background: #f1f5f9;
+  color: #64748b;
+  font-weight: 500;
+}
+.activity-more-card {
+  background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+  border-radius: 14px;
+  padding: 16px;
+  text-align: center;
+  cursor: pointer;
+  border: 1px dashed #c4b5fd;
+  transition: all 0.2s;
+}
+.activity-more-card:hover { border-style: solid; }
+.activity-more-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #7c3aed;
+  margin-bottom: 4px;
+}
+.activity-more-desc {
+  font-size: 11px;
+  color: #8b5cf6;
+}
+
+/* ========== v52.5.2 健康饮食 - 三餐列表样式 ========== */
+.diet-meal-list-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+  border: 1px solid #f1f5f9;
+}
+.diet-meal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.diet-meal-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.diet-meal-group {
+  margin-bottom: 10px;
+}
+.diet-meal-group:last-child { margin-bottom: 0; }
+.diet-meal-group-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #f1f5f9;
+}
+.diet-meal-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.diet-meal-icon.breakfast { background: #fef3c7; color: #d97706; }
+.diet-meal-icon.lunch { background: #fee2e2; color: #ef4444; }
+.diet-meal-icon.dinner { background: #e0e7ff; color: #6366f1; }
+.diet-meal-icon.snack { background: #fce7f3; color: #ec4899; }
+.diet-meal-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
+  flex: 1;
+}
+.diet-meal-count {
+  font-size: 11px;
+  color: #94a3b8;
+}
+.diet-food-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0 6px 36px;
+  font-size: 12px;
+  color: #334155;
+}
+.diet-food-name { flex: 1; }
+.diet-food-time {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-left: 8px;
+  flex-shrink: 0;
+}
+.diet-food-cal {
+  font-size: 11px;
+  color: #64748b;
+  margin-left: 8px;
+  flex-shrink: 0;
+  min-width: 45px;
+  text-align: right;
+}
+.diet-meal-empty {
+  padding: 8px 0 8px 36px;
+  font-size: 12px;
+  color: #cbd5e1;
+  font-style: italic;
+}
+
 #page-life { --tab-color: #2563eb; --tab-color-dark: #1d4ed8; --tab-color-light: #eff6ff; }
 #page-me { --tab-color: #64748b; --tab-color-dark: #475569; --tab-color-light: #f1f5f9; }
 
@@ -4903,10 +5991,10 @@ body {
 }
 </style>
   <script>
-  // ===== 版本守护（v52.5.1起）：SW缓存死锁根治方案 =====
+  // ===== 版本守护（v52.5.2起）：SW缓存死锁根治方案 =====
   // 放在所有JS之前执行，确保版本不对时立即清理并重载
   (function() {
-    var CURRENT_VERSION = '52.5.1';
+    var CURRENT_VERSION = '52.5.2';
     var STORAGE_KEY = 'mirun_app_version';
     
     function wipeAndReload(reason) {
@@ -5772,7 +6860,12 @@ body {
       <div class="placeholder-desc">季节流行病预警 · 健康趋势对标<br>社会层功能规划中</div>
     </div>
 
-    <!-- 第三层：AI建议 -->
+        <!-- 今日行为总览（日期切换+行为概览+快捷记录+详情时间线） -->
+    <div class="health-overview-hub" style="padding:0 16px 12px">
+      <div id="behaviorHubContainer"></div>
+    </div>
+
+<!-- 第三层：AI建议 -->
     <div class="dashboard-ai-section">
       <div class="dashboard-ai-title">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M12 2l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3z"/></svg>
@@ -5816,7 +6909,22 @@ body {
           用对话记录更方便：「早餐吃了两个包子」
         </div>
       </div>
-      <div class="dashboard-card">
+            <!-- 今日三餐 -->
+      <div class="diet-meal-list-card">
+        <div class="diet-meal-header">
+          <div class="diet-meal-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+            今日三餐
+          </div>
+        </div>
+        <div id="dietMealList">
+          <div class="diet-meal-empty" style="padding:16px 0;text-align:center;font-size:12px;color:#94a3b8">
+            暂无饮食记录，对AI说「早餐吃了包子」开始记录
+          </div>
+        </div>
+      </div>
+
+<div class="dashboard-card">
         <div class="dashboard-card-header">
           <div>
             <div class="dashboard-card-title">节气食养</div>
@@ -5832,7 +6940,7 @@ body {
   </div>
 
   <!-- 睡眠 -->
-  <div id="health-sleep" class="sub-tab-content">
+    <div id="health-sleep" class="sub-tab-content">
     <div class="dashboard-section">
       <div class="dashboard-card">
         <div class="dashboard-card-header">
@@ -5840,6 +6948,42 @@ body {
             <div class="dashboard-card-title">睡眠质量</div>
             <div class="dashboard-card-subtitle">睡个好觉比什么都重要</div>
           </div>
+          <span class="dashboard-card-tag" id="sleepTag">最近</span>
+        </div>
+        <div class="dashboard-big-number"><span id="sleepAvg">-</span><span class="unit">小时/晚</span></div>
+        <div class="dashboard-conclusion">
+          记录你的睡眠时长和质量，<br>
+          我来帮你找到最适合的作息规律。
+        </div>
+      </div>
+
+      <!-- 近7天睡眠记录 -->
+      <div class="record-list-card">
+        <div class="record-list-header">
+          <div class="record-list-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" style="color:#8b5cf6"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+            近7天睡眠
+          </div>
+        </div>
+        <div id="sleepRecordList">
+          <div class="record-empty">暂无睡眠记录，对AI说「昨晚睡了7小时」</div>
+        </div>
+      </div>
+
+      <div class="dashboard-card">
+        <div class="dashboard-card-header">
+          <div class="dashboard-card-title">睡眠小贴士</div>
+        </div>
+        <div class="dashboard-conclusion">
+          · 睡前1小时放下手机<br>
+          · 卧室温度保持在18-22°C<br>
+          · 固定作息时间，周末也不例外<br>
+          · 下午3点后避免摄入咖啡因
+        </div>
+      </div>
+    </div>
+  </div>
+
           <span class="dashboard-card-tag" id="sleepTag">最近</span>
         </div>
         <div class="dashboard-big-number"><span id="sleepAvg">-</span><span class="unit">小时/晚</span></div>
@@ -5863,14 +7007,63 @@ body {
   </div>
 
   <!-- 运动 -->
-  <div id="health-exercise" class="sub-tab-content">
+    <div id="health-exercise" class="sub-tab-content">
     <div class="dashboard-section">
-      <div class="dashboard-card">
-        <div class="dashboard-card-header">
-          <div>
-            <div class="dashboard-card-title">运动概览</div>
-            <div class="dashboard-card-subtitle">身体是革命的本钱</div>
+      <!-- 今日运动概览 -->
+      <div class="exercise-stats-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div style="font-size:14px;font-weight:600;color:#0f172a;display:flex;align-items:center;gap:6px">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" style="color:#16a34a"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            今日运动
           </div>
+          <span class="dashboard-card-tag" id="exerciseTag">今日</span>
+        </div>
+        <div class="exercise-stats-grid">
+          <div class="ex-stat-item">
+            <div class="ex-stat-icon steps">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            <div class="ex-stat-value" id="exStepCount">0</div>
+            <div class="ex-stat-label">步数</div>
+          </div>
+          <div class="ex-stat-item">
+            <div class="ex-stat-icon duration">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div class="ex-stat-value" id="exDuration">0</div>
+            <div class="ex-stat-label">分钟</div>
+          </div>
+          <div class="ex-stat-item">
+            <div class="ex-stat-icon calories">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+            </div>
+            <div class="ex-stat-value" id="exCalories">0</div>
+            <div class="ex-stat-label">千卡</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 运动记录列表 -->
+      <div class="record-list-card">
+        <div class="record-list-header">
+          <div class="record-list-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" style="color:#16a34a"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            今日运动记录
+          </div>
+        </div>
+        <div id="exerciseRecordList">
+          <div class="record-empty">暂无运动记录，点击下方按钮开始记录</div>
+        </div>
+      </div>
+
+      <!-- 记运动按钮 -->
+      <button class="quick-record-btn" onclick="window._bhShowAddExercise()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M12 5v14M5 12h14"/></svg>
+        记运动
+      </button>
+    </div>
+  </div>
+
           <span class="dashboard-card-tag" id="exerciseTag">本周</span>
         </div>
         <div class="dashboard-big-number"><span id="exerciseWeekMin">-</span><span class="unit">分钟</span></div>
@@ -5879,19 +7072,49 @@ body {
           用对话记录：「跑步30分钟」「走了5000步」
         </div>
       </div>
-      <div id="behaviorHubContainer"></div>
+
     </div>
   </div>
 
   <!-- 情绪 -->
-  <div id="health-mood" class="sub-tab-content">
+    <div id="health-mood" class="sub-tab-content">
     <div class="dashboard-section">
+      <!-- 今日心情 -->
+      <div class="mood-today-card">
+        <div class="mood-today-label">今日心情</div>
+        <div style="margin:8px 0">
+          <span style="font-size:36px" id="moodTodayEmoji">😊</span>
+        </div>
+        <div class="mood-today-score"><span id="moodTodayScore">-</span><span class="unit"> / 5</span></div>
+        <div class="mood-today-label-desc" id="moodTodayLabel">还未记录今日心情</div>
+      </div>
+
+      <!-- 最近情绪记录 -->
+      <div class="record-list-card">
+        <div class="record-list-header">
+          <div class="record-list-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" style="color:#ec4899"><path d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 0 0118 0z"/></svg>
+            最近情绪记录
+          </div>
+        </div>
+        <div id="moodRecordList">
+          <div class="record-empty">暂无情绪记录，对AI说「今天心情不错」</div>
+        </div>
+      </div>
+
       <div class="dashboard-card">
         <div class="dashboard-card-header">
-          <div>
-            <div class="dashboard-card-title">情绪记录</div>
-            <div class="dashboard-card-subtitle">看见情绪，理解自己</div>
-          </div>
+          <div class="dashboard-card-title">情绪小贴士</div>
+        </div>
+        <div class="dashboard-conclusion">
+          · 每天花5分钟记录心情<br>
+          · 深呼吸练习：4秒吸气+7秒屏息+8秒呼气<br>
+          · 找到情绪的触发点，才能更好地管理
+        </div>
+      </div>
+    </div>
+  </div>
+
           <span class="dashboard-card-tag">本周</span>
         </div>
         <div class="dashboard-big-number"><span id="moodAvg">-</span><span class="unit">分</span></div>
@@ -6344,6 +7567,18 @@ body {
             <div class="wlc-empty">暂无持仓，对AI说「买入贵州茅台100股」</div>
           </div>
         </div>
+        <!-- AI持仓分析 -->
+        <div class="ai-holdings-analysis-card">
+          <div class="ai-holdings-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M12 2l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3z"/></svg>
+          </div>
+          <div class="ai-holdings-content">
+            <div class="ai-holdings-title">AI 持仓分析</div>
+            <div class="ai-holdings-desc">基于你的持仓数据，分析资产配置合理性、风险集中度，给出调仓建议</div>
+          </div>
+          <button class="ai-holdings-btn" onclick="AIAction.doAction('invest-analysis')">立即分析</button>
+        </div>
+
         <div id="holdingsDetailContainer">
           <div id="stockHoldingsContainer"></div>
         </div>
@@ -6638,90 +7873,256 @@ body {
     </div>
 
     <!-- 学习规划 -->
-    <div id="edu-learning" class="sub-tab-content">
+        <div id="edu-learning" class="sub-tab-content">
       <div class="dashboard-section">
-        <div class="dashboard-card">
-          <div class="dashboard-card-header">
-            <div>
-              <div class="dashboard-card-title">学习规划</div>
-              <div class="dashboard-card-subtitle">学期目标 · 科目重点 · 进度追踪</div>
+        <!-- 学习规划 -->
+        <div class="edu-learning-card">
+          <div class="edu-card-header">
+            <div class="edu-card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+              学习计划
             </div>
-            <span class="dashboard-card-tag">规划中</span>
+            <span class="edu-card-badge">示例</span>
           </div>
-          <div class="dashboard-conclusion">
-            学习规划功能规划中。<br>
-            对AI说：「帮孩子制定一个学期学习计划」
+          <div class="learning-plan-item">
+            <div class="learning-plan-head">
+              <div class="learning-plan-name">每日阅读30分钟</div>
+              <span class="learning-plan-status doing">进行中</span>
+            </div>
+            <div class="learning-progress-bar"><div class="learning-progress-fill" style="width:65%"></div></div>
+            <div class="learning-progress-text">65% 完成</div>
+          </div>
+          <div class="learning-plan-item">
+            <div class="learning-plan-head">
+              <div class="learning-plan-name">英语口语练习</div>
+              <span class="learning-plan-status doing">进行中</span>
+            </div>
+            <div class="learning-progress-bar"><div class="learning-progress-fill" style="width:40%"></div></div>
+            <div class="learning-progress-text">40% 完成</div>
+          </div>
+          <div class="learning-plan-item">
+            <div class="learning-plan-head">
+              <div class="learning-plan-name">数学思维训练</div>
+              <span class="learning-plan-status pending">待开始</span>
+            </div>
+            <div class="learning-progress-bar"><div class="learning-progress-fill" style="width:0%"></div></div>
+            <div class="learning-progress-text">0% 完成</div>
           </div>
         </div>
-        <div class="dashboard-card">
-          <div class="dashboard-card-header">
-            <div class="dashboard-card-title">学习小贴士</div>
+        <!-- 学习小贴士 -->
+        <div class="edu-learning-card">
+          <div class="edu-card-header">
+            <div class="edu-card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>
+              学习小贴士
+            </div>
           </div>
-          <div class="dashboard-conclusion">
-            · 番茄工作法：25分钟专注+5分钟休息<br>
-            · 费曼学习法：用自己的话讲出来<br>
-            · 间隔重复：定期复习比一次学更多更有效
+          <div class="tip-list-item">
+            <div class="tip-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            </div>
+            <div class="tip-text">番茄工作法：25分钟专注 + 5分钟休息，高效又不疲惫</div>
+          </div>
+          <div class="tip-list-item">
+            <div class="tip-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            </div>
+            <div class="tip-text">费曼学习法：用自己的话讲出来，才是真的学会了</div>
+          </div>
+          <div class="tip-list-item">
+            <div class="tip-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+            <div class="tip-text">间隔重复：定期复习比一次学更多更有效，记忆更牢固</div>
           </div>
         </div>
       </div>
+    </div>
+    </div>
     </div>
 
     <!-- 成长记录 -->
-    <div id="edu-growth" class="sub-tab-content">
+        <div id="edu-growth" class="sub-tab-content">
       <div class="dashboard-section">
-        <div class="dashboard-card">
-          <div class="dashboard-card-header">
-            <div>
-              <div class="dashboard-card-title">成长记录</div>
-              <div class="dashboard-card-subtitle">身高体重 · 里程碑 · 获奖证书</div>
+        <div class="edu-growth-card">
+          <div class="edu-card-header">
+            <div class="edu-card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              成长里程碑
             </div>
-            <span class="dashboard-card-tag">规划中</span>
+            <span class="edu-card-badge">示例</span>
           </div>
-          <div class="dashboard-conclusion">
-            成长记录功能规划中。<br>
-            记录孩子成长的每一个重要瞬间。
+          <div class="growth-timeline">
+            <div class="growth-timeline-item">
+              <div class="growth-timeline-dot"></div>
+              <div class="growth-timeline-card">
+                <div class="growth-timeline-title">学会骑自行车</div>
+                <div class="growth-timeline-meta">
+                  <span class="growth-tag">运动</span>
+                  <span>2026年6月</span>
+                </div>
+              </div>
+            </div>
+            <div class="growth-timeline-item">
+              <div class="growth-timeline-dot"></div>
+              <div class="growth-timeline-card">
+                <div class="growth-timeline-title">第一次独立读完一本章节书</div>
+                <div class="growth-timeline-meta">
+                  <span class="growth-tag">阅读</span>
+                  <span>2026年7月</span>
+                </div>
+              </div>
+            </div>
+            <div class="growth-timeline-item">
+              <div class="growth-timeline-dot"></div>
+              <div class="growth-timeline-card">
+                <div class="growth-timeline-title">身高增长5cm</div>
+                <div class="growth-timeline-meta">
+                  <span class="growth-tag">身体</span>
+                  <span>2026年8月</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
+    </div>
+    </div>
     </div>
 
     <!-- 教育金 -->
-    <div id="edu-fund" class="sub-tab-content">
+        <div id="edu-fund" class="sub-tab-content">
       <div class="dashboard-section">
-        <div class="dashboard-card">
-          <div class="dashboard-card-header">
-            <div>
-              <div class="dashboard-card-title">教育金计划</div>
-              <div class="dashboard-card-subtitle">专项储蓄 · 投入收益追踪</div>
+        <div class="edu-fund-card">
+          <div class="edu-card-header">
+            <div class="edu-card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              教育金计划
             </div>
-            <span class="dashboard-card-tag">规划中</span>
+            <span class="edu-card-badge">示例</span>
           </div>
-          <div class="dashboard-big-number"><span id="eduFundTotal">-</span><span class="unit">元</span></div>
-          <div class="dashboard-conclusion">
-            教育金是对孩子未来的最好投资。<br>
-            对AI说：「帮我规划一份教育金储蓄计划」
+          <div class="edu-fund-hero">
+            <div class="edu-fund-hero-label">已存入教育金</div>
+            <div class="edu-fund-hero-value">50,000<span class="unit">元</span></div>
+            <div class="edu-fund-hero-target">目标：200,000 元</div>
+            <div class="edu-fund-progress">
+              <div class="edu-fund-progress-bar">
+                <div class="edu-fund-progress-fill" style="width:25%"></div>
+              </div>
+              <div class="edu-fund-progress-text">
+                <span>25%</span>
+                <span>还差 150,000 元</span>
+              </div>
+            </div>
+          </div>
+          <!-- 教育金规划建议 -->
+          <div style="margin-top:4px">
+            <div class="edu-card-title" style="margin-bottom:8px;font-size:13px">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>
+              规划建议
+            </div>
+            <div class="edu-fund-suggestion-item">
+              <div class="edu-fund-sug-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              </div>
+              <div class="edu-fund-sug-content">
+                <div class="edu-fund-sug-title">越早开始越好</div>
+                <div class="edu-fund-sug-desc">复利的力量需要时间积累，每月定投长期收益可观</div>
+              </div>
+            </div>
+            <div class="edu-fund-suggestion-item">
+              <div class="edu-fund-sug-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+              </div>
+              <div class="edu-fund-sug-content">
+                <div class="edu-fund-sug-title">定投策略</div>
+                <div class="edu-fund-sug-desc">每月固定金额投入，平滑市场波动风险</div>
+              </div>
+            </div>
+            <div class="edu-fund-suggestion-item">
+              <div class="edu-fund-sug-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </div>
+              <div class="edu-fund-sug-content">
+                <div class="edu-fund-sug-title">专款专用</div>
+                <div class="edu-fund-sug-desc">单独账户管理，避免被其他支出挪用</div>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:16px;text-align:center">
+            <button class="ai-sug-action-btn" onclick="AIAction.doAction('edu-fund-plan')">
+              AI 定制教育金规划
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </button>
           </div>
         </div>
       </div>
     </div>
+    </div>
+    </div>
 
     <!-- 亲子活动 -->
-    <div id="edu-activity" class="sub-tab-content">
+        <div id="edu-activity" class="sub-tab-content">
       <div class="dashboard-section">
-        <div class="dashboard-card">
-          <div class="dashboard-card-header">
-            <div>
-              <div class="dashboard-card-title">亲子活动</div>
-              <div class="dashboard-card-subtitle">家庭日历联动 · 活动推荐</div>
+        <div class="edu-activity-card">
+          <div class="edu-card-header">
+            <div class="edu-card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              本月亲子活动
             </div>
-            <span class="dashboard-card-tag">规划中</span>
+            <span class="edu-card-badge">示例</span>
           </div>
-          <div class="dashboard-conclusion">
-            亲子活动功能规划中。<br>
-            让每一次陪伴都充满意义。
+          <div class="activity-item">
+            <div class="activity-date-tag">
+              <div class="activity-date-day">周六</div>
+              <div class="activity-date-label">本周</div>
+            </div>
+            <div class="activity-content">
+              <div class="activity-name">周末公园野餐</div>
+              <div class="activity-tags">
+                <span class="activity-tag">户外</span>
+                <span class="activity-tag">全天</span>
+              </div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-date-tag">
+              <div class="activity-date-day">周日</div>
+              <div class="activity-date-label">下周</div>
+            </div>
+            <div class="activity-content">
+              <div class="activity-name">一起做手工</div>
+              <div class="activity-tags">
+                <span class="activity-tag">创意</span>
+                <span class="activity-tag">下午</span>
+              </div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-date-tag">
+              <div class="activity-date-day">周五</div>
+              <div class="activity-date-label">每周</div>
+            </div>
+            <div class="activity-content">
+              <div class="activity-name">家庭电影夜</div>
+              <div class="activity-tags">
+                <span class="activity-tag">日常</span>
+                <span class="activity-tag">晚间</span>
+              </div>
+            </div>
           </div>
         </div>
+        <!-- 更多灵感 -->
+        <div class="activity-more-card" onclick="AIAction.doAction('edu-activity')">
+          <div class="activity-more-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" style="vertical-align:middle;margin-right:4px"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+            更多活动灵感
+          </div>
+          <div class="activity-more-desc">让 AI 为你推荐适合的亲子活动</div>
+        </div>
       </div>
+    </div>
+    </div>
     </div>
   </div>
   <!-- END 家庭教育域 -->
@@ -7131,7 +8532,7 @@ body {
     </div>
 
     <div style="text-align:center;padding:20px 0 10px;font-size:12px;color:#cbd5e1">
-      MiRun AI v52.5.1 · 越用越懂你的数字分身
+      MiRun AI v52.5.2 · 越用越懂你的数字分身
     </div>
   </div>
   <div class="app-brand-footer">
@@ -7239,6 +8640,31 @@ body {
 
 
 <!-- ==================== Bottom Tab Bar ==================== -->
+  <!-- [v52.5.2] 模块切换早定义 — 防止底部Tab点击报错 ReferenceError: Can't find variable: switchModule -->
+  <script>
+  (function() {
+    var moduleTitlesBoot = { home: '对话', work: '工作', health: '健康', life: '生活', me: '我的' };
+    function bootSwitchModule(moduleName, subTabName) {
+      var pages = document.querySelectorAll('.page-view');
+      for (var i = 0; i < pages.length; i++) { pages[i].classList.remove('page-active'); }
+      var target = document.getElementById('page-' + moduleName);
+      if (target) target.classList.add('page-active');
+      var chatSection = document.getElementById('chatHistorySection');
+      var inputBar = document.querySelector('.app-input-bar');
+      if (chatSection) chatSection.style.display = (moduleName === 'home') ? 'block' : 'none';
+      if (inputBar) inputBar.style.display = (moduleName === 'home') ? 'flex' : 'none';
+      var items = document.querySelectorAll('.bottom-tab-item');
+      for (var i = 0; i < items.length; i++) {
+        items[i].classList.remove('active');
+        if (items[i].getAttribute('data-module') === moduleName) items[i].classList.add('active');
+      }
+      var titleEl = document.getElementById('topbarTitle');
+      if (titleEl) titleEl.textContent = moduleTitlesBoot[moduleName] || moduleName;
+    }
+    window.switchModule = bootSwitchModule;
+  })();
+  </script>
+
 <nav class="bottom-tab-bar" id="bottomTabBar">
   <button class="bottom-tab-item active" data-module="home" onclick="switchModule('home')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
@@ -7311,16 +8737,470 @@ body {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
   </button>
 </div>
-<script src="datastore.js?v=52.5.1"></script>
-<script src="diagnosis-engine.js?v=52.5.1"></script>
-<script src="reminder-engine.js?v=52.5.1"></script>
-<script src="trend-view.js?v=52.5.1"></script>
+<script src="datastore.js?v=52.5.2"></script>
+<script src="diagnosis-engine.js?v=52.5.2"></script>
+<script src="reminder-engine.js?v=52.5.2"></script>
+<script src="trend-view.js?v=52.5.2"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 // [v52.4.2] Removed IIFE wrap — all functions now global for HTML event access
 // 'use strict';
 
   // ==================== Module Switching ====================
+
+  // ==================== v52.5.2 饮食记录存储与渲染 ====================
+  window.DietRecords = {
+    STORAGE_KEY: 'mirun_diet_records',
+    
+    // 简单热量估算（千卡/份）
+    calEstimate: {
+      '饺子': 250, '包子': 200, '馒头': 220, '粥': 80, '鸡蛋': 70,
+      '米饭': 130, '面条': 280, '土豆烧肉': 450, '红烧肉': 500,
+      '青菜': 50, '沙拉': 120, '三明治': 300, '汉堡': 550,
+      '牛奶': 120, '豆浆': 80, '水果': 80, '面包': 150,
+      '煎饼': 350, '油条': 270, '馄饨': 220, '炒饭': 380,
+      '炒面': 400, '汤': 60, '鱼': 200, '鸡肉': 230,
+      '牛肉': 280, '豆腐': 80, '茄子': 120, '番茄': 30,
+      '蛋糕': 350, '饼干': 200, '巧克力': 250, '薯片': 300
+    },
+
+    getAll: function() {
+      try {
+        var raw = localStorage.getItem(this.STORAGE_KEY);
+        return raw ? JSON.parse(raw) : {};
+      } catch(e) { return {}; }
+    },
+
+    getToday: function() {
+      var all = this.getAll();
+      var today = new Date().toISOString().split('T')[0];
+      return all[today] || { breakfast: [], lunch: [], dinner: [], snack: [] };
+    },
+
+    addRecord: function(mealType, foodName) {
+      var all = this.getAll();
+      var today = new Date().toISOString().split('T')[0];
+      if (!all[today]) all[today] = { breakfast: [], lunch: [], dinner: [], snack: [] };
+      if (!all[today][mealType]) all[today][mealType] = [];
+      var time = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+      all[today][mealType].push({ food: foodName, time: time });
+      try { localStorage.setItem(this.STORAGE_KEY, JSON.stringify(all)); } catch(e) {}
+      this.refreshDietUI();
+    },
+
+    estimateCalories: function(foodName) {
+      var map = this.calEstimate;
+      for (var key in map) {
+        if (foodName.indexOf(key) !== -1) return map[key];
+      }
+      return 150; // 默认估算值
+    },
+
+    getTodayTotalCal: function() {
+      var today = this.getToday();
+      var total = 0;
+      ['breakfast', 'lunch', 'dinner', 'snack'].forEach(function(meal) {
+        if (today[meal]) {
+          today[meal].forEach(function(item) {
+            total += window.DietRecords.estimateCalories(item.food);
+          });
+        }
+      });
+      return total;
+    },
+
+    getTodayMealCount: function() {
+      var today = this.getToday();
+      var count = 0;
+      ['breakfast', 'lunch', 'dinner', 'snack'].forEach(function(meal) {
+        if (today[meal] && today[meal].length > 0) count++;
+      });
+      return count;
+    },
+
+    mealNames: { breakfast: '早餐', lunch: '午餐', dinner: '晚餐', snack: '加餐' },
+    mealIcons: {
+      breakfast: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M6 2h9a5 5 0 0 1 5 5v6a5 5 0 0 1-5 5H8a2 2 0 0 1-2-2V2z"/><path d="M6 13H4a2 2 0 0 0 0 4h4"/></svg>',
+      lunch: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/></svg>',
+      dinner: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>',
+      snack: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>'
+    },
+
+    renderMealList: function() {
+      var container = document.getElementById('dietMealList');
+      if (!container) return;
+      var today = this.getToday();
+      var meals = ['breakfast', 'lunch', 'dinner', 'snack'];
+      var html = '';
+      var hasAny = false;
+      for (var m = 0; m < meals.length; m++) {
+        var meal = meals[m];
+        var items = today[meal] || [];
+        if (items.length > 0) hasAny = true;
+        html += '<div class="diet-meal-group">';
+        html += '<div class="diet-meal-group-head">';
+        html += '<div class="diet-meal-icon ' + meal + '">' + this.mealIcons[meal] + '</div>';
+        html += '<div class="diet-meal-name">' + this.mealNames[meal] + '</div>';
+        html += '<div class="diet-meal-count">' + items.length + ' 项</div>';
+        html += '</div>';
+        if (items.length === 0) {
+          html += '<div class="diet-meal-empty">未记录</div>';
+        } else {
+          for (var i = 0; i < items.length; i++) {
+            var cal = this.estimateCalories(items[i].food);
+            html += '<div class="diet-food-item">';
+            html += '<span class="diet-food-name">' + items[i].food + '</span>';
+            html += '<span class="diet-food-cal">' + cal + ' kcal</span>';
+            html += '<span class="diet-food-time">' + items[i].time + '</span>';
+            html += '</div>';
+          }
+        }
+        html += '</div>';
+      }
+      container.innerHTML = html;
+    },
+
+    refreshDietUI: function() {
+      var calEl = document.getElementById('dietCalories');
+      var countEl = document.getElementById('dietMealCount');
+      var totalCal = this.getTodayTotalCal();
+      var mealCount = this.getTodayMealCount();
+      if (calEl) calEl.textContent = totalCal > 0 ? totalCal : '-';
+      if (countEl) countEl.textContent = mealCount;
+      this.renderMealList();
+    }
+  };
+
+  // 页面加载时刷新饮食数据
+  document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() { window.DietRecords.refreshDietUI(); }, 500);
+  });
+
+
+
+  // ==================== v52.5.2 健康专项页数据渲染 ====================
+  window.HealthSpecial = {
+    // 情绪分数对应 emoji 和标签
+    moodMap: {
+      5: { emoji: '😄', label: '非常开心' },
+      4: { emoji: '😊', label: '心情不错' },
+      3: { emoji: '😐', label: '平平淡淡' },
+      2: { emoji: '😔', label: '有点低落' },
+      1: { emoji: '😢', label: '很不开心' }
+    },
+
+    // 运动类型图标颜色
+    exerciseColors: {
+      '跑步': '#ef4444', '快走': '#10b981', '散步': '#10b981',
+      '骑行': '#3b82f6', '游泳': '#06b6d4', '瑜伽': '#8b5cf6',
+      '健身': '#f59e0b', '力量训练': '#f59e0b', '打球': '#ec4899'
+    },
+
+    getExerciseColor: function(type) {
+      for (var key in this.exerciseColors) {
+        if (type && type.indexOf(key) !== -1) return this.exerciseColors[key];
+      }
+      return '#16a34a';
+    },
+
+    // 估算运动消耗（简单公式：体重kg * 时长min * 强度系数 / 60）
+    estimateExerciseCal: function(duration, type) {
+      var intensity = 6; // 中等强度
+      if (type && (/跑步|游泳|健身|力量训练|打球/.test(type))) intensity = 8;
+      if (type && (/散步|瑜伽|拉伸/.test(type))) intensity = 4;
+      var weight = 60; // 默认体重
+      return Math.round(weight * (duration || 30) * intensity / 60);
+    },
+
+    // 渲染运动专项页
+    renderExercise: function() {
+      if (typeof window.BehaviorLog === 'undefined') return;
+      var today = new Date().toISOString().split('T')[0];
+      var log = window.BehaviorLog.getLogForDate(today) || {};
+      var exercises = log.exercise || [];
+      var steps = log.steps || 0;
+      var totalMin = exercises.reduce(function(s,e){return s+(e.duration||0);},0);
+      var totalCal = exercises.reduce(function(s,e){
+        return s + window.HealthSpecial.estimateExerciseCal(e.duration, e.type);
+      }, 0);
+
+      var stepEl = document.getElementById('exStepCount');
+      var durEl = document.getElementById('exDuration');
+      var calEl = document.getElementById('exCalories');
+      var listEl = document.getElementById('exerciseRecordList');
+
+      if (stepEl) stepEl.textContent = steps || (totalMin > 0 ? Math.round(totalMin * 100) : 0);
+      if (durEl) durEl.textContent = totalMin;
+      if (calEl) calEl.textContent = totalCal;
+
+      if (listEl) {
+        if (exercises.length === 0) {
+          listEl.innerHTML = '<div class="record-empty">暂无运动记录，点击下方按钮开始记录</div>';
+        } else {
+          var html = '';
+          for (var i = 0; i < exercises.length; i++) {
+            var ex = exercises[i];
+            var color = this.getExerciseColor(ex.type);
+            var cal = this.estimateExerciseCal(ex.duration, ex.type);
+            html += '<div class="record-item">';
+            html += '<div class="record-item-icon" style="background:' + color + '20;color:' + color + '">';
+            html += '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>';
+            html += '</div>';
+            html += '<div class="record-item-content">';
+            html += '<div class="record-item-name">' + (ex.type || '运动') + '</div>';
+            html += '<div class="record-item-meta"><span>' + (ex.time || '') + '</span>';
+            if (ex.distance) html += '<span>' + ex.distance + ' km</span>';
+            if (ex.intensity) html += '<span>强度:' + ex.intensity + '</span>';
+            html += '</div></div>';
+            html += '<div class="record-item-right">';
+            html += '<div class="record-item-value">' + (ex.duration || 0) + ' 分钟</div>';
+            html += '<div class="record-item-sub">' + cal + ' kcal</div>';
+            html += '</div></div>';
+          }
+          listEl.innerHTML = html;
+        }
+      }
+    },
+
+    // 渲染睡眠专项页
+    renderSleep: function() {
+      if (typeof window.BehaviorLog === 'undefined') return;
+      var listEl = document.getElementById('sleepRecordList');
+      if (!listEl) return;
+
+      var logs = window.BehaviorLog.getRecentLogs(7) || [];
+      var sleepRecords = [];
+      for (var i = 0; i < logs.length; i++) {
+        if (logs[i].sleep && (logs[i].sleep.bedtime || logs[i].sleep.waketime || logs[i].sleep.quality)) {
+          sleepRecords.push({ date: logs[i].date, sleep: logs[i].sleep });
+        }
+      }
+
+      if (sleepRecords.length === 0) {
+        listEl.innerHTML = '<div class="record-empty">暂无睡眠记录，对AI说「昨晚睡了7小时」</div>';
+        return;
+      }
+
+      var html = '';
+      for (var j = 0; j < sleepRecords.length; j++) {
+        var rec = sleepRecords[j];
+        var s = rec.sleep;
+        var quality = s.quality || 3;
+        var dayLabel = '';
+        var d = new Date(rec.date);
+        var weekdays = ['周日','周一','周二','周三','周四','周五','周六'];
+        dayLabel = weekdays[d.getDay()];
+        var dateNum = d.getMonth() + 1 + '/' + d.getDate();
+        var qualityPct = (quality / 5) * 100;
+
+        html += '<div class="sleep-record-item">';
+        html += '<div class="sleep-record-date">';
+        html += '<div class="sleep-record-day">' + dayLabel + '</div>';
+        html += '<div class="sleep-record-num">' + dateNum + '</div>';
+        html += '</div>';
+        html += '<div class="sleep-record-info">';
+        html += '<div class="sleep-record-times">';
+        if (s.bedtime) html += '入睡 ' + s.bedtime;
+        if (s.bedtime && s.waketime) html += ' · ';
+        if (s.waketime) html += '起床 ' + s.waketime;
+        if (!s.bedtime && !s.waketime) html += '已记录';
+        html += '</div>';
+        html += '<div class="sleep-quality-bar"><div class="sleep-quality-fill" style="width:' + qualityPct + '%"></div></div>';
+        html += '</div>';
+        html += '<div class="sleep-record-quality">';
+        html += '<div class="sleep-quality-num">' + quality + '</div>';
+        html += '<div class="sleep-quality-label">/5</div>';
+        html += '</div></div>';
+      }
+      listEl.innerHTML = html;
+    },
+
+    // 渲染情绪专项页
+    renderMood: function() {
+      if (typeof window.BehaviorLog === 'undefined') return;
+      var today = new Date().toISOString().split('T')[0];
+      var moods = window.BehaviorLog.getRecentMoods(7) || [];
+      var todayMood = null;
+      for (var i = moods.length - 1; i >= 0; i--) {
+        if (moods[i].timestamp && moods[i].timestamp.substr(0,10) === today) {
+          todayMood = moods[i];
+          break;
+        }
+      }
+
+      var emojiEl = document.getElementById('moodTodayEmoji');
+      var scoreEl = document.getElementById('moodTodayScore');
+      var labelEl = document.getElementById('moodTodayLabel');
+      var listEl = document.getElementById('moodRecordList');
+
+      if (todayMood) {
+        var m = this.moodMap[todayMood.score] || this.moodMap[3];
+        if (emojiEl) emojiEl.textContent = m.emoji;
+        if (scoreEl) scoreEl.textContent = todayMood.score;
+        if (labelEl) labelEl.textContent = m.label;
+      }
+
+      if (listEl) {
+        if (moods.length === 0) {
+          listEl.innerHTML = '<div class="record-empty">暂无情绪记录，对AI说「今天心情不错」</div>';
+        } else {
+          var html = '';
+          // 按时间倒序（最新的在前面）
+          var sorted = moods.slice().reverse();
+          for (var j = 0; j < Math.min(sorted.length, 7); j++) {
+            var mo = sorted[j];
+            var mInfo = this.moodMap[mo.score] || this.moodMap[3];
+            var timeStr = mo.timestamp ? mo.timestamp.substr(11,5) : '';
+            var dateStr = mo.timestamp ? mo.timestamp.substr(5,5) : '';
+            html += '<div class="mood-record-item">';
+            html += '<div class="mood-record-icon">' + mInfo.emoji + '</div>';
+            html += '<div class="mood-record-content">';
+            html += '<div class="mood-record-label">' + mInfo.label;
+            if (mo.note) html += ' · ' + mo.note;
+            html += '</div>';
+            html += '<div class="mood-record-time">' + dateStr + ' ' + timeStr + '</div>';
+            html += '</div>';
+            html += '<div class="mood-record-score">' + mo.score + '/5</div>';
+            html += '</div>';
+          }
+          listEl.innerHTML = html;
+        }
+      }
+    },
+
+    // 饮食Tab刷新（同时更新热量、餐次、三餐列表）
+    refreshDietTab: function() {
+      if (typeof window.BehaviorLog === 'undefined') return;
+      var today = new Date().toISOString().split('T')[0];
+      var log = window.BehaviorLog.getLogForDate(today) || {};
+      var meals = log.meals || [];
+
+      // 更新餐次数
+      var countEl = document.getElementById('dietMealCount');
+      if (countEl) countEl.textContent = meals.length;
+
+      // 估算热量
+      var calEstimate = {
+        '饺子': 250, '包子': 200, '馒头': 220, '粥': 80, '鸡蛋': 70,
+        '米饭': 130, '面条': 280, '土豆': 200, '烧肉': 350, '红烧肉': 500,
+        '青菜': 50, '沙拉': 120, '三明治': 300, '汉堡': 550,
+        '牛奶': 120, '豆浆': 80, '水果': 80, '面包': 150,
+        '煎饼': 350, '油条': 270, '馄饨': 220, '炒饭': 380,
+        '炒面': 400, '鱼': 200, '鸡肉': 230, '牛肉': 280,
+        '豆腐': 80, '番茄': 30, '蛋糕': 350, '饼干': 200
+      };
+      function estimateCal(food) {
+        for (var k in calEstimate) {
+          if (food.indexOf(k) !== -1) return calEstimate[k];
+        }
+        return 150;
+      }
+
+      var totalCal = 0;
+      for (var i = 0; i < meals.length; i++) {
+        totalCal += estimateCal(meals[i].items || meals[i].type || '');
+      }
+      var calEl = document.getElementById('dietCalories');
+      if (calEl) calEl.textContent = meals.length > 0 ? totalCal : '-';
+
+      // 更新三餐列表
+      var listEl = document.getElementById('dietMealList');
+      if (!listEl) return;
+
+      var mealTypes = [
+        { key: '早餐', en: 'breakfast', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M6 2h9a5 5 0 0 1 5 5v6a5 5 0 0 1-5 5H8a2 2 0 0 1-2-2V2z"/><path d="M6 13H4a2 2 0 0 0 0 4h4"/></svg>', color: '#d97706', bg: '#fef3c7' },
+        { key: '午餐', en: 'lunch', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/></svg>', color: '#ef4444', bg: '#fee2e2' },
+        { key: '晚餐', en: 'dinner', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>', color: '#6366f1', bg: '#e0e7ff' },
+        { key: '加餐', en: 'snack', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>', color: '#ec4899', bg: '#fce7f3' }
+      ];
+
+      // 按 type 分组
+      var grouped = {};
+      for (var i2 = 0; i2 < meals.length; i2++) {
+        var meal = meals[i2];
+        var type = meal.type || '加餐';
+        if (!grouped[type]) grouped[type] = [];
+        grouped[type].push(meal);
+      }
+
+      var html = '';
+      for (var m = 0; m < mealTypes.length; m++) {
+        var mt = mealTypes[m];
+        var items = grouped[mt.key] || [];
+        html += '<div class="diet-meal-group">';
+        html += '<div class="diet-meal-group-head">';
+        html += '<div class="diet-meal-icon" style="background:' + mt.bg + ';color:' + mt.color + '">' + mt.icon + '</div>';
+        html += '<div class="diet-meal-name">' + mt.key + '</div>';
+        html += '<div class="diet-meal-count">' + items.length + ' 项</div>';
+        html += '</div>';
+        if (items.length === 0) {
+          html += '<div class="diet-meal-empty">未记录</div>';
+        } else {
+          for (var k = 0; k < items.length; k++) {
+            var item = items[k];
+            var cal = estimateCal(item.items || '');
+            html += '<div class="diet-food-item">';
+            html += '<span class="diet-food-name">' + (item.items || '未记录') + '</span>';
+            html += '<span class="diet-food-cal">' + cal + ' kcal</span>';
+            html += '<span class="diet-food-time">' + (item.time || '') + '</span>';
+            html += '</div>';
+          }
+        }
+        html += '</div>';
+      }
+      listEl.innerHTML = html;
+    },
+
+    // 刷新所有健康专项页（数据更新时调用）
+    refreshAll: function() {
+      this.renderExercise();
+      this.renderSleep();
+      this.renderMood();
+      this.refreshDietTab();
+      // 同时刷新 behaviorHub
+      if (typeof window.BehaviorLog !== 'undefined' && typeof window.BehaviorLog.render === 'function') {
+        // behaviorHub 自己有 renderBehaviorHub 函数
+        if (typeof renderBehaviorHub === 'function') {
+          renderBehaviorHub('behaviorHubContainer');
+        }
+      }
+    }
+  };
+
+  // 页面加载后刷新
+  document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+      if (window.HealthSpecial) window.HealthSpecial.refreshAll();
+    }, 600);
+  });
+
+  // ==================== v52.5.2 教育模块示例数据初始化 ====================
+  window.EduSampleData = {
+    init: function() {
+      // 如果localStorage没有真实数据，用示例数据填充显示
+      try {
+        var hasReal = localStorage.getItem('mirun_edu_data_initialized');
+        if (hasReal) return;
+      } catch(e) {}
+
+      // 更新总览页示例数据
+      var indexEl = document.getElementById('eduIndex');
+      var learnEl = document.getElementById('eduLearningCount');
+      var growthEl = document.getElementById('eduGrowthCount');
+      var fundEl = document.getElementById('eduFundAmount');
+      var activityEl = document.getElementById('eduActivityCount');
+
+      if (indexEl && indexEl.textContent === '-') indexEl.textContent = '72';
+      if (learnEl && learnEl.textContent === '-') learnEl.textContent = '3';
+      if (growthEl && growthEl.textContent === '0') growthEl.textContent = '3';
+      if (fundEl && fundEl.textContent === '-') fundEl.textContent = '50,000';
+      if (activityEl && activityEl.textContent === '0') activityEl.textContent = '3';
+    }
+  };
+  document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() { window.EduSampleData.init(); }, 300);
+  });
+
   var moduleTitles = {
     home: '对话',
     work: '工作',
@@ -9018,6 +10898,12 @@ body {
           requestAnimationFrame(function() {
             window.TrendView.render('healthTrendContainer', 'health');
           });
+        } else if (subName === 'overview' && window.initBehaviorHub) {
+          requestAnimationFrame(function() {
+            requestAnimationFrame(function() {
+              window.initBehaviorHub('behaviorHubContainer');
+            });
+          });
         } else if (subName === 'behavior' && window.initBehaviorHub) {
           requestAnimationFrame(function() {
             requestAnimationFrame(function() {
@@ -9036,7 +10922,23 @@ body {
               window.initSolarTerm('solarTermContainer');
             });
           });
-        } else if (subName === 'medical') {
+        } else if (subName === 'diet') {
+          requestAnimationFrame(function() {
+            if (window.DietRecords) window.DietRecords.refreshDietUI();
+          });
+                } else if (subName === 'exercise') {
+          requestAnimationFrame(function() {
+            if (window.HealthSpecial) window.HealthSpecial.renderExercise();
+          });
+        } else if (subName === 'sleep') {
+          requestAnimationFrame(function() {
+            if (window.HealthSpecial) window.HealthSpecial.renderSleep();
+          });
+        } else if (subName === 'mood') {
+          requestAnimationFrame(function() {
+            if (window.HealthSpecial) window.HealthSpecial.renderMood();
+          });
+} else if (subName === 'medical') {
           requestAnimationFrame(function() {
             if (typeof renderMedicalVisits === 'function') renderMedicalVisits();
             if (typeof renderMedications === 'function') renderMedications();
@@ -12259,7 +14161,7 @@ body {
   // ==================== Version Sync + Force Refresh ====================
   // If stored version != page version → unregister SW, clear all caches, hard reload
   (function() {
-    var PAGE_VERSION = '52.5.1';
+    var PAGE_VERSION = '52.5.2';
     var storedVersion = localStorage.getItem('mirun_app_version');
     
     // First visitor — just store version
@@ -12359,7 +14261,7 @@ body {
     // Immediate: if old service-worker.js is controlling, unregister it to break deadlock
     if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
       var ctrlURL = navigator.serviceWorker.controller.scriptURL || '';
-      if (ctrlURL.indexOf('sw-v52.5.1.js') === -1 && ctrlURL.indexOf('service-worker.js') !== -1) {
+      if (ctrlURL.indexOf('sw-v52.5.2.js') === -1 && ctrlURL.indexOf('service-worker.js') !== -1) {
         console.log('Old SW detected, unregistering to break cache deadlock...');
         navigator.serviceWorker.getRegistrations().then(function(regs) {
           regs.forEach(function(r) {
@@ -12376,19 +14278,19 @@ body {
       var existingController = navigator.serviceWorker.controller;
       var isAllowedSW = false;
       if (existingController && existingController.scriptURL) {
-        isAllowedSW = existingController.scriptURL.indexOf('sw-v52.5.1.js') !== -1 || existingController.scriptURL.indexOf('service-worker.js') !== -1;
+        isAllowedSW = existingController.scriptURL.indexOf('sw-v52.5.2.js') !== -1 || existingController.scriptURL.indexOf('service-worker.js') !== -1;
       }
       if (existingController && !isAllowedSW) {
         console.log('Skipping SW registration: existing controller is unknown');
         return;
       }
 
-      navigator.serviceWorker.register('./sw-v52.5.1.js', { updateViaCache: 'none' }).then(function(reg) {
+      navigator.serviceWorker.register('./sw-v52.5.2.js', { updateViaCache: 'none' }).then(function(reg) {
         console.log('SW registered, scope:', reg.scope);
         
         // Verify the registered SW is our expected file
         var isExpected = reg.active && reg.active.scriptURL && 
-          (reg.active.scriptURL.indexOf('sw-v52.5.1.js') !== -1 || reg.active.scriptURL.indexOf('service-worker.js') !== -1);
+          (reg.active.scriptURL.indexOf('sw-v52.5.2.js') !== -1 || reg.active.scriptURL.indexOf('service-worker.js') !== -1);
         if (reg.active && !isExpected) {
           console.warn('Unexpected SW scriptURL detected, unregistering:', reg.active.scriptURL);
           reg.unregister();
@@ -13190,7 +15092,7 @@ function toggleGuideSection(index) {
 
   function getFeedbackAutoInfo() {
     var info = {
-      appVersion: 'v52.5.1',
+      appVersion: 'v52.5.2',
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent || '',
       screenSize: window.innerWidth + 'x' + window.innerHeight,
@@ -14220,25 +16122,25 @@ function toggleGuideSection(index) {
 // [v52.4.2] End of removed IIFE wrap
 </script>
 
-<script src="solar-term.js?v=52.5.1"></script>
-<script src="chronic-disease.js?v=52.5.1"></script>
-<script src="schedule.js?v=52.5.1"></script>
-<script src="daily-tx.js?v=52.5.1"></script>
-<script src="stock-holdings.js?v=52.5.1"></script>
-<script src="behavior-log.js?v=52.5.1"></script>
-<script src="user-profile.js?v=52.5.1"></script>
-<script src="insight-engine.js?v=52.5.1"></script>
-<script src="health-bridge.js?v=52.5.1"></script>
-<script src="push-engine.js?v=52.5.1"></script>
-<script src="memory-manager.js?v=52.5.1"></script>
-<script src="chat-engine.js?v=52.5.1"></script>
-    <script src="ai-engine.js?v=52.5.1"></script>
-<script src="decision-forge.js?v=52.5.1"></script>
-<script src="value-resonance.js?v=52.5.1"></script>
-<script src="image-recognizer.js?v=52.5.1"></script>
+<script src="solar-term.js?v=52.5.2"></script>
+<script src="chronic-disease.js?v=52.5.2"></script>
+<script src="schedule.js?v=52.5.2"></script>
+<script src="daily-tx.js?v=52.5.2"></script>
+<script src="stock-holdings.js?v=52.5.2"></script>
+<script src="behavior-log.js?v=52.5.2"></script>
+<script src="user-profile.js?v=52.5.2"></script>
+<script src="insight-engine.js?v=52.5.2"></script>
+<script src="health-bridge.js?v=52.5.2"></script>
+<script src="push-engine.js?v=52.5.2"></script>
+<script src="memory-manager.js?v=52.5.2"></script>
+<script src="chat-engine.js?v=52.5.2"></script>
+    <script src="ai-engine.js?v=52.5.2"></script>
+<script src="decision-forge.js?v=52.5.2"></script>
+<script src="value-resonance.js?v=52.5.2"></script>
+<script src="image-recognizer.js?v=52.5.2"></script>
 
   <!-- Version Badge -->
-  <div id="versionBadge" style="position:fixed;bottom:80px;right:12px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;z-index:9999;letter-spacing:0.5px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;pointer-events:none">v52.5.1</div>
+  <div id="versionBadge" style="position:fixed;bottom:80px;right:12px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;z-index:9999;letter-spacing:0.5px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;pointer-events:none">v52.5.2</div>
   <script>
     setTimeout(function(){
       var b = document.getElementById('versionBadge');
