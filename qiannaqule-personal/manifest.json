@@ -2,7 +2,7 @@
   "name": "MiRun AI — 越用越懂你",
   "short_name": "MiRun AI",
   "description": "MiRun AI — 越用越懂你的个人AI伙伴，数据全本地，隐私有保障",
-  "start_url": "./index.html",
+  "start_url": "./app.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
