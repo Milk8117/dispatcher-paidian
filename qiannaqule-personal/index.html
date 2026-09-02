@@ -3532,7 +3532,7 @@ body {
 #page-health { --tab-color: #16a34a; --tab-color-dark: #15803d; --tab-color-light: #f0fdf4; }
 
 
-/* ========== v52.5.3 健康专项页样式 ========== */
+/* ========== v52.5.4 健康专项页样式 ========== */
 /* 运动专项 */
 .exercise-stats-card {
   background: #fff;
@@ -3835,7 +3835,7 @@ body {
   margin-top: -4px;
 }
 
-/* ========== v52.5.3 财富页完整样式 ========== */
+/* ========== v52.5.4 财富页完整样式 ========== */
 .wealth-pillar-switcher {
   display: flex;
   gap: 4px;
@@ -4215,7 +4215,7 @@ body {
 }
 .ai-holdings-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(37,99,235,0.4); }
 
-/* ========== v52.5.3 教育模块样式 ========== */
+/* ========== v52.5.4 教育模块样式 ========== */
 .edu-learning-card,
 .edu-growth-card,
 .edu-fund-card,
@@ -4531,7 +4531,7 @@ body {
   color: #8b5cf6;
 }
 
-/* ========== v52.5.3 健康饮食 - 三餐列表样式 ========== */
+/* ========== v52.5.4 健康饮食 - 三餐列表样式 ========== */
 .diet-meal-list-card {
   background: #fff;
   border-radius: 16px;
@@ -5991,10 +5991,10 @@ body {
 }
 </style>
   <script>
-  // ===== 版本守护（v52.5.3起）：SW缓存死锁根治方案 =====
+  // ===== 版本守护（v52.5.4起）：SW缓存死锁根治方案 =====
   // 放在所有JS之前执行，确保版本不对时立即清理并重载
   (function() {
-    var CURRENT_VERSION = '52.5.3';
+    var CURRENT_VERSION = '52.5.4';
     var STORAGE_KEY = 'mirun_app_version';
     
     function wipeAndReload(reason) {
@@ -6993,28 +6993,6 @@ body {
     </div>
   </div>
 
-          <span class="dashboard-card-tag" id="sleepTag">最近</span>
-        </div>
-        <div class="dashboard-big-number"><span id="sleepAvg">-</span><span class="unit">小时/晚</span></div>
-        <div class="dashboard-conclusion">
-          记录你的睡眠时长和质量，<br>
-          我来帮你找到最适合的作息规律。
-        </div>
-      </div>
-      <div class="dashboard-card">
-        <div class="dashboard-card-header">
-          <div class="dashboard-card-title">睡眠小贴士</div>
-        </div>
-        <div class="dashboard-conclusion">
-          · 睡前1小时放下手机<br>
-          · 卧室温度保持在18-22°C<br>
-          · 固定作息时间，周末也不例外<br>
-          · 下午3点后避免摄入咖啡因
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- 运动 -->
     <div id="health-exercise" class="sub-tab-content">
     <div class="dashboard-section">
@@ -7073,18 +7051,6 @@ body {
     </div>
   </div>
 
-          <span class="dashboard-card-tag" id="exerciseTag">本周</span>
-        </div>
-        <div class="dashboard-big-number"><span id="exerciseWeekMin">-</span><span class="unit">分钟</span></div>
-        <div class="dashboard-conclusion">
-          本周运动 <span class="highlight" id="exerciseTimes">0</span> 次。<br>
-          用对话记录：「跑步30分钟」「走了5000步」
-        </div>
-      </div>
-
-    </div>
-  </div>
-
   <!-- 情绪 -->
     <div id="health-mood" class="sub-tab-content">
     <div class="dashboard-section">
@@ -7111,27 +7077,6 @@ body {
         </div>
       </div>
 
-      <div class="dashboard-card">
-        <div class="dashboard-card-header">
-          <div class="dashboard-card-title">情绪小贴士</div>
-        </div>
-        <div class="dashboard-conclusion">
-          · 每天花5分钟记录心情<br>
-          · 深呼吸练习：4秒吸气+7秒屏息+8秒呼气<br>
-          · 找到情绪的触发点，才能更好地管理
-        </div>
-      </div>
-    </div>
-  </div>
-
-          <span class="dashboard-card-tag">本周</span>
-        </div>
-        <div class="dashboard-big-number"><span id="moodAvg">-</span><span class="unit">分</span></div>
-        <div class="dashboard-conclusion">
-          情绪是内心的晴雨表。<br>
-          用对话记录：「今天心情很好」或「有点焦虑」
-        </div>
-      </div>
       <div class="dashboard-card">
         <div class="dashboard-card-header">
           <div class="dashboard-card-title">情绪小贴士</div>
@@ -7947,8 +7892,6 @@ body {
         </div>
       </div>
     </div>
-    </div>
-    </div>
 
     <!-- 成长记录 -->
         <div id="edu-growth" class="sub-tab-content">
@@ -7995,8 +7938,6 @@ body {
           </div>
         </div>
       </div>
-    </div>
-    </div>
     </div>
 
     <!-- 教育金 -->
@@ -8067,8 +8008,6 @@ body {
         </div>
       </div>
     </div>
-    </div>
-    </div>
 
     <!-- 亲子活动 -->
         <div id="edu-activity" class="sub-tab-content">
@@ -8130,8 +8069,6 @@ body {
           <div class="activity-more-desc">让 AI 为你推荐适合的亲子活动</div>
         </div>
       </div>
-    </div>
-    </div>
     </div>
   </div>
   <!-- END 家庭教育域 -->
@@ -8564,7 +8501,7 @@ body {
     </div>
 
     <div style="text-align:center;padding:20px 0 10px;font-size:12px;color:#cbd5e1">
-      MiRun AI v52.5.3 · 越用越懂你的数字分身
+      MiRun AI v52.5.4 · 越用越懂你的数字分身
     </div>
   </div>
   <div class="app-brand-footer">
@@ -8672,7 +8609,7 @@ body {
 
 
 <!-- ==================== Bottom Tab Bar ==================== -->
-  <!-- [v52.5.3] 模块切换早定义 — 防止底部Tab点击报错 ReferenceError: Can't find variable: switchModule -->
+  <!-- [v52.5.4] 模块切换早定义 — 防止底部Tab点击报错 ReferenceError: Can't find variable: switchModule -->
   <script>
   (function() {
     var moduleTitlesBoot = { home: '对话', work: '工作', health: '健康', life: '生活', me: '我的' };
@@ -8769,10 +8706,10 @@ body {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
   </button>
 </div>
-<script src="datastore.js?v=52.5.3"></script>
-<script src="diagnosis-engine.js?v=52.5.3"></script>
-<script src="reminder-engine.js?v=52.5.3"></script>
-<script src="trend-view.js?v=52.5.3"></script>
+<script src="datastore.js?v=52.5.4"></script>
+<script src="diagnosis-engine.js?v=52.5.4"></script>
+<script src="reminder-engine.js?v=52.5.4"></script>
+<script src="trend-view.js?v=52.5.4"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 // [v52.4.2] Removed IIFE wrap — all functions now global for HTML event access
@@ -8780,7 +8717,7 @@ body {
 
   // ==================== Module Switching ====================
 
-  // ==================== v52.5.3 饮食记录存储与渲染 ====================
+  // ==================== v52.5.4 饮食记录存储与渲染 ====================
   window.DietRecords = {
     STORAGE_KEY: 'mirun_diet_records',
     
@@ -8910,7 +8847,7 @@ body {
 
 
 
-  // ==================== v52.5.3 健康专项页数据渲染 ====================
+  // ==================== v52.5.4 健康专项页数据渲染 ====================
   window.HealthSpecial = {
     // 情绪分数对应 emoji 和标签
     moodMap: {
@@ -9206,7 +9143,7 @@ body {
     }, 600);
   });
 
-  // ==================== v52.5.3 教育模块示例数据初始化 ====================
+  // ==================== v52.5.4 教育模块示例数据初始化 ====================
   window.EduSampleData = {
     init: function() {
       // 如果localStorage没有真实数据，用示例数据填充显示
@@ -14193,7 +14130,7 @@ body {
   // ==================== Version Sync + Force Refresh ====================
   // If stored version != page version → unregister SW, clear all caches, hard reload
   (function() {
-    var PAGE_VERSION = '52.5.3';
+    var PAGE_VERSION = '52.5.4';
     var storedVersion = localStorage.getItem('mirun_app_version');
     
     // First visitor — just store version
@@ -14293,7 +14230,7 @@ body {
     // Immediate: if old service-worker.js is controlling, unregister it to break deadlock
     if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
       var ctrlURL = navigator.serviceWorker.controller.scriptURL || '';
-      if (ctrlURL.indexOf('sw-v52.5.3.js') === -1 && ctrlURL.indexOf('service-worker.js') !== -1) {
+      if (ctrlURL.indexOf('sw-v52.5.4.js') === -1 && ctrlURL.indexOf('service-worker.js') !== -1) {
         console.log('Old SW detected, unregistering to break cache deadlock...');
         navigator.serviceWorker.getRegistrations().then(function(regs) {
           regs.forEach(function(r) {
@@ -14310,19 +14247,19 @@ body {
       var existingController = navigator.serviceWorker.controller;
       var isAllowedSW = false;
       if (existingController && existingController.scriptURL) {
-        isAllowedSW = existingController.scriptURL.indexOf('sw-v52.5.3.js') !== -1 || existingController.scriptURL.indexOf('service-worker.js') !== -1;
+        isAllowedSW = existingController.scriptURL.indexOf('sw-v52.5.4.js') !== -1 || existingController.scriptURL.indexOf('service-worker.js') !== -1;
       }
       if (existingController && !isAllowedSW) {
         console.log('Skipping SW registration: existing controller is unknown');
         return;
       }
 
-      navigator.serviceWorker.register('./sw-v52.5.3.js', { updateViaCache: 'none' }).then(function(reg) {
+      navigator.serviceWorker.register('./sw-v52.5.4.js', { updateViaCache: 'none' }).then(function(reg) {
         console.log('SW registered, scope:', reg.scope);
         
         // Verify the registered SW is our expected file
         var isExpected = reg.active && reg.active.scriptURL && 
-          (reg.active.scriptURL.indexOf('sw-v52.5.3.js') !== -1 || reg.active.scriptURL.indexOf('service-worker.js') !== -1);
+          (reg.active.scriptURL.indexOf('sw-v52.5.4.js') !== -1 || reg.active.scriptURL.indexOf('service-worker.js') !== -1);
         if (reg.active && !isExpected) {
           console.warn('Unexpected SW scriptURL detected, unregistering:', reg.active.scriptURL);
           reg.unregister();
@@ -15124,7 +15061,7 @@ function toggleGuideSection(index) {
 
   function getFeedbackAutoInfo() {
     var info = {
-      appVersion: 'v52.5.3',
+      appVersion: 'v52.5.4',
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent || '',
       screenSize: window.innerWidth + 'x' + window.innerHeight,
@@ -16155,12 +16092,12 @@ function toggleGuideSection(index) {
 </script>
 
 <script>
-  // ==================== v52.5.3 数据备份与恢复 ====================
+  // ==================== v52.5.4 数据备份与恢复 ====================
   window.mirunExportBackup = function() {
     try {
       var data = {
         app: 'MiRun-AI',
-        version: 'v52.5.3',
+        version: 'v52.5.4',
         exportedAt: new Date().toISOString(),
         localStorage: {},
         indexedDB: {}
@@ -16325,25 +16262,25 @@ function toggleGuideSection(index) {
   }
 </script>
 
-<script src="solar-term.js?v=52.5.3"></script>
-<script src="chronic-disease.js?v=52.5.3"></script>
-<script src="schedule.js?v=52.5.3"></script>
-<script src="daily-tx.js?v=52.5.3"></script>
-<script src="stock-holdings.js?v=52.5.3"></script>
-<script src="behavior-log.js?v=52.5.3"></script>
-<script src="user-profile.js?v=52.5.3"></script>
-<script src="insight-engine.js?v=52.5.3"></script>
-<script src="health-bridge.js?v=52.5.3"></script>
-<script src="push-engine.js?v=52.5.3"></script>
-<script src="memory-manager.js?v=52.5.3"></script>
-<script src="chat-engine.js?v=52.5.3"></script>
-    <script src="ai-engine.js?v=52.5.3"></script>
-<script src="decision-forge.js?v=52.5.3"></script>
-<script src="value-resonance.js?v=52.5.3"></script>
-<script src="image-recognizer.js?v=52.5.3"></script>
+<script src="solar-term.js?v=52.5.4"></script>
+<script src="chronic-disease.js?v=52.5.4"></script>
+<script src="schedule.js?v=52.5.4"></script>
+<script src="daily-tx.js?v=52.5.4"></script>
+<script src="stock-holdings.js?v=52.5.4"></script>
+<script src="behavior-log.js?v=52.5.4"></script>
+<script src="user-profile.js?v=52.5.4"></script>
+<script src="insight-engine.js?v=52.5.4"></script>
+<script src="health-bridge.js?v=52.5.4"></script>
+<script src="push-engine.js?v=52.5.4"></script>
+<script src="memory-manager.js?v=52.5.4"></script>
+<script src="chat-engine.js?v=52.5.4"></script>
+    <script src="ai-engine.js?v=52.5.4"></script>
+<script src="decision-forge.js?v=52.5.4"></script>
+<script src="value-resonance.js?v=52.5.4"></script>
+<script src="image-recognizer.js?v=52.5.4"></script>
 
   <!-- Version Badge -->
-  <div id="versionBadge" style="position:fixed;bottom:80px;right:12px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;z-index:9999;letter-spacing:0.5px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;pointer-events:none">v52.5.3</div>
+  <div id="versionBadge" style="position:fixed;bottom:80px;right:12px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;z-index:9999;letter-spacing:0.5px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;pointer-events:none">v52.5.4</div>
   <script>
     setTimeout(function(){
       var b = document.getElementById('versionBadge');
