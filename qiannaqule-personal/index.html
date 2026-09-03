@@ -5594,6 +5594,101 @@ body {
 }
 .family-member-delete:hover { color: #ef4444; }
 
+/* ========== 财富诊断完整报告弹层 (v52.5.8) ========== */
+.wealth-diag-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(15, 23, 42, 0.55);
+  z-index: 10000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+}
+.wealth-diag-overlay.active { display: flex; }
+.wealth-diag-modal {
+  background: #f0f4f8;
+  border-radius: 18px;
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+}
+.wealth-diag-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #fff;
+  flex-shrink: 0;
+}
+.wealth-diag-header-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+.wealth-diag-close {
+  background: rgba(255,255,255,0.18);
+  border: none;
+  color: #fff;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+.wealth-diag-close:hover { background: rgba(255,255,255,0.32); }
+.wealth-diag-body {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 16px;
+}
+#wealthDiagSection { display: none; }
+#wealthDiagSection.visible { display: block; }
+.wealth-diag-loading {
+  text-align: center;
+  color: #94a3b8;
+  font-size: 14px;
+  padding: 48px 0;
+}
+.wealth-diag-footer {
+  flex-shrink: 0;
+  padding: 12px 20px;
+  background: #fff;
+  border-top: 1px solid #e5e7eb;
+  text-align: center;
+}
+.wealth-diag-footer .wdf-tip { font-size: 12px; color: #94a3b8; }
+.wealth-diag-score-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #475569;
+  background: #eff6ff;
+  border: 1px solid #dbeafe;
+  border-radius: 20px;
+  padding: 5px 12px;
+  margin-bottom: 6px;
+}
+.wealth-diag-score-badge b { color: #1d4ed8; }
+/* 移动端适配 */
+@media (max-width: 480px) {
+  .wealth-diag-overlay { padding: 8px; align-items: flex-end; }
+  .wealth-diag-modal { max-height: 94vh; border-radius: 16px 16px 0 0; }
+}
+
 /* 档案编辑弹窗 */
 .profile-edit-overlay {
   position: fixed;
@@ -5994,7 +6089,7 @@ body {
   // ===== 版本守护（v52.5.4起）：SW缓存死锁根治方案 =====
   // 放在所有JS之前执行，确保版本不对时立即清理并重载
   (function() {
-    var CURRENT_VERSION = '52.5.7';
+    var CURRENT_VERSION = '52.5.8';
     var STORAGE_KEY = 'mirun_app_version';
     
     function wipeAndReload(reason) {
@@ -7689,6 +7784,64 @@ body {
         </div>
       </div>
     </div>
+
+    <!-- ===== 财富健康诊断 · 完整报告弹层 (v52.5.8) ===== -->
+    <div class="wealth-diag-overlay" id="wealthDiagOverlay" onclick="if(event.target===this)DiagnosisEngine.closeModal()">
+      <div class="wealth-diag-modal">
+        <div class="wealth-diag-header">
+          <div class="wealth-diag-header-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            财富健康诊断报告
+          </div>
+          <button class="wealth-diag-close" onclick="DiagnosisEngine.closeModal()" title="关闭">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <div class="wealth-diag-body">
+          <div class="wealth-diag-loading" id="wealthDiagLoading">诊断生成中，请稍候…</div>
+          <div id="wealthDiagSection">
+            <!-- 评分环 + 分数 + 等级 -->
+            <div class="diag-card score-card" style="border-top-color:#2563eb;text-align:center">
+              <div class="wealth-diag-score-badge"><span>当前财富健康</span></div>
+              <div class="score-ring-wrapper">
+                <svg class="score-ring-svg" viewBox="0 0 180 180">
+                  <circle class="ring-bg" cx="90" cy="90" r="75"></circle>
+                  <circle class="ring-progress" id="wealthDiagRing" cx="90" cy="90" r="75"></circle>
+                </svg>
+                <div class="score-value" id="wealthDiagScoreValue">0<small>/100</small></div>
+              </div>
+              <div class="score-grade" id="wealthDiagScoreGrade">--</div>
+              <div class="score-grade-text" id="wealthDiagScoreGradeText">--</div>
+            </div>
+            <!-- 六大维度 -->
+            <div class="diag-card">
+              <h3>六大维度评分</h3>
+              <div id="wealthDiagDimList"></div>
+            </div>
+            <!-- 诊断文字 -->
+            <div class="diag-card">
+              <h3>诊断分析</h3>
+              <div class="diag-text" id="wealthDiagDiagText"></div>
+            </div>
+            <!-- 保险提示 -->
+            <div class="insurance-tip" id="wealthDiagInsuranceTip" style="display:none"></div>
+            <!-- 持仓分析 -->
+            <div id="wealthDiagHoldingsPanel"></div>
+            <!-- 建议清单 -->
+            <div class="diag-card">
+              <h3>改善建议</h3>
+              <div id="wealthDiagSuggestList"></div>
+            </div>
+            <!-- 历史趋势 -->
+            <div class="diag-card" id="wealthDiagTrendCard">
+              <h3>历史趋势</h3>
+              <div id="wealthDiagTrend"></div>
+            </div>
+          </div>
+        </div>
+        <div class="wealth-diag-footer"><span class="wdf-tip">数据基于你的收支·投资·保障真实记录，仅存本机</span></div>
+      </div>
+    </div>
   </div>
   <!-- END 财富管理域 -->
 
@@ -8501,7 +8654,7 @@ body {
     </div>
 
     <div style="text-align:center;padding:20px 0 10px;font-size:12px;color:#cbd5e1">
-      MiRun AI v52.5.7 · 越用越懂你的数字分身
+      MiRun AI v52.5.8 · 越用越懂你的数字分身
     </div>
   </div>
   <div class="app-brand-footer">
@@ -8706,10 +8859,10 @@ body {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
   </button>
 </div>
-<script src="datastore.js?v=52.5.7"></script>
-<script src="diagnosis-engine.js?v=52.5.7"></script>
-<script src="reminder-engine.js?v=52.5.7"></script>
-<script src="trend-view.js?v=52.5.7"></script>
+<script src="datastore.js?v=52.5.8"></script>
+<script src="diagnosis-engine.js?v=52.5.8"></script>
+<script src="reminder-engine.js?v=52.5.8"></script>
+<script src="trend-view.js?v=52.5.8"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 // [v52.4.2] Removed IIFE wrap — all functions now global for HTML event access
@@ -10086,6 +10239,13 @@ body {
     if (domain === 'education') {
       requestAnimationFrame(function() {
         window.switchSubTab('edu', currentSubTab.edu || 'overview');
+      });
+    }
+    // 财富域：进入时刷新评分与总览诊断结论
+    if (domain === 'wealth') {
+      requestAnimationFrame(function() {
+        try { if (typeof updateWealthScore === 'function') updateWealthScore(); } catch(e) {}
+        try { if (typeof updateWealthDiagnosisSummary === 'function') updateWealthDiagnosisSummary(); } catch(e) {}
       });
     }
   };
@@ -14170,7 +14330,7 @@ body {
   // ==================== Version Sync + Force Refresh ====================
   // If stored version != page version → unregister SW, clear all caches, hard reload
   (function() {
-    var PAGE_VERSION = '52.5.7';
+    var PAGE_VERSION = '52.5.8';
     var storedVersion = localStorage.getItem('mirun_app_version');
     
     // First visitor — just store version
@@ -14270,7 +14430,7 @@ body {
     // Immediate: if old service-worker.js is controlling, unregister it to break deadlock
     if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
       var ctrlURL = navigator.serviceWorker.controller.scriptURL || '';
-      if (ctrlURL.indexOf('sw-v52.5.7.js') === -1 && ctrlURL.indexOf('service-worker.js') !== -1) {
+      if (ctrlURL.indexOf('sw-v52.5.8.js') === -1 && ctrlURL.indexOf('service-worker.js') !== -1) {
         console.log('Old SW detected, unregistering to break cache deadlock...');
         navigator.serviceWorker.getRegistrations().then(function(regs) {
           regs.forEach(function(r) {
@@ -14287,19 +14447,19 @@ body {
       var existingController = navigator.serviceWorker.controller;
       var isAllowedSW = false;
       if (existingController && existingController.scriptURL) {
-        isAllowedSW = existingController.scriptURL.indexOf('sw-v52.5.7.js') !== -1 || existingController.scriptURL.indexOf('service-worker.js') !== -1;
+        isAllowedSW = existingController.scriptURL.indexOf('sw-v52.5.8.js') !== -1 || existingController.scriptURL.indexOf('service-worker.js') !== -1;
       }
       if (existingController && !isAllowedSW) {
         console.log('Skipping SW registration: existing controller is unknown');
         return;
       }
 
-      navigator.serviceWorker.register('./sw-v52.5.7.js', { updateViaCache: 'none' }).then(function(reg) {
+      navigator.serviceWorker.register('./sw-v52.5.8.js', { updateViaCache: 'none' }).then(function(reg) {
         console.log('SW registered, scope:', reg.scope);
         
         // Verify the registered SW is our expected file
         var isExpected = reg.active && reg.active.scriptURL && 
-          (reg.active.scriptURL.indexOf('sw-v52.5.7.js') !== -1 || reg.active.scriptURL.indexOf('service-worker.js') !== -1);
+          (reg.active.scriptURL.indexOf('sw-v52.5.8.js') !== -1 || reg.active.scriptURL.indexOf('service-worker.js') !== -1);
         if (reg.active && !isExpected) {
           console.warn('Unexpected SW scriptURL detected, unregistering:', reg.active.scriptURL);
           reg.unregister();
@@ -14565,7 +14725,93 @@ function toggleGuideSection(index) {
       else if (result.total >= 55) level = '一般';
       levelEl.textContent = level;
     }
+    // v52.5.8：同步「财富健康诊断」卡片总览诊断结论
+    if (typeof updateWealthDiagnosisSummary === 'function') {
+      try { updateWealthDiagnosisSummary(); } catch(e) {}
+    }
   }
+
+  // ========== v52.5.8 财富诊断总览结论 + 弹层趋势 ==========
+  function buildWealthConclusion() {
+    // 基于真实数据推导一句话结论：保障缺失优先提示保障，其次储蓄率/投资配置
+    var insCount = 0, premiumSum = 0;
+    try {
+      if (window.WealthCT && typeof WealthCT.loadInsurance === 'function') {
+        var ins = WealthCT.loadInsurance() || [];
+        insCount = ins.length;
+        ins.forEach(function(i){ premiumSum += Number(i.premium) || 0; });
+      }
+    } catch(e) {}
+    var savingRate = null;
+    try {
+      if (window.getDailyTxSummary) {
+        var s = window.getDailyTxSummary();
+        if (s && s.totalIncome > 0) savingRate = s.balance / s.totalIncome;
+      }
+    } catch(e) {}
+    var hasHoldings = false;
+    try {
+      if (window.StockHoldings && typeof StockHoldings.getHoldings === 'function') {
+        hasHoldings = (StockHoldings.getHoldings() || []).length > 0;
+      }
+    } catch(e) {}
+
+    if (insCount === 0 && premiumSum <= 0) return '建议优先补充基础保障（重疾+医疗+意外）';
+    if (savingRate !== null && savingRate < 0.2) return '建议预留 3-6 个月应急金，提升储蓄率';
+    if (!hasHoldings) return '建议配置权益类资产，开启长期定投';
+    return '表现均衡，建议每季度检视资产配置与保障';
+  }
+
+  // 总览卡片「当前财富健康 XX 分 · 等级 · 一句话诊断结论」
+  window.updateWealthDiagnosisSummary = function(diagResult) {
+    var el = document.getElementById('wealthDiagnosisSummary');
+    if (!el) return;
+    var total = null;
+    try {
+      var d = calculateWealthScore();
+      if (d && d.total) total = d.total;
+    } catch(e) {}
+    if (total === null && diagResult) total = diagResult.total;
+    if (total === null || total === undefined) return;
+    var level = '待完善';
+    if (total >= 85) level = '优秀';
+    else if (total >= 70) level = '良好';
+    else if (total >= 55) level = '一般';
+    var conclusion = buildWealthConclusion();
+    el.textContent = '当前财富健康 ' + total + ' 分 · ' + level + ' · ' + conclusion;
+  };
+
+  // 完整报告弹层渲染完成后补充历史趋势
+  window.afterWealthDiagRender = function(result) {
+    var trendEl = document.getElementById('wealthDiagTrend');
+    var card = document.getElementById('wealthDiagTrendCard');
+    if (!trendEl || !card) return;
+    try {
+      if (!window.DiagnosisEngine || typeof DiagnosisEngine.getHistory !== 'function') { card.style.display = 'none'; return; }
+      var history = DiagnosisEngine.getHistory() || [];
+      if (history.length < 1) { card.style.display = 'none'; return; }
+      card.style.display = 'block';
+      var rows = history.slice(-6).map(function(s) {
+        var t = s.timestamp ? new Date(s.timestamp) : null;
+        var label = t && !isNaN(t.getTime()) ? (t.getMonth() + 1) + '月' + t.getDate() + '日' : '--';
+        return { label: label, total: s.total || 0 };
+      });
+      var maxScore = Math.max.apply(Math, rows.map(function(r){ return r.total; }));
+      maxScore = Math.max(maxScore, 60);
+      var html = '';
+      rows.forEach(function(r) {
+        var pct = Math.max(6, Math.round(r.total / maxScore * 100));
+        html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">' +
+          '<span style="width:54px;font-size:11px;color:#64748b;flex-shrink:0">' + r.label + '</span>' +
+          '<div style="flex:1;background:#f1f5f9;border-radius:5px;height:16px;overflow:hidden">' +
+            '<div style="height:100%;width:' + pct + '%;border-radius:5px;background:linear-gradient(90deg,#2563eb,#60a5fa)"></div>' +
+          '</div>' +
+          '<span style="width:40px;font-size:12px;font-weight:700;color:#1e293b;text-align:right">' + r.total + '</span>' +
+        '</div>';
+      });
+      trendEl.innerHTML = html;
+    } catch(e) { card.style.display = 'none'; }
+  };
 
   function updateFinanceDashboard() {
     var now = new Date();
@@ -15101,7 +15347,7 @@ function toggleGuideSection(index) {
 
   function getFeedbackAutoInfo() {
     var info = {
-      appVersion: 'v52.5.7',
+      appVersion: 'v52.5.8',
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent || '',
       screenSize: window.innerWidth + 'x' + window.innerHeight,
@@ -16137,7 +16383,7 @@ function toggleGuideSection(index) {
     try {
       var data = {
         app: 'MiRun-AI',
-        version: 'v52.5.7',
+        version: 'v52.5.8',
         exportedAt: new Date().toISOString(),
         localStorage: {},
         indexedDB: {}
@@ -16302,25 +16548,25 @@ function toggleGuideSection(index) {
   }
 </script>
 
-<script src="solar-term.js?v=52.5.7"></script>
-<script src="chronic-disease.js?v=52.5.7"></script>
-<script src="schedule.js?v=52.5.7"></script>
-<script src="daily-tx.js?v=52.5.7"></script>
-<script src="stock-holdings.js?v=52.5.7"></script>
-<script src="behavior-log.js?v=52.5.7"></script>
-<script src="user-profile.js?v=52.5.7"></script>
-<script src="insight-engine.js?v=52.5.7"></script>
-<script src="health-bridge.js?v=52.5.7"></script>
-<script src="push-engine.js?v=52.5.7"></script>
-<script src="memory-manager.js?v=52.5.7"></script>
-<script src="chat-engine.js?v=52.5.7"></script>
-    <script src="ai-engine.js?v=52.5.7"></script>
-<script src="decision-forge.js?v=52.5.7"></script>
-<script src="value-resonance.js?v=52.5.7"></script>
-<script src="image-recognizer.js?v=52.5.7"></script>
+<script src="solar-term.js?v=52.5.8"></script>
+<script src="chronic-disease.js?v=52.5.8"></script>
+<script src="schedule.js?v=52.5.8"></script>
+<script src="daily-tx.js?v=52.5.8"></script>
+<script src="stock-holdings.js?v=52.5.8"></script>
+<script src="behavior-log.js?v=52.5.8"></script>
+<script src="user-profile.js?v=52.5.8"></script>
+<script src="insight-engine.js?v=52.5.8"></script>
+<script src="health-bridge.js?v=52.5.8"></script>
+<script src="push-engine.js?v=52.5.8"></script>
+<script src="memory-manager.js?v=52.5.8"></script>
+<script src="chat-engine.js?v=52.5.8"></script>
+    <script src="ai-engine.js?v=52.5.8"></script>
+<script src="decision-forge.js?v=52.5.8"></script>
+<script src="value-resonance.js?v=52.5.8"></script>
+<script src="image-recognizer.js?v=52.5.8"></script>
 
   <!-- Version Badge -->
-  <div id="versionBadge" style="position:fixed;bottom:80px;right:12px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;z-index:9999;letter-spacing:0.5px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;pointer-events:none">v52.5.7</div>
+  <div id="versionBadge" style="position:fixed;bottom:80px;right:12px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;z-index:9999;letter-spacing:0.5px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;pointer-events:none">v52.5.8</div>
   <script>
     setTimeout(function(){
       var b = document.getElementById('versionBadge');

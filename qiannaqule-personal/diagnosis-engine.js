@@ -730,18 +730,221 @@
   }
 
 
+  // ==================== 真实数据桥接 + 完整诊断一键生成 ====================
+  // v52.5.8：从新财富页（收支流水/投资持仓/保单/贷款）自动收集真实数据，
+  // 组装成 scoringEngine 入参，供「财富诊断」一键生成完整报告。
+  // 缺项一律按 0/空处理，不因数据不全而失败。
+  function toNum(v) {
+    var n = parseFloat(v);
+    return isNaN(n) ? 0 : n;
+  }
+
+  /**
+   * 收集新财富页真实数据 → 组装为 scoringEngine 入参对象
+   * 覆盖：收支(daily_tx)、储蓄/净资产(wealth_ct)、投资持仓(StockHoldings)、保险(WealthCT)、贷款(WealthCT)
+   * @returns {Object} scoringEngine 入参
+   */
+  function collectWealthData() {
+    var d = {
+      jobIncome: 0, rentalIncome: 0, investIncome: 0, sideIncome: 0,
+      expense: 0, savings: 0, equityInvest: 0, stableInvest: 0,
+      property: 0, investProperty: 0, bankDebt: 0, otherDebt: 0,
+      monthlyPay: 0, maxMonthlyPay: 0, housingFund: 0,
+      housingFundYears: 0, commercialPremium: 0,
+      insuranceList: [], stockHoldings: [], stockCash: 0, ageGroup: 0
+    };
+
+    // 1) 档案字段（wealth_ct_* 前缀，兼容旧版录入）
+    if (global.WealthCT && typeof global.WealthCT.loadField === 'function') {
+      var legacyKeys = [
+        'jobIncome','rentalIncome','investIncome','sideIncome','expense','savings',
+        'equityInvest','stableInvest','property','investProperty','otherDebt',
+        'housingFund','housingFundYears','commercialPremium','ageGroup'
+      ];
+      legacyKeys.forEach(function(k) {
+        var v = global.WealthCT.loadField(k, null);
+        if (v !== null && v !== '' && v !== undefined) {
+          d[k] = (k === 'ageGroup') ? toNum(v) : toNum(v);
+        }
+      });
+    }
+
+    // 2) 收支流水（本月按 CT 字段汇总）
+    if (typeof global.getDailyTxSummary === 'function') {
+      try {
+        var s = global.getDailyTxSummary();
+        if (s) {
+          if (s.income) {
+            d.jobIncome = Math.max(d.jobIncome, toNum(s.income.jobIncome));
+            d.rentalIncome = Math.max(d.rentalIncome, toNum(s.income.rentalIncome));
+            d.investIncome = Math.max(d.investIncome, toNum(s.income.investIncome));
+            d.sideIncome = Math.max(d.sideIncome, toNum(s.income.sideIncome));
+          }
+          if (s.expense) {
+            var exp = toNum(s.expense.expensePersonal) + toNum(s.expense.expenseFamily) +
+                      toNum(s.expense.expenseEducation) + toNum(s.expense.expenseMedical);
+            if (exp > 0) d.expense = Math.max(d.expense, exp);
+          }
+        }
+      } catch(e) {}
+    }
+
+    // 3) 投资持仓（真实持仓优先，次之档案 equityInvest/stableInvest）
+    if (global.StockHoldings && typeof global.StockHoldings.getHoldings === 'function') {
+      try { d.stockHoldings = global.StockHoldings.getHoldings() || []; } catch(e) { d.stockHoldings = []; }
+    }
+    var holdingsValue = 0;
+    (d.stockHoldings || []).forEach(function(h) {
+      holdingsValue += toNum(h.quantity) * toNum(h.current_price);
+    });
+    if (holdingsValue > 0) d.equityInvest = Math.max(d.equityInvest, holdingsValue);
+    try {
+      if (global.StockHoldings && typeof global.StockHoldings.calcSummary === 'function') {
+        var calc = global.StockHoldings.calcSummary();
+        if (calc && calc.cash) d.stockCash = toNum(calc.cash);
+      } else if (global.DataStore && typeof global.DataStore.load === 'function') {
+        d.stockCash = toNum(global.DataStore.load('stock_holdings', 'cash', 0));
+      }
+    } catch(e) {}
+    if (d.stockCash > 0) d.stableInvest = Math.max(d.stableInvest, d.stockCash);
+
+    // 4) 贷款 + 保险（wealth_ct 前缀）
+    var loans = [], insurance = [];
+    if (global.WealthCT && typeof global.WealthCT.loadLoans === 'function') {
+      try { loans = global.WealthCT.loadLoans() || []; } catch(e) {}
+    }
+    if (global.WealthCT && typeof global.WealthCT.loadInsurance === 'function') {
+      try { insurance = global.WealthCT.loadInsurance() || []; } catch(e) {}
+    }
+
+    var totalBankDebt = 0, totalCurPay = 0, totalMaxPay = 0;
+    loans.forEach(function(L) {
+      var amt = toNum(L.amt);
+      if (amt <= 0) return;
+      totalBankDebt += amt;
+      var rate = toNum(L.rate) / 100 / 12;
+      var term = toNum(L.term) || 1;
+      var cur = 0, mx = 0;
+      if (rate > 0 && term > 0) {
+        var f = Math.pow(1 + rate, term);
+        cur = amt * rate * f / (f - 1);
+        mx = cur;
+      } else if (term > 0) {
+        cur = amt / term;
+        mx = cur;
+      }
+      totalCurPay += cur;
+      totalMaxPay += Math.max(cur, mx);
+    });
+    if (totalBankDebt > 0) d.bankDebt = Math.max(d.bankDebt || 0, Math.round(totalBankDebt));
+    if (totalCurPay > 0) d.monthlyPay = Math.max(d.monthlyPay || 0, Math.round(totalCurPay));
+    if (totalMaxPay > 0) d.maxMonthlyPay = Math.max(d.maxMonthlyPay || 0, Math.round(totalMaxPay));
+
+    var premiumSum = 0;
+    var mapped = (insurance || []).map(function(it) {
+      var premium = toNum(it.premium);
+      premiumSum += premium;
+      return {
+        type: it.type || 'life',
+        amount: toNum(it.amount),
+        premium: premium,
+        term: toNum(it.term),
+        paid: toNum(it.paid)
+      };
+    });
+    d.insuranceList = mapped;
+    if (!d.commercialPremium && premiumSum > 0) d.commercialPremium = premiumSum;
+
+    return d;
+  }
+
+  /**
+   * 打开完整诊断报告弹层
+   */
+  function openDiagnosisModal() {
+    var ov = document.getElementById('wealthDiagOverlay');
+    if (ov) ov.classList.add('active');
+    try { document.body.style.overflow = 'hidden'; } catch(e) {}
+    var loading = document.getElementById('wealthDiagLoading');
+    if (loading) loading.style.display = 'block';
+  }
+
+  /**
+   * 关闭完整诊断报告弹层
+   */
+  function closeDiagnosisModal() {
+    var ov = document.getElementById('wealthDiagOverlay');
+    if (ov) ov.classList.remove('active');
+    try { document.body.style.overflow = ''; } catch(e) {}
+    if (typeof global.closeWealthDiagnosis === 'function') {
+      try { global.closeWealthDiagnosis(); } catch(e) {}
+    }
+  }
+
+  /**
+   * 一键完整诊断：收集真实数据 → run 评分 → render 到弹层 → 存档
+   * @param {Object} [opts] 保留参数
+   * @returns {Object|null} scoringEngine 结果
+   */
+  function runFull(opts) {
+    try {
+      openDiagnosisModal();
+      var data = collectWealthData();
+      var result = scoringEngine(data);
+      global.__wealthDiagLast = { result: result, data: data };
+      renderResults(result, {
+        section: 'wealthDiagSection',
+        ring: 'wealthDiagRing',
+        scoreValue: 'wealthDiagScoreValue',
+        scoreGrade: 'wealthDiagScoreGrade',
+        scoreGradeText: 'wealthDiagScoreGradeText',
+        dimList: 'wealthDiagDimList',
+        diagText: 'wealthDiagDiagText',
+        insuranceTip: 'wealthDiagInsuranceTip',
+        suggestList: 'wealthDiagSuggestList',
+        holdingsPanel: 'wealthDiagHoldingsPanel'
+      });
+      var loading = document.getElementById('wealthDiagLoading');
+      if (loading) loading.style.display = 'none';
+      try { saveSnapshot(result, 'auto'); } catch(e) {}
+      // 同步总览卡片诊断结论 / 渲染历史趋势（若页面已定义对应函数）
+      try {
+        if (typeof global.updateWealthDiagnosisSummary === 'function') {
+          global.updateWealthDiagnosisSummary(result);
+        }
+        if (typeof global.afterWealthDiagRender === 'function') {
+          global.afterWealthDiagRender(result);
+        }
+      } catch(e) {}
+      return result;
+    } catch(e) {
+      try {
+        if (typeof global.showToast === 'function') global.showToast('诊断生成失败：' + e.message);
+        else alert('诊断生成失败：' + e.message);
+      } catch(e2) {}
+      return null;
+    }
+  }
+
+
   // ==================== 导出 ====================
   var DiagnosisEngine = {
-    version: '1.0.0',
-    
+    version: '1.1.0',
+
     // 核心方法
     run: scoringEngine,
     render: renderResults,
-    
+
     // 存档方法
     saveSnapshot: saveSnapshot,
     getHistory: getHistory,
-    
+
+    // v52.5.8：一键完整诊断 + 真实数据桥接 + 弹层控制
+    runFull: runFull,
+    collectData: collectWealthData,
+    openModal: openDiagnosisModal,
+    closeModal: closeDiagnosisModal,
+
     // 工具方法
     getBarClass: getBarClass
   };
