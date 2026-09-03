@@ -907,10 +907,13 @@
       var loading = document.getElementById('wealthDiagLoading');
       if (loading) loading.style.display = 'none';
       try { saveSnapshot(result, 'auto'); } catch(e) {}
-      // 同步总览卡片诊断结论 / 渲染历史趋势（若页面已定义对应函数）
+      // 同步总览卡片诊断结论 / 渲染历史趋势（若页面已定义对应函数）——v52.8.0 追加 hero 主卡回写
       try {
         if (typeof global.updateWealthDiagnosisSummary === 'function') {
           global.updateWealthDiagnosisSummary(result);
+        }
+        if (typeof global.syncWealthScore === 'function') {
+          global.syncWealthScore();
         }
         if (typeof global.afterWealthDiagRender === 'function') {
           global.afterWealthDiagRender(result);

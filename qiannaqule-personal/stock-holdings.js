@@ -1142,6 +1142,23 @@
   }
 
   // ==================== 投资概览4卡 + 收益走势 (v52.7.0) ====================
+  // v52.8.0: 对话直录持仓（程序化新增，非弹窗）
+  function addHoldingDirect(h) {
+    if (!h || !h.name || !h.quantity) return null;
+    var cost = parseFloat(h.cost_price) || 0;
+    var curr = parseFloat(h.current_price) || cost;
+    var saved = addHolding({
+      name: String(h.name).trim(),
+      code: (h.code || '').trim(),
+      quantity: parseFloat(h.quantity) || 0,
+      cost_price: cost,
+      current_price: curr,
+      status: h.status || '持有中',
+      note: h.note || ''
+    });
+    try { renderAll(); } catch(e) {}
+    return saved;
+  }
   function renderInvestOverview() {
     var list = loadHoldings();
     var stats = computeAdviceStats(list);
@@ -1604,6 +1621,8 @@
     getHoldings: loadHoldings,
     showManager: showManager,
     renderTopHoldings: renderTopHoldings,
+    renderInvestOverview: renderInvestOverview,
+    addHoldingDirect: addHoldingDirect,
     generateAdvice: generateAdvice
   };
 

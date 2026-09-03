@@ -20,6 +20,9 @@
     ANALYSIS: 'analysis',         // 分析类：要建议/要诊断
     TOOL: 'tool',                 // 工具类：调用纠结诊疗室/价值罗盘等
     SCHEDULE: 'schedule',         // 日程类：添加/查询日程
+    HOLDING: 'holding',           // 持仓类：买入/加仓股票（v52.8.0）
+    INSURANCE: 'insurance',       // 保单类：新增保险（v52.8.0）
+    LOAN: 'loan',                 // 贷款类：新增贷款（v52.8.0）
     CASUAL: 'casual',             // 闲聊类
     UNKNOWN: 'unknown'
   };
@@ -40,6 +43,20 @@
   function detectIntent(text) {
     var lower = text.toLowerCase();
     var trimmed = text.trim();
+
+    // 0.5 v52.8.0 财富域直录优先于记账，避免"买入XX100股XX元"被记账吞掉：
+    // 持仓类（买入/加仓/持仓 + 股/手）、保单类、贷款类
+    var wealthPatterns = [
+      [ /买入|加仓|建仓|买.*股|持仓/.test(trimmed) && /\d+\s*股|\d+\s*手/.test(trimmed), INTENT_TYPES.HOLDING, 0.85 ],
+      [ /(?:买|新增|添加|记录)(?:了|了一份|份)?.*(?:保单|保险|重疾险|医疗险|寿险|教育金|年金|投保)/.test(trimmed), INTENT_TYPES.INSURANCE, 0.7 ],
+      [ /(?:保单|保险|投保)(?:了|的方式|记录)/.test(trimmed), INTENT_TYPES.INSURANCE, 0.7 ],
+      [ /(?:新增|添加|记|办了|申请了)?(?:房贷|车贷|贷款|借款|借了)\d+/.test(trimmed), INTENT_TYPES.LOAN, 0.7 ]
+    ];
+    for (var wp = 0; wp < wealthPatterns.length; wp++) {
+      if (wealthPatterns[wp][0]) {
+        return { type: wealthPatterns[wp][1], confidence: wealthPatterns[wp][2] };
+      }
+    }
 
     // 1. 记账类：关键词 + 数字模式
     var accountingPatterns = [
@@ -147,6 +164,12 @@
         return { toolName: 'accounting', params: { text: text } };
       case INTENT_TYPES.RECORDING:
         return { toolName: 'behavior_record', params: { text: text } };
+      case INTENT_TYPES.HOLDING:
+        return { toolName: 'holding', params: { text: text } };
+      case INTENT_TYPES.INSURANCE:
+        return { toolName: 'insurance_record', params: { text: text } };
+      case INTENT_TYPES.LOAN:
+        return { toolName: 'loan_record', params: { text: text } };
       case INTENT_TYPES.SCHEDULE:
         return { toolName: 'schedule', params: { text: text } };
       case INTENT_TYPES.QUERY:
@@ -376,6 +399,85 @@
 
     return { reply: '好的，我帮你记下了。' };
   });
+
+  // ========== v52.8.0 财富域对话直录工具（持仓/保单/贷款） ==========
+
+  // 工具：持仓（买入/加仓股票）
+  registerTool('holding', '记录/买入/加仓股票持仓', async function(params) {
+    var text = params.text;
+    if (window.parseHoldingFromText && window.StockHoldings && typeof window.StockHoldings.addHoldingDirect === 'function') {
+      var h = window.parseHoldingFromText(text);
+      if (h) {
+        var saved = window.StockHoldings.addHoldingDirect(h);
+        if (saved) {
+          try { if (typeof window.renderInvestOverviewIfAvail === 'function') window.renderInvestOverviewIfAvail(); } catch(e) {}
+          try { if (typeof window.refreshWealthDashboard === 'function') window.refreshWealthDashboard(); } catch(e) {}
+          return {
+            reply: '好的，已记录持仓：' + saved.name + '（' + saved.quantity + '股，成本 ¥' + saved.cost_price + '）',
+            actions: [{ type: 'navigate', module: 'life', subTab: 'holdings' }],
+            data: saved
+          };
+        }
+      }
+    }
+    if (window.AiEngine && window.AiEngine.processInput) {
+      var aiRes = await window.AiEngine.processInput(text);
+      return { reply: aiRes.reply, actions: aiRes.actions };
+    }
+    return { reply: '好的，已收到。你可以告诉我「买入贵州茅台100股1800元」这样记持仓。' };
+  });
+
+  // 工具：保单（新增保险）
+  registerTool('insurance_record', '新增/记录保险保单', async function(params) {
+    var text = params.text;
+    if (window.parseInsuranceFromText && window.WealthCT && typeof window.WealthCT.loadInsurance === 'function') {
+      var r = window.parseInsuranceFromText(text);
+      if (r) {
+        var ins = window.WealthCT.loadInsurance() || [];
+        ins.push(r);
+        window.WealthCT.saveInsurance(ins);
+        try { if (typeof window.renderInsuranceSummary === 'function') window.renderInsuranceSummary(); } catch(e) {}
+        try { if (typeof window.refreshWealthDashboard === 'function') window.refreshWealthDashboard(); } catch(e) {}
+        return {
+          reply: '好的，已添加保单（保额 ¥' + (Math.round(r.amount)||0) + '，年缴 ¥' + (Math.round(r.premium)||0) + '）',
+          actions: [{ type: 'navigate', module: 'life', subTab: 'wealth' }],
+          data: r
+        };
+      }
+    }
+    if (window.AiEngine && window.AiEngine.processInput) {
+      var aiRes = await window.AiEngine.processInput(text);
+      return { reply: aiRes.reply, actions: aiRes.actions };
+    }
+    return { reply: '好的，已收到。你可以告诉我「添加一份保额50万、年缴8000的重疾险」这样记保单。' };
+  });
+
+  // 工具：贷款（新增贷款）
+  registerTool('loan_record', '新增/记录贷款', async function(params) {
+    var text = params.text;
+    if (window.parseLoanFromText && window.WealthCT && typeof window.WealthCT.loadLoans === 'function') {
+      var r = window.parseLoanFromText(text);
+      if (r) {
+        var loans = window.WealthCT.loadLoans() || [];
+        loans.push(r);
+        window.WealthCT.saveLoans(loans);
+        try { if (typeof window.renderInsuranceSummary === 'function') window.renderInsuranceSummary(); } catch(e) {}
+        try { if (typeof window.refreshWealthDashboard === 'function') window.refreshWealthDashboard(); } catch(e) {}
+        return {
+          reply: '好的，已添加贷款：' + (r.name || '贷款') + '（¥' + (Math.round(r.amt)||0) + '）',
+          actions: [{ type: 'navigate', module: 'life', subTab: 'wealth' }],
+          data: r
+        };
+      }
+    }
+    if (window.AiEngine && window.AiEngine.processInput) {
+      var aiRes = await window.AiEngine.processInput(text);
+      return { reply: aiRes.reply, actions: aiRes.actions };
+    }
+    return { reply: '好的，已收到。你可以告诉我「添加一笔50万的房贷」这样记贷款。' };
+  });
+
+  // ========== v52.8.0 财富域对话直录工具结束 ==========
 
   // 工具：数据查询
   registerTool('data_query', '查询各类数据汇总', async function(params) {
