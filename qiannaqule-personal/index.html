@@ -1464,7 +1464,6 @@ body {
 }
 
 
-
 /* ===== v52.2 意见反馈系统 ===== */
 /* ===== 智能推送面板 ===== */
 .push-overlay { position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:10000;display:none;align-items:flex-end;justify-content:center; }
@@ -1585,7 +1584,6 @@ body {
   font-size: 10px;
   color: #cbd5e1;
 }
-
 
 
 
@@ -3427,7 +3425,6 @@ body {
 .dashboard-detail-card { position: relative; }
 
 
-
 /* ========== v51 三层范式 - 第三层：AI建议 ========== */
 .dashboard-ai-section {
   padding: 4px 16px 20px;
@@ -3530,7 +3527,6 @@ body {
 /* ========== v51 各Tab主题色变量 ========== */
 #page-work { --tab-color: #8b5cf6; --tab-color-dark: #7c3aed; --tab-color-light: #f5f3ff; }
 #page-health { --tab-color: #16a34a; --tab-color-dark: #15803d; --tab-color-light: #f0fdf4; }
-
 
 /* ========== v52.5.4 健康专项页样式 ========== */
 /* 运动专项 */
@@ -4162,58 +4158,6 @@ body {
 }
 .ai-sug-btn:hover { background: #f1f5f9; }
 .ai-sug-btn svg { width: 12px; height: 12px; }
-
-/* AI持仓分析卡片（投资分段底部） */
-.ai-holdings-analysis-card {
-  background: linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%);
-  border-radius: 16px;
-  padding: 16px;
-  margin-top: 4px;
-  margin-bottom: 12px;
-  border: 1px solid #bfdbfe;
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-.ai-holdings-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  background: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  color: #2563eb;
-  box-shadow: 0 2px 8px rgba(37,99,235,0.1);
-}
-.ai-holdings-content { flex: 1; min-width: 0; }
-.ai-holdings-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: #0f172a;
-  margin-bottom: 3px;
-}
-.ai-holdings-desc {
-  font-size: 12px;
-  color: #64748b;
-  line-height: 1.5;
-}
-.ai-holdings-btn {
-  flex-shrink: 0;
-  padding: 8px 16px;
-  font-size: 12px;
-  font-weight: 600;
-  color: #fff;
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
-  border: none;
-  border-radius: 20px;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.2s;
-  box-shadow: 0 2px 8px rgba(37,99,235,0.3);
-}
-.ai-holdings-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(37,99,235,0.4); }
 
 /* ========== v52.5.4 教育模块样式 ========== */
 .edu-learning-card,
@@ -5031,7 +4975,6 @@ body {
   display: inline-block;
 }
 
-
 .dot-offline {
   width: 6px; height: 6px; border-radius: 50%;
   background: #94a3b8;
@@ -5139,7 +5082,6 @@ body {
   display: flex; align-items: center; justify-content: center;
 }
 
-
 /* v52 生活Tab - 域名切换器（财富/教育） */
 .domain-switcher {
   display: flex;
@@ -5172,7 +5114,6 @@ body {
 .domain-switch-item svg { flex-shrink: 0; }
 .life-domain { display: none; }
 .life-domain.active { display: block; }
-
 
 /* ========== v51 底部Tab激活色 ========== */
 .bottom-tab-item[data-module="work"].active { color: #8b5cf6; }
@@ -5297,7 +5238,6 @@ body {
   flex-shrink: 0;
 }
 .profile-section-icon .icon-svg { width: 20px; height: 20px; color: currentColor; }
-
 
 /* ========== v52.2 对话气泡 & 主动关怀 样式 ========== */
 .chat-quick-suggestions {
@@ -5496,7 +5436,6 @@ body {
   50% { transform: scaleY(1.2); }
 }
 
-
 .input-plus-btn {
   width: 36px; height: 36px; border-radius: 10px;
   border: none; background: #f1f5f9; color: #64748b;
@@ -5536,13 +5475,11 @@ body {
 .aai-time { font-size: 10px; color: #94a3b8; margin-top: 2px; }
 .aai-empty { text-align: center; padding: 12px; font-size: 11px; color: #94a3b8; }
 
-
 .profile-divider-line {
   height: 1px;
   background: #f1f5f9;
   margin: 8px 0;
 }
-
 
 /* 家庭成员卡片 */
 .family-member-card {
@@ -5816,7 +5753,6 @@ body {
 }
 .profile-edit-save:hover { opacity: 0.9; }
 
-
 /* 医疗记录列表 */
 .medical-record-list {
   margin-top: 12px;
@@ -6089,7 +6025,7 @@ body {
   // ===== 版本守护（v52.5.4起）：SW缓存死锁根治方案 =====
   // 放在所有JS之前执行，确保版本不对时立即清理并重载
   (function() {
-    var CURRENT_VERSION = '52.6.1';
+    var CURRENT_VERSION = '52.7.0';
     var STORAGE_KEY = 'mirun_app_version';
     
     function wipeAndReload(reason) {
@@ -6126,7 +6062,7 @@ body {
     }
   })();
   </script>
-<style id="v526-input-antizoom" type="text/css">/* v52.6.1 global input anti-ios-zoom: font-size>=16px */input[type=text],input[type=number],input[type=tel],input[type=email],input[type=date],input[type=time],input[type=password],input[type=search],textarea,select{font-size:16px !important}</style>
+<style id="v526-input-antizoom" type="text/css">/* v52.7.0 global input anti-ios-zoom: font-size>=16px */input[type=text],input[type=number],input[type=tel],input[type=email],input[type=date],input[type=time],input[type=password],input[type=search],textarea,select{font-size:16px !important}</style>
 </head>
 <body>
 
@@ -7617,18 +7553,6 @@ body {
             <div class="wlc-empty">暂无持仓，对AI说「买入贵州茅台100股」</div>
           </div>
         </div>
-        <!-- AI持仓分析 -->
-        <div class="ai-holdings-analysis-card">
-          <div class="ai-holdings-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M12 2l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3z"/></svg>
-          </div>
-          <div class="ai-holdings-content">
-            <div class="ai-holdings-title">AI 持仓分析</div>
-            <div class="ai-holdings-desc">基于你的持仓数据，分析资产配置合理性、风险集中度，给出调仓建议</div>
-          </div>
-          <button class="ai-holdings-btn" onclick="AIAction.doAction('invest-analysis')">立即分析</button>
-        </div>
-
         <div id="holdingsDetailContainer">
           <div id="stockHoldingsContainer"></div>
         </div>
@@ -8655,7 +8579,7 @@ body {
     </div>
 
     <div style="text-align:center;padding:20px 0 10px;font-size:12px;color:#cbd5e1">
-      MiRun AI v52.6.1 · 越用越懂你的数字分身
+      MiRun AI v52.7.0 · 越用越懂你的数字分身
     </div>
   </div>
   <div class="app-brand-footer">
@@ -8758,9 +8682,7 @@ body {
 
 
 
-
 </div><!-- END container -->
-
 
 <!-- ==================== Bottom Tab Bar ==================== -->
   <!-- [v52.5.4] 模块切换早定义 — 防止底部Tab点击报错 ReferenceError: Can't find variable: switchModule -->
@@ -8998,7 +8920,6 @@ body {
   document.addEventListener('DOMContentLoaded', function() {
     setTimeout(function() { window.DietRecords.refreshDietUI(); }, 500);
   });
-
 
 
   // ==================== v52.5.4 健康专项页数据渲染 ====================
@@ -10262,7 +10183,6 @@ body {
     switchLayer('wealth', layer);
   };
 
-
   // 财富v52兼容：诊断得分同步到hero评分
   function syncWealthScore() {
     var diagScore = document.getElementById('wealthDiagnosisScore');
@@ -10602,7 +10522,8 @@ body {
     if (window.StockHoldings && typeof window.StockHoldings.showManager === 'function') {
       window.StockHoldings.showManager();
     } else {
-      alert('持仓管理功能加载中，请稍后再试');
+      var el = document.getElementById('stockHoldingsContainer');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
   window.addInsurance = function() {
@@ -10672,7 +10593,6 @@ body {
     alert('服务市场\n\n🔧 建设中...\n\n即将上线的服务：\n· 天气服务 - 实时天气与生活指数\n· 行情数据 - A股/港股/美股行情\n· 健康数据 - 运动/体征同步\n· 日历同步 - 系统日历双向同步\n\n所有服务均在本地运行，数据不经过第三方服务器');
   };
 
-
   window.toggleProactiveCare = function(enabled) {
     if (window.ProactiveCare) {
       window.ProactiveCare.setEnabled(enabled);
@@ -10710,7 +10630,6 @@ body {
   window.showUserAgreement = function() {
     alert('用户协议\n\nMiRun AI 用户协议\n\n1. 服务性质\nMiRun AI 是一款本地化运行的个人智能助手应用，所有数据仅存储在您的设备本地。\n\n2. 数据与隐私\n· 您的所有个人数据（对话记录、健康数据、财务数据等）均保存在您的设备本地\n· 我们不会收集、存储或分析您的任何个人数据\n· AI对话内容仅发送给您配置的AI服务商用于生成回复\n\n3. 使用规则\n· 请妥善保管您的设备和数据\n· 建议定期使用"数据导出"功能备份数据\n· 不得用于违法违规用途\n\n4. 免责声明\n本产品仅供个人参考，不构成任何专业建议（医疗、金融、法律等）。\n\n完整版请查看隐私声明。');
   };
-
 
 
   // ==================== v52.2 辅助函数：成长/知识库/教育 ====================
@@ -11510,7 +11429,6 @@ body {
     }
   }
 
-
   function handleImageUpload(file) {
     if (!file.type.startsWith('image/')) {
       showToast('请选择图片文件');
@@ -12162,7 +12080,6 @@ body {
       }
     }
   }
-
 
   // 输入框自适应
   function initTextareaAutoResize() {
@@ -14337,7 +14254,7 @@ body {
   // ==================== Version Sync + Force Refresh ====================
   // If stored version != page version → unregister SW, clear all caches, hard reload
   (function() {
-    var PAGE_VERSION = '52.6.1';
+    var PAGE_VERSION = '52.7.0';
     var storedVersion = localStorage.getItem('mirun_app_version');
     
     // First visitor — just store version
@@ -14437,7 +14354,7 @@ body {
     // Immediate: if old service-worker.js is controlling, unregister it to break deadlock
     if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
       var ctrlURL = navigator.serviceWorker.controller.scriptURL || '';
-      if (ctrlURL.indexOf('sw-v52.6.1.js') === -1 && ctrlURL.indexOf('service-worker.js') !== -1) {
+      if (ctrlURL.indexOf('sw-v52.7.0.js') === -1 && ctrlURL.indexOf('service-worker.js') !== -1) {
         console.log('Old SW detected, unregistering to break cache deadlock...');
         navigator.serviceWorker.getRegistrations().then(function(regs) {
           regs.forEach(function(r) {
@@ -14454,19 +14371,19 @@ body {
       var existingController = navigator.serviceWorker.controller;
       var isAllowedSW = false;
       if (existingController && existingController.scriptURL) {
-        isAllowedSW = existingController.scriptURL.indexOf('sw-v52.6.1.js') !== -1 || existingController.scriptURL.indexOf('service-worker.js') !== -1;
+        isAllowedSW = existingController.scriptURL.indexOf('sw-v52.7.0.js') !== -1 || existingController.scriptURL.indexOf('service-worker.js') !== -1;
       }
       if (existingController && !isAllowedSW) {
         console.log('Skipping SW registration: existing controller is unknown');
         return;
       }
 
-      navigator.serviceWorker.register('./sw-v52.6.1.js', { updateViaCache: 'none' }).then(function(reg) {
+      navigator.serviceWorker.register('./sw-v52.7.0.js', { updateViaCache: 'none' }).then(function(reg) {
         console.log('SW registered, scope:', reg.scope);
         
         // Verify the registered SW is our expected file
         var isExpected = reg.active && reg.active.scriptURL && 
-          (reg.active.scriptURL.indexOf('sw-v52.6.1.js') !== -1 || reg.active.scriptURL.indexOf('service-worker.js') !== -1);
+          (reg.active.scriptURL.indexOf('sw-v52.7.0.js') !== -1 || reg.active.scriptURL.indexOf('service-worker.js') !== -1);
         if (reg.active && !isExpected) {
           console.warn('Unexpected SW scriptURL detected, unregistering:', reg.active.scriptURL);
           reg.unregister();
@@ -14937,7 +14854,6 @@ function toggleGuideSection(index) {
     } catch(e) {}
   }
 
-
   // ========== v52.2 工作Tab数据联动增强 ==========
   function getTodayTodoCount() {
     try {
@@ -15310,7 +15226,6 @@ function toggleGuideSection(index) {
 
 
 
-
   // ========== v52.2 意见反馈系统 ==========
   var FEEDBACK_STORAGE_KEY = 'mirun_feedback_list';
   var _currentFeedbackType = 'bug';
@@ -15354,7 +15269,7 @@ function toggleGuideSection(index) {
 
   function getFeedbackAutoInfo() {
     var info = {
-      appVersion: 'v52.6.1',
+      appVersion: 'v52.7.0',
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent || '',
       screenSize: window.innerWidth + 'x' + window.innerHeight,
@@ -16390,7 +16305,7 @@ function toggleGuideSection(index) {
     try {
       var data = {
         app: 'MiRun-AI',
-        version: 'v52.6.1',
+        version: 'v52.7.0',
         exportedAt: new Date().toISOString(),
         localStorage: {},
         indexedDB: {}
@@ -16573,7 +16488,7 @@ function toggleGuideSection(index) {
 <script src="image-recognizer.js?v=52.6.0"></script>
 
   <!-- Version Badge -->
-  <div id="versionBadge" style="position:fixed;bottom:80px;right:12px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;z-index:9999;letter-spacing:0.5px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;pointer-events:none">v52.6.1</div>
+  <div id="versionBadge" style="position:fixed;bottom:80px;right:12px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;z-index:9999;letter-spacing:0.5px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;pointer-events:none">v52.7.0</div>
   <script>
     setTimeout(function(){
       var b = document.getElementById('versionBadge');

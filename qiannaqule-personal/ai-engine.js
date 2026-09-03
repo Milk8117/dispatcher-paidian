@@ -1346,7 +1346,9 @@
     // 内部UI方法
     _switchMode: _switchMode,
     _toggleProviderCard: _toggleProviderCard,
-    _onDefaultProviderChange: _onDefaultProviderChange
+    _onDefaultProviderChange: _onDefaultProviderChange,
+    // v52.7.0: 暴露给持仓建议等其他模块调用的降级链
+    callLLMWithFallback: callLLMWithFallback
   };
 
 })();

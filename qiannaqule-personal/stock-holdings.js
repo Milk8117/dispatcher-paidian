@@ -357,6 +357,7 @@
       saveHoldings(list);
       refreshOverview();
       refreshHoldingsPnl();
+      renderTopHoldings();
     }
     quoteLastTs = new Date();
     setQuoteStatus('updated');
@@ -524,7 +525,29 @@
       '  .sh-ops{flex-direction:column;align-items:stretch;gap:6px}',
       '  .sh-ops .sh-action-btn{width:100%;text-align:center;padding:6px 10px}',
       '  .sh-th-ops{min-width:70px}',
-      '}'
+      '}',
+      // ====== 持仓建议 (v52.7.0) ======
+      '.sh-advice-conclusion{background:linear-gradient(135deg,#eff6ff,#dbeafe);border:1px solid #bfdbfe;border-radius:12px;padding:14px;margin-bottom:12px}',
+      '.sh-advice-c-head{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#1e3a8a;margin-bottom:8px}',
+      '.sh-advice-c-head .dot{width:5px;height:14px;background:#2563eb;border-radius:3px;display:inline-block}',
+      '.sh-advice-c-text{font-size:13px;color:#334155;line-height:1.7}',
+      '.sh-advice-sec-title{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:700;color:#1f2937;margin:16px 0 8px}',
+      '.sh-advice-sec-title .dot{width:5px;height:14px;background:#2563eb;border-radius:3px;display:inline-block}',
+      '.sh-advice-act-wrap{display:flex;flex-direction:column;gap:8px;margin-bottom:4px}',
+      '.sh-advice-act{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}',
+      '.sh-advice-act-name{font-size:14px;font-weight:600;color:#1f2937;min-width:0}',
+      '.sh-advice-act-dir{font-size:12px;font-weight:700;padding:3px 10px;border-radius:12px;flex-shrink:0}',
+      '.sh-advice-act-dir.buy{background:#fef2f2;color:#dc2626}',
+      '.sh-advice-act-dir.sell{background:#f0fdf4;color:#16a34a}',
+      '.sh-advice-act-dir.hold{background:#eff6ff;color:#2563eb}',
+      '.sh-advice-act-reason{font-size:12px;color:#64748b;flex:1;min-width:60%;line-height:1.5}',
+      '.sh-advice-risk-wrap{display:flex;flex-direction:column;gap:6px}',
+      '.sh-advice-risk{font-size:12px;color:#b45309;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:8px 12px;line-height:1.6}',
+      '.sh-advice-disclaim{font-size:11px;color:#94a3b8;text-align:center;margin-top:14px;line-height:1.6}',
+      '.sh-advice-loading{display:flex;flex-direction:column;align-items:center;gap:10px;padding:34px 16px;color:#64748b;font-size:13px}',
+      '.sh-advice-loading-icon{color:#2563eb}',
+      '.sh-advice-loading-icon svg{animation:shAdviceSpin 1s linear infinite}',
+      '@keyframes shAdviceSpin{from{transform:rotate(0)}to{transform:rotate(360deg)}}'
     ].join('');
     document.head.appendChild(s);
   }
@@ -543,7 +566,7 @@
   }
 
   // ==================== 主渲染 ====================
-  var currentSub = 'holdings'; // 'holdings' | 'plans'
+  var currentSub = 'holdings'; // 'holdings' | 'advice'
   var container = null;
 
   function render(containerId) {
@@ -577,7 +600,7 @@
     subTabs.className = 'sh-sub-tabs';
     subTabs.innerHTML =
       '<div class="sh-sub-tab' + (currentSub === 'holdings' ? ' active' : '') + '" onclick="StockHoldings.switchSub(\'holdings\')">持仓明细</div>' +
-      '<div class="sh-sub-tab' + (currentSub === 'plans' ? ' active' : '') + '" onclick="StockHoldings.switchSub(\'plans\')">操作计划</div>';
+      '<div class="sh-sub-tab' + (currentSub === 'advice' ? ' active' : '') + '" onclick="StockHoldings.switchSub(\'advice\')">持仓建议</div>';
     container.appendChild(subTabs);
 
     // 内容区
@@ -586,13 +609,14 @@
     container.appendChild(content);
 
     renderSubContent();
+    renderTopHoldings();
   }
 
   function switchSub(sub) {
     currentSub = sub;
     var tabs = container.querySelectorAll('.sh-sub-tab');
     tabs.forEach(function(t, i) {
-      t.classList.toggle('active', (i === 0 && sub === 'holdings') || (i === 1 && sub === 'plans'));
+      t.classList.toggle('active', (i === 0 && sub === 'holdings') || (i === 1 && sub === 'advice'));
     });
     renderSubContent();
   }
@@ -604,7 +628,7 @@
     if (currentSub === 'holdings') {
       renderHoldingsTable(content);
     } else {
-      renderPlansList(content);
+      renderAdvice(content);
     }
   }
 
@@ -737,149 +761,382 @@
     autoFetchQuotes();
   }
 
-  // ==================== 操作计划列表 ====================
-  function renderPlansList(parent) {
+  // ==================== 持仓建议 (v52.7.0) ====================
+  var adviceGenerating = false;
+
+  function renderAdvice(parent) {
     var sectionTitle = document.createElement('div');
     sectionTitle.className = 'sh-section-title';
     sectionTitle.innerHTML =
-      '<div class="sh-section-title-text"><span class="dot"></span>操作计划</div>' +
-      '<button class="sh-add-btn" style="padding:7px 14px;font-size:13px;" onclick="StockHoldings.openPlanModal()">' +
-      '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>' +
-      '新建计划</button>';
+      '<div class="sh-section-title-text"><span class="dot"></span>持仓建议</div>' +
+      '<div style="font-size:12px;color:#9ca3af;">MiRun AI 四维研判 · 仅供决策参考</div>';
     parent.appendChild(sectionTitle);
 
-    var plans = loadPlans();
+    var shell = document.createElement('div');
+    shell.id = 'shAdvicePanel';
+    parent.appendChild(shell);
+
     var holdings = loadHoldings();
-
-    // 按持仓分组
-    var groups = {};
-    var ungrouped = [];
-    plans.forEach(function(p) {
-      if (p.holding_id) {
-        if (!groups[p.holding_id]) groups[p.holding_id] = [];
-        groups[p.holding_id].push(p);
-      } else {
-        ungrouped.push(p);
-      }
-    });
-
-    if (plans.length === 0) {
+    if (!holdings.length) {
       var empty = document.createElement('div');
       empty.className = 'sh-empty';
       empty.innerHTML =
-        '<div class="sh-empty-icon">📋</div>' +
-        '<div>暂无操作计划</div>' +
-        '<div style="font-size:12px;margin-top:6px;">点击「新建计划」记录你的交易策略</div>';
-      parent.appendChild(empty);
+        '<div class="sh-empty-icon">' +
+          '<svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/><polyline points="18 12 22 17 22 7"/></svg>' +
+        '</div>' +
+        '<div>暂无持仓</div>' +
+        '<div style="font-size:12px;margin-top:6px;">添加持仓后，MiRun AI 将为你智能生成持仓建议</div>';
+      shell.appendChild(empty);
       return;
     }
 
-    // 按持仓分组展示
-    var hMap = {};
-    holdings.forEach(function(h) { hMap[h.id] = h; });
+    var toolbar = document.createElement('div');
+    toolbar.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px;';
+    toolbar.innerHTML =
+      '<div style="font-size:12px;color:#64748b;flex:1;min-width:0;">从实时行情 · 成本盈亏 · 风险控制 · 市场环境四个维度综合研判</div>' +
+      '<button id="shAdviceGenBtn" class="sh-add-btn" style="padding:7px 14px;font-size:13px;flex-shrink:0;">' +
+        svgWand() +
+        '生成研判</button>';
+    shell.appendChild(toolbar);
 
-    // 有持仓的分组
-    var holdingIds = Object.keys(groups);
-    holdingIds.forEach(function(hid) {
-      var h = hMap[hid] || { name: '未知标的', code: '' };
-      var groupPlans = groups[hid] || [];
-      var groupEl = createPlanGroup(h, groupPlans);
-      parent.appendChild(groupEl);
+    var result = document.createElement('div');
+    result.id = 'shAdviceResult';
+    shell.appendChild(result);
+
+    var genBtn = document.getElementById('shAdviceGenBtn');
+    if (genBtn) genBtn.onclick = function() { generateAdvice(); };
+
+    // 进入该 Tab 自动生成一次
+    generateAdvice(false);
+  }
+
+  function svgWand() {
+    return '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="15 4 17.12 4 17.88 2 18.64 4 21 4 18.24 6.12 21 8 18.64 8 17.88 10 17.12 8 15 8 17.76 6.12"/><path d="M3 21 14 10"/></svg>';
+  }
+
+  function computeAdviceStats(list) {
+    var totalCost = 0, totalValue = 0;
+    list.forEach(function(h) {
+      var q = parseFloat(h.quantity) || 0, c = parseFloat(h.cost_price) || 0, p = parseFloat(h.current_price) || 0;
+      totalCost += q * c;
+      totalValue += q * p;
     });
+    var totalPnl = totalValue - totalCost;
+    return { count: list.length, totalCost: totalCost, totalValue: totalValue, totalPnl: totalPnl, pnlPct: totalCost > 0 ? totalPnl / totalCost : 0, cash: loadCash() };
+  }
 
-    // 无持仓的计划
-    if (ungrouped.length > 0) {
-      var otherGroup = createPlanGroup({ name: '通用计划', code: '', id: 'other' }, ungrouped);
-      parent.appendChild(otherGroup);
+  function fetchAdviceQuotes() {
+    return new Promise(function(resolve) {
+      var list = loadHoldings();
+      if (!list.length) { resolve({ ok: true, list: list }); return; }
+      var secids = [];
+      list.forEach(function(h) {
+        if (!h || !h.code) return;
+        var sid = toSecid(h.code);
+        if (sid) secids.push(sid);
+      });
+      if (!secids.length) { resolve({ ok: true, list: list }); return; }
+      var url = QUOTE_API.replace('SECIDS', secids.join(','));
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', url, true);
+      xhr.timeout = 10000;
+      var finished = false;
+      var finish = function(ok, out) { if (finished) return; finished = true; resolve({ ok: ok, list: out || list }); };
+      xhr.onload = function() {
+        try {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            var res = typeof xhr.response === 'string' ? JSON.parse(xhr.response) : xhr.response;
+            var diff = (res && res.data && res.data.diff) || [];
+            var m = {};
+            diff.forEach(function(d) {
+              var market = (d.f13 === 1) ? '1' : '0';
+              var sid = market + '.' + d.f12;
+              if (d.f2 === undefined || d.f2 === null || d.f2 === '-') return;
+              var p = parseFloat(d.f2);
+              if (!isNaN(p) && p > 0) m[sid] = p;
+            });
+            var out = list.map(function(h) {
+              var hh = { id: h.id, name: h.name, code: h.code, quantity: h.quantity, cost_price: h.cost_price, current_price: h.current_price, status: h.status, note: h.note };
+              var sid = toSecid(h.code);
+              if (sid && m[sid]) hh.current_price = m[sid];
+              return hh;
+            });
+            finish(true, out);
+          } else { finish(false, list); }
+        } catch (e) { finish(false, list); }
+      };
+      xhr.onerror = function() { finish(false, list); };
+      xhr.ontimeout = function() { finish(false, list); };
+      xhr.send();
+    });
+  }
+
+  function fetchMarketEnv() {
+    return new Promise(function(resolve) {
+      var url = 'https://push2.eastmoney.com/api/qt/ulist.np/get?secids=1.000001,0.399001,0.399006&fields=f2,f3,f12,f14&fltt=2';
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', url, true);
+      xhr.timeout = 8000;
+      var finished = false;
+      var finish = function(s2) { if (finished) return; finished = true; resolve(s2); };
+      xhr.onload = function() {
+        try {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            var res = typeof xhr.response === 'string' ? JSON.parse(xhr.response) : xhr.response;
+            var diff = (res && res.data && res.data.diff) || [];
+            if (!diff.length) { finish(''); return; }
+            var parts = diff.map(function(d) { return (d.f14 || '指数') + ' ' + d.f2 + ' (' + (d.f3 >= 0 ? '+' : '') + d.f3 + '%)'; });
+            finish(parts.join('；'));
+          } else { finish(''); }
+        } catch (e) { finish(''); }
+      };
+      xhr.onerror = function() { finish(''); };
+      xhr.ontimeout = function() { finish(''); };
+      xhr.send();
+    });
+  }
+
+  function buildAdviceContext(list, stats, marketEnv) {
+    var lines = ['当前持仓数据：'];
+    list.forEach(function(h, i) {
+      var q = parseFloat(h.quantity) || 0;
+      var cost = parseFloat(h.cost_price) || 0;
+      var curr = parseFloat(h.current_price) || 0;
+      var pnl = (curr - cost) * q;
+      var pct = cost > 0 ? ((curr - cost) / cost * 100) : 0;
+      var value = q * curr;
+      var conc = stats.totalValue > 0 ? (value / stats.totalValue * 100) : 0;
+      lines.push(String(i + 1) + '. ' + (h.name || '未知') + '(' + (h.code || '') + ') 现价' + fmtNum(curr) + ' 成本' + fmtNum(cost) + ' 持有' + q + '股 ' + (value / 10000).toFixed(2) + '万元 占组合' + conc.toFixed(1) + '% 浮盈亏' + (pnl >= 0 ? '+' : '') + fmtNum(Math.abs(pnl)) + '元(' + (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%)');
+    });
+    lines.push('组合总市值' + fmtNum(stats.totalValue) + '元，总浮盈亏' + (stats.totalPnl >= 0 ? '+' : '') + fmtNum(Math.abs(stats.totalPnl)) + '元(' + (stats.pnlPct >= 0 ? '+' : '') + (stats.pnlPct * 100).toFixed(2) + '%)，可用资金' + fmtNum(stats.cash) + '元。');
+    if (marketEnv) {
+      lines.push('大盘概况：' + marketEnv);
+    } else {
+      lines.push('大盘实时概况暂不可用，请基于你的常识与上述持仓成本盈亏做保守、审慎的研判，避免过度乐观。');
     }
+    return lines.join('\n');
   }
 
-  function createPlanGroup(holding, plans) {
-    var group = document.createElement('div');
-    group.className = 'sh-plan-group';
-    group.dataset.holdingId = holding.id || '';
+  function generateAdvice() {
+    if (adviceGenerating) return;
+    var holdings = loadHoldings();
+    if (!holdings.length) return;
+    adviceGenerating = true;
+    var btn = document.getElementById('shAdviceGenBtn');
+    if (btn) { btn.disabled = true; btn.style.opacity = '0.6'; }
+    var result = document.getElementById('shAdviceResult');
+    if (result) setAdviceLoading(result);
 
-    // 排序：优先级高 → 状态待执行优先
-    var prioMap = { high: 0, mid: 1, low: 2 };
-    var statusMap = { pending: 0, progress: 1, done: 2 };
-    plans.sort(function(a, b) {
-      var pa = prioMap[a.priority] !== undefined ? prioMap[a.priority] : 3;
-      var pb = prioMap[b.priority] !== undefined ? prioMap[b.priority] : 3;
-      if (pa !== pb) return pa - pb;
-      var sa = statusMap[a.status] !== undefined ? statusMap[a.status] : 3;
-      var sb = statusMap[b.status] !== undefined ? statusMap[b.status] : 3;
-      return sa - sb;
+    fetchAdviceQuotes().then(function(qr) {
+      var list = qr.list || loadHoldings();
+      if (!list.length) {
+        adviceGenerating = false;
+        if (btn) { btn.disabled = false; btn.style.opacity = ''; }
+        return;
+      }
+      var stats = computeAdviceStats(list);
+      if (!(window.AiEngine && window.AiEngine.callLLMWithFallback && window.AiEngine.isConfigured && window.AiEngine.isConfigured())) {
+        finishAdvice(list, stats, buildLocalAdvice(list, stats));
+        return;
+      }
+      fetchMarketEnv().then(function(env) { runAIAdvice(list, stats, env); });
+    });
+  }
+
+  function runAIAdvice(list, stats, marketEnv) {
+    var context = buildAdviceContext(list, stats, marketEnv);
+    var messages = [
+      { role: 'system', content: '你是资深投资顾问与风险控制专家。请基于提供的持仓数据与市场概况，客观审慎地输出持仓建议。只做分析与建议，绝不替用户下单、不生成实际交易。使用简洁中文。' },
+      { role: 'user', content: context + '\n\n请只返回一个合法JSON，不要输出任何多余文字或代码块标记，结构如下：\n{"conclusion":"综合结论（一两句话）","items":[{"name":"标的名","code":"代码","direction":"持有/加仓/减仓/清仓","reason":"一句理由"}],"risks":["风险提示1","风险提示2"]}' }
+    ];
+    var cfg = (window.AiEngine.getConfig ? window.AiEngine.getConfig() : {}) || {};
+    window.AiEngine.callLLMWithFallback(messages, { maxTokens: 1500, temperature: 0.5 }, cfg)
+      .then(function(res) {
+        var adv = parseAIAdvice((res && res.content) || '', list);
+        finishAdvice(list, stats, adv || buildLocalAdvice(list, stats));
+      })
+      .catch(function() {
+        finishAdvice(list, stats, buildLocalAdvice(list, stats));
+      });
+  }
+
+  function parseAIAdvice(content, list) {
+    var raw = String(content || '');
+    var start = raw.indexOf('{');
+    var end = raw.lastIndexOf('}');
+    var obj = null;
+    if (start !== -1 && end !== -1 && end > start) {
+      try { obj = JSON.parse(raw.substring(start, end + 1)); } catch (e) { obj = null; }
+    }
+    if (obj && obj.items && Array.isArray(obj.items)) {
+      return {
+        source: 'ai',
+        conclusion: obj.conclusion || '',
+        items: obj.items.slice(0, 30).map(function(it) {
+          return { name: it.name || '', code: it.code || '', direction: it.direction || '持有', reason: it.reason || '' };
+        }),
+        risks: (obj.risks || []).map(String)
+      };
+    }
+    return null;
+  }
+
+  function finishAdvice(list, stats, adv) {
+    adviceGenerating = false;
+    var btn = document.getElementById('shAdviceGenBtn');
+    if (btn) { btn.disabled = false; btn.style.opacity = ''; }
+    var result = document.getElementById('shAdviceResult');
+    if (!result) return;
+    renderAdviceResult(result, adv);
+  }
+
+  function buildLocalAdvice(list, stats) {
+    if (!stats) stats = computeAdviceStats(list);
+    var items = [];
+    var risks = [];
+    var highConcName = '';
+    list.forEach(function(h) {
+      var q = parseFloat(h.quantity) || 0;
+      var cost = parseFloat(h.cost_price) || 0;
+      var curr = parseFloat(h.current_price) || 0;
+      var pct = cost > 0 ? (curr - cost) / cost : 0;
+      var value = q * curr;
+      var conc = stats.totalValue > 0 ? (value / stats.totalValue) : 0;
+      var direction = '持有', reason;
+      if (pct <= -0.15) { direction = '减仓'; reason = '当前已亏损超15%，建议控制风险、谨慎减仓观望'; }
+      else if (pct <= -0.05) { direction = '持有'; reason = '小幅回调仍在可控范围，建议持有观望并关注下方支撑'; }
+      else if (pct >= 0.15 && conc >= 0.3) { direction = '减仓'; reason = '盈利可观且单票占比偏高，建议部分止盈、降低集中度'; }
+      else if (pct >= 0.15) { direction = '持有'; reason = '盈利良好，建议继续持有并动态上移止盈位'; }
+      else if (conc >= 0.45) { direction = '减仓'; reason = '单票占比过高（' + (conc * 100).toFixed(1) + '%），建议减仓分散风险'; }
+      else { direction = '持有'; reason = '盈亏与占比处于合理区间，建议按既定策略持有'; }
+      if (conc > 0.3 && !highConcName) highConcName = (h.name || '未知') + (h.code ? '(' + h.code + ')' : '');
+      items.push({ name: h.name || '未知', code: h.code || '', direction: direction, reason: reason });
     });
 
-    var pendingCount = plans.filter(function(p) { return p.status === 'pending' || p.status === 'progress'; }).length;
+    risks.push('以上为基于历史与本地数据的保守研判，仅供决策参考，不构成投资建议，最终决策由你确认。');
+    risks.push('请严格执行止损纪律，避免单只标的过度集中；可结合最新行情与个人风险承受能力设定目标价位。');
+    if (stats.totalPnl < 0) risks.push('组合当前整体浮亏，注意控制回撤，审慎评估加仓节奏与仓位比例。');
+    if (highConcName) risks.push('注意仓位集中风险：' + highConcName + ' 占组合比例较高，建议适当分散。');
 
-    var title = document.createElement('div');
-    title.className = 'sh-plan-group-title';
-    title.onclick = function() { group.classList.toggle('collapsed'); };
-    title.innerHTML =
-      '<div class="sh-plan-group-hl">' +
-        '<span class="sh-plan-group-name">' + escapeHtml(holding.name) + '</span>' +
-        (holding.code ? '<span style="font-size:11px;color:#9ca3af;">' + escapeHtml(holding.code) + '</span>' : '') +
-        '<span class="sh-plan-group-count">' + plans.length + ' 条</span>' +
-        (pendingCount > 0 ? '<span style="font-size:11px;background:#fef2f2;color:#dc2626;padding:1px 8px;border-radius:10px;font-weight:500;">' + pendingCount + ' 待执行</span>' : '') +
+    var conclusion = '当前共持有 ' + stats.count + ' 只标的，组合总市值约 ' + fmtNum(stats.totalValue) + ' 元，总' + (stats.totalPnl >= 0 ? '浮盈' : '浮亏') + ' ' + fmtNum(Math.abs(stats.totalPnl)) + ' 元（' + (stats.pnlPct >= 0 ? '+' : '') + (stats.pnlPct * 100).toFixed(2) + '%）。';
+    if (stats.totalPnl < 0) conclusion += '整体处于亏损状态，建议以控风险、防回撤为主，避免盲目加仓。';
+    else if (highConcName) conclusion += '整体盈利但存在集中风险，建议适当止盈分散。';
+    else conclusion += '整体状态较为健康，建议按既定策略持有并动态管理。';
+    conclusion += '（AI 服务暂不可用，本建议基于本地规则生成）';
+
+    return { source: 'local', conclusion: conclusion, items: items, risks: risks };
+  }
+
+  function renderAdviceResult(container, adv) {
+    container.innerHTML = '';
+    if (!adv) adv = { source: 'local', conclusion: '', items: [], risks: [] };
+
+    var concl = document.createElement('div');
+    concl.className = 'sh-advice-conclusion';
+    concl.innerHTML =
+      '<div class="sh-advice-c-head">' +
+        '<span class="dot"></span>综合结论' +
+        (adv.source === 'local' ? '<span style="font-size:11px;color:#94a3b8;margin-left:auto;">本地规则 · AI 暂不可用</span>' : '') +
       '</div>' +
-      '<span class="sh-plan-group-arrow">▼</span>';
-    group.appendChild(title);
+      '<div class="sh-advice-c-text">' + escapeHtml(adv.conclusion || '') + '</div>';
+    container.appendChild(concl);
 
-    var list = document.createElement('div');
-    list.className = 'sh-plan-list';
-    plans.forEach(function(p) {
-      list.appendChild(createPlanCard(p, holding));
+    var itemsTitle = document.createElement('div');
+    itemsTitle.className = 'sh-advice-sec-title';
+    itemsTitle.innerHTML = '<span class="dot"></span>各持仓方向与动作';
+    container.appendChild(itemsTitle);
+
+    var actWrap = document.createElement('div');
+    actWrap.className = 'sh-advice-act-wrap';
+    (adv.items || []).forEach(function(it) {
+      var dir = it.direction || '持有';
+      var cls = (dir === '加仓') ? 'buy' : ((dir === '减仓' || dir === '清仓') ? 'sell' : 'hold');
+      var card = document.createElement('div');
+      card.className = 'sh-advice-act';
+      card.innerHTML =
+        '<div class="sh-advice-act-name">' + escapeHtml(it.name || '') + (it.code ? '<span style="font-size:11px;color:#9ca3af;margin-left:4px;">' + escapeHtml(it.code) + '</span>' : '') + '</div>' +
+        '<div class="sh-advice-act-dir ' + cls + '">' + escapeHtml(dir) + '</div>' +
+        '<div class="sh-advice-act-reason">' + escapeHtml(it.reason || '') + '</div>';
+      actWrap.appendChild(card);
     });
-    group.appendChild(list);
+    container.appendChild(actWrap);
 
-    return group;
+    var riskTitle = document.createElement('div');
+    riskTitle.className = 'sh-advice-sec-title';
+    riskTitle.innerHTML = '<span class="dot"></span>风险提示';
+    container.appendChild(riskTitle);
+
+    var riskWrap = document.createElement('div');
+    riskWrap.className = 'sh-advice-risk-wrap';
+    (adv.risks || []).forEach(function(r) {
+      var rdiv = document.createElement('div');
+      rdiv.className = 'sh-advice-risk';
+      rdiv.innerHTML = escapeHtml(r);
+      riskWrap.appendChild(rdiv);
+    });
+    container.appendChild(riskWrap);
+
+    var disclaim = document.createElement('div');
+    disclaim.className = 'sh-advice-disclaim';
+    disclaim.innerHTML = '本建议由 MiRun AI 自动生成，仅供决策参考，不构成投资建议，最终决策由你确认。AI 不会自动执行交易、不会替你下单。';
+    container.appendChild(disclaim);
   }
 
-  function createPlanCard(plan, holding) {
-    var card = document.createElement('div');
-    card.className = 'sh-plan-card';
-
-    var prioLabel = { high: '高', mid: '中', low: '低' };
-    var prioClass = plan.priority || 'mid';
-    var dirMap = { buy: '买入', sell: '卖出', watch: '观察' };
-    var dirLabel = dirMap[plan.direction] || '观察';
-    var statusLabel = { pending: '待执行', progress: '进行中', done: '已完成' };
-    var statusText = statusLabel[plan.status] || '待执行';
-    var statusDot = plan.status || 'pending';
-
-    card.innerHTML =
-      '<div class="sh-plan-header">' +
-        '<div class="sh-plan-h-left">' +
-          '<span class="sh-plan-priority ' + prioClass + '">' + (prioLabel[prioClass] || '中') + '优先级</span>' +
-          '<span class="sh-plan-direction ' + (plan.direction || 'watch') + '">' + dirLabel + '</span>' +
-          '<span class="sh-plan-status">' +
-            '<span class="sh-plan-status-dot ' + statusDot + '"></span>' +
-            statusText +
-          '</span>' +
-        '</div>' +
-        '<div class="sh-plan-actions">' +
-          '<button class="sh-plan-btn" onclick="event.stopPropagation();StockHoldings.openPlanModal(\'' + plan.id + '\')">编辑</button>' +
-          '<button class="sh-plan-btn danger" onclick="event.stopPropagation();StockHoldings.deletePlanConfirm(\'' + plan.id + '\')">删除</button>' +
-        '</div>' +
+  function setAdviceLoading(container) {
+    container.innerHTML = '';
+    var l = document.createElement('div');
+    l.className = 'sh-advice-loading';
+    l.innerHTML =
+      '<div class="sh-advice-loading-icon">' +
+        '<svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4"/><path d="M12 20v-4"/><path d="M16 8h-4a3 3 0 0 0-3 3v2a3 3 0 0 0 3 3h4v-8"/><path d="M16 9a3 3 0 0 1 3 3v1a3 3 0 0 1-3 3"/></svg>' +
       '</div>' +
-      (plan.trigger_condition ? '<div class="sh-plan-trigger"><strong style="color:#374151;">触发条件：</strong>' + escapeHtml(plan.trigger_condition) + '</div>' : '') +
-      (plan.note ? '<div class="sh-plan-trigger" style="color:#6b7280;font-size:12px;">' + escapeHtml(plan.note) + '</div>' : '') +
-      '<div class="sh-plan-meta">' +
-        '<span>创建于 ' + formatDate(plan.created_at) + '</span>' +
-        (plan.status !== 'done' ? '<button class="sh-plan-btn" onclick="event.stopPropagation();StockHoldings.togglePlanStatus(\'' + plan.id + '\')" style="background:#eff6ff;border-color:#bfdbfe;color:#2563eb;">标记完成</button>' : '') +
-      '</div>';
-
-    return card;
+      '<div>MiRun AI 正在跨维度研判持仓…</div>';
+    container.appendChild(l);
   }
 
-  function formatDate(isoStr) {
-    if (!isoStr) return '';
-    var d = new Date(isoStr);
-    if (isNaN(d.getTime())) return '';
-    var m = d.getMonth() + 1;
-    var day = d.getDate();
-    return d.getFullYear() + '/' + (m < 10 ? '0' : '') + m + '/' + (day < 10 ? '0' : '') + day;
+  function renderTopHoldings() {
+    var wrap = document.getElementById('wealthTopHoldings');
+    if (!wrap) return;
+    var list = loadHoldings().slice(0, 3);
+    wrap.innerHTML = '';
+    if (!list.length) {
+      var empty = document.createElement('div');
+      empty.className = 'wlc-empty';
+      empty.innerHTML = '暂无持仓，对AI说「买入贵州茅台100股」';
+      wrap.appendChild(empty);
+      return;
+    }
+    list.forEach(function(h) {
+      var calc = calcHoldingPnl(h);
+      var curr = parseFloat(h.current_price) || 0;
+      var color = calc.pnl >= 0 ? '#dc2626' : '#16a34a';
+      var pnlSign = calc.pnl >= 0 ? '+' : '';
+      var pctSign = calc.pct >= 0 ? '+' : '';
+      var item = document.createElement('div');
+      item.className = 'wlc-list-item';
+      item.innerHTML =
+        '<div class="wlc-item-left">' +
+          '<div class="wlc-item-icon" style="background:#eff6ff;color:#2563eb;">' +
+            '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>' +
+          '</div>' +
+          '<div style="min-width:0">' +
+            '<div class="wlc-item-name">' + escapeHtml(h.name || '') + '</div>' +
+            '<div class="wlc-item-desc">' + escapeHtml(h.code || '') + '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="wlc-item-right">' +
+          '<div class="wlc-item-value" style="color:' + color + '">' + fmtNum(curr) + '</div>' +
+          '<div class="wlc-item-change" style="color:' + color + '">' + pnlSign + fmtNum(calc.pnl) + '元 · ' + pctSign + (calc.pct * 100).toFixed(2) + '%</div>' +
+        '</div>';
+      wrap.appendChild(item);
+    });
+  }
+
+  function showManager() {
+    currentSub = 'holdings';
+    renderAll();
+    var el = document.getElementById('stockHoldingsContainer');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   // ==================== 弹窗：添加/编辑持仓 ====================
@@ -1277,15 +1534,12 @@
     refreshQuotes: function() { fetchRealtimeQuotes(true); },
     openCashModal: openCashModal,
     saveCash: saveCash,
-    openPlanModal: openPlanModal,
-    savePlan: savePlan,
-    deletePlanConfirm: deletePlanConfirm,
-    deletePlanFromModal: deletePlanFromModal,
-    togglePlanStatus: togglePlanStatus,
     closeModal: closeModal,
     calcSummary: calcSummary,
     getHoldings: loadHoldings,
-    getPlans: loadPlans
+    showManager: showManager,
+    renderTopHoldings: renderTopHoldings,
+    generateAdvice: generateAdvice
   };
 
 })();
