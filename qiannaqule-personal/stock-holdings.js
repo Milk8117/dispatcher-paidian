@@ -675,10 +675,9 @@
 
     // 实时数据状态行
     parent.appendChild((function() {
-      var el = document.createElement('div');
-      el.id = 'shQuoteStatus';
-      el.outerHTML = quoteStatusRowHtml();
-      return document.getElementById('shQuoteStatus');
+      var tmp = document.createElement('div');
+      tmp.innerHTML = quoteStatusRowHtml();
+      return tmp.firstChild;
     })());
 
     var wrap = document.createElement('div');
