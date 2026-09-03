@@ -358,6 +358,7 @@
       refreshOverview();
       refreshHoldingsPnl();
       renderTopHoldings();
+      renderInvestOverview();
     }
     quoteLastTs = new Date();
     setQuoteStatus('updated');
@@ -610,6 +611,7 @@
 
     renderSubContent();
     renderTopHoldings();
+    renderInvestOverview();
   }
 
   function switchSub(sub) {
@@ -1137,6 +1139,69 @@
     renderAll();
     var el = document.getElementById('stockHoldingsContainer');
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ==================== 投资概览4卡 + 收益走势 (v52.7.0) ====================
+  function renderInvestOverview() {
+    var list = loadHoldings();
+    var stats = computeAdviceStats(list);
+    var count = list.length;
+    var elTotal = document.getElementById('investTotal');
+    var elProfit = document.getElementById('investProfit');
+    var elRate = document.getElementById('investReturnRate');
+    var elCount = document.getElementById('investHoldingsCount');
+    if (elTotal) elTotal.textContent = count ? fmtMoney(stats.totalValue) : '-';
+    if (elCount) elCount.textContent = String(count);
+    var color = count ? (stats.totalPnl >= 0 ? '#dc2626' : '#16a34a') : '';
+    if (elProfit) {
+      elProfit.textContent = count ? (stats.totalPnl >= 0 ? '+' : '') + fmtMoney(stats.totalPnl) : '-';
+      elProfit.style.color = color;
+    }
+    if (elRate) {
+      elRate.textContent = count ? (stats.pnlPct >= 0 ? '+' : '') + (stats.pnlPct * 100).toFixed(2) : '-';
+      elRate.style.color = color;
+    }
+    var chart = document.querySelector('#wealthPillarInvest .wcc-mini-chart');
+    if (chart) renderInvestTrend(chart, list, count, stats);
+  }
+
+  function renderInvestTrend(chart, list, count, stats) {
+    chart.innerHTML = '';
+    var W = 300, H = 80;
+    var holder = document.createElement('div');
+    if (!count) {
+      holder.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" height="60" preserveAspectRatio="none">' +
+        '<line x1="6" y1="40" x2="294" y2="40" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round"/>' +
+        '<text x="150" y="34" text-anchor="middle" font-size="12" fill="#94a3b8">暂无持仓</text>' +
+      '</svg>';
+    } else {
+      var points = [];
+      var acc = 0;
+      list.forEach(function(h) { acc += calcHoldingPnl(h).pnl; points.push(acc); });
+      if (points.length === 1) points.push(points[0]);
+      var minV = Math.min.apply(null, points);
+      var maxV = Math.max.apply(null, points);
+      var range = (maxV - minV) || 1;
+      var n = points.length;
+      var px = [];
+      for (var i = 0; i < n; i++) {
+        var x = (i / (n - 1)) * W;
+        var y = H - 12 - ((points[i] - minV) / range) * (H - 28);
+        px.push(x.toFixed(1) + ',' + y.toFixed(1));
+      }
+      var c2 = stats.totalPnl >= 0 ? '#dc2626' : '#16a34a';
+      var gid = stats.totalPnl >= 0 ? 'investGradUp' : 'investGradDown';
+      var linePath = 'M' + px.join(' L');
+      holder.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" height="60" preserveAspectRatio="none">' +
+        '<defs><linearGradient id="' + gid + '" x1="0%" y1="0%" x2="0%" y2="100%">' +
+          '<stop offset="0%" style="stop-color:' + c2 + ';stop-opacity:0.3"/>' +
+          '<stop offset="100%" style="stop-color:' + c2 + ';stop-opacity:0"/>' +
+        '</linearGradient></defs>' +
+        '<path d="' + linePath + ' L' + W + ',' + H + ' L0,' + H + ' Z" fill="url(#' + gid + ')"/>' +
+        '<path d="' + linePath + '" fill="none" stroke="' + c2 + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' +
+      '</svg>';
+    }
+    chart.appendChild(holder.firstChild);
   }
 
   // ==================== 弹窗：添加/编辑持仓 ====================

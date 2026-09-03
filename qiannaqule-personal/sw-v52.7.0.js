@@ -1,7 +1,8 @@
 // Service Worker for MiRun AI — 越用越懂你
 // App version: update this to invalidate old caches and trigger fresh HTML loads
 const APP_VERSION = 'v52.7.0';
-const CACHE_NAME = 'mirunai-' + APP_VERSION;
+// b2 build: 追加"投资概览4卡真实数值+收益走势动态曲线"后刷新缓存，避免命中b1旧缓存
+const CACHE_NAME = 'mirunai-' + APP_VERSION + '-b2';
 
 // Resources to cache on install — ONLY static assets, NEVER HTML files
 // HTML files (index.html, reset.html) use network-first strategy and are never precached
