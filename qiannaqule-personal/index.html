@@ -6036,7 +6036,7 @@ body {
   // ===== 版本守护（v52.5.4起）：SW缓存死锁根治方案 =====
   // 放在所有JS之前执行，确保版本不对时立即清理并重载
   (function() {
-    var CURRENT_VERSION = '52.8.2';
+    var CURRENT_VERSION = '52.8.3';
     var STORAGE_KEY = 'mirun_app_version';
     
     function wipeAndReload(reason) {
@@ -6073,7 +6073,7 @@ body {
     }
   })();
   </script>
-<style id="v526-input-antizoom" type="text/css">/* v52.8.2 global input anti-ios-zoom: font-size>=16px */input[type=text],input[type=number],input[type=tel],input[type=email],input[type=date],input[type=time],input[type=password],input[type=search],textarea,select{font-size:16px !important}input-modal-mask{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}.input-modal{background:#fff;border-radius:16px;padding:20px;width:100%;max-width:340px;box-sizing:border-box;box-shadow:0 20px 50px rgba(0,0,0,.2)}.im-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}.im-title{font-size:16px;font-weight:600;color:#1e293b}.im-close{background:none;border:none;color:#94a3b8;cursor:pointer;padding:4px;display:flex}.im-input{width:100%;box-sizing:border-box;padding:12px;font-size:16px;border:1px solid #e2e8f0;border-radius:10px;outline:none;color:#1e293b;background:#f8fafc;-webkit-appearance:none}.im-input:focus{border-color:#6366f1}.im-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:14px}.im-btn{padding:9px 18px;font-size:15px;border-radius:10px;border:none;cursor:pointer}.im-cancel{background:#f1f5f9;color:#475569}.im-ok{background:#6366f1;color:#fff}.im-hint{color:#ef4444;font-size:13px;margin-top:8px;min-height:18px}</style>
+<style id="v526-input-antizoom" type="text/css">/* v52.8.3 global input anti-ios-zoom: font-size>=16px */input[type=text],input[type=number],input[type=tel],input[type=email],input[type=date],input[type=time],input[type=password],input[type=search],textarea,select{font-size:16px !important}input-modal-mask{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}.input-modal{background:#fff;border-radius:16px;padding:20px;width:100%;max-width:340px;box-sizing:border-box;box-shadow:0 20px 50px rgba(0,0,0,.2)}.im-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}.im-title{font-size:16px;font-weight:600;color:#1e293b}.im-close{background:none;border:none;color:#94a3b8;cursor:pointer;padding:4px;display:flex}.im-input{width:100%;box-sizing:border-box;padding:12px;font-size:16px;border:1px solid #e2e8f0;border-radius:10px;outline:none;color:#1e293b;background:#f8fafc;-webkit-appearance:none}.im-input:focus{border-color:#6366f1}.im-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:14px}.im-btn{padding:9px 18px;font-size:15px;border-radius:10px;border:none;cursor:pointer}.im-cancel{background:#f1f5f9;color:#475569}.im-ok{background:#6366f1;color:#fff}.im-hint{color:#ef4444;font-size:13px;margin-top:8px;min-height:18px}</style>
 </head>
 <body>
 
@@ -8596,7 +8596,7 @@ body {
     </div>
 
     <div style="text-align:center;padding:20px 0 10px;font-size:12px;color:#cbd5e1">
-      MiRun AI v52.8.2 · 越用越懂你的数字分身
+      MiRun AI v52.8.3 · 越用越懂你的数字分身
     </div>
   </div>
   <div class="app-brand-footer">
@@ -10276,7 +10276,7 @@ body {
     switchLayer('wealth', layer);
   };
 
-  // 财富v52.8.2：诊断完成后将真实诊断结果回写 hero 主卡 + 摘要卡 + 投资柱
+  // 财富v52.8.3：诊断完成后将真实诊断结果回写 hero 主卡 + 摘要卡 + 投资柱
   function syncWealthScore() {
     try { if (typeof updateWealthScore === 'function') updateWealthScore(); } catch(e) {}
     try { if (typeof updateWealthDiagnosisSummary === 'function') updateWealthDiagnosisSummary(); } catch(e) {}
@@ -10869,7 +10869,7 @@ body {
     // v52.2: 同步更新医疗支出卡片
     try { if (typeof updateMedicalExpenseCard === 'function') updateMedicalExpenseCard(); } catch(e) {}
   });
-  // v52.8.2: 记账数据变化后同步刷新财富域 R1（收支柱 + 评分 + 资产 + 理财Tab）
+  // v52.8.3: 记账数据变化后同步刷新财富域 R1（收支柱 + 评分 + 资产 + 理财Tab）
   window.addEventListener('dailytx:changed', function() {
     try { if (typeof refreshDailyTxSummary === 'function') refreshDailyTxSummary(); } catch(e) {}
     if (typeof updateWealthScore === 'function') { try { updateWealthScore(); } catch(e) {} }
@@ -12253,7 +12253,7 @@ body {
 
   // 刷新分身状态面板
   function refreshAgentPanel() {
-    // v52.8.2: 对话域状态接线（真实反映在线与运行状态）
+    // v52.8.3: 对话域状态接线（真实反映在线与运行状态）
     try {
       var online = typeof navigator !== 'undefined' ? navigator.onLine : true;
       var _st = document.getElementById('agentStatusText');
@@ -14373,7 +14373,7 @@ body {
   // ==================== Version Sync + Force Refresh ====================
   // If stored version != page version → unregister SW, clear all caches, hard reload
   (function() {
-    var PAGE_VERSION = '52.8.2';
+    var PAGE_VERSION = '52.8.3';
     var storedVersion = localStorage.getItem('mirun_app_version');
     
     // First visitor — just store version
@@ -14473,7 +14473,7 @@ body {
     // Immediate: if old service-worker.js is controlling, unregister it to break deadlock
     if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
       var ctrlURL = navigator.serviceWorker.controller.scriptURL || '';
-      if (ctrlURL.indexOf('sw-v52.8.2.js') === -1 && ctrlURL.indexOf('service-worker.js') !== -1) {
+      if (ctrlURL.indexOf('sw-v52.8.3.js') === -1 && ctrlURL.indexOf('service-worker.js') !== -1) {
         console.log('Old SW detected, unregistering to break cache deadlock...');
         navigator.serviceWorker.getRegistrations().then(function(regs) {
           regs.forEach(function(r) {
@@ -14490,19 +14490,19 @@ body {
       var existingController = navigator.serviceWorker.controller;
       var isAllowedSW = false;
       if (existingController && existingController.scriptURL) {
-        isAllowedSW = existingController.scriptURL.indexOf('sw-v52.8.2.js') !== -1 || existingController.scriptURL.indexOf('service-worker.js') !== -1;
+        isAllowedSW = existingController.scriptURL.indexOf('sw-v52.8.3.js') !== -1 || existingController.scriptURL.indexOf('service-worker.js') !== -1;
       }
       if (existingController && !isAllowedSW) {
         console.log('Skipping SW registration: existing controller is unknown');
         return;
       }
 
-      navigator.serviceWorker.register('./sw-v52.8.2.js', { updateViaCache: 'none' }).then(function(reg) {
+      navigator.serviceWorker.register('./sw-v52.8.3.js', { updateViaCache: 'none' }).then(function(reg) {
         console.log('SW registered, scope:', reg.scope);
         
         // Verify the registered SW is our expected file
         var isExpected = reg.active && reg.active.scriptURL && 
-          (reg.active.scriptURL.indexOf('sw-v52.8.2.js') !== -1 || reg.active.scriptURL.indexOf('service-worker.js') !== -1);
+          (reg.active.scriptURL.indexOf('sw-v52.8.3.js') !== -1 || reg.active.scriptURL.indexOf('service-worker.js') !== -1);
         if (reg.active && !isExpected) {
           console.warn('Unexpected SW scriptURL detected, unregistering:', reg.active.scriptURL);
           reg.unregister();
@@ -14753,7 +14753,7 @@ function toggleGuideSection(index) {
     return details;
   }
 
-  // ========== v52.8.2 财富域 R1 统一接通（单一数据源） ==========
+  // ========== v52.8.3 财富域 R1 统一接通（单一数据源） ==========
   function fmtMoneySafe(v) {
     var n = Number(v) || 0;
     if (isNaN(n)) n = 0;
@@ -14910,13 +14910,17 @@ function toggleGuideSection(index) {
     if (!ins || !ins.length) {
       var empty = document.createElement('div'); empty.className = 'wlc-empty'; empty.textContent = '暂无保单，添加你的第一份保障'; list.appendChild(empty);
     } else {
-      (ins || []).forEach(function(i) {
+      (ins || []).forEach(function(i, idx) {
         var item = document.createElement('div'); item.className = 'wlc-list-item';
         item.innerHTML =
           '<div class="wlc-item-left"><div class="wlc-item-icon" style="background:#eff6ff;color:#2563eb">' +
             '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>' +
             '<div style="min-width:0"><div class="wlc-item-name">' + insTypeName(i.type) + '</div><div class="wlc-item-desc">保额 ¥' + (Math.round(parseFloat(i.amount)||0)).toLocaleString('zh-CN') + '</div></div></div>' +
-          '<div class="wlc-item-right"><div class="wlc-item-value">¥' + (Math.round(parseFloat(i.premium)||0)).toLocaleString('zh-CN') + '</div><div class="wlc-item-change">年缴</div></div>';
+          '<div class="wlc-item-right"><div><div class="wlc-item-value">¥' + (Math.round(parseFloat(i.premium)||0)).toLocaleString('zh-CN') + '</div><div class="wlc-item-change">年缴</div></div>' +
+            '<div style="display:flex;flex-direction:column;gap:4px;margin-left:6px">' +
+              '<button style="padding:2px 8px;font-size:11px;border:1px solid #e2e8f0;border-radius:6px;background:#fff;color:#475569;cursor:pointer" onclick="editWealthEntry(\'insurance\',' + idx + ')">修改</button>' +
+              '<button style="padding:2px 8px;font-size:11px;border:1px solid #fecaca;border-radius:6px;background:#fff;color:#ef4444;cursor:pointer" onclick="deleteWealthEntry(\'insurance\',' + idx + ')">删除</button>' +
+            '</div></div>';
         list.appendChild(item);
       });
     }
@@ -14931,13 +14935,17 @@ function toggleGuideSection(index) {
     if (!loans || !loans.length) {
       var empty = document.createElement('div'); empty.className = 'wlc-empty'; empty.textContent = '暂无贷款记录'; list.appendChild(empty);
     } else {
-      (loans || []).forEach(function(L) {
+      (loans || []).forEach(function(L, idx) {
         var item = document.createElement('div'); item.className = 'wlc-list-item';
         item.innerHTML =
           '<div class="wlc-item-left"><div class="wlc-item-icon" style="background:#fee2e2;color:#ef4444">' +
             '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h20M6 20V8l6-4 6 4v12"/></svg></div>' +
             '<div style="min-width:0"><div class="wlc-item-name">' + escapeHtmlSafe(L.name || '贷款') + '</div><div class="wlc-item-desc">' + (L.rate ? L.rate + '%' : '') + ' · ' + (L.term||0) + '期</div></div></div>' +
-          '<div class="wlc-item-right"><div class="wlc-item-value">' + (Math.round(parseFloat(L.amt)||0)).toLocaleString('zh-CN') + '</div><div class="wlc-item-change">元</div></div>';
+          '<div class="wlc-item-right"><div><div class="wlc-item-value">' + (Math.round(parseFloat(L.amt)||0)).toLocaleString('zh-CN') + '</div><div class="wlc-item-change">元</div></div>' +
+            '<div style="display:flex;flex-direction:column;gap:4px;margin-left:6px">' +
+              '<button style="padding:2px 8px;font-size:11px;border:1px solid #e2e8f0;border-radius:6px;background:#fff;color:#475569;cursor:pointer" onclick="editWealthEntry(\'loan\',' + idx + ')">修改</button>' +
+              '<button style="padding:2px 8px;font-size:11px;border:1px solid #fecaca;border-radius:6px;background:#fff;color:#ef4444;cursor:pointer" onclick="deleteWealthEntry(\'loan\',' + idx + ')">删除</button>' +
+            '</div></div>';
         list.appendChild(item);
       });
     }
@@ -14952,17 +14960,21 @@ function toggleGuideSection(index) {
 
   // 对话/保障新增入口（复用 WealthCT 数据模型，DOM 铁律：容器 innerHTML + appendChild(firstChild)）
   var _wealthEntryModal = null;
-  function openWealthEntryModal(kind) {
+  var _weEditIndex = -1;
+  function openWealthEntryModal(kind, editIndex) {
     closeWealthEntryModal();
     var isIns = kind === 'insurance';
+    var editIdx = (typeof editIndex === 'number') ? editIndex : -1;
+    _weEditIndex = editIdx;
     var mask = document.createElement('div');
     mask.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:12000;display:flex;align-items:center;justify-content:center;padding:20px';
     mask.onclick = function(e){ if (e.target === mask) closeWealthEntryModal(); };
     var inner = document.createElement('div');
+    var tt = (isIns ? (editIdx >= 0 ? '修改保单' : '添加保单') : (editIdx >= 0 ? '修改贷款' : '添加贷款'));
     inner.innerHTML =
       '<div style="background:#fff;border-radius:16px;width:100%;max-width:360px;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,0.2)">' +
         '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">' +
-          '<div style="font-size:17px;font-weight:700;color:#1f2937">' + (isIns?'添加保单':'添加贷款') + '</div>' +
+          '<div style="font-size:17px;font-weight:700;color:#1f2937">' + tt + '</div>' +
           '<div style="cursor:pointer;color:#64748b;font-size:20px" onclick="closeWealthEntryModal()">&times;</div>' +
         '</div>' +
         (isIns
@@ -14973,9 +14985,13 @@ function toggleGuideSection(index) {
             '<div style="display:flex;gap:8px;margin-bottom:8px">' +
               '<div style="flex:1"><div style="font-size:13px;color:#64748b;margin-bottom:4px">保额（元）</div><input type="number" id="we-amount" placeholder="500000" min="0" step="100" style="font-size:16px;width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:10px"></div>' +
             '</div>' +
-            '<div style="display:flex;gap:8px">' +
+            '<div style="display:flex;gap:8px;margin-bottom:8px">' +
               '<div style="flex:1"><div style="font-size:13px;color:#64748b;margin-bottom:4px">年缴保费（元）</div><input type="number" id="we-premium" placeholder="8000" min="0" step="100" style="font-size:16px;width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:10px"></div>' +
               '<div style="flex:1"><div style="font-size:13px;color:#64748b;margin-bottom:4px">缴费年限（年）</div><input type="number" id="we-term" placeholder="20" min="0" step="1" style="font-size:16px;width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:10px"></div>' +
+            '</div>' +
+            '<div style="display:flex;gap:8px">' +
+              '<div style="flex:1"><div style="font-size:13px;color:#64748b;margin-bottom:4px">已缴年限（年）</div><input type="number" id="we-paid" placeholder="5" min="0" step="1" style="font-size:16px;width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:10px"></div>' +
+              '<div style="flex:1"><div style="font-size:13px;color:#64748b;margin-bottom:4px">下次缴费日</div><input type="date" id="we-paydate" style="font-size:16px;width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:10px"></div>' +
             '</div>'
           : '<div style="display:flex;gap:8px;margin-bottom:8px">' +
               '<div style="flex:1"><div style="font-size:13px;color:#64748b;margin-bottom:4px">贷款名称</div><input type="text" id="we-loan-name" placeholder="如：房贷" style="font-size:16px;width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:10px"></div>' +
@@ -14983,18 +14999,60 @@ function toggleGuideSection(index) {
             '<div style="display:flex;gap:8px;margin-bottom:8px">' +
               '<div style="flex:1"><div style="font-size:13px;color:#64748b;margin-bottom:4px">贷款金额（元）</div><input type="number" id="we-amount" placeholder="100000" min="0" step="100" style="font-size:16px;width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:10px"></div>' +
             '</div>' +
-            '<div style="display:flex;gap:8px">' +
+            '<div style="display:flex;gap:8px;margin-bottom:8px">' +
               '<div style="flex:1"><div style="font-size:13px;color:#64748b;margin-bottom:4px">年利率（%）</div><input type="number" id="we-premium" placeholder="5.5" min="0" step="0.1" style="font-size:16px;width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:10px"></div>' +
               '<div style="flex:1"><div style="font-size:13px;color:#64748b;margin-bottom:4px">剩余期数（月）</div><input type="number" id="we-term" placeholder="24" min="0" step="1" style="font-size:16px;width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:10px"></div>' +
+            '</div>' +
+            '<div style="display:flex;gap:8px">' +
+              '<div style="flex:1"><div style="font-size:13px;color:#64748b;margin-bottom:4px">还款方式</div>' +
+              '<select id="we-type" onchange="toggleWeTrans()" style="font-size:16px;width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:10px"><option value="debx">等额本息</option><option value="debj">等额本金</option><option value="xxhb">先息后本</option><option value="dqhc">按月付息到期还本</option></select></div>' +
+              '<div style="flex:1"><div style="font-size:13px;color:#64748b;margin-bottom:4px">每月还款日</div><input type="number" id="we-payday" placeholder="15" min="1" max="28" step="1" style="font-size:16px;width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:10px"></div>' +
+            '</div>' +
+            '<div id="we-trans-wrap" style="display:none">' +
+              '<div style="font-size:13px;color:#b45309;margin:8px 0 4px">先息后本 → 转等额本息过渡期（月）</div>' +
+              '<div style="display:flex;gap:8px">' +
+                '<div style="flex:1"><div style="font-size:13px;color:#64748b;margin-bottom:4px">总先息期</div><input type="number" id="we-trans-total" placeholder="12" min="0" step="1" style="font-size:16px;width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:10px"></div>' +
+                '<div style="flex:1"><div style="font-size:13px;color:#64748b;margin-bottom:4px">剩余先息期</div><input type="number" id="we-trans-left" placeholder="6" min="0" step="1" style="font-size:16px;width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:10px"></div>' +
+              '</div>' +
             '</div>') +
         '<div style="margin-top:16px;display:flex;gap:8px">' +
           '<button style="flex:1;padding:10px;border:1px solid #e2e8f0;border-radius:10px;background:#fff;color:#475569;font-size:15px" onclick="closeWealthEntryModal()">取消</button>' +
-          '<button style="flex:1;padding:10px;border:none;border-radius:10px;background:#2563eb;color:#fff;font-size:15px" onclick="saveWealthEntry(\'' + kind + '\')">保存</button>' +
+          '<button style="flex:1;padding:10px;border:none;border-radius:10px;background:#2563eb;color:#fff;font-size:15px" onclick="saveWealthEntry(\' + kind + \')">保存</button>' +
         '</div>' +
       '</div>';
     mask.appendChild(inner.firstChild);
     document.body.appendChild(mask);
     _wealthEntryModal = mask;
+    if (editIdx >= 0) { loadWealthEntryValues(kind, editIdx); }
+    if (!isIns) { toggleWeTrans(); }
+  }
+  function toggleWeTrans() {
+    var t = document.getElementById('we-type');
+    var wrap = document.getElementById('we-trans-wrap');
+    if (!t || !wrap) return;
+    wrap.style.display = (t.value === 'xxhb') ? 'block' : 'none';
+  }
+  window.toggleWeTrans = toggleWeTrans;
+  function loadWealthEntryValues(kind, idx) {
+    if (!window.WealthCT) return;
+    var list = kind === 'insurance' ? (window.WealthCT.loadInsurance() || []) : (window.WealthCT.loadLoans() || []);
+    var it = list[idx];
+    if (!it) return;
+    if (kind === 'insurance') {
+      var insTypeEl = document.getElementById('we-ins-type'); if (insTypeEl) insTypeEl.value = it.type || 'life';
+      var paydate = document.getElementById('we-paydate');
+      setWeVal('we-amount', it.amount); setWeVal('we-premium', it.premium); setWeVal('we-term', it.term);
+      setWeVal('we-paid', it.paid); if (paydate) paydate.value = it.payDate || '';
+    } else {
+      setWeVal('we-loan-name', it.name);
+      setWeVal('we-amount', it.amt); setWeVal('we-premium', it.rate); setWeVal('we-term', it.term);
+      var typeEl = document.getElementById('we-type'); if (typeEl) typeEl.value = it.type || 'debx';
+      setWeVal('we-payday', it.payDay); setWeVal('we-trans-total', it.transTotal); setWeVal('we-trans-left', it.transLeft);
+    }
+  }
+  function setWeVal(id, v) {
+    var el = document.getElementById(id);
+    if (el && v !== undefined && v !== null) el.value = v;
   }
   function closeWealthEntryModal() {
     if (_wealthEntryModal && _wealthEntryModal.parentNode) _wealthEntryModal.parentNode.removeChild(_wealthEntryModal);
@@ -15002,33 +15060,58 @@ function toggleGuideSection(index) {
   }
   window.closeWealthEntryModal = closeWealthEntryModal;
   window.saveWealthEntry = function(kind) {
-    var amount = parseFloat(document.getElementById('we-amount') ? document.getElementById('we-amount').value : '') || 0;
+    var amount = parseFloat(getWeEl('we-amount')) || 0;
     if (amount <= 0) { alert('请输入有效金额'); return; }
-    var premium = parseFloat(document.getElementById('we-premium') ? document.getElementById('we-premium').value : '') || 0;
-    var term = parseFloat(document.getElementById('we-term') ? document.getElementById('we-term').value : '') || 0;
+    var premium = parseFloat(getWeEl('we-premium')) || 0;
+    var term = parseFloat(getWeEl('we-term')) || 0;
     if (!window.WealthCT) { alert('数据模块未就绪'); return; }
     if (kind === 'insurance') {
-      var type = document.getElementById('we-ins-type') ? document.getElementById('we-ins-type').value : 'life';
+      var type = getWeEl('we-ins-type') || 'life';
+      var paid = parseFloat(getWeEl('we-paid')) || 0;
+      var payDate = getWeEl('we-paydate') || '';
       var ins = window.WealthCT.loadInsurance() || [];
-      ins.push({ type: type, amount: amount, premium: premium, term: term, paid: 0, payDate: '' });
+      var obj = { type: type, amount: amount, premium: premium, term: term, paid: paid, payDate: payDate };
+      if (_weEditIndex >= 0 && _weEditIndex < ins.length) { ins[_weEditIndex] = obj; } else { ins.push(obj); }
       window.WealthCT.saveInsurance(ins);
     } else {
-      var name = document.getElementById('we-loan-name') ? document.getElementById('we-loan-name').value.trim() : '';
+      var name = getWeEl('we-loan-name') || '';
+      var type = getWeEl('we-type') || 'debx';
+      var payDay = getWeEl('we-payday') || '';
+      var transTotal = getWeEl('we-trans-total') || '';
+      var transLeft = getWeEl('we-trans-left') || '';
       var loans = window.WealthCT.loadLoans() || [];
-      loans.push({ name: name || '贷款', amt: amount, rate: premium, term: term, type: 'debx', transTotal: '', transLeft: '', payDay: '' });
+      var obj = { name: name || '贷款', amt: amount, rate: premium, term: term, type: type, transTotal: transTotal, transLeft: transLeft, payDay: payDay };
+      if (_weEditIndex >= 0 && _weEditIndex < loans.length) { loans[_weEditIndex] = obj; } else { loans.push(obj); }
       window.WealthCT.saveLoans(loans);
     }
+    _weEditIndex = -1;
     closeWealthEntryModal();
     renderInsuranceSummary();
     refreshWealthDashboard();
-    if (window.ProactiveCare && window.ProactiveCare.recordActivity) { try { window.ProactiveCare.recordActivity('wealth', kind === 'insurance' ? '添加了一份保单' : '添加了一笔贷款', ''); } catch(e) {} }
+    if (window.ProactiveCare && window.ProactiveCare.recordActivity) { try { window.ProactiveCare.recordActivity('wealth', kind === 'insurance' ? '添加/更新了一份保单' : '添加/更新了一笔贷款', ''); } catch(e) {} }
+  };
+  function getWeEl(id) { var el = document.getElementById(id); return el ? el.value : ''; }
+  window.editWealthEntry = function(kind, idx) { _weEditIndex = -1; openWealthEntryModal(kind, idx); };
+  window.deleteWealthEntry = function(kind, idx) {
+    if (!window.WealthCT) return;
+    if (!window.confirm(kind === 'insurance' ? '确定删除这份保单吗？' : '确定删除这笔贷款吗？')) return;
+    if (kind === 'insurance') {
+      var ins = window.WealthCT.loadInsurance() || [];
+      if (idx >= 0 && idx < ins.length) { ins.splice(idx, 1); window.WealthCT.saveInsurance(ins); }
+    } else {
+      var loans = window.WealthCT.loadLoans() || [];
+      if (idx >= 0 && idx < loans.length) { loans.splice(idx, 1); window.WealthCT.saveLoans(loans); }
+    }
+    _weEditIndex = -1;
+    renderInsuranceSummary();
+    refreshWealthDashboard();
   };
   function addNewInsurance() { openWealthEntryModal('insurance'); }
   function addNewLoan() { openWealthEntryModal('loan'); }
   window.addNewInsurance = addNewInsurance;
   window.addNewLoan = addNewLoan;
 
-  // ========== v52.8.2 对话文本解析：持仓 / 保单 / 贷款 ==========
+  // ========== v52.8.3 对话文本解析：持仓 / 保单 / 贷款 ==========
   window.parseHoldingFromText = function(text) {
     var qty = parseFloat((String(text).match(/(\d+(?:\.\d+)?)[\s]*股/) || [])[1]) || 0;
     if (qty <= 0) return null;
@@ -15149,7 +15232,7 @@ function toggleGuideSection(index) {
     return '表现均衡，建议每季度检视资产配置与保障';
   }
 
-  // 总览卡片「当前财富健康 XX 分 · 等级 · 一句话诊断结论」——v52.8.2 统一走诊断结果单一数据源
+  // 总览卡片「当前财富健康 XX 分 · 等级 · 一句话诊断结论」——v52.8.3 统一走诊断结果单一数据源
   window.updateWealthDiagnosisSummary = function(diagResult) {
     var el = document.getElementById('wealthDiagnosisSummary');
     if (!el) return;
@@ -15339,7 +15422,7 @@ function toggleGuideSection(index) {
       }
     } catch(e) {}
 
-    // v52.8.2: 健康域附加占位接线（结论/平均睡眠/标签/饮食标签）
+    // v52.8.3: 健康域附加占位接线（结论/平均睡眠/标签/饮食标签）
     try {
       var _sleeps = [];
       var _recs = [];
@@ -15375,7 +15458,7 @@ function toggleGuideSection(index) {
     try { if (window.HealthSpecial && typeof window.HealthSpecial.refreshAll === 'function') window.HealthSpecial.refreshAll(); } catch(e) {}
   };
 
-  // ========== v52.8.2 教育域占位接线 ==========
+  // ========== v52.8.3 教育域占位接线 ==========
   function updateEduDashboard() {
     // 教育域无独立数据源，将结论/指数接线到已有数据（教育相关日程任务），否则保持友好空态
     var learnCount = 0, growthCount = 0;
@@ -15453,7 +15536,7 @@ function toggleGuideSection(index) {
   }
 
   function updateWorkDashboard() {
-    // v52.8.2: 工作域附加占位接线（进度/结论/周时长/连续天数）
+    // v52.8.3: 工作域附加占位接线（进度/结论/周时长/连续天数）
     try {
       var _ws = getWeeklyTaskStats();
       var _rateEl = document.getElementById('workScheduleRate');
@@ -15920,7 +16003,7 @@ function toggleGuideSection(index) {
 
   function getFeedbackAutoInfo() {
     var info = {
-      appVersion: 'v52.8.2',
+      appVersion: 'v52.8.3',
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent || '',
       screenSize: window.innerWidth + 'x' + window.innerHeight,
@@ -17013,7 +17096,7 @@ function toggleGuideSection(index) {
     try {
       var data = {
         app: 'MiRun-AI',
-        version: 'v52.8.2',
+        version: 'v52.8.3',
         exportedAt: new Date().toISOString(),
         localStorage: {},
         indexedDB: {}
@@ -17196,7 +17279,7 @@ function toggleGuideSection(index) {
 <script src="image-recognizer.js?v=52.6.0"></script>
 
   <!-- Version Badge -->
-  <div id="versionBadge" style="position:fixed;bottom:80px;right:12px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;z-index:9999;letter-spacing:0.5px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;pointer-events:none">v52.8.2</div>
+  <div id="versionBadge" style="position:fixed;bottom:80px;right:12px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;z-index:9999;letter-spacing:0.5px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;pointer-events:none">v52.8.3</div>
   <script>
     setTimeout(function(){
       var b = document.getElementById('versionBadge');
