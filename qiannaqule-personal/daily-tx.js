@@ -799,6 +799,20 @@
     deleteTx(id);
   };
 
+  // v52.8.6: 从财富页/最近交易发起编辑（复用详情容器内的编辑弹窗）
+  window.dailyTxEdit = function(txId) {
+    if (!txId) return;
+    var list = loadTx();
+    var tx = null;
+    for (var i = 0; i < list.length; i++) { if (list[i].id === txId) { tx = list[i]; break; } }
+    if (!tx) return;
+    var root = document.getElementById('dailyTxDetailContainer');
+    if (!root) { root = document.createElement('div'); root.id = 'dailyTxDetailContainer'; document.body.appendChild(root); }
+    var month = (tx.date || '').substr(0, 7);
+    if (!month) { var d = new Date(); month = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); }
+    openEditModal(root, month, txId);
+  };
+
   window.getDailyTxSummary = getDailyTxSummary;
 
 })();

@@ -6036,7 +6036,7 @@ body {
   // ===== 版本守护（v52.5.4起）：SW缓存死锁根治方案 =====
   // 放在所有JS之前执行，确保版本不对时立即清理并重载
   (function() {
-    var CURRENT_VERSION = '52.8.5';
+    var CURRENT_VERSION = '52.8.6';
     var STORAGE_KEY = 'mirun_app_version';
     
     function wipeAndReload(reason) {
@@ -7458,23 +7458,8 @@ body {
         <div class="wealth-chart-card">
           <div class="wcc-title">支出分类</div>
           <div class="wcc-body">
-            <div class="wcc-pie">
-              <svg viewBox="0 0 100 100" width="90" height="90">
-                <circle cx="50" cy="50" r="40" fill="none" stroke="#e2e8f0" stroke-width="12"/>
-                <circle cx="50" cy="50" r="40" fill="none" stroke="#2563eb" stroke-width="12" stroke-dasharray="80 251" stroke-dashoffset="0" transform="rotate(-90 50 50)"/>
-                <circle cx="50" cy="50" r="40" fill="none" stroke="#10b981" stroke-width="12" stroke-dasharray="63 251" stroke-dashoffset="-80" transform="rotate(-90 50 50)"/>
-                <circle cx="50" cy="50" r="40" fill="none" stroke="#f59e0b" stroke-width="12" stroke-dasharray="50 251" stroke-dashoffset="-143" transform="rotate(-90 50 50)"/>
-                <circle cx="50" cy="50" r="40" fill="none" stroke="#8b5cf6" stroke-width="12" stroke-dasharray="38 251" stroke-dashoffset="-193" transform="rotate(-90 50 50)"/>
-                <circle cx="50" cy="50" r="40" fill="none" stroke="#ef4444" stroke-width="12" stroke-dasharray="20 251" stroke-dashoffset="-231" transform="rotate(-90 50 50)"/>
-              </svg>
-            </div>
-            <div class="wcc-legend">
-              <div class="wccl-item"><span class="wccl-dot" style="background:#2563eb"></span>餐饮 32%</div>
-              <div class="wccl-item"><span class="wccl-dot" style="background:#10b981"></span>交通 25%</div>
-              <div class="wccl-item"><span class="wccl-dot" style="background:#f59e0b"></span>购物 20%</div>
-              <div class="wccl-item"><span class="wccl-dot" style="background:#8b5cf6"></span>居住 15%</div>
-              <div class="wccl-item"><span class="wccl-dot" style="background:#ef4444"></span>其他 8%</div>
-            </div>
+            <div class="wcc-pie" id="wealthSpendPie"></div>
+            <div class="wcc-legend" id="wealthSpendLegend"></div>
           </div>
         </div>
         <!-- 最近交易 -->
@@ -8570,7 +8555,7 @@ body {
     </div>
 
     <div style="text-align:center;padding:20px 0 10px;font-size:12px;color:#cbd5e1">
-      MiRun AI v52.8.5 · 越用越懂你的数字分身
+      MiRun AI v52.8.6 · 越用越懂你的数字分身
     </div>
   </div>
   <div class="app-brand-footer">
@@ -14345,7 +14330,7 @@ body {
   // ==================== Version Sync + Force Refresh ====================
   // If stored version != page version → unregister SW, clear all caches, hard reload
   (function() {
-    var PAGE_VERSION = '52.8.5';
+    var PAGE_VERSION = '52.8.6';
     var storedVersion = localStorage.getItem('mirun_app_version');
     
     // First visitor — just store version
@@ -14445,7 +14430,7 @@ body {
     // Immediate: if old service-worker.js is controlling, unregister it to break deadlock
     if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
       var ctrlURL = navigator.serviceWorker.controller.scriptURL || '';
-      if (ctrlURL.indexOf('sw-v52.8.5.js') === -1 && ctrlURL.indexOf('service-worker.js') !== -1) {
+      if (ctrlURL.indexOf('sw-v52.8.6.js') === -1 && ctrlURL.indexOf('service-worker.js') !== -1) {
         console.log('Old SW detected, unregistering to break cache deadlock...');
         navigator.serviceWorker.getRegistrations().then(function(regs) {
           regs.forEach(function(r) {
@@ -14462,19 +14447,19 @@ body {
       var existingController = navigator.serviceWorker.controller;
       var isAllowedSW = false;
       if (existingController && existingController.scriptURL) {
-        isAllowedSW = existingController.scriptURL.indexOf('sw-v52.8.5.js') !== -1 || existingController.scriptURL.indexOf('service-worker.js') !== -1;
+        isAllowedSW = existingController.scriptURL.indexOf('sw-v52.8.6.js') !== -1 || existingController.scriptURL.indexOf('service-worker.js') !== -1;
       }
       if (existingController && !isAllowedSW) {
         console.log('Skipping SW registration: existing controller is unknown');
         return;
       }
 
-      navigator.serviceWorker.register('./sw-v52.8.5.js', { updateViaCache: 'none' }).then(function(reg) {
+      navigator.serviceWorker.register('./sw-v52.8.6.js', { updateViaCache: 'none' }).then(function(reg) {
         console.log('SW registered, scope:', reg.scope);
         
         // Verify the registered SW is our expected file
         var isExpected = reg.active && reg.active.scriptURL && 
-          (reg.active.scriptURL.indexOf('sw-v52.8.5.js') !== -1 || reg.active.scriptURL.indexOf('service-worker.js') !== -1);
+          (reg.active.scriptURL.indexOf('sw-v52.8.6.js') !== -1 || reg.active.scriptURL.indexOf('service-worker.js') !== -1);
         if (reg.active && !isExpected) {
           console.warn('Unexpected SW scriptURL detected, unregistering:', reg.active.scriptURL);
           reg.unregister();
@@ -14797,6 +14782,7 @@ function toggleGuideSection(index) {
     try { if (window.getDailyTxSummary) summary = window.getDailyTxSummary(); } catch(e) {}
     if (!summary) {
       set('lifeIncome', '-'); set('lifeExpense', '-'); set('lifeSaveRate', '-'); set('lifeTxDays', '0');
+      renderWealthSpendingCategory();
       renderWealthRecentTx();
       return;
     }
@@ -14805,6 +14791,7 @@ function toggleGuideSection(index) {
     var rate = summary.totalIncome > 0 ? (summary.balance / summary.totalIncome * 100) : 0;
     set('lifeSaveRate', rate > 0 ? rate.toFixed(1) : '-');
     set('lifeTxDays', String(countTxDays(summary.month)));
+    renderWealthSpendingCategory();
     renderWealthRecentTx();
   }
 
@@ -14814,6 +14801,58 @@ function toggleGuideSection(index) {
     try { if (window.DataStore && DataStore.load) txList = DataStore.load('daily_tx','records',[]) || []; } catch(e) { txList = []; }
     txList.forEach(function(t){ if (t.date && t.date.substr(0,7) === month) days[t.date] = 1; });
     return Object.keys(days).length;
+  }
+
+  // v52.8.6: 支出分类实时聚合（按当月支出交易按 ctField 汇总，画真比重饼图）
+  var _WEALTH_EXP_COLORS = ['#2563eb','#10b981','#f59e0b','#8b5cf6','#ef4444','#ec4899'];
+  var _WEALTH_EXP_NAMES = { expensePersonal:'个人消费', expenseFamily:'家庭开支', expenseEducation:'家庭教育', expenseMedical:'家庭医疗', loanPayment:'贷款月供', insurance:'保险保障' };
+  function renderWealthSpendingCategory() {
+    var pie = document.getElementById('wealthSpendPie');
+    var legend = document.getElementById('wealthSpendLegend');
+    if (!pie || !legend) return;
+    var txList = [];
+    try { if (window.DataStore && DataStore.load) txList = DataStore.load('daily_tx','records',[]) || []; else txList = JSON.parse(localStorage.getItem('mijieai_daily_tx') || '[]'); } catch(e) { txList = []; }
+    var now = new Date();
+    var month = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+    var agg = {}; var total = 0;
+    txList.forEach(function(t) {
+      if (!t || t.type !== 'expense') return;
+      if (!t.date || t.date.substr(0,7) !== month) return;
+      var amt = parseFloat(t.amount) || 0;
+      if (amt <= 0) return;
+      var key = t.ctField || 'expensePersonal';
+      agg[key] = (agg[key] || 0) + amt;
+      total += amt;
+    });
+    var arr = [];
+    for (var k in agg) { if (agg.hasOwnProperty(k)) arr.push({ ct:k, amt:agg[k] }); }
+    arr.sort(function(a,b){ return b.amt - a.amt; });
+    var circ = 251;
+    if (!arr.length || total <= 0) {
+      pie.innerHTML = '<div style="width:90px;height:90px;display:flex;align-items:center;justify-content:center;color:#9ca3af;font-size:13px;text-align:center">本月暂无支出</div>';
+      legend.innerHTML = '<div style="color:#9ca3af;font-size:13px">本月暂无支出记录，记一笔后自动生成消费结构</div>';
+      return;
+    }
+    var svg = '<svg viewBox="0 0 100 100" width="90" height="90">' +
+              '<circle cx="50" cy="50" r="40" fill="none" stroke="#e2e8f0" stroke-width="12"/>';
+    var offset = 0;
+    arr.forEach(function(seg, i) {
+      var pct = seg.amt / total;
+      var c = _WEALTH_EXP_COLORS[i % _WEALTH_EXP_COLORS.length];
+      svg += '<circle cx="50" cy="50" r="40" fill="none" stroke="' + c + '" stroke-width="12" ' +
+             'stroke-dasharray="' + (pct * circ) + ' ' + circ + '" stroke-dashoffset="' + (-offset * circ) + '" transform="rotate(-90 50 50)"/>';
+      offset += pct;
+    });
+    svg += '</svg>';
+    pie.innerHTML = svg;
+    var lg = '';
+    arr.forEach(function(seg, i) {
+      var pct = Math.round(seg.amt / total * 100);
+      var c = _WEALTH_EXP_COLORS[i % _WEALTH_EXP_COLORS.length];
+      lg += '<div class="wccl-item"><span class="wccl-dot" style="background:' + c + '"></span>' +
+            escapeHtmlSafe(_WEALTH_EXP_NAMES[seg.ct] || seg.ct) + ' ' + pct + '%</div>';
+    });
+    legend.innerHTML = lg;
   }
 
   function renderWealthRecentTx() {
@@ -14849,8 +14888,18 @@ function toggleGuideSection(index) {
           '<div class="wlc-item-right">' +
             '<div class="wlc-item-value" style="color:' + color + '">' + sign + Math.round(amt).toLocaleString('zh-CN') + '</div>' +
             '<div class="wlc-item-change" style="color:' + color + '">' + (income?'收入':'支出') + '</div>' +
+            '<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:3px">' +
+              '<span class="wlc-item-edit" data-txid="' + t.id + '" style="color:#3b82f6;font-size:12px;padding:2px 10px;border-radius:8px;background:#eff6ff">修改</span>' +
+              '<span class="wlc-item-del" data-txid="' + t.id + '" style="color:#dc2626;font-size:12px;padding:2px 10px;border-radius:8px;background:#fee2e2">删除</span>' +
+            '</div>' +
           '</div>';
         list.appendChild(item);
+        (function(it){
+          var eb = it.querySelector('.wlc-item-edit');
+          if (eb) eb.addEventListener('click', function(){ var id=this.getAttribute('data-txid'); if (window.dailyTxEdit) window.dailyTxEdit(id); });
+          var db = it.querySelector('.wlc-item-del');
+          if (db) db.addEventListener('click', function(){ var id=this.getAttribute('data-txid'); if(!window.dailyTxDelete) return; if(!confirm('确定删除这条记录？')) return; window.dailyTxDelete(id); });
+        })(item);
       });
     }
     wrap.innerHTML = '';
@@ -15975,7 +16024,7 @@ function toggleGuideSection(index) {
 
   function getFeedbackAutoInfo() {
     var info = {
-      appVersion: 'v52.8.5',
+      appVersion: 'v52.8.6',
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent || '',
       screenSize: window.innerWidth + 'x' + window.innerHeight,
@@ -17029,7 +17078,7 @@ function toggleGuideSection(index) {
     try {
       var data = {
         app: 'MiRun-AI',
-        version: 'v52.8.5',
+        version: 'v52.8.6',
         exportedAt: new Date().toISOString(),
         localStorage: {},
         indexedDB: {}
@@ -17212,7 +17261,7 @@ function toggleGuideSection(index) {
 <script src="image-recognizer.js?v=52.6.0"></script>
 
   <!-- Version Badge -->
-  <div id="versionBadge" style="position:fixed;bottom:80px;right:12px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;z-index:9999;letter-spacing:0.5px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;pointer-events:none">v52.8.5</div>
+  <div id="versionBadge" style="position:fixed;bottom:80px;right:12px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;z-index:9999;letter-spacing:0.5px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;pointer-events:none">v52.8.6</div>
   <script>
     setTimeout(function(){
       var b = document.getElementById('versionBadge');
