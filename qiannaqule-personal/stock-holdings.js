@@ -35,6 +35,16 @@
   var PLANS_MODULE = 'stock_plans';
   var PLANS_FIELD = 'plans';
 
+  // ==================== 实时行情状态 (v52.6.0) ====================
+  var QUOTE_API = 'https://push2.eastmoney.com/api/qt/ulist.np/get?secids=SECIDS&fields=f2,f3,f12,f13,f14,f18&fltt=2';
+  var AUTO_QUOTE_INTERVAL = 16000;     // 自动拉取节流：16s 内不重复发起
+  var MANUAL_OVERRIDE_WINDOW = 60000;  // 手动改价保护窗口：60s
+  var lastAutoQuoteTs = 0;             // 上次自动拉取时间戳
+  var manualOverride = {};             // { holdingId: 时间戳 } 手动改价记录
+  var quoteStatus = 'idle';            // idle | loading | updated | error
+  var quoteLastTs = null;              // 上次成功更新时间
+
+
   // 状态标签预设（用户可自定义或选预设）
   var DEFAULT_STATUS_OPTIONS = [
     '盈利持有',
@@ -220,6 +230,138 @@
     return { pnl: pnl, pct: pct, value: qty * curr, cost: qty * cost };
   }
 
+  // ==================== 实时行情 (v52.6.0) ====================
+  // 现价自动调取东财实时行情：render/切换持仓明细子Tab时自动批量拉取；
+  // 手动刷新忽略节流；最近60s内被手动改价的持仓不覆盖；失败保底显示上次价格。
+  function toSecid(code) {
+    var digits = String(code || '').replace(/\D/g, '');
+    if (!digits) return null;
+    // 6 开头→沪市(1.)；0/3/4/8 开头→深市/北交所(0.)
+    return (digits.charAt(0) === '6' ? '1.' : '0.') + digits;
+  }
+
+  function pad2(n) { return (n < 10 ? '0' : '') + n; }
+  function fmtClock(d) {
+    if (!d || isNaN(d.getTime())) return '';
+    return pad2(d.getHours()) + ':' + pad2(d.getMinutes()) + ':' + pad2(d.getSeconds());
+  }
+
+  // 实时数据状态行 HTML
+  function quoteStatusRowHtml() {
+    var txt, color;
+    if (quoteStatus === 'loading') {
+      txt = '行情获取中…'; color = '#2563eb';
+    } else if (quoteStatus === 'updated') {
+      txt = '实时行情 · 已更新 ' + fmtClock(quoteLastTs); color = '#16a34a';
+    } else if (quoteStatus === 'error') {
+      txt = '行情获取失败 · 显示上次价格'; color = '#dc2626';
+    } else {
+      txt = '现价已连接实时行情'; color = '#94a3b8';
+    }
+    return '<div class="sh-quote-status" id="shQuoteStatus">' +
+      '<span class="sh-quote-status-txt" style="color:' + color + '">' +
+        '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="' + color + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><polyline points="21 3 21 8 16 8"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><polyline points="8 21 3 21 3 16"/></svg>' +
+        txt +
+      '</span>' +
+      '<button class="sh-quote-refresh" onclick="StockHoldings.refreshQuotes()" title="手动刷新实时行情">' +
+        '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>' +
+        '<span>刷新</span>' +
+      '</button>' +
+    '</div>';
+  }
+
+  function setQuoteStatus(mode) {
+    quoteStatus = mode;
+    var el = document.getElementById('shQuoteStatus');
+    if (el) el.outerHTML = quoteStatusRowHtml();
+  }
+
+  function autoFetchQuotes() {
+    fetchRealtimeQuotes(false);
+  }
+
+  function fetchRealtimeQuotes(force) {
+    var list = loadHoldings();
+    if (!list.length) { setQuoteStatus('idle'); return; }
+    var now = Date.now();
+    // 节流：自动拉取 16s 内不重复发起；手动刷新(force)忽略节流
+    if (!force && now - lastAutoQuoteTs < AUTO_QUOTE_INTERVAL) return;
+    lastAutoQuoteTs = now;
+
+    // 组装 secids，跳过最近 60s 内被手动改价的持仓
+    var secids = [];
+    var skipSet = {};
+    list.forEach(function(h) {
+      if (!h || !h.code) return;
+      var mTs = manualOverride[h.id];
+      if (mTs && (now - mTs) < MANUAL_OVERRIDE_WINDOW) { skipSet[h.id] = true; return; }
+      var sid = toSecid(h.code);
+      if (sid) secids.push(sid);
+    });
+
+    if (!secids.length) {
+      quoteLastTs = new Date();
+      setQuoteStatus('updated');
+      return;
+    }
+
+    setQuoteStatus('loading');
+    var url = QUOTE_API.replace('SECIDS', secids.join(','));
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.timeout = 10000;
+    xhr.onload = function() {
+      try {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          var res = typeof xhr.response === 'string' ? JSON.parse(xhr.response) : xhr.response;
+          applyQuotes((res && res.data && res.data.diff) || [], skipSet);
+        } else {
+          setQuoteStatus('error');
+        }
+      } catch(e) {
+        setQuoteStatus('error');
+      }
+    };
+    xhr.onerror = function() { setQuoteStatus('error'); };
+    xhr.ontimeout = function() { setQuoteStatus('error'); };
+    xhr.send();
+  }
+
+  function flatEq(a, b) {
+    return Math.abs((parseFloat(a) || 0) - (parseFloat(b) || 0)) < 0.0001;
+  }
+
+  function applyQuotes(diff, skipSet) {
+    if (!diff || !diff.length) { setQuoteStatus('error'); return; }
+    var priceBySecid = {};
+    diff.forEach(function(d) {
+      var market = (d.f13 === 1) ? '1' : '0';
+      priceBySecid[market + '.' + d.f12] = d;
+    });
+    var list = loadHoldings();
+    var changed = false;
+    list.forEach(function(h) {
+      if (!h || !h.code || skipSet[h.id]) return;
+      var sid = toSecid(h.code);
+      var d = priceBySecid[sid];
+      // 接口无该只数据（含北交所段异常）或现价异常 → 跳过，保底显示上次价格
+      if (!d || d.f2 === undefined || d.f2 === null || d.f2 === '-') return;
+      var price = parseFloat(d.f2);
+      if (isNaN(price) || price <= 0) return;
+      if (flatEq(h.current_price, price)) return;
+      h.current_price = price;
+      h.updated_at = nowIso();
+      changed = true;
+    });
+    if (changed) {
+      saveHoldings(list);
+      refreshOverview();
+      refreshHoldingsPnl();
+    }
+    quoteLastTs = new Date();
+    setQuoteStatus('updated');
+  }
+
   // ==================== 样式注入 ====================
   var stylesInjected = false;
   function injectStyles() {
@@ -258,7 +400,7 @@
       '.sh-section-title-text .dot{width:5px;height:16px;background:#2563eb;border-radius:3px;display:inline-block}',
 
       // 表格
-      '.sh-table-wrap{background:#fff;border-radius:12px;border:1px solid #e5e7eb;overflow:hidden;margin-bottom:8px}',
+      '.sh-table-wrap{background:#fff;border-radius:12px;border:1px solid #e5e7eb;overflow-x:auto;margin-bottom:8px;position:relative;-webkit-overflow-scrolling:touch}',
       '.sh-table{width:100%;border-collapse:collapse;font-size:13px}',
       '.sh-table th{background:#f8fafc;color:#6b7280;font-weight:600;font-size:12px;padding:10px 8px;text-align:right;border-bottom:1px solid #e5e7eb;white-space:nowrap}',
       '.sh-table th:first-child{text-align:left;padding-left:12px}',
@@ -284,6 +426,9 @@
       '.sh-action-btn{font-size:12px;padding:3px 8px;border-radius:6px;border:1px solid #e5e7eb;background:#fff;color:#6b7280;cursor:pointer;transition:all .15s;margin-left:4px}',
       '.sh-action-btn:hover{border-color:#2563eb;color:#2563eb}',
       '.sh-action-btn.danger:hover{border-color:#ef4444;color:#ef4444}',
+      '.sh-th-ops,.sh-td-ops{min-width:80px;white-space:nowrap}',
+      '.sh-ops{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;min-width:0}',
+      '.sh-ops .sh-action-btn{margin-left:0;white-space:nowrap}',
 
       // 空状态
       '.sh-empty{text-align:center;padding:40px 16px;color:#9ca3af;font-size:14px}',
@@ -301,13 +446,13 @@
       '.sh-form-group{margin-bottom:16px}',
       '.sh-form-group:last-child{margin-bottom:0}',
       '.sh-form-label{font-size:13px;color:#374151;font-weight:500;margin-bottom:6px;display:block}',
-      '.sh-form-input{width:100%;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#1f2937;box-sizing:border-box;transition:border-color .2s;outline:none;background:#fff}',
+      '.sh-form-input{width:100%;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:16px;color:#1f2937;box-sizing:border-box;transition:border-color .2s;outline:none;background:#fff;-webkit-appearance:none;appearance:none}',
       '.sh-form-input:focus{border-color:#2563eb}',
       '.sh-form-row{display:flex;gap:10px}',
       '.sh-form-row .sh-form-group{flex:1}',
-      '.sh-form-textarea{width:100%;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#1f2937;box-sizing:border-box;resize:vertical;min-height:60px;font-family:inherit;outline:none;transition:border-color .2s}',
+      '.sh-form-textarea{width:100%;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:16px;color:#1f2937;box-sizing:border-box;resize:vertical;min-height:60px;font-family:inherit;outline:none;transition:border-color .2s}',
       '.sh-form-textarea:focus{border-color:#2563eb}',
-      '.sh-form-select{width:100%;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#1f2937;box-sizing:border-box;background:#fff;outline:none;appearance:none;background-image:url(\"data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2712%27 height=%2712%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%236b7280%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpolyline points=%276 9 12 15 18 9%27/%3E%3C/svg%3E\");background-repeat:no-repeat;background-position:right 12px center}',
+      '.sh-form-select{width:100%;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:16px;color:#1f2937;box-sizing:border-box;background:#fff;outline:none;appearance:none;background-image:url(\"data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2712%27 height=%2712%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%236b7280%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpolyline points=%276 9 12 15 18 9%27/%3E%3C/svg%3E\");background-repeat:no-repeat;background-position:right 12px center}',
       '.sh-btn{flex:1;padding:12px;border-radius:10px;border:none;font-size:15px;font-weight:600;cursor:pointer;transition:all .2s;text-align:center}',
       '.sh-btn-primary{background:#2563eb;color:#fff}',
       '.sh-btn-primary:hover{background:#1d4ed8}',
@@ -358,9 +503,15 @@
       '.sh-sub-tab{flex:1;padding:9px;text-align:center;font-size:14px;font-weight:600;color:#64748b;border-radius:9px;cursor:pointer;transition:all .2s}',
       '.sh-sub-tab.active{background:#fff;color:#2563eb;box-shadow:0 1px 3px rgba(0,0,0,.08)}',
 
+      // 实时数据状态行 (v52.6.0)
+      '.sh-quote-status{display:flex;align-items:center;justify-content:space-between;background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;padding:8px 12px;margin-bottom:8px;font-size:12px}',
+      '.sh-quote-status-txt{display:inline-flex;align-items:center;gap:5px;font-weight:500}',
+      '.sh-quote-refresh{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:8px;border:1px solid #dbe3ec;background:#fff;color:#475569;font-size:12px;cursor:pointer;transition:all .15s}',
+      '.sh-quote-refresh:hover{border-color:#2563eb;color:#2563eb}',
+
       // 快速编辑价格
       '.sh-price-edit{display:inline-flex;align-items:center;gap:4px}',
-      '.sh-price-input{width:70px;padding:4px 6px;border:1px solid #cbd5e1;border-radius:6px;font-size:12px;text-align:right;color:#1f2937;outline:none}',
+      '.sh-price-input{width:78px;padding:5px 6px;border:1px solid #cbd5e1;border-radius:6px;font-size:16px;text-align:right;color:#1f2937;outline:none;-webkit-appearance:none;appearance:none}',
       '.sh-price-input:focus{border-color:#2563eb}',
 
       // 移动端适配
@@ -369,7 +520,10 @@
       '  .sh-stat-value{font-size:13px}',
       '  .sh-table th,.sh-table td{padding:10px 6px;font-size:12px}',
       '  .sh-name-main{font-size:13px}',
-      '  .sh-form-input,.sh-form-select,.sh-form-textarea{font-size:13px}',
+      '  .sh-form-input,.sh-form-select,.sh-form-textarea{font-size:16px}',
+      '  .sh-ops{flex-direction:column;align-items:stretch;gap:6px}',
+      '  .sh-ops .sh-action-btn{width:100%;text-align:center;padding:6px 10px}',
+      '  .sh-th-ops{min-width:70px}',
       '}'
     ].join('');
     document.head.appendChild(s);
@@ -519,6 +673,14 @@
       return;
     }
 
+    // 实时数据状态行
+    parent.appendChild((function() {
+      var el = document.createElement('div');
+      el.id = 'shQuoteStatus';
+      el.outerHTML = quoteStatusRowHtml();
+      return document.getElementById('shQuoteStatus');
+    })());
+
     var wrap = document.createElement('div');
     wrap.className = 'sh-table-wrap';
 
@@ -530,7 +692,7 @@
     html += '<th>现价</th>';
     html += '<th>浮盈亏</th>';
     html += '<th>盈亏%</th>';
-    html += '<th>操作</th>';
+    html += '<th class="sh-th-ops">操作</th>';
     html += '</tr></thead><tbody>';
 
     list.forEach(function(h) {
@@ -559,9 +721,11 @@
       html += '</td>';
       html += '<td class="sh-pnl ' + pnlClass + '">' + pnlSign + fmtMoney(calc.pnl) + '</td>';
       html += '<td class="sh-pnl ' + pnlClass + '">' + pctSign + fmtPct(calc.pct) + '</td>';
-      html += '<td>';
-      html +=   '<button class="sh-action-btn" onclick="StockHoldings.openHoldingModal(\'' + h.id + '\')">编辑</button>';
-      html +=   '<button class="sh-action-btn danger" onclick="StockHoldings.deleteHoldingConfirm(\'' + h.id + '\')">删除</button>';
+      html += '<td class="sh-td-ops">';
+      html +=   '<div class="sh-ops">';
+      html +=     '<button class="sh-action-btn" onclick="StockHoldings.openHoldingModal(\'' + h.id + '\')">编辑</button>';
+      html +=     '<button class="sh-action-btn danger" onclick="StockHoldings.deleteHoldingConfirm(\'' + h.id + '\')">删除</button>';
+      html +=   '</div>';
       html += '</td>';
       html += '</tr>';
     });
@@ -569,6 +733,9 @@
     html += '</tbody></table>';
     wrap.innerHTML = html;
     parent.appendChild(wrap);
+
+    // render/切到持仓明细子Tab时自动批量拉取实时行情
+    autoFetchQuotes();
   }
 
   // ==================== 操作计划列表 ====================
@@ -837,6 +1004,8 @@
   function updateCurrentPrice(id, val) {
     var price = parseFloat(val);
     if (isNaN(price) || price <= 0) return;
+    // 记录手动改价时间戳，自动拉取在 60s 保护窗口内跳过该持仓，避免覆盖刚手输的值
+    manualOverride[id] = Date.now();
     updateHolding(id, { current_price: price });
     // 局部刷新总览
     refreshOverview();
@@ -912,9 +1081,14 @@
         tds[5].className = 'sh-pnl ' + pnlClass;
         tds[5].textContent = pctSign + fmtPct(calc.pct);
       }
-      // 现价输入框颜色
+      // 现价输入框：值随实时行情更新，颜色跟随涨跌；编辑聚焦中则不覆盖
       var input = row.querySelector('.sh-price-input');
-      if (input) input.style.color = priceColor;
+      if (input) {
+        if (document.activeElement !== input) {
+          input.value = h.current_price;
+        }
+        input.style.color = priceColor;
+      }
     });
   }
 
@@ -1101,6 +1275,7 @@
     saveHolding: saveHolding,
     deleteHoldingConfirm: deleteHoldingConfirm,
     updateCurrentPrice: updateCurrentPrice,
+    refreshQuotes: function() { fetchRealtimeQuotes(true); },
     openCashModal: openCashModal,
     saveCash: saveCash,
     openPlanModal: openPlanModal,
