@@ -6036,7 +6036,7 @@ body {
   // ===== 版本守护（v52.5.4起）：SW缓存死锁根治方案 =====
   // 放在所有JS之前执行，确保版本不对时立即清理并重载
   (function() {
-    var CURRENT_VERSION = '52.8.1';
+    var CURRENT_VERSION = '52.8.2';
     var STORAGE_KEY = 'mirun_app_version';
     
     function wipeAndReload(reason) {
@@ -6073,7 +6073,7 @@ body {
     }
   })();
   </script>
-<style id="v526-input-antizoom" type="text/css">/* v52.8.1 global input anti-ios-zoom: font-size>=16px */input[type=text],input[type=number],input[type=tel],input[type=email],input[type=date],input[type=time],input[type=password],input[type=search],textarea,select{font-size:16px !important}input-modal-mask{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}.input-modal{background:#fff;border-radius:16px;padding:20px;width:100%;max-width:340px;box-sizing:border-box;box-shadow:0 20px 50px rgba(0,0,0,.2)}.im-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}.im-title{font-size:16px;font-weight:600;color:#1e293b}.im-close{background:none;border:none;color:#94a3b8;cursor:pointer;padding:4px;display:flex}.im-input{width:100%;box-sizing:border-box;padding:12px;font-size:16px;border:1px solid #e2e8f0;border-radius:10px;outline:none;color:#1e293b;background:#f8fafc;-webkit-appearance:none}.im-input:focus{border-color:#6366f1}.im-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:14px}.im-btn{padding:9px 18px;font-size:15px;border-radius:10px;border:none;cursor:pointer}.im-cancel{background:#f1f5f9;color:#475569}.im-ok{background:#6366f1;color:#fff}.im-hint{color:#ef4444;font-size:13px;margin-top:8px;min-height:18px}</style>
+<style id="v526-input-antizoom" type="text/css">/* v52.8.2 global input anti-ios-zoom: font-size>=16px */input[type=text],input[type=number],input[type=tel],input[type=email],input[type=date],input[type=time],input[type=password],input[type=search],textarea,select{font-size:16px !important}input-modal-mask{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}.input-modal{background:#fff;border-radius:16px;padding:20px;width:100%;max-width:340px;box-sizing:border-box;box-shadow:0 20px 50px rgba(0,0,0,.2)}.im-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}.im-title{font-size:16px;font-weight:600;color:#1e293b}.im-close{background:none;border:none;color:#94a3b8;cursor:pointer;padding:4px;display:flex}.im-input{width:100%;box-sizing:border-box;padding:12px;font-size:16px;border:1px solid #e2e8f0;border-radius:10px;outline:none;color:#1e293b;background:#f8fafc;-webkit-appearance:none}.im-input:focus{border-color:#6366f1}.im-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:14px}.im-btn{padding:9px 18px;font-size:15px;border-radius:10px;border:none;cursor:pointer}.im-cancel{background:#f1f5f9;color:#475569}.im-ok{background:#6366f1;color:#fff}.im-hint{color:#ef4444;font-size:13px;margin-top:8px;min-height:18px}</style>
 </head>
 <body>
 
@@ -8596,7 +8596,7 @@ body {
     </div>
 
     <div style="text-align:center;padding:20px 0 10px;font-size:12px;color:#cbd5e1">
-      MiRun AI v52.8.1 · 越用越懂你的数字分身
+      MiRun AI v52.8.2 · 越用越懂你的数字分身
     </div>
   </div>
   <div class="app-brand-footer">
@@ -10276,7 +10276,7 @@ body {
     switchLayer('wealth', layer);
   };
 
-  // 财富v52.8.1：诊断完成后将真实诊断结果回写 hero 主卡 + 摘要卡 + 投资柱
+  // 财富v52.8.2：诊断完成后将真实诊断结果回写 hero 主卡 + 摘要卡 + 投资柱
   function syncWealthScore() {
     try { if (typeof updateWealthScore === 'function') updateWealthScore(); } catch(e) {}
     try { if (typeof updateWealthDiagnosisSummary === 'function') updateWealthDiagnosisSummary(); } catch(e) {}
@@ -10869,7 +10869,7 @@ body {
     // v52.2: 同步更新医疗支出卡片
     try { if (typeof updateMedicalExpenseCard === 'function') updateMedicalExpenseCard(); } catch(e) {}
   });
-  // v52.8.1: 记账数据变化后同步刷新财富域 R1（收支柱 + 评分 + 资产 + 理财Tab）
+  // v52.8.2: 记账数据变化后同步刷新财富域 R1（收支柱 + 评分 + 资产 + 理财Tab）
   window.addEventListener('dailytx:changed', function() {
     try { if (typeof refreshDailyTxSummary === 'function') refreshDailyTxSummary(); } catch(e) {}
     if (typeof updateWealthScore === 'function') { try { updateWealthScore(); } catch(e) {} }
@@ -12253,7 +12253,7 @@ body {
 
   // 刷新分身状态面板
   function refreshAgentPanel() {
-    // v52.8.1: 对话域状态接线（真实反映在线与运行状态）
+    // v52.8.2: 对话域状态接线（真实反映在线与运行状态）
     try {
       var online = typeof navigator !== 'undefined' ? navigator.onLine : true;
       var _st = document.getElementById('agentStatusText');
@@ -14373,7 +14373,7 @@ body {
   // ==================== Version Sync + Force Refresh ====================
   // If stored version != page version → unregister SW, clear all caches, hard reload
   (function() {
-    var PAGE_VERSION = '52.8.1';
+    var PAGE_VERSION = '52.8.2';
     var storedVersion = localStorage.getItem('mirun_app_version');
     
     // First visitor — just store version
@@ -14473,7 +14473,7 @@ body {
     // Immediate: if old service-worker.js is controlling, unregister it to break deadlock
     if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
       var ctrlURL = navigator.serviceWorker.controller.scriptURL || '';
-      if (ctrlURL.indexOf('sw-v52.8.1.js') === -1 && ctrlURL.indexOf('service-worker.js') !== -1) {
+      if (ctrlURL.indexOf('sw-v52.8.2.js') === -1 && ctrlURL.indexOf('service-worker.js') !== -1) {
         console.log('Old SW detected, unregistering to break cache deadlock...');
         navigator.serviceWorker.getRegistrations().then(function(regs) {
           regs.forEach(function(r) {
@@ -14490,19 +14490,19 @@ body {
       var existingController = navigator.serviceWorker.controller;
       var isAllowedSW = false;
       if (existingController && existingController.scriptURL) {
-        isAllowedSW = existingController.scriptURL.indexOf('sw-v52.8.1.js') !== -1 || existingController.scriptURL.indexOf('service-worker.js') !== -1;
+        isAllowedSW = existingController.scriptURL.indexOf('sw-v52.8.2.js') !== -1 || existingController.scriptURL.indexOf('service-worker.js') !== -1;
       }
       if (existingController && !isAllowedSW) {
         console.log('Skipping SW registration: existing controller is unknown');
         return;
       }
 
-      navigator.serviceWorker.register('./sw-v52.8.1.js', { updateViaCache: 'none' }).then(function(reg) {
+      navigator.serviceWorker.register('./sw-v52.8.2.js', { updateViaCache: 'none' }).then(function(reg) {
         console.log('SW registered, scope:', reg.scope);
         
         // Verify the registered SW is our expected file
         var isExpected = reg.active && reg.active.scriptURL && 
-          (reg.active.scriptURL.indexOf('sw-v52.8.1.js') !== -1 || reg.active.scriptURL.indexOf('service-worker.js') !== -1);
+          (reg.active.scriptURL.indexOf('sw-v52.8.2.js') !== -1 || reg.active.scriptURL.indexOf('service-worker.js') !== -1);
         if (reg.active && !isExpected) {
           console.warn('Unexpected SW scriptURL detected, unregistering:', reg.active.scriptURL);
           reg.unregister();
@@ -14753,7 +14753,7 @@ function toggleGuideSection(index) {
     return details;
   }
 
-  // ========== v52.8.1 财富域 R1 统一接通（单一数据源） ==========
+  // ========== v52.8.2 财富域 R1 统一接通（单一数据源） ==========
   function fmtMoneySafe(v) {
     var n = Number(v) || 0;
     if (isNaN(n)) n = 0;
@@ -15028,7 +15028,7 @@ function toggleGuideSection(index) {
   window.addNewInsurance = addNewInsurance;
   window.addNewLoan = addNewLoan;
 
-  // ========== v52.8.1 对话文本解析：持仓 / 保单 / 贷款 ==========
+  // ========== v52.8.2 对话文本解析：持仓 / 保单 / 贷款 ==========
   window.parseHoldingFromText = function(text) {
     var qty = parseFloat((String(text).match(/(\d+(?:\.\d+)?)[\s]*股/) || [])[1]) || 0;
     if (qty <= 0) return null;
@@ -15149,7 +15149,7 @@ function toggleGuideSection(index) {
     return '表现均衡，建议每季度检视资产配置与保障';
   }
 
-  // 总览卡片「当前财富健康 XX 分 · 等级 · 一句话诊断结论」——v52.8.1 统一走诊断结果单一数据源
+  // 总览卡片「当前财富健康 XX 分 · 等级 · 一句话诊断结论」——v52.8.2 统一走诊断结果单一数据源
   window.updateWealthDiagnosisSummary = function(diagResult) {
     var el = document.getElementById('wealthDiagnosisSummary');
     if (!el) return;
@@ -15339,7 +15339,7 @@ function toggleGuideSection(index) {
       }
     } catch(e) {}
 
-    // v52.8.1: 健康域附加占位接线（结论/平均睡眠/标签/饮食标签）
+    // v52.8.2: 健康域附加占位接线（结论/平均睡眠/标签/饮食标签）
     try {
       var _sleeps = [];
       var _recs = [];
@@ -15375,7 +15375,7 @@ function toggleGuideSection(index) {
     try { if (window.HealthSpecial && typeof window.HealthSpecial.refreshAll === 'function') window.HealthSpecial.refreshAll(); } catch(e) {}
   };
 
-  // ========== v52.8.1 教育域占位接线 ==========
+  // ========== v52.8.2 教育域占位接线 ==========
   function updateEduDashboard() {
     // 教育域无独立数据源，将结论/指数接线到已有数据（教育相关日程任务），否则保持友好空态
     var learnCount = 0, growthCount = 0;
@@ -15453,7 +15453,7 @@ function toggleGuideSection(index) {
   }
 
   function updateWorkDashboard() {
-    // v52.8.1: 工作域附加占位接线（进度/结论/周时长/连续天数）
+    // v52.8.2: 工作域附加占位接线（进度/结论/周时长/连续天数）
     try {
       var _ws = getWeeklyTaskStats();
       var _rateEl = document.getElementById('workScheduleRate');
@@ -15920,7 +15920,7 @@ function toggleGuideSection(index) {
 
   function getFeedbackAutoInfo() {
     var info = {
-      appVersion: 'v52.8.1',
+      appVersion: 'v52.8.2',
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent || '',
       screenSize: window.innerWidth + 'x' + window.innerHeight,
@@ -17013,7 +17013,7 @@ function toggleGuideSection(index) {
     try {
       var data = {
         app: 'MiRun-AI',
-        version: 'v52.8.1',
+        version: 'v52.8.2',
         exportedAt: new Date().toISOString(),
         localStorage: {},
         indexedDB: {}
@@ -17196,7 +17196,7 @@ function toggleGuideSection(index) {
 <script src="image-recognizer.js?v=52.6.0"></script>
 
   <!-- Version Badge -->
-  <div id="versionBadge" style="position:fixed;bottom:80px;right:12px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;z-index:9999;letter-spacing:0.5px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;pointer-events:none">v52.8.1</div>
+  <div id="versionBadge" style="position:fixed;bottom:80px;right:12px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;z-index:9999;letter-spacing:0.5px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;pointer-events:none">v52.8.2</div>
   <script>
     setTimeout(function(){
       var b = document.getElementById('versionBadge');

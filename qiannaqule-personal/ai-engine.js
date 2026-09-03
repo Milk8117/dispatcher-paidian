@@ -35,14 +35,14 @@
   var PROVIDERS = [
     {
       id: 'nvidia',
-      name: 'NVIDIA免费通道 (GLM-5.2)',
+      name: 'NVIDIA免费通道 (GPT-OSS-20B)',
       apiBase: 'https://integrate.api.nvidia.com/v1',
-      model: 'z-ai/glm-5.2',
+      model: 'openai/gpt-oss-20b',
       free: true,
       costPerMIn: 0,
       costPerMOut: 0,
-      models: ['z-ai/glm-5.2'],
-      defaultModel: 'z-ai/glm-5.2',
+      models: ['openai/gpt-oss-20b'],
+      defaultModel: 'openai/gpt-oss-20b',
       keyHint: '注册NVIDIA获取免费Key（nvapi-开头）',
       keyUrl: 'https://build.nvidia.com/'
     },
@@ -89,13 +89,14 @@
       id: 'doubao',
       name: '豆包 (火山引擎)',
       apiBase: 'https://ark.cn-beijing.volces.com/api/v3',
-      model: 'doubao-seed-1.6-flash',
+      model: 'doubao-seed-2.0-lite',
+      endpointId: 'ep-20260901195604-fw287',
       free: true,
       costPerMIn: 0.15,
       costPerMOut: 1.5,
-      models: ['doubao-seed-1.6-flash', 'doubao-seed-1.6', 'doubao-seed-1.6-vision', 'doubao-1.5-pro-32k', 'doubao-1.5-lite-32k'],
-      defaultModel: 'doubao-seed-1.6-flash',
-      keyHint: '火山引擎方舟API Key + 接入点ID（填入model字段）',
+      models: ['doubao-seed-2.0-lite', 'doubao-seed-1.6-flash'],
+      defaultModel: 'doubao-seed-2.0-lite',
+      keyHint: '火山引擎方舟API Key + 接入点ID（自动使用model=endpointId）',
       keyUrl: 'https://console.volcengine.com/ark/'
     },
     {
@@ -134,7 +135,7 @@
 
   // v52.4.6: 密钥采用base64编码内置，运行时解码，绕过GitHub Push Protection检测
   // 用户可在设置面板自行配置替换
-  var _encodedSecrets = 'eyJkZWZhdWx0QXBpS2V5IjogIm52YXBpLVhBZDVUNDFKV0JHeE8tMXJWWHFJVk1UaHR0R2RLS01tYlY3eUpqQWtlYUFEbmhOSy1fam0zWVIyeENTSTE4Wm0iLCAicHJvdmlkZXJzIjogeyJkZWVwc2VlayI6IHsiYXBpS2V5IjogInNrLTI1YzU4OGJhNDliMjQzZjA4ZTc0M2M3ODhlOTJjZjE1IiwgImFwaUJhc2UiOiAiIiwgIm1vZGVsIjogIiJ9LCAiYmFpbGlhbiI6IHsiYXBpS2V5IjogInNrLXdzLUguRUxFWEhSRC4yWG1tLk1FVUNJUUQ4RmR1cVR4YnVBTlozdHRub1FLak1FbXF4a3BHN1pwSks0dGg3anJwTzh3SWdlZVFWd3JvX0hUelp5d3JHb0VGU0FWWlBjdXV2bnBKVGRpUDJzcDVIMEpBIiwgImFwaUJhc2UiOiAiIiwgIm1vZGVsIjogInF3ZW4zLjctZmxhc2gifSwgImtpbWkiOiB7ImFwaUtleSI6ICJzay1ob1pFVTc5eUg1b2tsZ1p2UzdTZk5nMlRKMzZab1FSMEtzNUQ5bGFQMWV4UG9GVDAiLCAiYXBpQmFzZSI6ICIiLCAibW9kZWwiOiAibW9vbnNob3QtdjEtOGsifSwgIm52aWRpYSI6IHsiYXBpS2V5IjogIm52YXBpLVhBZDVUNDFKV0JHeE8tMXJWWHFJVk1UaHR0R2RLS01tYlY3eUpqQWtlYUFEbmhOSy1fam0zWVIyeENTSTE4Wm0iLCAiYXBpQmFzZSI6ICIiLCAibW9kZWwiOiAiZ2xtLTUuMiJ9LCAiZG91YmFvIjogeyJhcGlLZXkiOiAiYXJrLTljN2M0MjNjLTNiZTctNGViMi1iZGRhLTM0MzkzMDgwOTgwMy0zN2JiOSIsICJhcGlCYXNlIjogIiIsICJtb2RlbCI6ICJkb3ViYW8tc2VlZC0yLjAtbGl0ZSIsICJlbmRwb2ludElkIjogImVwLTIwMjYwOTAxMTk1NjA0LWZ3Mjg3In0sICJ6aGlwdSI6IHsiYXBpS2V5IjogIjYxYjg4ZTEyNTAwZTQ1NDNhYzU1Yjc0MGM3N2VjNzhiLlk5emg4bnY2Z2t6cEFhdTEiLCAiYXBpQmFzZSI6ICIiLCAibW9kZWwiOiAiZ2xtLTQuNy1mbGFzaCJ9fX0=';
+  var _encodedSecrets = 'eyJkZWZhdWx0QXBpS2V5IjoibnZhcGktWEFkNVQ0MUpXQkd4Ty0xclZYcUlWTVRodHRHZEtLTW1iVjd5SmpBa2VhQURuaE5LLV9qbTNZUjJ4Q1NJMThabSIsInByb3ZpZGVycyI6eyJkZWVwc2VlayI6eyJhcGlLZXkiOiJzay0yNWM1ODhiYTQ5YjI0M2YwOGU3NDNjNzg4ZTkyY2YxNSIsImFwaUJhc2UiOiIiLCJtb2RlbCI6IiJ9LCJiYWlsaWFuIjp7ImFwaUtleSI6InNrLXdzLUguRUxFWEhSRC4yWG1tLk1FVUNJUUQ4RmR1cVR4YnVBTlozdHRub1FLak1FbXF4a3BHN1pwSks0dGg3anJwTzh3SWdlZVFWd3JvX0hUelp5d3JHb0VGU0FWWlBjdXV2bnBKVGRpUDJzcDVIMEpBIiwiYXBpQmFzZSI6IiIsIm1vZGVsIjoicXdlbjMuNy1mbGFzaCJ9LCJraW1pIjp7ImFwaUtleSI6InNrLWhvWkVVNzl5SDVva2xnWnZTN1NmTmcyVEozNlpvUVIwS3M1RDlsYVAxZXhQb0ZUMCIsImFwaUJhc2UiOiIiLCJtb2RlbCI6Im1vb25zaG90LXYxLThrIn0sIm52aWRpYSI6eyJhcGlLZXkiOiJudmFwaS1YQWQ1VDQxSldCR3hPLTFyVlhxSVZNVGh0dEdkS0tNbWJWN3lKakFrZWFBRG5oTkstX2ptM1lSMnhDU0kxOFptIiwiYXBpQmFzZSI6IiIsIm1vZGVsIjoib3BlbmFpL2dwdC1vc3MtMjBiIn0sImRvdWJhbyI6eyJhcGlLZXkiOiJhcmstOWM3YzQyM2MtM2JlNy00ZWIyLWJkZGEtMzQzOTMwODA5ODAzLTM3YmI5IiwiYXBpQmFzZSI6IiIsIm1vZGVsIjoiZG91YmFvLXNlZWQtMi4wLWxpdGUiLCJlbmRwb2ludElkIjoiZXAtMjAyNjA5MDExOTU2MDQtZncyODcifSwiemhpcHUiOnsiYXBpS2V5IjoiNjFiODhlMTI1MDBlNDU0M2FjNTViNzQwYzc3ZWM3OGIuWTl6aDhudjZna3pwQWF1MSIsImFwaUJhc2UiOiIiLCJtb2RlbCI6ImdsbS00LjctZmxhc2gifX19';
   var _secrets = {};
   var _secretProviders = {};
   try {
@@ -144,7 +145,7 @@
 
   var DEFAULT_CONFIG = {
     mode: 'default',
-    defaultProvider: 'bailian',
+    defaultProvider: 'doubao',
     defaultApiKey: _secrets.defaultApiKey || '',
     providers: {
       deepseek: { apiKey: (_secretProviders.deepseek || {}).apiKey || '', apiBase: '', model: '' },
@@ -174,7 +175,7 @@
         }
         // 补全缺失字段
         if (!cfg.mode) cfg.mode = 'default';
-        if (!cfg.defaultProvider) cfg.defaultProvider = 'nvidia';
+        if (!cfg.defaultProvider) cfg.defaultProvider = 'doubao';
         // 深度合并：用户配置中为空的 apiKey 用 DEFAULT_CONFIG 内置值补上
     if (!cfg.providers) cfg.providers = {};
     for (var key in DEFAULT_CONFIG.providers) {
@@ -604,17 +605,19 @@
 
   // ==================== Provider降级链 ====================
 
-  // 降级优先级：成本低、可用性高的排前面（v52.3.15 优化）
-  var FALLBACK_PRIORITY = ['bailian', 'doubao', 'zhipu', 'kimi', 'nvidia', 'deepseek'];
+  // 降级优先级：成本低、可用性高的排前面（v52.8.2: 豆包带endpoint确认200、NVIDIA切GPT-OSS、智谱key失效移后）
+  var FALLBACK_PRIORITY = ['doubao', 'nvidia', 'bailian', 'kimi', 'deepseek', 'zhipu'];
 
   function getProviderChain(cfg) {
     var chain = [];
 
     if (cfg.mode === 'default') {
-      // 默认模式：默认provider排最前
-      var defaultP = PROVIDER_MAP[cfg.defaultProvider || 'nvidia'];
-      if (defaultP && cfg.defaultApiKey) {
-        var p = mergeProviderConfig(defaultP, { apiKey: cfg.defaultApiKey });
+      // 默认模式：默认provider排最前（优先使用该provider自身配置的key，否则回退defaultApiKey）
+      var defaultId = cfg.defaultProvider || 'nvidia';
+      var defaultP = PROVIDER_MAP[defaultId];
+      var defaultKey = (cfg.providers && cfg.providers[defaultId] && cfg.providers[defaultId].apiKey) || cfg.defaultApiKey;
+      if (defaultP && defaultKey) {
+        var p = mergeProviderConfig(defaultP, { apiKey: defaultKey });
         chain.push(p);
       }
       // 如果启用了降级，其余provider按FALLBACK_PRIORITY排序追加
@@ -682,6 +685,10 @@
       max_tokens: maxTokens || 1024,
       temperature: temperature || 0.7
     };
+    // 豆包/火山方舟：专属endpoint必须用 model=endpointId 请求，否则404 InvalidEndpointOrModel.NotFound
+    if (provider.id === 'doubao' && provider.endpointId) {
+      body.model = provider.endpointId;
+    }
     // 百炼qwen3.x系列默认开启思考模式，免费额度可能不支持，显式关闭
     if (provider.id === 'bailian') {
       body.enable_thinking = false;
