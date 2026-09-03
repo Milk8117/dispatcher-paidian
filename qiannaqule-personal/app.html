@@ -3831,6 +3831,41 @@ body {
   margin-top: -4px;
 }
 
+/* ========== v52.8.7 健康五大维度轻量入口（去重复数值，保留5入口导航） ========== */
+.dims-entrance {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: -4px 0 2px;
+  padding-bottom: 4px;
+}
+.dims-entrance::-webkit-scrollbar { display: none; }
+.dims-item {
+  flex: 1 0 auto;
+  min-width: 66px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  padding: 12px 6px;
+  background: #fff;
+  border: 1px solid #f1f5f9;
+  border-radius: 16px;
+}
+.dims-item:active { transform: scale(0.97); }
+.dims-ic {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.dims-name { font-size: 12px; font-weight: 600; color: #0f172a; white-space: nowrap; }
+.dims-arrow { position: absolute; top: 6px; right: 7px; color: #cbd5e1; flex-shrink: 0; }
+
 /* ========== v52.5.4 财富页完整样式 ========== */
 .wealth-pillar-switcher {
   display: flex;
@@ -6036,7 +6071,7 @@ body {
   // ===== 版本守护（v52.5.4起）：SW缓存死锁根治方案 =====
   // 放在所有JS之前执行，确保版本不对时立即清理并重载
   (function() {
-    var CURRENT_VERSION = '52.8.6';
+    var CURRENT_VERSION = '52.8.7';
     var STORAGE_KEY = 'mirun_app_version';
     
     function wipeAndReload(reason) {
@@ -6826,66 +6861,31 @@ body {
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
         五大维度
       </div>
-      <div class="dashboard-grid">
-        <div class="dashboard-detail-card" onclick="switchSubTab('health', 'diet')">
-          <div class="ddc-icon" style="background:#f0fdf4;color:#16a34a">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>
-          </div>
-          <div class="ddc-source-tag" title="对话录入">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            对话
-          </div>
-          <div class="ddc-title">饮食营养</div>
-          <div class="ddc-value" id="healthDietCount">0</div>
-          <div class="ddc-desc">条记录</div>
+            <div class="dims-entrance">
+        <div class="dims-item" onclick="switchSubTab('health','diet')">
+          <div class="dims-ic" style="background:#f0fdf4;color:#16a34a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg></div>
+          <span class="dims-name">饮食营养</span>
+          <svg class="dims-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><polyline points="9 18 15 12 9 6"/></svg>
         </div>
-        <div class="dashboard-detail-card" onclick="switchSubTab('health', 'sleep')">
-          <div class="ddc-icon" style="background:#f5f3ff;color:#8b5cf6">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
-          </div>
-          <div class="ddc-source-tag" title="设备同步">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
-            设备
-          </div>
-          <div class="ddc-title">睡眠质量</div>
-          <div class="ddc-value" id="healthSleepHour">-</div>
-          <div class="ddc-desc">小时昨晚</div>
+        <div class="dims-item" onclick="switchSubTab('health','sleep')">
+          <div class="dims-ic" style="background:#f5f3ff;color:#8b5cf6"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></div>
+          <span class="dims-name">睡眠质量</span>
+          <svg class="dims-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><polyline points="9 18 15 12 9 6"/></svg>
         </div>
-        <div class="dashboard-detail-card" onclick="switchSubTab('health', 'exercise')">
-          <div class="ddc-icon" style="background:#fef3c7;color:#d97706">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-          </div>
-          <div class="ddc-source-tag" title="设备同步">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
-            设备
-          </div>
-          <div class="ddc-title">运动时长</div>
-          <div class="ddc-value" id="healthExerciseMin">0</div>
-          <div class="ddc-desc">分钟今日</div>
+        <div class="dims-item" onclick="switchSubTab('health','exercise')">
+          <div class="dims-ic" style="background:#fef3c7;color:#d97706"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+          <span class="dims-name">运动时长</span>
+          <svg class="dims-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><polyline points="9 18 15 12 9 6"/></svg>
         </div>
-        <div class="dashboard-detail-card" onclick="switchSubTab('health', 'mood')">
-          <div class="ddc-icon" style="background:#ecfdf5;color:#10b981">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
-          </div>
-          <div class="ddc-source-tag" title="对话录入">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            对话
-          </div>
-          <div class="ddc-title">情绪状态</div>
-          <div class="ddc-value" id="healthMood">--</div>
-          <div class="ddc-desc">当前心情</div>
+        <div class="dims-item" onclick="switchSubTab('health','mood')">
+          <div class="dims-ic" style="background:#ecfdf5;color:#10b981"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div>
+          <span class="dims-name">情绪状态</span>
+          <svg class="dims-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><polyline points="9 18 15 12 9 6"/></svg>
         </div>
-        <div class="dashboard-detail-card" onclick="switchSubTab('health', 'medical')">
-          <div class="ddc-icon" style="background:#f0f9ff;color:#0ea5e9">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-          </div>
-          <div class="ddc-source-tag" title="手动录入">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
-            手动
-          </div>
-          <div class="ddc-title">医疗健康</div>
-          <div class="ddc-value" id="healthMedicalCount">0</div>
-          <div class="ddc-desc">条记录</div>
+        <div class="dims-item" onclick="switchSubTab('health','medical')">
+          <div class="dims-ic" style="background:#f0f9ff;color:#0ea5e9"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div>
+          <span class="dims-name">医疗健康</span>
+          <svg class="dims-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><polyline points="9 18 15 12 9 6"/></svg>
         </div>
       </div>
     </div>
@@ -8555,7 +8555,7 @@ body {
     </div>
 
     <div style="text-align:center;padding:20px 0 10px;font-size:12px;color:#cbd5e1">
-      MiRun AI v52.8.6 · 越用越懂你的数字分身
+      MiRun AI v52.8.7 · 越用越懂你的数字分身
     </div>
   </div>
   <div class="app-brand-footer">
@@ -10933,6 +10933,8 @@ body {
             try { window.stockHoldingsInit(); } catch(e) {}
           }
           try { if (typeof updateFinanceDashboard === "function") updateFinanceDashboard(); } catch(e) { console.log("init finance dash err:", e.message); }
+          // v52.8.7: 首屏也要真实渲染支出分类/最近交易，不再依赖手动切换或记账事件
+          try { if (typeof refreshDailyTxSummary === "function") refreshDailyTxSummary(); } catch(e) {}
         }, 50);
       }
       // 日程初始化
@@ -14330,7 +14332,7 @@ body {
   // ==================== Version Sync + Force Refresh ====================
   // If stored version != page version → unregister SW, clear all caches, hard reload
   (function() {
-    var PAGE_VERSION = '52.8.6';
+    var PAGE_VERSION = '52.8.7';
     var storedVersion = localStorage.getItem('mirun_app_version');
     
     // First visitor — just store version
@@ -14430,7 +14432,7 @@ body {
     // Immediate: if old service-worker.js is controlling, unregister it to break deadlock
     if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
       var ctrlURL = navigator.serviceWorker.controller.scriptURL || '';
-      if (ctrlURL.indexOf('sw-v52.8.6.js') === -1 && ctrlURL.indexOf('service-worker.js') !== -1) {
+      if (ctrlURL.indexOf('sw-v52.8.7.js') === -1 && ctrlURL.indexOf('service-worker.js') !== -1) {
         console.log('Old SW detected, unregistering to break cache deadlock...');
         navigator.serviceWorker.getRegistrations().then(function(regs) {
           regs.forEach(function(r) {
@@ -14447,19 +14449,19 @@ body {
       var existingController = navigator.serviceWorker.controller;
       var isAllowedSW = false;
       if (existingController && existingController.scriptURL) {
-        isAllowedSW = existingController.scriptURL.indexOf('sw-v52.8.6.js') !== -1 || existingController.scriptURL.indexOf('service-worker.js') !== -1;
+        isAllowedSW = existingController.scriptURL.indexOf('sw-v52.8.7.js') !== -1 || existingController.scriptURL.indexOf('service-worker.js') !== -1;
       }
       if (existingController && !isAllowedSW) {
         console.log('Skipping SW registration: existing controller is unknown');
         return;
       }
 
-      navigator.serviceWorker.register('./sw-v52.8.6.js', { updateViaCache: 'none' }).then(function(reg) {
+      navigator.serviceWorker.register('./sw-v52.8.7.js', { updateViaCache: 'none' }).then(function(reg) {
         console.log('SW registered, scope:', reg.scope);
         
         // Verify the registered SW is our expected file
         var isExpected = reg.active && reg.active.scriptURL && 
-          (reg.active.scriptURL.indexOf('sw-v52.8.6.js') !== -1 || reg.active.scriptURL.indexOf('service-worker.js') !== -1);
+          (reg.active.scriptURL.indexOf('sw-v52.8.7.js') !== -1 || reg.active.scriptURL.indexOf('service-worker.js') !== -1);
         if (reg.active && !isExpected) {
           console.warn('Unexpected SW scriptURL detected, unregistering:', reg.active.scriptURL);
           reg.unregister();
@@ -14803,7 +14805,7 @@ function toggleGuideSection(index) {
     return Object.keys(days).length;
   }
 
-  // v52.8.6: 支出分类实时聚合（按当月支出交易按 ctField 汇总，画真比重饼图）
+  // v52.8.7: 支出分类实时聚合（按当月支出交易按 ctField 汇总，画真比重饼图）
   var _WEALTH_EXP_COLORS = ['#2563eb','#10b981','#f59e0b','#8b5cf6','#ef4444','#ec4899'];
   var _WEALTH_EXP_NAMES = { expensePersonal:'个人消费', expenseFamily:'家庭开支', expenseEducation:'家庭教育', expenseMedical:'家庭医疗', loanPayment:'贷款月供', insurance:'保险保障' };
   function renderWealthSpendingCategory() {
@@ -16024,7 +16026,7 @@ function toggleGuideSection(index) {
 
   function getFeedbackAutoInfo() {
     var info = {
-      appVersion: 'v52.8.6',
+      appVersion: 'v52.8.7',
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent || '',
       screenSize: window.innerWidth + 'x' + window.innerHeight,
@@ -17078,7 +17080,7 @@ function toggleGuideSection(index) {
     try {
       var data = {
         app: 'MiRun-AI',
-        version: 'v52.8.6',
+        version: 'v52.8.7',
         exportedAt: new Date().toISOString(),
         localStorage: {},
         indexedDB: {}
@@ -17261,7 +17263,7 @@ function toggleGuideSection(index) {
 <script src="image-recognizer.js?v=52.6.0"></script>
 
   <!-- Version Badge -->
-  <div id="versionBadge" style="position:fixed;bottom:80px;right:12px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;z-index:9999;letter-spacing:0.5px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;pointer-events:none">v52.8.6</div>
+  <div id="versionBadge" style="position:fixed;bottom:80px;right:12px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;z-index:9999;letter-spacing:0.5px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;pointer-events:none">v52.8.7</div>
   <script>
     setTimeout(function(){
       var b = document.getElementById('versionBadge');
