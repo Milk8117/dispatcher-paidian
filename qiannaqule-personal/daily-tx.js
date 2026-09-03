@@ -172,7 +172,9 @@
 
   // ==================== 样式注入 ====================
   function injectStyles() {
+    if (document.getElementById('dtx-style')) return;
     var s = document.createElement('style');
+    s.id = 'dtx-style';
     s.textContent = [
       '.dtx-wrap{padding:16px;max-width:480px;margin:0 auto}',
       '.dtx-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}',
@@ -595,6 +597,7 @@
 
   // ==================== 编辑弹窗 ====================
   function openEditModal(root, viewMonth, txId) {
+    document.querySelectorAll('.dtx-modal-overlay').forEach(function(o) { o.remove(); });
     var tx = null;
     var list = loadTx();
     for (var i = 0; i < list.length; i++) {
@@ -801,6 +804,7 @@
 
   // v52.8.6: 从财富页/最近交易发起编辑（复用详情容器内的编辑弹窗）
   window.dailyTxEdit = function(txId) {
+    try { injectStyles(); } catch(e) {}
     if (!txId) return;
     var list = loadTx();
     var tx = null;
