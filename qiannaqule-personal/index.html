@@ -5994,7 +5994,7 @@ body {
   // ===== 版本守护（v52.5.4起）：SW缓存死锁根治方案 =====
   // 放在所有JS之前执行，确保版本不对时立即清理并重载
   (function() {
-    var CURRENT_VERSION = '52.5.5';
+    var CURRENT_VERSION = '52.5.6';
     var STORAGE_KEY = 'mirun_app_version';
     
     function wipeAndReload(reason) {
@@ -8501,7 +8501,7 @@ body {
     </div>
 
     <div style="text-align:center;padding:20px 0 10px;font-size:12px;color:#cbd5e1">
-      MiRun AI v52.5.5 · 越用越懂你的数字分身
+      MiRun AI v52.5.6 · 越用越懂你的数字分身
     </div>
   </div>
   <div class="app-brand-footer">
@@ -8706,10 +8706,10 @@ body {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
   </button>
 </div>
-<script src="datastore.js?v=52.5.5"></script>
-<script src="diagnosis-engine.js?v=52.5.5"></script>
-<script src="reminder-engine.js?v=52.5.5"></script>
-<script src="trend-view.js?v=52.5.5"></script>
+<script src="datastore.js?v=52.5.6"></script>
+<script src="diagnosis-engine.js?v=52.5.6"></script>
+<script src="reminder-engine.js?v=52.5.6"></script>
+<script src="trend-view.js?v=52.5.6"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 // [v52.4.2] Removed IIFE wrap — all functions now global for HTML event access
@@ -12132,7 +12132,29 @@ body {
   window.refreshAgentPanel = refreshAgentPanel;
   window.renderAgentActivities = renderAgentActivities;
 
-    window.submitAiInput = function() {
+    // [v52.5.6] 从用户对话文本解析餐次与食物名（供 DietRecords 三餐列表落库）
+  function parseDietMealFromText(raw) {
+    if (!raw) return null;
+    var text = String(raw);
+    var meal = null;
+    if (/早餐|早饭|早点|早晨|早上/.test(text)) meal = 'breakfast';
+    else if (/午餐|午饭|中饭|中午/.test(text)) meal = 'lunch';
+    else if (/晚餐|晚饭|晚上/.test(text)) meal = 'dinner';
+    else if (/加餐|夜宵|宵夜|午夜/.test(text)) meal = 'snack';
+    if (!meal) return null;
+    if (!/(可以吃|吃了|喝了|吃个|喝杯|点了|点外卖|来份|来一|用餐|进食|干饭|吃饭|正在吃|吃了点|吃了些|吃|喝)/.test(text)) return null;
+    var food = text.replace(/(早餐|早饭|早点|早晨|早上|午餐|午饭|中饭|中午|晚餐|晚饭|晚上|加餐|夜宵|宵夜|午夜)/g, '');
+    food = food.replace(/\d+(?:\.\d+)?\s*(?:块钱|块|元|钱|￥|¥)?/g, '');
+    food = food.replace(/^(?:已经|昨天|前天|今天|今晚|昨晚|刚刚|刚|之前|刚才|我|我们|它|他|她)/, '');
+    food = food.replace(/^(?:在|去|到|于)(?:公司|家|学校|单位|食堂|餐厅|外面|路边|店里|饭馆|饭店|楼下|班上|外卖)/, '');
+    food = food.replace(/^(?:喝了?[杯碗瓶口点]?|吃了[碗份盘顿点些个]?|点了(?:外卖|份|个)?|点了个?|来了一份?|来了?[碗份杯个盘]?|来份|要了一份?|吃完|喝过|吃过|吃的|用餐|进食|干饭|吃饭)/, '');
+    food = food.split(/有|还有|和|跟|搭配|配上|配|真是|真|很好吃|好吃|味道|不错|超级|非常|嗯|然后|但是|其实|后来|加上/)[0];
+    food = food.replace(/[，。、；;!！?？~～：:]|^(?:一个|两个|三个|一份|一碗|一杯|一片|一些|的)/g, '').trim();
+    if (!food) return null;
+    return { meal: meal, food: food.slice(0, 12) };
+  }
+
+  window.submitAiInput = function() {
     var field = document.getElementById('aiInputField');
     var text = field.value.trim();
     if (!text) { field.focus(); return; }
@@ -12230,6 +12252,7 @@ body {
 
     // 标准流程
     showThinkingMsg();
+    addChatMessage('user', text);
 
     // 主动关怀检测
     var careResults = [];
@@ -12241,6 +12264,14 @@ body {
       ChatEngine.process(text).then(function(result) {
         removeThinkingMsg();
         updateLastUserMsgStatus('sent');
+
+        // [v52.5.6] 饮食记录真实落库：解析用户文本中的餐次与食物，写入 mirun_diet_records
+        if (window.DietRecords && typeof parseDietMealFromText === 'function') {
+          var _dietRec = parseDietMealFromText(text);
+          if (_dietRec) {
+            try { window.DietRecords.addRecord(_dietRec.meal, _dietRec.food); } catch(_e) {}
+          }
+        }
 
         // 记录分身动态：记账/日程/健康记录
         if (result.intent) {
@@ -14130,7 +14161,7 @@ body {
   // ==================== Version Sync + Force Refresh ====================
   // If stored version != page version → unregister SW, clear all caches, hard reload
   (function() {
-    var PAGE_VERSION = '52.5.5';
+    var PAGE_VERSION = '52.5.6';
     var storedVersion = localStorage.getItem('mirun_app_version');
     
     // First visitor — just store version
@@ -14230,7 +14261,7 @@ body {
     // Immediate: if old service-worker.js is controlling, unregister it to break deadlock
     if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
       var ctrlURL = navigator.serviceWorker.controller.scriptURL || '';
-      if (ctrlURL.indexOf('sw-v52.5.5.js') === -1 && ctrlURL.indexOf('service-worker.js') !== -1) {
+      if (ctrlURL.indexOf('sw-v52.5.6.js') === -1 && ctrlURL.indexOf('service-worker.js') !== -1) {
         console.log('Old SW detected, unregistering to break cache deadlock...');
         navigator.serviceWorker.getRegistrations().then(function(regs) {
           regs.forEach(function(r) {
@@ -14247,19 +14278,19 @@ body {
       var existingController = navigator.serviceWorker.controller;
       var isAllowedSW = false;
       if (existingController && existingController.scriptURL) {
-        isAllowedSW = existingController.scriptURL.indexOf('sw-v52.5.5.js') !== -1 || existingController.scriptURL.indexOf('service-worker.js') !== -1;
+        isAllowedSW = existingController.scriptURL.indexOf('sw-v52.5.6.js') !== -1 || existingController.scriptURL.indexOf('service-worker.js') !== -1;
       }
       if (existingController && !isAllowedSW) {
         console.log('Skipping SW registration: existing controller is unknown');
         return;
       }
 
-      navigator.serviceWorker.register('./sw-v52.5.5.js', { updateViaCache: 'none' }).then(function(reg) {
+      navigator.serviceWorker.register('./sw-v52.5.6.js', { updateViaCache: 'none' }).then(function(reg) {
         console.log('SW registered, scope:', reg.scope);
         
         // Verify the registered SW is our expected file
         var isExpected = reg.active && reg.active.scriptURL && 
-          (reg.active.scriptURL.indexOf('sw-v52.5.5.js') !== -1 || reg.active.scriptURL.indexOf('service-worker.js') !== -1);
+          (reg.active.scriptURL.indexOf('sw-v52.5.6.js') !== -1 || reg.active.scriptURL.indexOf('service-worker.js') !== -1);
         if (reg.active && !isExpected) {
           console.warn('Unexpected SW scriptURL detected, unregistering:', reg.active.scriptURL);
           reg.unregister();
@@ -15061,7 +15092,7 @@ function toggleGuideSection(index) {
 
   function getFeedbackAutoInfo() {
     var info = {
-      appVersion: 'v52.5.5',
+      appVersion: 'v52.5.6',
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent || '',
       screenSize: window.innerWidth + 'x' + window.innerHeight,
@@ -16097,7 +16128,7 @@ function toggleGuideSection(index) {
     try {
       var data = {
         app: 'MiRun-AI',
-        version: 'v52.5.5',
+        version: 'v52.5.6',
         exportedAt: new Date().toISOString(),
         localStorage: {},
         indexedDB: {}
@@ -16262,25 +16293,25 @@ function toggleGuideSection(index) {
   }
 </script>
 
-<script src="solar-term.js?v=52.5.5"></script>
-<script src="chronic-disease.js?v=52.5.5"></script>
-<script src="schedule.js?v=52.5.5"></script>
-<script src="daily-tx.js?v=52.5.5"></script>
-<script src="stock-holdings.js?v=52.5.5"></script>
-<script src="behavior-log.js?v=52.5.5"></script>
-<script src="user-profile.js?v=52.5.5"></script>
-<script src="insight-engine.js?v=52.5.5"></script>
-<script src="health-bridge.js?v=52.5.5"></script>
-<script src="push-engine.js?v=52.5.5"></script>
-<script src="memory-manager.js?v=52.5.5"></script>
-<script src="chat-engine.js?v=52.5.5"></script>
-    <script src="ai-engine.js?v=52.5.5"></script>
-<script src="decision-forge.js?v=52.5.5"></script>
-<script src="value-resonance.js?v=52.5.5"></script>
-<script src="image-recognizer.js?v=52.5.5"></script>
+<script src="solar-term.js?v=52.5.6"></script>
+<script src="chronic-disease.js?v=52.5.6"></script>
+<script src="schedule.js?v=52.5.6"></script>
+<script src="daily-tx.js?v=52.5.6"></script>
+<script src="stock-holdings.js?v=52.5.6"></script>
+<script src="behavior-log.js?v=52.5.6"></script>
+<script src="user-profile.js?v=52.5.6"></script>
+<script src="insight-engine.js?v=52.5.6"></script>
+<script src="health-bridge.js?v=52.5.6"></script>
+<script src="push-engine.js?v=52.5.6"></script>
+<script src="memory-manager.js?v=52.5.6"></script>
+<script src="chat-engine.js?v=52.5.6"></script>
+    <script src="ai-engine.js?v=52.5.6"></script>
+<script src="decision-forge.js?v=52.5.6"></script>
+<script src="value-resonance.js?v=52.5.6"></script>
+<script src="image-recognizer.js?v=52.5.6"></script>
 
   <!-- Version Badge -->
-  <div id="versionBadge" style="position:fixed;bottom:80px;right:12px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;z-index:9999;letter-spacing:0.5px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;pointer-events:none">v52.5.5</div>
+  <div id="versionBadge" style="position:fixed;bottom:80px;right:12px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;z-index:9999;letter-spacing:0.5px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;pointer-events:none">v52.5.6</div>
   <script>
     setTimeout(function(){
       var b = document.getElementById('versionBadge');
