@@ -757,6 +757,27 @@
 
   // ==================== 导出 ====================
 
+  // 情绪 / 睡眠 存储委托兜底（转发到统一 behavior-log 数据源）
+  window.recordDetectedMood = function(entry) {
+    if (entry && window.BehaviorLog && typeof window.BehaviorLog.addMoodEntry === 'function') {
+      try { return window.BehaviorLog.addMoodEntry(entry); } catch(e) {}
+    }
+    return null;
+  };
+  window.recordSleepEvent = function(fields) {
+    if (fields && window.BehaviorLog && typeof window.BehaviorLog.updateSleep === 'function') {
+      try {
+        var r = window.BehaviorLog.updateSleep(fields);
+        if (window.healthDataChanged) { try { window.healthDataChanged(); } catch(e){} }
+        return r;
+      } catch(e) {}
+    }
+    return null;
+  };
+  window.recordMood = function(entry) {
+    return window.recordDetectedMood(entry);
+  };
+
   window.HealthBridge = {
     // 核心数据API
     importCSV: importCSV,
@@ -776,6 +797,9 @@
 
     exportHealthCSV: exportHealthCSV,
 
+    // 情绪 / 睡眠 存储委托（forward to behavior-log）
+    recordMood: function(entry) { return window.recordMood(entry); },
+    recordSleepEvent: function(fields) { return window.recordSleepEvent(fields); },
     // 原生API预留
     connectNativeSource: connectNativeSource,
     connectBLE: connectBLE

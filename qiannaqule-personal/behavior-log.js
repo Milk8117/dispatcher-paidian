@@ -835,6 +835,7 @@
       }
       window.showToast && window.showToast('已记录' + type + '：' + items);
       renderBehaviorHub('behaviorHubContainer');
+      window.healthDataChanged && window.healthDataChanged();
     });
   };
 
@@ -856,6 +857,7 @@
       saveTodayLog(log);
       window.showToast && window.showToast('已记录运动：' + type);
       renderBehaviorHub('behaviorHubContainer');
+      window.healthDataChanged && window.healthDataChanged();
     });
   };
 
@@ -880,6 +882,7 @@
       saveTodayLog(log);
       window.showToast && window.showToast('已记录睡眠');
       renderBehaviorHub('behaviorHubContainer');
+      window.healthDataChanged && window.healthDataChanged();
     });
 
     // 质量选择按钮交互
@@ -915,6 +918,7 @@
       addMoodEntry({ score: score, label: moodInfo.label, trigger: trigger, physical: physical ? [physical] : [], coping: '' });
       window.showToast && window.showToast('已记录情绪：' + moodInfo.label);
       renderBehaviorHub('behaviorHubContainer');
+      window.healthDataChanged && window.healthDataChanged();
     });
 
     setTimeout(function() {
@@ -1079,6 +1083,34 @@
       healthProfile: _load('mijieai_health_profile', {}),
       exportTime: new Date().toISOString()
     };
+  };
+
+  // ==================== BehaviorLog 统一数据接口 ====================
+  // 供健康总览 / 情绪页 / 睡眠页 / 运动详情页统一读取（消除多源撕裂），
+  // 情绪/运动/睡眠写入统一走本对象，不得另开新源
+  window.BehaviorLog = {
+    getLogForDate: getLogForDate,
+    getRecentLogs: getRecentLogs,
+    getRecentMoods: getRecentMoods,
+    addMoodEntry: addMoodEntry,
+    // 睡眠写入委托：接受 {bedtime, waketime, quality, hour(深夜检测)}
+    updateSleep: function(fields) {
+      var log = getTodayLog();
+      if (!log.sleep) log.sleep = {};
+      if (fields) {
+        if (typeof fields.bedtime === 'string' && fields.bedtime) log.sleep.bedtime = fields.bedtime;
+        if (typeof fields.waketime === 'string' && fields.waketime) log.sleep.waketime = fields.waketime;
+        if (typeof fields.hour === 'number' && !log.sleep.bedtime) {
+          var h = String(fields.hour).padStart(2, '0');
+          log.sleep.bedtime = h + ':00';
+        }
+        if (typeof fields.quality === 'number') log.sleep.quality = fields.quality;
+      }
+      saveTodayLog(log);
+      return log.sleep;
+    },
+    parseBehaviorInput: parseBehaviorInput,
+    render: renderBehaviorHub
   };
 
   // 隐私保障：禁止任何外部数据发送

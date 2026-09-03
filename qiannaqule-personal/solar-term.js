@@ -1177,20 +1177,15 @@
         // 智能过滤：检查是否与用户健康档案冲突
         var isBlocked = false;
         var blockReasons = [];
-        var profile = getHealthProfile();
-        if (profile.conditions && profile.conditions.length > 0 && window.CHRONIC_DISEASES) {
+        var _ctx = getUserHealthCtx();
+        var _avoidMap = buildAvoidMap(_ctx);
+        var _avoidKeys = Object.keys(_avoidMap);
+        if (_avoidKeys.length > 0) {
           var recipeText = recipe.name + ' ' + (recipe.ingredients || recipe.ing || '');
-          profile.conditions.forEach(function(condId) {
-            for (var i = 0; i < window.CHRONIC_DISEASES.length; i++) {
-              var d = window.CHRONIC_DISEASES[i];
-              if (d.id === condId && d.avoid) {
-                d.avoid.forEach(function(food) {
-                  if (recipeText.indexOf(food) >= 0) {
-                    isBlocked = true;
-                    blockReasons.push(food + '（' + d.name + '忌食）');
-                  }
-                });
-              }
+          _avoidKeys.forEach(function(food) {
+            if (recipeText.indexOf(food) >= 0) {
+              isBlocked = true;
+              blockReasons.push(food + '（' + (_avoidMap[food] || ['健康档案']).join('/') + '忌食）');
             }
           });
         }
@@ -1443,9 +1438,6 @@
 
     var currentIdx = getCurrentTermIndex();
 
-    // 读取健康档案
-    var healthProfile = getHealthProfile();
-
     // 主HTML结构
     var html = '<div class="solar-term-page">';
     // Tab导航
@@ -1453,7 +1445,6 @@
     html += '<button class="solar-tab active" data-view="term"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>节气养生</button>';
     html += '<button class="solar-tab" data-view="disease"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>慢病调养</button>';
     html += '<button class="solar-tab" data-view="collection"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>我的收藏</button>';
-    html += '<button class="solar-tab" data-view="health"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>健康档案</button>';
     html += '</div>';
     // 内容区
     html += '<div id="solarViewContent"></div>';
@@ -1493,226 +1484,143 @@
       } else if (view === 'collection') {
         contentEl.innerHTML = '<div id="collectionContainer"></div>';
         renderCollection(document.getElementById('collectionContainer'), currentIdx);
-      } else if (view === 'health') {
-        contentEl.innerHTML = '<div id="healthContainer"></div>';
-        renderHealthProfile(document.getElementById('healthContainer'));
-      }
-    }
+      }     }
 
-    // 首次进入检查健康筛查
-    if (!healthProfile.screened) {
-      setTimeout(function() {
-        contentEl.innerHTML = '<div id="screeningContainer"></div>';
-        renderScreening(document.getElementById('screeningContainer'), function() {
-          switchSolarView('term');
-          container.querySelector('.solar-tab[data-view="term"]').click();
-        });
-      }, 500);
-    } else {
-      // 已完成筛查，直接显示节气视图
-      switchSolarView('term');
-    }
-
+    // 直接显示节气视图（健康数据统一走「我的」user 层）
+    switchSolarView('term');
     // 暴露全局接口供"今天吃什么"使用
     window.solarGetCurrentTerm = function() { return currentIdx; };
     window.solarGetCurrentTermData = function() { return SOLAR_TERMS[currentIdx]; };
-    window.solarGetHealthProfile = function() { return getHealthProfile(); };
     window.solarSwitchView = function(view) {
       var tab = container.querySelector('.solar-tab[data-view="' + view + '"]');
       if (tab) tab.click();
     };
   };
 
-  // ==================== 健康档案 localStorage ====================
-  function getHealthProfile() {
+  // ==================== 健康档案统一数据源（读「我的」user 层） ====================
+  // 体质辨证库（食/动禁忌用于菜谱与运动过滤；寒湿为主，其余为可选）
+  var CONSTITUTIONS = [
+    { id: 'hanShi', name: '寒湿', avoidFood: ['生冷','寒凉','冷饮','冰镇','冰饮'], avoidTip: '忌生冷寒凉与冰镇冷饮，宜温中散寒祛湿，可食生姜、花椒、羊肉、茯苓、薏苡仁', exerciseAvoid: '忌冷水刺激与大汗后受风，宜温和有氧逐渐升温，避免清晨/雨后湿冷时段运动，运动前后注意保暖' },
+    { id: 'pingHe', name: '平和', avoidFood: [], avoidTip: '体质平和，均衡饮食即可，无需特别禁忌', exerciseAvoid: '保持每周规律的中等强度运动即可' },
+    { id: 'shiRe', name: '湿热', avoidFood: ['辛辣','烧烤','油炸','肥甘厚味','火锅','烟酒','白酒'], avoidTip: '忌辛辣刺激、油炸烧烤与肥甘厚味，宜清淡清热利湿，可食冬瓜、薏苡仁、赤小豆、绿豆', exerciseAvoid: '忌在闷热潮湿环境剧烈运动，忌久坐生湿，运动后及时补水擦干汗液' },
+    { id: 'qiXu', name: '气虚', avoidFood: ['生冷','萝卜','山楂','槟榔','冰饮'], avoidTip: '忌生冷及行气耗气之品，宜温补益气，可食黄芪、山药、大枣、鸡肉', exerciseAvoid: '忌剧烈耗气大汗运动，宜散步、太极拳、八段锦等温和运动' },
+    { id: 'xueYu', name: '血瘀', avoidFood: ['生冷','寒凉','冰饮','肥甘厚腻'], avoidTip: '忌寒凉生冷致血凝，宜活血化瘀，可食山楂、黑木耳、洋葱、玫瑰花', exerciseAvoid: '忌久坐不动，宜快走、散步等适度活血运动，促进气血流通' },
+    { id: 'yangXu', name: '阳虚', avoidFood: ['生冷','寒凉','冷饮','冰镇','西瓜','苦瓜','绿豆'], avoidTip: '忌生冷寒凉伤阳气，宜温阳散寒，可食羊肉、韭菜、生姜、桂圆', exerciseAvoid: '忌剧烈大汗与冷水刺激，宜晴日阳光下温和运动以助阳气' },
+    { id: 'yinXu', name: '阴虚', avoidFood: ['辛辣','燥热','油炸','烧烤','羊肉','狗肉','桂圆','荔枝'], avoidTip: '忌辛温燥热伤津，宜滋阴润燥，可食百合、银耳、鸭肉、枸杞', exerciseAvoid: '忌过量剧烈运动致大汗伤阴，宜温和有氧并早睡养阴' },
+    { id: 'qiYu', name: '气郁', avoidFood: ['辛辣','油炸','难消化','浓茶','咖啡'], avoidTip: '忌辛辣燥热及难消化食物，宜疏肝理气，可食萝卜、佛手、山楂、玫瑰花', exerciseAvoid: '忌久坐不动情志压抑，宜拉伸、散步、瑜伽等舒畅情志的运动' }
+  ];
+
+  // 读取「我的」user 层健康档案（疾病/体质统一数据源，废弃 mijieai_health_profile 双源）
+  function getUserHealthCtx() {
+    var ctx = { conditions: [], constitution: [], diseaseText: '', constitutionText: '' };
     try {
-      var data = localStorage.getItem('mijieai_health_profile');
-      return data ? JSON.parse(data) : { screened: false, conditions: [], symptoms: [], updatedAt: null };
-    } catch(e) { return { screened: false, conditions: [], symptoms: [], updatedAt: null }; }
+      if (window.MemoryManager && window.MemoryManager.getSync) {
+        var d = window.MemoryManager.getSync('user', 'disease', '未设置');
+        var c = window.MemoryManager.getSync('user', 'constitution', '未设置');
+        ctx.diseaseText = (d && d !== '未设置') ? String(d) : '';
+        ctx.constitutionText = (c && c !== '未设置') ? String(c) : '';
+        if (ctx.diseaseText) ctx.conditions = matchDiseases(ctx.diseaseText);
+        if (ctx.constitutionText) ctx.constitution = parseConstitution(ctx.constitutionText);
+      }
+    } catch(e) {}
+    return ctx;
   }
 
-  function saveHealthProfile(profile) {
-    profile.updatedAt = new Date().toISOString();
-    try { localStorage.setItem('mijieai_health_profile', JSON.stringify(profile)); } catch(e) {}
-  }
-
-  // ==================== 健康筛查问卷 ====================
-  function renderScreening(containerEl, onComplete) {
-    var conditions = [
-      { id: 'hypertension', name: '高血压', icon: 'M19.5 12.572l-7.5 7.428-7.5-7.428A5 5 0 1 1 12 6.006a5 5 0 1 1 7.5 6.572', color: '#E53E3E' },
-      { id: 'diabetes', name: '糖尿病', icon: 'M10.5 20H4a2 2 0 0 1-2-2V5c0-1.1.9-2 2-2h3.93a2 2 0 0 1 1.66.9l.82 1.2a2 2 0 0 0 1.66.9H20a2 2 0 0 1 2 2v2', color: '#D97706' },
-      { id: 'hyperlipidemia', name: '高血脂', icon: 'M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z', color: '#9333EA' },
-      { id: 'chd', name: '冠心病/心血管', icon: 'M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z', color: '#DC2626' },
-      { id: 'gastritis', name: '慢性胃炎', icon: 'M12 20V10M18 20V4M6 20v-4', color: '#EA580C' },
-      { id: 'insomnia', name: '失眠/睡眠障碍', icon: 'M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z', color: '#4F46E5' }
-    ];
-    var symptoms = [
-      { id: 'dizzy', name: '经常头晕头痛', tags: ['hypertension'] },
-      { id: 'thirsty', name: '口干多饮多尿', tags: ['diabetes'] },
-      { id: 'obese', name: '体型偏胖痰多', tags: ['hyperlipidemia'] },
-      { id: 'chest', name: '胸闷心悸气短', tags: ['chd'] },
-      { id: 'stomach', name: '胃胀胃痛反酸', tags: ['gastritis'] },
-      { id: 'sleep', name: '入睡困难易醒', tags: ['insomnia'] }
-    ];
-
-    var selected = [];
-    var symSelected = [];
-
-    var html = '<div class="screening-wrap">';
-    html += '<div class="screening-header">';
-    html += '<div class="screening-icon"><svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#22c55e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>';
-    html += '<div class="screening-title">健康筛查</div>';
-    html += '<div class="screening-desc">选择您已知或疑似的健康状况，系统将在推荐菜谱时自动规避禁忌食材</div>';
-    html += '</div>';
-    html += '<div class="screening-section">已确诊疾病（可多选）</div>';
-    html += '<div class="screening-grid">';
-    conditions.forEach(function(c) {
-      html += '<div class="screening-card" data-id="' + c.id + '">';
-      html += '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="' + c.color + '" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="' + c.icon + '"/></svg>';
-      html += '<span>' + c.name + '</span>';
-      html += '</div>';
-    });
-    html += '</div>';
-    html += '<div class="screening-section">常见症状自筛（辅助参考）</div>';
-    html += '<div class="screening-grid screening-symptoms">';
-    symptoms.forEach(function(s) {
-      html += '<div class="screening-card screening-sym" data-id="' + s.id + '" data-tags="' + s.tags.join(',') + '">';
-      html += '<span>' + s.name + '</span>';
-      html += '</div>';
-    });
-    html += '</div>';
-    html += '<div class="screening-actions">';
-    html += '<button class="screening-skip" id="screenSkip">跳过</button>';
-    html += '<button class="screening-done" id="screenDone">保存并开始</button>';
-    html += '</div>';
-    html += '</div>';
-    containerEl.innerHTML = html;
-
-    // 疾病卡片点击
-    containerEl.querySelectorAll('.screening-card:not(.screening-sym)').forEach(function(card) {
-      card.addEventListener('click', function() {
-        var id = this.getAttribute('data-id');
-        var idx = selected.indexOf(id);
-        if (idx >= 0) { selected.splice(idx, 1); this.classList.remove('selected'); }
-        else { selected.push(id); this.classList.add('selected'); }
-      });
-    });
-
-    // 症状卡片点击
-    containerEl.querySelectorAll('.screening-sym').forEach(function(card) {
-      card.addEventListener('click', function() {
-        var id = this.getAttribute('data-id');
-        var idx = symSelected.indexOf(id);
-        if (idx >= 0) { symSelected.splice(idx, 1); this.classList.remove('selected'); }
-        else { symSelected.push(id); this.classList.add('selected'); }
-      });
-    });
-
-    // 保存
-    document.getElementById('screenDone').addEventListener('click', function() {
-      // 合并症状对应的疾病标签
-      var allConditions = selected.slice();
-      symSelected.forEach(function(sid) {
-        var card = containerEl.querySelector('.screening-sym[data-id="' + sid + '"]');
-        if (card) {
-          card.getAttribute('data-tags').split(',').forEach(function(t) {
-            if (allConditions.indexOf(t) < 0) allConditions.push(t);
-          });
-        }
-      });
-      saveHealthProfile({ screened: true, conditions: allConditions, symptoms: symSelected });
-      onComplete();
-    });
-
-    // 跳过
-    document.getElementById('screenSkip').addEventListener('click', function() {
-      saveHealthProfile({ screened: true, conditions: [], symptoms: [] });
-      onComplete();
-    });
-  }
-
-  // ==================== 健康档案视图 ====================
-  function renderHealthProfile(containerEl) {
-    var profile = getHealthProfile();
-    var conditions = [
-      { id: 'hypertension', name: '高血压', color: '#E53E3E' },
-      { id: 'diabetes', name: '糖尿病', color: '#D97706' },
-      { id: 'hyperlipidemia', name: '高血脂', color: '#9333EA' },
-      { id: 'chd', name: '冠心病/心血管', color: '#DC2626' },
-      { id: 'gastritis', name: '慢性胃炎', color: '#EA580C' },
-      { id: 'insomnia', name: '失眠/睡眠障碍', color: '#4F46E5' }
-    ];
-    var html = '<div class="health-profile-wrap">';
-    html += '<div class="health-profile-title">健康档案</div>';
-    html += '<div class="health-profile-desc">管理您的健康状况，菜谱将根据此档案智能过滤禁忌食材</div>';
-    html += '<div class="health-conditions-grid">';
-    conditions.forEach(function(c) {
-      var isActive = profile.conditions.indexOf(c.id) >= 0;
-      html += '<div class="health-cond-card' + (isActive ? ' active' : '') + '" data-id="' + c.id + '" style="' + (isActive ? 'border-color:' + c.color + ';background:' + c.color + '10' : '') + '">';
-      html += '<div class="health-cond-dot" style="background:' + c.color + '"></div>';
-      html += '<span>' + c.name + '</span>';
-      if (isActive) html += '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="' + c.color + '" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
-      html += '</div>';
-    });
-    html += '</div>';
-    if (profile.updatedAt) {
-      html += '<div class="health-updated">上次更新：' + new Date(profile.updatedAt).toLocaleDateString('zh-CN') + '</div>';
+  // 从疾病文本匹配 CHRONIC_DISEASES id（中文名 + 别名）
+  function matchDiseases(text) {
+    var ids = [];
+    if (!window.CHRONIC_DISEASES || !text) return ids;
+    var t = String(text);
+    for (var i = 0; i < window.CHRONIC_DISEASES.length; i++) {
+      var dis = window.CHRONIC_DISEASES[i];
+      if (!dis || !dis.id) continue;
+      if (dis.name && t.indexOf(dis.name) >= 0) { ids.push(dis.id); continue; }
+      var al = aliasesForDisease(dis.id);
+      for (var j = 0; j < al.length; j++) {
+        if (t.indexOf(al[j]) >= 0) { ids.push(dis.id); break; }
+      }
     }
-    html += '<button class="health-save-btn" id="healthSaveBtn">保存修改</button>';
-    html += '</div>';
-    containerEl.innerHTML = html;
-
-    // 切换
-    var currentConditions = profile.conditions.slice();
-    containerEl.querySelectorAll('.health-cond-card').forEach(function(card) {
-      card.addEventListener('click', function() {
-        var id = this.getAttribute('data-id');
-        var idx = currentConditions.indexOf(id);
-        if (idx >= 0) { currentConditions.splice(idx, 1); }
-        else { currentConditions.push(id); }
-        this.classList.toggle('active');
-      });
-    });
-
-    document.getElementById('healthSaveBtn').addEventListener('click', function() {
-      saveHealthProfile({ screened: true, conditions: currentConditions, symptoms: profile.symptoms });
-      this.textContent = '已保存';
-      this.style.background = '#22c55e';
-      setTimeout(function() { renderHealthProfile(containerEl); }, 800);
-    });
+    return ids;
   }
 
+  function aliasesForDisease(id) {
+    switch (id) {
+      case 'hypertension': return ['高血压病','血压高','血压偏高'];
+      case 'diabetes': return ['血糖高','血糖偏高','消渴','2型糖尿病','糖尿病足'];
+      case 'hyperlipidemia': return ['高脂血','高脂血症','血脂高','血脂偏高','高胆固醇'];
+      case 'chd': return ['心血管','冠状','冠脉','心绞痛','心肌缺血','动脉硬化'];
+      case 'gastritis': return ['胃病','胃溃疡','萎缩性胃炎'];
+      case 'insomnia': return ['睡眠障碍','入睡困难','神经衰弱','睡不好'];
+      default: return [];
+    }
+  }
+
+  // 从体质文本匹配已选体质名
+  function parseConstitution(text) {
+    var result = [];
+    var t = String(text);
+    for (var i = 0; i < CONSTITUTIONS.length; i++) {
+      if (t.indexOf(CONSTITUTIONS[i].name) >= 0) result.push(CONSTITUTIONS[i].name);
+    }
+    return result;
+  }
+
+  // 由体质名取体质对象
+  function getConstitutionObjs(names) {
+    var objs = [];
+    for (var i = 0; i < names.length; i++) {
+      for (var j = 0; j < CONSTITUTIONS.length; j++) {
+        if (CONSTITUTIONS[j].name === names[i]) { objs.push(CONSTITUTIONS[j]); break; }
+      }
+    }
+    return objs;
+  }
+
+  // 构建饮食禁忌 map（基础疾病 + 体质 双重过滤）→ { 食材: [来源...] }
+  function buildAvoidMap(ctx) {
+    var avoidMap = {};
+    ctx = ctx || getUserHealthCtx();
+    function add(list, source) {
+      (list || []).forEach(function(food) {
+        food = String(food);
+        if (!avoidMap[food]) avoidMap[food] = [];
+        if (avoidMap[food].indexOf(source) < 0) avoidMap[food].push(source);
+      });
+    }
+    if (ctx.conditions.length > 0 && window.CHRONIC_DISEASES) {
+      ctx.conditions.forEach(function(condId) {
+        var dis = null;
+        for (var i = 0; i < window.CHRONIC_DISEASES.length; i++) {
+          if (window.CHRONIC_DISEASES[i].id === condId) { dis = window.CHRONIC_DISEASES[i]; break; }
+        }
+        if (dis && dis.avoid) add(dis.avoid, dis.name);
+      });
+    }
+    getConstitutionObjs(ctx.constitution).forEach(function(c) {
+      if (c.avoidFood) add(c.avoidFood, c.name + '体质');
+    });
+    return avoidMap;
+  }
+  
   // ==================== 智能过滤：根据健康档案过滤菜谱 ====================
   function filterRecipesByHealth(recipes) {
-    var profile = getHealthProfile();
-    if (!profile.conditions || profile.conditions.length === 0) return { safe: recipes, blocked: [] };
-    // 获取所有相关疾病的禁忌食材
-    var avoidMap = {};
-    if (window.CHRONIC_DISEASES) {
-      profile.conditions.forEach(function(condId) {
-        var disease = null;
-        for (var i = 0; i < window.CHRONIC_DISEASES.length; i++) {
-          if (window.CHRONIC_DISEASES[i].id === condId) { disease = window.CHRONIC_DISEASES[i]; break; }
-        }
-        if (disease && disease.avoid) {
-          disease.avoid.forEach(function(food) { avoidMap[food] = condId; });
-        }
-      });
-    }
+    var ctx = getUserHealthCtx();
+    var avoidMap = buildAvoidMap(ctx);
+    var keys = Object.keys(avoidMap);
+    if (keys.length === 0) return { safe: recipes, blocked: [] };
     var safe = [], blocked = [];
     recipes.forEach(function(r) {
       var hasConflict = false;
       var conflictFoods = [];
-      // 检查食谱食材名是否包含禁忌食材关键词
       var recipeText = r.name + ' ' + (r.ingredients || r.ing || '');
-      Object.keys(avoidMap).forEach(function(avoidFood) {
+      keys.forEach(function(avoidFood) {
         if (recipeText.indexOf(avoidFood) >= 0 || avoidFood.indexOf(getRecipeKeyword(r)) >= 0) {
           hasConflict = true;
           conflictFoods.push(avoidFood);
         }
       });
       if (hasConflict) {
-        blocked.push({ recipe: r, conflicts: conflictFoods });
+        blocked.push({ recipe: r, conflicts: conflictFoods, reason: avoidMap[conflictFoods[0]] || [] });
       } else {
         safe.push(r);
       }
@@ -1991,7 +1899,6 @@
     var idx = getCurrentTermIndex();
     var term = SOLAR_TERMS[idx];
     var termName = term.name;
-    var profile = getHealthProfile();
 
     // 构建推荐信息
     var result = {
