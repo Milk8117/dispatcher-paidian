@@ -3792,6 +3792,14 @@ body {
   color: #ec4899;
   flex-shrink: 0;
 }
+.mood-record-side { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.mood-record-del {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px; border: none; border-radius: 8px; cursor: pointer;
+  background: #fef2f2; color: #ef4444; flex-shrink: 0;
+}
+.mood-record-del:hover { background: #fee2e2; }
+.mood-record-del svg { display: block; }
 
 /* 快速记录按钮（各专项页） */
 .quick-record-btn {
@@ -9199,13 +9207,39 @@ body {
             html += '</div>';
             html += '<div class="mood-record-time">' + dateStr + ' ' + timeStr + '</div>';
             html += '</div>';
-            html += '<div class="mood-record-score">' + mo.score + '/5</div>';
+            html += '<div class="mood-record-side">';
+            html += '<span class="mood-record-score">' + mo.score + '/5</span>';
+            html += '<button class="mood-record-del" onclick="window.MoodOps && window.MoodOps.del(\'' + mo.id + '\')" title="删除">' +
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13">' +
+              '<path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>';
+            html += '</div>';
             html += '</div>';
           }
           listEl.innerHTML = html;
         }
       }
     },
+
+    // 情绪删除入口（与饮食/运动同一套 confirm + 刷新惯例）
+    MoodOps: (function() {
+      function _refresh() {
+        if (window.HealthSpecial && typeof window.HealthSpecial.renderMood === 'function') { try { window.HealthSpecial.renderMood(); } catch(e) {} }
+        if (window.healthDataChanged) { try { window.healthDataChanged(); } catch(e) {} }
+      }
+      function del(id) {
+        if (!id || !window.BehaviorLog || !window.BehaviorLog.removeMoodEntry) return;
+        var label = '该情绪记录';
+        if (window.BehaviorLog.getRecentMoods) {
+          var ms = window.BehaviorLog.getRecentMoods(7) || [];
+          var found = null;
+          for (var i = 0; i < ms.length; i++) { if (ms[i].id === id) { found = ms[i]; break; } }
+          if (found) { var _sm = window.HealthSpecial ? (window.HealthSpecial.moodMap[found.score] || {}) : {}; label = (_sm.label || '该情绪') + ' (' + found.score + '/5)'; }
+        }
+        if (!confirm('确定删除这条情绪记录？\n' + label)) return;
+        if (window.BehaviorLog.removeMoodEntry(id)) { _refresh(); }
+      }
+      return { del: del };
+    })(),
 
     // 饮食Tab刷新（同时更新热量、餐次、三餐列表）
     refreshDietTab: function() {

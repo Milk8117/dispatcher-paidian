@@ -111,6 +111,18 @@
   // ---------- 情绪日志 ----------
   function addMoodEntry(entry) {
     var logs = _load(KEYS.mood, []);
+    // b27 防双记：同一次用户表达可能触发多条落库链路（语义正则 _parseMood / 词频 auto_detect / 大模型 ai_perception）
+    // 极短时间内（3秒内）已写过高意向情绪即视为同一句的重复触发，跳过，避免"一句话情绪记两次"
+    var now = Date.now();
+    var last = logs.length ? logs[logs.length - 1] : null;
+    if (last && last.timestamp) {
+      var lastTs = new Date(last.timestamp).getTime();
+      var lastScore = last.score;
+      var curScore = entry && entry.score;
+      if (now - lastTs < 3000 && lastScore === curScore && curScore >= 1 && curScore <= 5) {
+        return last; // 同一句重复触发，跳过不重复落库
+      }
+    }
     entry.id = Date.now().toString(36) + Math.random().toString(36).substr(2, 4);
     entry.timestamp = new Date().toISOString();
     logs.push(entry);
@@ -413,17 +425,31 @@
 
   function _parseMood(text) {
     // "心情不好" "今天很开心" "感觉焦虑" "情绪低落" "好烦"
-    if (!/(?:心情|情绪|感觉|感到|好[开心高兴难过烦累]|开心|高兴|难过|伤心|焦虑|压力|烦躁|郁闷|疲惫|兴奋|沮丧|低落|不错|挺好的|崩溃|绝望|平静|感恩)/.test(text)) return null;
+    if (!/(?:心情|情绪|感觉|感到|担[心忧]|发愁|烦|好[开心高兴难过烦累]|开心|高兴|满意|难过|伤心|焦虑|压力|烦躁|郁闷|疲惫|兴奋|沮丧|低落|不错|挺好的|崩溃|绝望|平静|感恩|还好|一般般|不是很好|不太好|担忧|失望|委屈)/.test(text)) return null;
 
     var score = 3;
     var label = '一般';
     var trigger = '';
 
-    if (/很开心|高兴|兴奋|太好了|棒|感恩|不错|很好|开心/.test(text)) { score = 5; label = '很好'; }
-    else if (/开心|还行|还好|不错|挺好|平静/.test(text)) { score = 4; label = '不错'; }
-    else if (/一般|还好|普通|凑合|正常/.test(text)) { score = 3; label = '一般'; }
-    else if (/不开心|难过|低落|郁闷|沮丧|烦|焦虑|压力|累|疲惫|烦燥/.test(text)) { score = 2; label = '低落'; }
-    else if (/很难过|崩溃|绝望|伤心|痛苦|抑郁|受不了/.test(text)) { score = 1; label = '很差'; }
+    // b27 强判断：死词不再单判，改成 负向加权 + 否定识别 + 综合评分，避免"情况还不是很好+心情一般般+担心"被"很好"两个字误导成5分
+    var strongPos = /(?:非常开心|特别开心|高兴极了|太开心|好开心|很开心|兴奋|太棒了|太好了|棒|超开心|美滋滋|非常满意|特别满意|相当满意)/;
+    var mildPos   = /(?:不错|挺好|还好|还行|开心|高兴|满意|平静|满足|舒服|正常|放松)/;
+    var negMood   = /(?:担心|担忧|焦虑|压力|烦躁|郁闷|沮丧|低落|难过|伤心|委屈|失望|疲惫|累|烦|哭|崩溃|绝望|痛苦|难受|不开心|不高兴|心情不好|很担心)/;
+    var negPad    = /(?:不是很好|不太好|不怎么样|有点糟|很差|糟糕|没心情|不想|说不清)/;
+    var neutral   = /(?:一般般|一般|还好|还行|普通|凑合|正常|就那样)/;
+
+    var p1 = strongPos.test(text);
+    var p2 = mildPos.test(text);
+    var n1 = negMood.test(text);
+    var n2 = negPad.test(text);
+    var nu = neutral.test(text);
+
+    if (/(?:崩溃|绝望|痛苦|受不了|难受死|气死|伤心死了)/.test(text)) { score = 1; label = '很差'; } // 绝望级
+    else if (n1 && /(?:很|太|非常|特别|担心|焦虑|崩溃|绝望)/.test(text)) { score = 2; label = '低落'; } // 有强负向
+    else if (n1 || n2) { score = 2; label = '低落'; } // 有负向（优于单独的正向词，含"担心"等）
+    else if (nu && !(p1 || p2)) { score = 3; label = '一般'; } // 中性偏负：一般般/还好 → 一般
+    else if (p1 && !(n1 || n2)) { score = 5; label = '很好'; } // 强正向
+    else if (p2 && !(n1 || n2)) { score = 4; label = '不错'; } // 弱正向
 
     // 提取触发事件
     trigger = text.replace(/(今天|今天|现在|刚才|今天一天)/, '')
@@ -1138,6 +1164,18 @@
     getRecentLogs: getRecentLogs,
     getRecentMoods: getRecentMoods,
     addMoodEntry: addMoodEntry,
+    // 情绪删除（确认后按 id 定位，避免同句双链路/重复记录累积）
+    removeMoodEntry: function(id) {
+      if (!id) return;
+      var logs = _load(KEYS.mood, []);
+      var idx = -1;
+      for (var i = 0; i < logs.length; i++) { if (logs[i].id === id) { idx = i; break; } }
+      if (idx === -1) return;
+      logs.splice(idx, 1);
+      _save(KEYS.mood, logs);
+      if (window.healthDataChanged) { try { window.healthDataChanged(); } catch(e) {} }
+      return true;
+    },
     // 睡眠写入委托：接受 {bedtime, waketime, quality, hour(深夜检测)}
     updateSleep: function(fields) {
       var log = getTodayLog();
