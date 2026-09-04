@@ -15162,7 +15162,7 @@ function toggleGuideSection(index) {
     set('insuranceCount', String(ins.length));
     set('loanCount', String(loans.length));
     var cov = 0, prem = 0;
-    (ins || []).forEach(function(i){ cov += parseFloat(i.amount)||0; prem += parseFloat(i.premium)||0; });
+    (ins || []).forEach(function(i){ cov += parseFloat(i.amount)||0; if(!_insPaidUp(i)) prem += parseFloat(i.premium)||0; });
     set('insuranceTotalCoverage', fmtMoneySafe(cov));
     set('insuranceAnnualPremium', fmtMoneySafe(prem));
     renderWealthInsuranceList(ins);
@@ -15183,7 +15183,7 @@ function toggleGuideSection(index) {
           '<div class="wlc-item-left"><div class="wlc-item-icon" style="background:#eff6ff;color:#2563eb">' +
             '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>' +
             '<div style="min-width:0"><div class="wlc-item-name">' + insTypeName(i.type) + '</div><div class="wlc-item-desc">保额 ¥' + (Math.round(parseFloat(i.amount)||0)).toLocaleString('zh-CN') + '</div></div></div>' +
-          '<div class="wlc-item-right"><div><div class="wlc-item-value">¥' + (Math.round(parseFloat(i.premium)||0)).toLocaleString('zh-CN') + '</div><div class="wlc-item-change">年缴</div></div>' +
+          '<div class="wlc-item-right"><div><div class="wlc-item-value">' + (_insPaidUp(i) ? '已缴完' : '¥' + (Math.round(parseFloat(i.premium)||0)).toLocaleString('zh-CN')) + '</div><div class="wlc-item-change">' + (_insPaidUp(i) ? '缴费完成' : '年缴') + '</div></div>' +
             '<div style="display:flex;flex-direction:column;gap:4px;margin-left:6px">' +
               '<button style="padding:2px 8px;font-size:11px;border:1px solid #e2e8f0;border-radius:6px;background:#fff;color:#475569;cursor:pointer" onclick="editWealthEntry(\'insurance\',' + idx + ')">修改</button>' +
               '<button style="padding:2px 8px;font-size:11px;border:1px solid #fecaca;border-radius:6px;background:#fff;color:#ef4444;cursor:pointer" onclick="deleteWealthEntry(\'insurance\',' + idx + ')">删除</button>' +
@@ -15225,6 +15225,50 @@ function toggleGuideSection(index) {
     return m[t] || '保险';
   }
 
+  // 保单是否已缴清（v52.8.10-b11）：term(应缴年限)>0 且 paid(已缴年限)>=term，则后续不再每年缴费
+  function _insPaidUp(i) { return !!(i && Number(i.term) > 0 && Number(i.paid) >= Number(i.term)); }
+
+  // 保单下次缴费日：中文年月日三下拉（v52.8.10-b11）
+  function _wePaydateYmdParts() {
+    var now = new Date();
+    var y = now.getFullYear();
+    var yOpts = '', mOpts = '', dOpts = '';
+    for (var yy = y - 5; yy <= y + 30; yy++) yOpts += '\u003coption value="' + yy + '"\u003e' + yy + '年\u003c/option\u003e';
+    for (var mm = 1; mm <= 12; mm++) mOpts += '\u003coption value="' + mm + '"\u003e' + mm + '月\u003c/option\u003e';
+    for (var dd = 1; dd <= 31; dd++) dOpts += '\u003coption value="' + dd + '"\u003e' + dd + '日\u003c/option\u003e';
+    return {
+      y: yOpts, m: mOpts, d: dOpts
+    };
+  }
+  function _wePaydateHtml() {
+    var p = _wePaydateYmdParts();
+    var st = 'font-size:15px;width:33.33%;padding:9px;border:1px solid #e2e8f0;border-radius:10px;min-width:0';
+    return '\u003cdiv style="display:flex;gap:6px;width:100%"\u003e' +
+      '\u003cselect id="we-paydate-y" class="sh-form-input" style="' + st + '"\u003e' + p.y + '\u003c/select\u003e' +
+      '\u003cselect id="we-paydate-m" class="sh-form-input" style="' + st + '"\u003e' + p.m + '\u003c/select\u003e' +
+      '\u003cselect id="we-paydate-d" class="sh-form-input" style="' + st + '"\u003e' + p.d + '\u003c/select\u003e' +
+      '\u003c/div\u003e';
+  }
+  function _wePaydateSet(str) {
+    var m = /(\d{4})[年\-](\d{1,2})[月\-](\d{1,2})日?/.exec(String(str || ''));
+    if (!m) return;
+    var y = document.getElementById('we-paydate-y');
+    var mo = document.getElementById('we-paydate-m');
+    var d = document.getElementById('we-paydate-d');
+    if (y && (y.value = String(m[1]))) {}
+    if (mo && (mo.value = String(parseInt(m[2], 10)))) {}
+    if (d && (d.value = String(parseInt(m[3], 10)))) {}
+  }
+  function _wePaydateGet() {
+    var y = document.getElementById('we-paydate-y');
+    var mo = document.getElementById('we-paydate-m');
+    var d = document.getElementById('we-paydate-d');
+    if (!y || !mo || !d) return '';
+    var yv = y.value, mv = mo.value, dv = d.value;
+    if (!yv || !mv || !dv) return '';
+    return yv + '年' + parseInt(mv, 10) + '月' + parseInt(dv, 10) + '日';
+  }
+
   // 对话/保障新增入口（复用 WealthCT 数据模型，DOM 铁律：容器 innerHTML + appendChild(firstChild)）
   var _wealthEntryModal = null;
   var _weEditIndex = -1;
@@ -15258,7 +15302,7 @@ function toggleGuideSection(index) {
             '</div>' +
             '<div style="display:flex;gap:8px">' +
               '<div style="flex:1"><div style="font-size:13px;color:#64748b;margin-bottom:4px">已缴年限（年）</div><input type="number" id="we-paid" placeholder="5" min="0" step="1" style="font-size:16px;width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:10px"></div>' +
-              '<div style="flex:1"><div style="font-size:13px;color:#64748b;margin-bottom:4px">下次缴费日</div><input type="date" id="we-paydate" style="font-size:16px;width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:10px"></div>' +
+              '<div style="flex:1"><div style="font-size:13px;color:#64748b;margin-bottom:4px">下次缴费日</div>' + _wePaydateHtml() + '</div>' +
             '</div>'
           : '<div style="display:flex;gap:8px;margin-bottom:8px">' +
               '<div style="flex:1"><div style="font-size:13px;color:#64748b;margin-bottom:4px">贷款名称</div><input type="text" id="we-loan-name" placeholder="如：房贷" style="font-size:16px;width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:10px"></div>' +
@@ -15307,9 +15351,8 @@ function toggleGuideSection(index) {
     if (!it) return;
     if (kind === 'insurance') {
       var insTypeEl = document.getElementById('we-ins-type'); if (insTypeEl) insTypeEl.value = it.type || 'life';
-      var paydate = document.getElementById('we-paydate');
       setWeVal('we-amount', it.amount); setWeVal('we-premium', it.premium); setWeVal('we-term', it.term);
-      setWeVal('we-paid', it.paid); if (paydate) paydate.value = it.payDate || '';
+      setWeVal('we-paid', it.paid); _wePaydateSet(it.payDate);
     } else {
       setWeVal('we-loan-name', it.name);
       setWeVal('we-amount', it.amt); setWeVal('we-premium', it.rate); setWeVal('we-term', it.term);
@@ -15340,7 +15383,7 @@ function toggleGuideSection(index) {
     if (kind === 'insurance') {
       var type = getWeEl('we-ins-type') || 'life';
       var paid = parseFloat(getWeEl('we-paid')) || 0;
-      var payDate = getWeEl('we-paydate') || '';
+      var payDate = _wePaydateGet();
       var ins = window.WealthCT.loadInsurance() || [];
       var obj = { type: type, amount: amount, premium: premium, term: term, paid: paid, payDate: payDate };
       if (_weEditIndex >= 0 && _weEditIndex < ins.length) { ins[_weEditIndex] = obj; } else { ins.push(obj); }
@@ -15466,7 +15509,7 @@ function toggleGuideSection(index) {
     var cash = 0, hv = 0, liab = 0, cov = 0, prem = 0, inc = 0, exp = 0;
     try { if (window.StockHoldings && typeof StockHoldings.calcSummary === 'function') { var c = StockHoldings.calcSummary(); cash = c.cash || 0; hv = c.totalValue || 0; } } catch(e) {}
     try { if (window.WealthCT && typeof WealthCT.loadLoans === 'function') { (WealthCT.loadLoans() || []).forEach(function(L){ liab += parseFloat(L.amt) || 0; }); } } catch(e) {}
-    try { if (window.WealthCT && typeof WealthCT.loadInsurance === 'function') { (WealthCT.loadInsurance() || []).forEach(function(i){ cov += parseFloat(i.amount)||0; prem += parseFloat(i.premium)||0; }); } } catch(e) {}
+    try { if (window.WealthCT && typeof WealthCT.loadInsurance === 'function') { (WealthCT.loadInsurance() || []).forEach(function(i){ cov += parseFloat(i.amount)||0; if(!_insPaidUp(i)) prem += parseFloat(i.premium)||0; }); } } catch(e) {}
     try { if (window.getDailyTxSummary) { var sm = window.getDailyTxSummary(); if (sm) { inc = sm.totalIncome || 0; exp = sm.totalExpense || 0; } } } catch(e) {}
     var totalAssets = cash + hv, netAssets = totalAssets - liab;
     function money(v){ v = Math.round(v || 0); return v.toLocaleString('zh-CN'); }
@@ -15604,7 +15647,7 @@ function toggleGuideSection(index) {
       if (window.WealthCT && typeof WealthCT.loadInsurance === 'function') {
         var ins = WealthCT.loadInsurance() || [];
         insCount = ins.length;
-        ins.forEach(function(i){ premiumSum += Number(i.premium) || 0; });
+        ins.forEach(function(i){ if(!_insPaidUp(i)) premiumSum += Number(i.premium) || 0; });
       }
     } catch(e) {}
     var savingRate = null;
