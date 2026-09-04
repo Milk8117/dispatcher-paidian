@@ -9070,7 +9070,8 @@ body {
         if (s.bedtime) html += '入睡 ' + s.bedtime;
         if (s.bedtime && s.waketime) html += ' · ';
         if (s.waketime) html += '起床 ' + s.waketime;
-        if (!s.bedtime && !s.waketime) html += '已记录';
+        if (s.duration) html += ((s.bedtime || s.waketime) ? ' · ' : '') + '睡了 ' + s.duration + ' 小时';
+        if (!s.bedtime && !s.waketime && !s.duration) html += '已记录';
         html += '</div>';
         html += '<div class="sleep-quality-bar"><div class="sleep-quality-fill" style="width:' + qualityPct + '%"></div></div>';
         html += '</div>';
@@ -9224,13 +9225,12 @@ body {
       this.renderSleep();
       this.renderMood();
       this.refreshDietTab();
-      // 同时刷新 behaviorHub
-      if (typeof window.BehaviorLog !== 'undefined' && typeof window.BehaviorLog.render === 'function') {
-        // behaviorHub 自己有 renderBehaviorHub 函数
-        if (typeof renderBehaviorHub === 'function') {
-          renderBehaviorHub('behaviorHubContainer');
+      // 同时刷新 behaviorHub（renderBehaviorHub 是闭包内私有函数，必须经 BehaviorLog.render 调用）
+      try {
+        if (window.BehaviorLog && typeof window.BehaviorLog.render === 'function') {
+          window.BehaviorLog.render('behaviorHubContainer');
         }
-      }
+      } catch(_e) {}
     }
   };
 
@@ -15564,9 +15564,12 @@ function toggleGuideSection(index) {
     // v52.8.3: 健康域附加占位接线（结论/平均睡眠/标签/饮食标签）
     try {
       var _sleeps = [];
-      var _recs = [];
-      if (window.DataStore && DataStore.load) _recs = DataStore.load('behavior_log', 'records', []) || [];
-      _recs.forEach(function(b){ if (b.category === 'sleep' && parseFloat(b.duration)) _sleeps.push(parseFloat(b.duration)); });
+      try {
+        if (window.BehaviorLog && typeof window.BehaviorLog.getRecentLogs === 'function') {
+          var _blLogs = window.BehaviorLog.getRecentLogs(7) || [];
+          _blLogs.forEach(function(b){ if (b.sleep && parseFloat(b.sleep.duration)) _sleeps.push(parseFloat(b.sleep.duration)); });
+        }
+      } catch(_e) {}
       var _sleepAvg = null;
       if (_sleeps.length) { var _sSum = 0; _sleeps.forEach(function(v){ _sSum += v; }); _sleepAvg = _sSum / _sleeps.length; }
       var _sAvgEl = document.getElementById('sleepAvg');
