@@ -353,10 +353,13 @@
     if (window.parseAndRecordBehavior) {
       var bhResult = window.parseAndRecordBehavior(text);
       if (bhResult && bhResult.matched) {
+        // v52.8.11 不再强制跳转健康页签（避免发送后被切走到空页签），留在对话页看回复即可，数据已异步同步各专属页
+        // 重要：matched 必须传出，app.html 通过 result.toolResult.matched
+        // 判断是否跳过兑底写入，否则会与本处重复落库（多余记录来源）
         return {
           reply: bhResult.message || '好的，已记录。',
-          actions: [{ type: 'navigate', module: 'health', subTab: 'behavior' }],
-          data: bhResult
+          data: bhResult,
+          matched: true
         };
       }
     }

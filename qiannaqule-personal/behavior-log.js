@@ -1133,6 +1133,28 @@
       if (window.healthDataChanged) { try { window.healthDataChanged(); } catch(e) {} }
       return log.meals;
     },
+    // 饮食编辑/删除（支持错误/多余记录的修改与删除，并同步各页）
+    updateMeal: function(idx, fields) {
+      var log = getTodayLog();
+      if (!log.meals || idx < 0 || idx >= log.meals.length) return log.meals;
+      var m = log.meals[idx];
+      if (!m) return log.meals;
+      if (fields) {
+        if (typeof fields.type === 'string' && fields.type) m.type = fields.type;
+        if (typeof fields.items === 'string' && fields.items.trim()) m.items = fields.items.trim();
+      }
+      saveTodayLog(log);
+      if (window.healthDataChanged) { try { window.healthDataChanged(); } catch(e) {} }
+      return log.meals;
+    },
+    removeMeal: function(idx) {
+      var log = getTodayLog();
+      if (!log.meals || idx < 0 || idx >= log.meals.length) return log.meals;
+      log.meals.splice(idx, 1);
+      saveTodayLog(log);
+      if (window.healthDataChanged) { try { window.healthDataChanged(); } catch(e) {} }
+      return log.meals;
+    },
     parseBehaviorInput: parseBehaviorInput,
     render: renderBehaviorHub
   };

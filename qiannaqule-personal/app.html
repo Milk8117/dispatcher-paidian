@@ -4575,11 +4575,24 @@ body {
   font-size: 12px;
   color: #334155;
 }
-.diet-food-name { flex: 1; }
+.diet-food-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.diet-food-name { flex: 1; word-break: break-all; }
 .diet-food-time {
   font-size: 11px;
   color: #94a3b8;
-  margin-left: 8px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.diet-food-side {
+  display: flex;
+  align-items: center;
+  gap: 2px;
   flex-shrink: 0;
 }
 .diet-food-cal {
@@ -4590,6 +4603,24 @@ body {
   min-width: 45px;
   text-align: right;
 }
+.diet-food-edit,
+.diet-food-del {
+  background: transparent;
+  border: none;
+  padding: 4px;
+  margin-left: 4px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #94a3b8;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+.diet-food-edit:hover,
+.diet-food-edit:active { background: #eff6ff; color: #2563eb; }
+.diet-food-del:hover,
+.diet-food-del:active { background: #fee2e2; color: #ef4444; }
 .diet-meal-empty {
   padding: 8px 0 8px 36px;
   font-size: 12px;
@@ -9138,6 +9169,48 @@ body {
 
     // 饮食Tab刷新（同时更新热量、餐次、三餐列表）
     refreshDietTab: function() {
+      // 首次运行时绑定编辑/删除入口（可重复赋值，无副作用）
+      window.DietEntry = window.DietEntry || (function() {
+        function _refresh() {
+          if (window.HealthSpecial && typeof window.HealthSpecial.refreshDietTab === 'function') { window.HealthSpecial.refreshDietTab(); }
+          if (window.healthDataChanged) { try { window.healthDataChanged(); } catch(e) {} }
+        }
+        // 修改：弹层输入新内容（支持改餐次或置空保留）
+        function editMeal(idx) {
+          if (!window.BehaviorLog || !window.BehaviorLog.getLogForDate) { alert('数据源不可用'); return; }
+          var today = new Date().toISOString().split('T')[0];
+          var log = window.BehaviorLog.getLogForDate(today) || {};
+          var meals = log.meals || [];
+          var m = meals[idx];
+          if (!m) return;
+          var nv = prompt('修改记录：', m.items || '');
+          if (nv === null) return;
+          nv = String(nv).trim();
+          var tv = prompt('修改餐次（餐、午餐、晚餐、加餐，空为不改：', m.type || '午餐');
+          var typeNew = (typeof tv === 'string') ? String(tv).trim() : '';
+          var updateType = '';
+          if (typeNew) {
+            if (typeNew.indexOf('叩') >= 0 || typeNew.indexOf('餐') >= 0) updateType = typeNew;
+            else updateType = typeNew + '餐';
+          }
+          if (!nv && !updateType) { return; }
+          window.BehaviorLog.updateMeal(idx, { items: nv || m.items, type: updateType || m.type });
+          _refresh();
+        }
+        // 删除：确认后删除
+        function delMeal(idx) {
+          if (!window.BehaviorLog || !window.BehaviorLog.removeMeal) { alert('数据源不可用'); return; }
+          var today = new Date().toISOString().split('T')[0];
+          var log = window.BehaviorLog.getLogForDate(today) || {};
+          var meals = log.meals || [];
+          var m = meals[idx];
+          var label = m ? (m.type || '加餐') + ' ' + (m.items || '') : '该记录';
+          if (!confirm('确定删除记录？\n' + label)) return;
+          window.BehaviorLog.removeMeal(idx);
+          _refresh();
+        }
+        return { editMeal: editMeal, delMeal: delMeal };
+      })();
       if (typeof window.BehaviorLog === 'undefined') return;
       var today = new Date().toISOString().split('T')[0];
       var log = window.BehaviorLog.getLogForDate(today) || {};
@@ -9182,13 +9255,13 @@ body {
         { key: '加餐', en: 'snack', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>', color: '#ec4899', bg: '#fce7f3' }
       ];
 
-      // 按 type 分组
+      // 按 type 分组（保留原始下标，供编辑/删除定位）
       var grouped = {};
       for (var i2 = 0; i2 < meals.length; i2++) {
         var meal = meals[i2];
         var type = meal.type || '加餐';
         if (!grouped[type]) grouped[type] = [];
-        grouped[type].push(meal);
+        grouped[type].push({ meal: meal, idx: i2 });
       }
 
       var html = '';
@@ -9206,11 +9279,19 @@ body {
         } else {
           for (var k = 0; k < items.length; k++) {
             var item = items[k];
-            var cal = estimateCal(item.items || '');
+            var ir = item.meal;
+            var cal = estimateCal(ir.items || '');
+            var nameTxt = (ir.items || '未记录');
             html += '<div class="diet-food-item">';
-            html += '<span class="diet-food-name">' + (item.items || '未记录') + '</span>';
+            html += '<div class="diet-food-main">';
+            html += '<span class="diet-food-name">' + nameTxt + '</span>';
+            html += '<span class="diet-food-time">' + (ir.time || '') + '</span>';
+            html += '</div>';
+            html += '<div class="diet-food-side">';
             html += '<span class="diet-food-cal">' + cal + ' kcal</span>';
-            html += '<span class="diet-food-time">' + (item.time || '') + '</span>';
+            html += '<button class="diet-food-edit" onclick="window.DietEntry.editMeal(' + item.idx + ')" title="修改">' + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg></button>';
+            html += '<button class="diet-food-del" onclick="window.DietEntry.delMeal(' + item.idx + ')" title="删除">' + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>';
+            html += '</div>';
             html += '</div>';
           }
         }
@@ -10882,6 +10963,12 @@ body {
         ChatEngine.renderQuickCommands('quickCommandsContainer');
       }
       setTimeout(updatePushBadge, 100);
+      // v52.8.11 打开对话页自动滚到最底部（输入框可见，省去下拖）
+      setTimeout(function() {
+        try { if (window.scrollChatToBottom) window.scrollChatToBottom(); } catch(e) {}
+        var m = document.getElementById('chatMainArea');
+        if (m) m.scrollTop = m.scrollHeight;
+      }, 60);
     }
     // 工作Tab
     if (moduleName === 'work') {
