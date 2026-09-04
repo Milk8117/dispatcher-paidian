@@ -11980,6 +11980,16 @@ body {
   function scrollChatToBottom() {
     var m = document.getElementById('chatMainArea');
     if (m) m.scrollTop = m.scrollHeight;
+    // 兼容整页(body)滚动模型：#page-home 无固定高度时 chatMainArea 只是普通块，
+    // 真正滚动的是 window。此时滚动到输入框/聊天区底部，让输入框可见，省去手动下拖。
+    var ib = document.querySelector('.app-input-bar-v52, .app-input-bar');
+    var target = ib || m;
+    try {
+      if (target && target.scrollIntoView) { target.scrollIntoView({ behavior: 'smooth', block: 'end' }); }
+      else { window.scrollTo(0, document.body ? document.body.scrollHeight : 0); }
+    } catch(e) {
+      try { window.scrollTo(0, document.body ? document.body.scrollHeight : 0); } catch(e2) {}
+    }
   }
 
   // ========== v52.5 对话流搜索与筛选 ==========
