@@ -6071,7 +6071,7 @@ body {
   // ===== 版本守护（v52.5.4起）：SW缓存死锁根治方案 =====
   // 放在所有JS之前执行，确保版本不对时立即清理并重载
   (function() {
-    var CURRENT_VERSION = '52.8.9';
+    var CURRENT_VERSION = '52.8.10';
     var STORAGE_KEY = 'mirun_app_version';
     
     function wipeAndReload(reason) {
@@ -7441,9 +7441,9 @@ body {
             <div class="ddc-icon" style="background:#ecfdf5;color:#10b981">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
             </div>
-            <div class="ddc-title">结余率</div>
+            <div class="ddc-title">结余</div>
             <div class="ddc-value" id="lifeSaveRate">-</div>
-            <div class="ddc-desc">%</div>
+            <div class="ddc-desc">元</div>
           </div>
           <div class="dashboard-detail-card">
             <div class="ddc-icon" style="background:#fef3c7;color:#d97706">
@@ -8538,7 +8538,7 @@ body {
     </div>
 
     <div style="text-align:center;padding:20px 0 10px;font-size:12px;color:#cbd5e1">
-      MiRun AI v52.8.9 · 越用越懂你的数字分身
+      MiRun AI v52.8.10 · 越用越懂你的数字分身
     </div>
   </div>
   <div class="app-brand-footer">
@@ -11029,7 +11029,7 @@ body {
           });
         } else if (subName === 'diet') {
           requestAnimationFrame(function() {
-            if (window.DietRecords) window.DietRecords.refreshDietUI();
+            if (window.HealthSpecial && typeof window.HealthSpecial.refreshDietTab === 'function') { window.HealthSpecial.refreshDietTab(); } else if (window.DietRecords) { window.DietRecords.refreshDietUI(); }
           });
                 } else if (subName === 'exercise') {
           requestAnimationFrame(function() {
@@ -12414,10 +12414,17 @@ body {
         updateLastUserMsgStatus('sent');
 
         // [v52.5.6] 饮食记录真实落库：解析用户文本中的餐次与食物，写入 mirun_diet_records
-        if (window.DietRecords && typeof parseDietMealFromText === 'function') {
-          var _dietRec = parseDietMealFromText(text);
-          if (_dietRec) {
-            try { window.DietRecords.addRecord(_dietRec.meal, _dietRec.food); } catch(_e) {}
+        if (window.BehaviorLog && window.BehaviorLog.addMeal && typeof parseDietMealFromText === 'function') {
+          // 仅当 ChatEngine 行为工具未匹配到饮食时兜底补写，避免与 _parseMeal 重复落库
+          var _bhMatched = !!(result && result.toolResult && result.toolResult.matched);
+          if (!_bhMatched) {
+            var _dietRec = parseDietMealFromText(text);
+            if (_dietRec) {
+              try {
+                var _mealCN = { breakfast:'早餐', lunch:'午餐', dinner:'晚餐', snack:'加餐' }[_dietRec.meal] || '加餐';
+                window.BehaviorLog.addMeal(_mealCN, _dietRec.food);
+              } catch(_e) {}
+            }
           }
         }
 
@@ -14415,7 +14422,7 @@ body {
     // Immediate: if old service-worker.js is controlling, unregister it to break deadlock
     if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
       var ctrlURL = navigator.serviceWorker.controller.scriptURL || '';
-      if (ctrlURL.indexOf('sw-v52.8.9.js') === -1 && ctrlURL.indexOf('service-worker.js') !== -1) {
+      if (ctrlURL.indexOf('sw-v52.8.10.js') === -1 && ctrlURL.indexOf('service-worker.js') !== -1) {
         console.log('Old SW detected, unregistering to break cache deadlock...');
         navigator.serviceWorker.getRegistrations().then(function(regs) {
           regs.forEach(function(r) {
@@ -14432,19 +14439,19 @@ body {
       var existingController = navigator.serviceWorker.controller;
       var isAllowedSW = false;
       if (existingController && existingController.scriptURL) {
-        isAllowedSW = existingController.scriptURL.indexOf('sw-v52.8.9.js') !== -1 || existingController.scriptURL.indexOf('service-worker.js') !== -1;
+        isAllowedSW = existingController.scriptURL.indexOf('sw-v52.8.10.js') !== -1 || existingController.scriptURL.indexOf('service-worker.js') !== -1;
       }
       if (existingController && !isAllowedSW) {
         console.log('Skipping SW registration: existing controller is unknown');
         return;
       }
 
-      navigator.serviceWorker.register('./sw-v52.8.9.js', { updateViaCache: 'none' }).then(function(reg) {
+      navigator.serviceWorker.register('./sw-v52.8.10.js', { updateViaCache: 'none' }).then(function(reg) {
         console.log('SW registered, scope:', reg.scope);
         
         // Verify the registered SW is our expected file
         var isExpected = reg.active && reg.active.scriptURL && 
-          (reg.active.scriptURL.indexOf('sw-v52.8.9.js') !== -1 || reg.active.scriptURL.indexOf('service-worker.js') !== -1);
+          (reg.active.scriptURL.indexOf('sw-v52.8.10.js') !== -1 || reg.active.scriptURL.indexOf('service-worker.js') !== -1);
         if (reg.active && !isExpected) {
           console.warn('Unexpected SW scriptURL detected, unregistering:', reg.active.scriptURL);
           reg.unregister();
@@ -14775,7 +14782,7 @@ function toggleGuideSection(index) {
     set('lifeIncome', fmtMoneySafe(summary.totalIncome));
     set('lifeExpense', fmtMoneySafe(summary.totalExpense));
     var rate = summary.totalIncome > 0 ? (summary.balance / summary.totalIncome * 100) : 0;
-    set('lifeSaveRate', rate > 0 ? rate.toFixed(1) : '-');
+    set('lifeSaveRate', fmtMoneySafe(summary.balance));
     set('lifeTxDays', String(countTxDays(summary.month)));
     renderWealthSpendingCategory();
     renderWealthRecentTx();
@@ -16135,7 +16142,7 @@ function toggleGuideSection(index) {
 
   function getFeedbackAutoInfo() {
     var info = {
-      appVersion: 'v52.8.9',
+      appVersion: 'v52.8.10',
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent || '',
       screenSize: window.innerWidth + 'x' + window.innerHeight,
@@ -17189,7 +17196,7 @@ function toggleGuideSection(index) {
     try {
       var data = {
         app: 'MiRun-AI',
-        version: 'v52.8.9',
+        version: 'v52.8.10',
         exportedAt: new Date().toISOString(),
         localStorage: {},
         indexedDB: {}
@@ -17372,7 +17379,7 @@ function toggleGuideSection(index) {
 <script src="image-recognizer.js?v=52.6.0"></script>
 
   <!-- Version Badge -->
-  <div id="versionBadge" style="position:fixed;bottom:80px;right:12px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;z-index:9999;letter-spacing:0.5px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;pointer-events:none">v52.8.9</div>
+  <div id="versionBadge" style="position:fixed;bottom:80px;right:12px;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;z-index:9999;letter-spacing:0.5px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;pointer-events:none">v52.8.10</div>
   <script>
     setTimeout(function(){
       var b = document.getElementById('versionBadge');

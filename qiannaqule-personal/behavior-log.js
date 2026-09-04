@@ -319,6 +319,20 @@
     else if (/不错|睡得好的|睡得好/.test(text)) log.sleep.quality = 4;
     else if (/很好|很棒|精力充沛|神清气爽/.test(text)) log.sleep.quality = 5;
 
+    // 时长解析：睡了X小时 / 七小时
+    if (!log.sleep.duration) {
+      var durH = null;
+      var durM = text.match(/(\d+(?:\.\d+)?)\s*(?:个小时?|小时|h)/i);
+      var cnMap = {'一':1,'二':2,'三':3,'四':4,'五':5,'六':6,'七':7,'八':8,'九':9,'十':10};
+      if (!durM) {
+        var cnM = text.match(/([一二三四五六七八九十]+)\s*(?:个小时?|小时)/);
+        if (cnM) { var sum=0; cnM[1].split('').forEach(function(c){sum+=(cnMap[c]||0);}); durH=sum; }
+      } else { durH = parseFloat(durM[1]); }
+      if (durH !== null && durH > 0) {
+        log.sleep.duration = Math.round(durH * 10) / 10;
+        if (!log.sleep.quality) log.sleep.quality = (durH >= 7 && durH <= 9) ? 4 : (durH >= 6 ? 3 : 2);
+      }
+    }
     saveTodayLog(log);
     var msg = '已记录睡眠';
     if (log.sleep.bedtime) msg += ' 入睡 ' + log.sleep.bedtime;
@@ -1108,6 +1122,16 @@
       }
       saveTodayLog(log);
       return log.sleep;
+    },
+    // 饮食写入委托（统一写 behavior_log.meals，对话录入 / 专属页同源）
+    addMeal: function(mealType, items) {
+      var log = getTodayLog();
+      var now = new Date();
+      var timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+      log.meals.push({ type: mealType || '加餐', time: timeStr, items: items || '未记录', where: '' });
+      saveTodayLog(log);
+      if (window.healthDataChanged) { try { window.healthDataChanged(); } catch(e) {} }
+      return log.meals;
     },
     parseBehaviorInput: parseBehaviorInput,
     render: renderBehaviorHub
