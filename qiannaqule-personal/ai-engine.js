@@ -559,7 +559,8 @@
     prompt += '    {"type": "add_schedule", "title": "任务标题", "date": "2026-08-01", "group": "分组"},\n';
     prompt += '    {"type": "add_expense", "amount": 50, "ctField": "expensePersonal", "note": "午餐"},\n';
     prompt += '    {"type": "add_income", "amount": 1000, "ctField": "jobIncome", "note": "项目款"}\n';
-    prompt += '  ]\n';
+    prompt += '  ],\n';
+    prompt += '  "mood": {"score": 0, "label": "", "trigger": ""}\n';
     prompt += '}\n';
     prompt += '```\n';
     prompt += '2. 如果不需要执行操作，actions为空数组 []\n';
@@ -570,6 +571,8 @@
     prompt += '7. 当用户的请求涉及多个操作时，可以返回多个actions\n';
     prompt += '8. 严禁使用emoji\n';
     prompt += '9. 严禁回复非JSON内容，必须严格JSON格式\n';
+    prompt += '10. 情绪感知 {mood: {score, label, trigger}}: 用你的人类感知分析用户这句话流露的情绪高低。用户无明显情绪(正常询问/中性)则score=0、label=""；有明显情绪则score填1-5(1很差,2低落,3一般,4不错,5很好),label填中文(很差/低落/一般/不错/很好),trigger简要写引发情绪的原因(如"工作压力""下雨天")。敏感、贴心地把握，不要把普通陈述误判成情绪。\n';
+    prompt += '11. 当用户表达情绪(尤其负面)时，reply里先共情安抚再提供帮助\n';
 
     return prompt;
   }
@@ -787,7 +790,8 @@
       var parsed = JSON.parse(jsonStr);
       return {
         reply: parsed.reply || content,
-        actions: parsed.actions || []
+        actions: parsed.actions || [],
+        mood: parsed.mood || null
       };
     } catch(e) {
       // JSON解析失败，直接作为回复文本

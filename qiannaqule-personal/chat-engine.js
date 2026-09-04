@@ -307,6 +307,23 @@
     if (window.AiEngine && window.AiEngine.processInput) {
       try {
         var aiResult = await window.AiEngine.processInput(params.text);
+        // b25 情绪感知落库：让米润(大模型)读懂用户情绪高低，自动记入情绪模块
+        if (aiResult && aiResult.mood && aiResult.mood.score && aiResult.mood.score > 0 && window.BehaviorLog && typeof window.BehaviorLog.addMoodEntry === 'function') {
+          try {
+            var _mb = aiResult.mood;
+            var _score = Math.max(1, Math.min(5, parseInt(_mb.score) || 3));
+            var _labelMap = { 1:'很差', 2:'低落', 3:'一般', 4:'不错', 5:'很好' };
+            window.BehaviorLog.addMoodEntry({
+              score: _score,
+              label: (_mb.label && ['很差','低落','一般','不错','很好'].indexOf(_mb.label) !== -1) ? _mb.label : _labelMap[_score],
+              trigger: _mb.trigger || '',
+              source: 'ai_perception'
+            });
+            if (typeof updateHealthDashboard === 'function') { try { updateHealthDashboard(); } catch(e){} }
+            if (window.HealthSpecial && typeof window.HealthSpecial.renderMood === 'function') { try { window.HealthSpecial.renderMood(); } catch(e){} }
+            if (window.healthDataChanged) { try { window.healthDataChanged(); } catch(e){} }
+          } catch(_moe) {}
+        }
         return {
           reply: aiResult.reply || '好的。',
           actions: aiResult.actions || []
