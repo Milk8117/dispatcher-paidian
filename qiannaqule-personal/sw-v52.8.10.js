@@ -2,7 +2,7 @@
 // App version: update this to invalidate old caches and trigger fresh HTML loads
 const APP_VERSION = 'v52.8.10';
 // b1 build: 最近交易支持删除/修改 + 支出分类改实时聚合（真实流水占比），刷新缓存避免命中旧缓存
-const CACHE_NAME = 'mirunai-' + APP_VERSION + '-b15';
+const CACHE_NAME = 'mirunai-' + APP_VERSION + '-b16';
 
 // Resources to cache on install — ONLY static assets, NEVER HTML files
 // HTML files (index.html, reset.html) use network-first strategy and are never precached

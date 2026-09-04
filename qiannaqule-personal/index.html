@@ -7666,7 +7666,44 @@ body {
       </div>
     </div>
 
+    <!-- 现金与应收：存款现金 + 借出款项（资产类，不计入负债） -->
+    <div class="wealth-list-card" id="wealthCashLendCard">
+      <div class="wlc-header">
+        <div class="wlc-title">现金与应收</div>
+        <div style="font-size:13px;font-weight:700;color:#10b981" id="wealthCashLendTotal">&yen;0</div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin:8px 0 4px">
+        <div style="font-size:14px;font-weight:700;color:#1f2937">存款现金</div>
+        <div style="display:flex;align-items:center;gap:6px;color:#2563eb;font-size:13px;cursor:pointer" onclick="addCash()">
+          添加存款<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </div>
+      </div>
+      <div id="wealthCashList" class="wlc-list"><div class="wlc-empty">暂无存款，添加你的现金/存款</div></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin:12px 0 4px">
+        <div style="font-size:14px;font-weight:700;color:#1f2937">借出款项（应收）</div>
+        <div style="display:flex;align-items:center;gap:6px;color:#2563eb;font-size:13px;cursor:pointer" onclick="addLend()">
+          添加借出<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </div>
+      </div>
+      <div id="wealthLendingList" class="wlc-list"><div class="wlc-empty">暂无借出，添加借给别人的款项</div></div>
+    </div>
     <!-- 第三层：AI财富建议 -->
+
+    <!-- 固定资产：房产 / 车辆 / 其他（资产类） -->
+    <div class="wealth-list-card" id="wealthFixedCard">
+      <div class="wlc-header">
+        <div class="wlc-title">固定资产</div>
+        <div style="font-size:13px;font-weight:700;color:#6366f1" id="wealthFixedTotal">&yen;0</div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin:8px 0 4px">
+        <div style="font-size:13px;color:#64748b">房产 · 车辆 · 其他大件估值</div>
+        <div style="display:flex;align-items:center;gap:6px;color:#2563eb;font-size:13px;cursor:pointer" onclick="addFixed()">
+          添加资产<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </div>
+      </div>
+      <div id="wealthFixedList" class="wlc-list"><div class="wlc-empty">暂无固定资产，添加房产/车辆等</div></div>
+    </div>
+
     <div class="dashboard-ai-section">
       <div class="dashboard-ai-title">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M12 2l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3z"/></svg>
@@ -15012,7 +15049,11 @@ function toggleGuideSection(index) {
         (window.WealthCT.loadLoans() || []).forEach(function(L){ liabilities += parseFloat(L.amt) || 0; });
       }
     } catch(e) {}
-    var totalAssets = cash + holdingsValue;
+    var cashTotal = 0, lendTotal = 0, fxTotal = 0;
+    try { if (window.WealthCT && typeof WealthCT.loadCashs === 'function') (WealthCT.loadCashs()||[]).forEach(function(c){ cashTotal += parseFloat(c.amt)||0; }); } catch(e){}
+    try { if (window.WealthCT && typeof WealthCT.loadLendings === 'function') (WealthCT.loadLendings()||[]).forEach(function(L){ lendTotal += parseFloat(L.amt)||0; }); } catch(e){}
+    try { if (window.WealthCT && typeof WealthCT.loadAssets === 'function') (WealthCT.loadAssets()||[]).forEach(function(a){ fxTotal += parseFloat(a.amt)||0; }); } catch(e){}
+    var totalAssets = cash + holdingsValue + cashTotal + lendTotal + fxTotal;
     var netAssets = totalAssets - liabilities;
     var set = function(id, v){ var el = document.getElementById(id); if (el) el.textContent = v; };
     set('wealthTotalAssets', fmtMoneySafe(totalAssets));
@@ -15167,6 +15208,11 @@ function toggleGuideSection(index) {
     set('insuranceAnnualPremium', fmtMoneySafe(prem));
     renderWealthInsuranceList(ins);
     renderWealthLoanList(loans);
+    try { renderWealthCashList((function(){ try { return window.WealthCT ? (window.WealthCT.loadCashs()||[]) : []; } catch(e){ return []; } })()); } catch(e){}
+    try { renderWealthLendingList((function(){ try { return window.WealthCT ? (window.WealthCT.loadLendings()||[]) : []; } catch(e){ return []; } })()); } catch(e){}
+    try { renderCashLendSummary(); } catch(e){}
+    try { renderWealthFixedList((function(){ try { return window.WealthCT ? (window.WealthCT.loadAssets()||[]) : []; } catch(e){ return []; } })()); } catch(e){}
+    try { renderFixedSummary(); } catch(e){}
     if (window.renderWealthInsuranceCoverage) { try { renderWealthInsuranceCoverage(ins); } catch(e) {} }
   }
 
@@ -15229,6 +15275,257 @@ function toggleGuideSection(index) {
     wrap.innerHTML = '';
     while (list.firstChild) wrap.appendChild(list.firstChild);
   }
+
+
+  // ========== v52.8.10-b16 现金与应收（存款现金 + 借出款项，均资产类不计负债） ==========
+  function renderWealthCashList(cashs) {
+    var wrap = document.getElementById('wealthCashList');
+    if (!wrap) return;
+    var list = document.createElement('div');
+    if (!cashs || !cashs.length) {
+      var empty = document.createElement('div'); empty.className = 'wlc-empty'; empty.textContent = '暂无存款，添加你的现金/存款'; list.appendChild(empty);
+    } else {
+      (cashs || []).forEach(function(c, idx) {
+        var item = document.createElement('div'); item.className = 'wlc-list-item';
+        item.innerHTML =
+          '<div class="wlc-item-left"><div class="wlc-item-icon" style="background:#ecfdf5;color:#10b981">' +
+            '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div>' +
+            '<div style="min-width:0"><div class="wlc-item-name">' + escapeHtmlSafe(c.name || '存款') + '</div><div class="wlc-item-desc">' + (c.ctype || '现金') + (c.date ? ' · 存于 ' + c.date : '') + '</div></div></div>' +
+          '<div class="wlc-item-right"><div><div class="wlc-item-value">' + (Math.round(parseFloat(c.amt)||0)).toLocaleString('zh-CN') + '</div><div class="wlc-item-change">元</div></div>' +
+            '<div style="display:flex;flex-direction:column;gap:4px;margin-left:6px">' +
+              '<button style="padding:2px 8px;font-size:11px;border:1px solid #e2e8f0;border-radius:6px;background:#fff;color:#475569;cursor:pointer" onclick="editAsset(\'cash\',' + idx + ')">修改</button>' +
+              '<button style="padding:2px 8px;font-size:11px;border:1px solid #fecaca;border-radius:6px;background:#fff;color:#ef4444;cursor:pointer" onclick="deleteAsset(\'cash\',' + idx + ')">删除</button>' +
+            '</div></div>';
+        list.appendChild(item);
+      });
+    }
+    wrap.innerHTML = '';
+    while (list.firstChild) wrap.appendChild(list.firstChild);
+  }
+  function renderWealthLendingList(lendings) {
+    var wrap = document.getElementById('wealthLendingList');
+    if (!wrap) return;
+    var list = document.createElement('div');
+    if (!lendings || !lendings.length) {
+      var empty = document.createElement('div'); empty.className = 'wlc-empty'; empty.textContent = '暂无借出，添加借给别人的款项'; list.appendChild(empty);
+    } else {
+      (lendings || []).forEach(function(L, idx) {
+        var item = document.createElement('div'); item.className = 'wlc-list-item';
+        item.innerHTML =
+          '<div class="wlc-item-left"><div class="wlc-item-icon" style="background:#fdf3e7;color:#f59e0b">' +
+            '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg></div>' +
+            '<div style="min-width:0"><div class="wlc-item-name">' + escapeHtmlSafe(L.name || '借出') + '</div><div class="wlc-item-desc">' + (L.lendDate ? '借出日 ' + L.lendDate : '应收') + '</div></div></div>' +
+          '<div class="wlc-item-right"><div><div class="wlc-item-value" style="color:#10b981">' + (Math.round(parseFloat(L.amt)||0)).toLocaleString('zh-CN') + '</div><div class="wlc-item-change">应收</div></div>' +
+            '<div style="display:flex;flex-direction:column;gap:4px;margin-left:6px">' +
+              '<button style="padding:2px 8px;font-size:11px;border:1px solid #e2e8f0;border-radius:6px;background:#fff;color:#475569;cursor:pointer" onclick="editAsset(\'lend\',' + idx + ')">修改</button>' +
+              '<button style="padding:2px 8px;font-size:11px;border:1px solid #fecaca;border-radius:6px;background:#fff;color:#ef4444;cursor:pointer" onclick="deleteAsset(\'lend\',' + idx + ')">删除</button>' +
+            '</div></div>';
+        list.appendChild(item);
+      });
+    }
+    wrap.innerHTML = '';
+    while (list.firstChild) wrap.appendChild(list.firstChild);
+  }
+  function renderCashLendSummary() {
+    var cashT = 0, lendT = 0;
+    try { if (window.WealthCT && typeof WealthCT.loadCashs === 'function') (WealthCT.loadCashs()||[]).forEach(function(c){ cashT += parseFloat(c.amt)||0; }); } catch(e){}
+    try { if (window.WealthCT && typeof WealthCT.loadLendings === 'function') (WealthCT.loadLendings()||[]).forEach(function(L){ lendT += parseFloat(L.amt)||0; }); } catch(e){}
+    var el = document.getElementById('wealthCashLendTotal'); if (el) el.textContent = '¥' + fmtMoneySafe(cashT + lendT);
+    return { cashT: cashT, lendT: lendT };
+  }
+  function openAssetModal(kind, editIndex) {
+    if (typeof closeWealthEntryModal === 'function') { try { closeWealthEntryModal(); } catch(e){} }
+    var isCash = (kind === 'cash');
+    var editIdx = (typeof editIndex === 'number') ? editIndex : -1;
+    _weEditIndex = editIdx;
+    var mask = document.createElement('div');
+    mask.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:12100;display:flex;align-items:center;justify-content:center;padding:20px';
+    mask.onclick = function(e){ if (e.target === mask && typeof closeWealthEntryModal === 'function') closeWealthEntryModal(); };
+    _wealthEntryModal = mask;
+    var inner = document.createElement('div');
+    var tt = isCash ? (editIdx >= 0 ? '修改存款' : '添加存款') : (editIdx >= 0 ? '修改借出' : '添加借出');
+    inner.innerHTML =
+      '<div style="background:#fff;border-radius:16px;width:100%;max-width:360px;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,0.2)">' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">' +
+          '<div style="font-size:17px;font-weight:700;color:#1f2937">' + tt + '</div>' +
+          '<div style="cursor:pointer;color:#64748b;font-size:20px" onclick="closeWealthEntryModal()">&times;</div>' +
+        '</div>' +
+        (isCash
+          ? '<div style="font-size:13px;color:#64748b;margin-bottom:4px">存款名称</div>' +
+            '<input type="text" id="we-cash-name" placeholder="如：招行活期 / 三年定期" style="font-size:16px;width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:12px">' +
+            '<div style="font-size:13px;color:#64748b;margin-bottom:4px">金额（元）</div>' +
+            '<input type="number" id="we-cash-amt" placeholder="50000" min="0" step="100" style="font-size:16px;width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:12px">' +
+            '<div style="font-size:13px;color:#64748b;margin-bottom:4px">类型</div>' +
+            '<select id="we-cash-type" style="font-size:16px;width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:12px"><option value="活期">活期</option><option value="定期">定期</option><option value="货币基金">货币基金</option><option value="现金">现金</option></select>' +
+            '<div style="font-size:13px;color:#64748b;margin-bottom:4px">存入日期</div>' + _wePaydateHtml()
+          : '<div style="font-size:13px;color:#64748b;margin-bottom:4px">借给谁</div>' +
+            '<input type="text" id="we-lend-name" placeholder="如：张叔" style="font-size:16px;width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:12px">' +
+            '<div style="font-size:13px;color:#64748b;margin-bottom:4px">金额（元）</div>' +
+            '<input type="number" id="we-lend-amt" placeholder="50000" min="0" step="100" style="font-size:16px;width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:12px">' +
+            '<div style="font-size:13px;color:#64748b;margin-bottom:4px">借出日期</div>' + _wePaydateHtml()) +
+        '<div style="margin-top:16px;display:flex;gap:8px">' +
+          '<button style="flex:1;padding:10px;border:1px solid #e2e8f0;border-radius:10px;background:#fff;color:#475569;font-size:15px" onclick="closeWealthEntryModal()">取消</button>' +
+          '<button style="flex:1;padding:10px;border:none;border-radius:10px;background:#2563eb;color:#fff;font-size:15px" onclick="saveAsset(\'' + kind + '\')">保存</button>' +
+        '</div>' +
+      '</div>';
+    mask.appendChild(inner);
+    document.body.appendChild(mask);
+    if (editIdx >= 0) loadAssetValues(kind, editIdx);
+  }
+  function loadAssetValues(kind, idx) {
+    if (!window.WealthCT) return;
+    var list = kind === 'cash' ? (window.WealthCT.loadCashs()||[]) : (window.WealthCT.loadLendings()||[]);
+    var it = list[idx]; if (!it) return;
+    if (kind === 'cash') {
+      setWeVal('we-cash-name', it.name); setWeVal('we-cash-amt', it.amt);
+      var t = document.getElementById('we-cash-type'); if (t && it.ctype) t.value = it.ctype;
+      _wePaydateSet(it.date);
+    } else {
+      setWeVal('we-lend-name', it.name); setWeVal('we-lend-amt', it.amt);
+      _wePaydateSet(it.lendDate);
+    }
+  }
+  window.saveAsset = function(kind) {
+    var amt = parseFloat(getWeEl(kind === 'cash' ? 'we-cash-amt' : 'we-lend-amt')) || 0;
+    if (amt <= 0) { alert('请输入有效金额'); return; }
+    if (!window.WealthCT) { alert('数据模块未就绪'); return; }
+    if (kind === 'cash') {
+      var name = getWeEl('we-cash-name') || '存款';
+      var ctype = getWeEl('we-cash-type') || '活期';
+      var date = _wePaydateGet();
+      var arr = window.WealthCT.loadCashs() || [];
+      var obj = { kind: 'cash', name: name, amt: amt, ctype: ctype, date: date };
+      if (_weEditIndex >= 0 && _weEditIndex < arr.length) { arr[_weEditIndex] = obj; } else { arr.push(obj); }
+      window.WealthCT.saveCashs(arr);
+    } else {
+      var name = getWeEl('we-lend-name') || '借出款项';
+      var date = _wePaydateGet();
+      var arr = window.WealthCT.loadLendings() || [];
+      var obj = { kind: 'lend', name: name, amt: amt, lendDate: date };
+      if (_weEditIndex >= 0 && _weEditIndex < arr.length) { arr[_weEditIndex] = obj; } else { arr.push(obj); }
+      window.WealthCT.saveLendings(arr);
+    }
+    _weEditIndex = -1;
+    closeWealthEntryModal();
+    renderInsuranceSummary();
+    refreshWealthDashboard();
+  };
+  window.editAsset = function(kind, idx) { _weEditIndex = -1; openAssetModal(kind, idx); };
+  window.deleteAsset = function(kind, idx) {
+    if (!window.WealthCT) return;
+    if (!window.confirm(kind === 'cash' ? '确定删除这笔存款吗？' : '确定删除这笔借出款项吗？')) return;
+    if (kind === 'cash') {
+      var arr = window.WealthCT.loadCashs() || [];
+      if (idx >= 0 && idx < arr.length) { arr.splice(idx, 1); window.WealthCT.saveCashs(arr); }
+    } else {
+      var arr = window.WealthCT.loadLendings() || [];
+      if (idx >= 0 && idx < arr.length) { arr.splice(idx, 1); window.WealthCT.saveLendings(arr); }
+    }
+    _weEditIndex = -1;
+    renderInsuranceSummary();
+    refreshWealthDashboard();
+  };
+  window.addCash = function() { openAssetModal('cash'); };
+  window.addLend = function() { openAssetModal('lend'); };
+
+  // ========== v52.8.10-b16 固定资产（房产/车辆/其他，资产类·独立弹窗） ==========
+  function renderWealthFixedList(assets) {
+    var wrap = document.getElementById('wealthFixedList');
+    if (!wrap) return;
+    var list = document.createElement('div');
+    if (!assets || !assets.length) {
+      var empty = document.createElement('div'); empty.className = 'wlc-empty'; empty.textContent = '暂无固定资产，添加房产/车辆等'; list.appendChild(empty);
+    } else {
+      (assets || []).forEach(function(a, idx) {
+        var item = document.createElement('div'); item.className = 'wlc-list-item';
+        var iconClr = (a.atype === '房产') ? 'background:#eef2ff;color:#6366f1' : (a.atype === '车辆' ? 'background:#eff6ff;color:#3b82f6' : 'background:#f8fafc;color:#64748b');
+        item.innerHTML =
+          '\u003cdiv class="wlc-item-left"\u003e\u003cdiv class="wlc-item-icon" style="' + iconClr + '"\u003e' +
+            '\u003csvg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"\u003e\u003cpath d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/\u003e\u003cpolyline points="9 22 9 12 15 12 15 22"/\u003e\u003c/svg\u003e\u003c/div\u003e' +
+            '\u003cdiv style="min-width:0"\u003e\u003cdiv class="wlc-item-name"\u003e' + escapeHtmlSafe(a.name || a.atype || '固定资产') + '\u003c/div\u003e\u003cdiv class="wlc-item-desc"\u003e' + (a.atype || '其他') + (a.date ? ' · ' + a.date : '') + '\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e' +
+          '\u003cdiv class="wlc-item-right"\u003e\u003cdiv\u003e\u003cdiv class="wlc-item-value" style="color:#6366f1"\u003e' + (Math.round(parseFloat(a.amt)||0)).toLocaleString('zh-CN') + '\u003c/div\u003e\u003cdiv class="wlc-item-change"\u003e元\u003c/div\u003e\u003c/div\u003e' +
+            '\u003cdiv style="display:flex;flex-direction:column;gap:4px;margin-left:6px"\u003e' +
+              '\u003cbutton style="padding:2px 8px;font-size:11px;border:1px solid #e2e8f0;border-radius:6px;background:#fff;color:#475569;cursor:pointer" onclick="fxEdit(' + idx + ')"\u003e修改\u003c/button\u003e' +
+              '\u003cbutton style="padding:2px 8px;font-size:11px;border:1px solid #fecaca;border-radius:6px;background:#fff;color:#ef4444;cursor:pointer" onclick="fxDel(' + idx + ')"\u003e删除\u003c/button\u003e' +
+            '\u003c/div\u003e\u003c/div\u003e';
+        list.appendChild(item);
+      });
+    }
+    wrap.innerHTML = '';
+    while (list.firstChild) wrap.appendChild(list.firstChild);
+  }
+  function renderFixedSummary() {
+    var fxT = 0;
+    try { if (window.WealthCT && typeof WealthCT.loadAssets === 'function') (WealthCT.loadAssets()||[]).forEach(function(a){ fxT += parseFloat(a.amt)||0; }); } catch(e){}
+    var el = document.getElementById('wealthFixedTotal'); if (el) el.textContent = '¥' + fmtMoneySafe(fxT);
+    return fxT;
+  }
+  var _weFxIndex = -1;
+  window.addFixed = function() { _weFxIndex = -1; openFxEntry(); };
+  window.fxEdit = function(idx) { _weFxIndex = idx; openFxEntry(); };
+  window.fxDel = function(idx) {
+    if (!window.WealthCT) return;
+    if (!window.confirm('确定删除这笔固定资产吗？')) return;
+    var arr = window.WealthCT.loadAssets() || [];
+    if (idx >= 0 && idx < arr.length) { arr.splice(idx, 1); window.WealthCT.saveAssets(arr); }
+    _weFxIndex = -1;
+    renderInsuranceSummary();
+    refreshWealthDashboard();
+  };
+  function openFxEntry() {
+    if (typeof closeWealthEntryModal === 'function') { try { closeWealthEntryModal(); } catch(e){} }
+    var editIdx = _weFxIndex;
+    var mask = document.createElement('div');
+    mask.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:12100;display:flex;align-items:center;justify-content:center;padding:20px';
+    mask.onclick = function(e){ if (e.target === mask && typeof closeWealthEntryModal === 'function') closeWealthEntryModal(); };
+    _wealthEntryModal = mask;
+    var inner = document.createElement('div');
+    var tt = (editIdx >= 0) ? '修改资产' : '添加资产';
+    inner.innerHTML =
+      '\u003cdiv style="background:#fff;border-radius:16px;width:100%;max-width:360px;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,0.2)"\u003e' +
+        '\u003cdiv style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"\u003e' +
+          '\u003cdiv style="font-size:17px;font-weight:700;color:#1f2937"\u003e' + tt + '\u003c/div\u003e' +
+          '\u003cdiv style="cursor:pointer;color:#64748b;font-size:20px" onclick="closeWealthEntryModal()"\u003e&times;\u003c/div\u003e' +
+        '\u003c/div\u003e' +
+        '\u003cdiv style="font-size:13px;color:#64748b;margin-bottom:4px"\u003e资产名称\u003c/div\u003e' +
+        '\u003cinput type="text" id="we-fx-name" placeholder="如：自住房 / 问界M9" style="font-size:16px;width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:12px"\u003e' +
+        '\u003cdiv style="font-size:13px;color:#64748b;margin-bottom:4px"\u003e估值（元）\u003c/div\u003e' +
+        '\u003cinput type="number" id="we-fx-amt" placeholder="1500000" min="0" step="100" style="font-size:16px;width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:12px"\u003e' +
+        '\u003cdiv style="font-size:13px;color:#64748b;margin-bottom:4px"\u003e类型\u003c/div\u003e' +
+        '\u003cselect id="we-fx-type" style="font-size:16px;width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:12px"\u003e\u003coption value="房产"\u003e房产\u003c/option\u003e\u003coption value="车辆"\u003e车辆\u003c/option\u003e\u003coption value="其他"\u003e其他\u003c/option\u003e\u003c/select\u003e' +
+        '\u003cdiv style="font-size:13px;color:#64748b;margin-bottom:4px"\u003e估值日期\u003c/div\u003e' + _wePaydateHtml() +
+        '\u003cdiv style="margin-top:16px;display:flex;gap:8px"\u003e' +
+          '\u003cbutton style="flex:1;padding:10px;border:1px solid #e2e8f0;border-radius:10px;background:#fff;color:#475569;font-size:15px" onclick="closeWealthEntryModal()"\u003e取消\u003c/button\u003e' +
+          '\u003cbutton style="flex:1;padding:10px;border:none;border-radius:10px;background:#2563eb;color:#fff;font-size:15px" onclick="fxSave()"\u003e保存\u003c/button\u003e' +
+        '\u003c/div\u003e' +
+      '\u003c/div\u003e';
+    mask.appendChild(inner);
+    document.body.appendChild(mask);
+    if (editIdx >= 0) {
+      var arr = (window.WealthCT ? (window.WealthCT.loadAssets()||[]) : []);
+      var it = arr[editIdx]; if (it) {
+        setWeVal('we-fx-name', it.name); setWeVal('we-fx-amt', it.amt);
+        var t = document.getElementById('we-fx-type'); if (t && it.atype) t.value = it.atype;
+        _wePaydateSet(it.date);
+      }
+    }
+  }
+  window.fxSave = function() {
+    var amt = parseFloat(getWeEl('we-fx-amt')) || 0;
+    if (amt <= 0) { alert('请输入有效金额'); return; }
+    if (!window.WealthCT) { alert('数据模块未就绪'); return; }
+    var name = getWeEl('we-fx-name') || '固定资产';
+    var atype = getWeEl('we-fx-type') || '其他';
+    var date = _wePaydateGet();
+    var arr = window.WealthCT.loadAssets() || [];
+    var obj = { kind: 'fx', name: name, amt: amt, atype: atype, date: date };
+    if (_weFxIndex >= 0 && _weFxIndex < arr.length) { arr[_weFxIndex] = obj; } else { arr.push(obj); }
+    window.WealthCT.saveAssets(arr);
+    _weFxIndex = -1;
+    closeWealthEntryModal();
+    renderInsuranceSummary();
+    refreshWealthDashboard();
+  };
 
   function insTypeName(t) {
     var m = { life:'人寿保险', commercial:'商业保险', education:'教育险', other:'其他', medical:'医疗保险', critical:'重疾险' };
@@ -15568,7 +15865,11 @@ function toggleGuideSection(index) {
     try { if (window.WealthCT && typeof WealthCT.loadLoans === 'function') { (WealthCT.loadLoans() || []).forEach(function(L){ liab += parseFloat(L.amt) || 0; }); } } catch(e) {}
     try { if (window.WealthCT && typeof WealthCT.loadInsurance === 'function') { (WealthCT.loadInsurance() || []).forEach(function(i){ cov += parseFloat(i.amount)||0; if(!_insPaidUp(i)) prem += parseFloat(i.premium)||0; }); } } catch(e) {}
     try { if (window.getDailyTxSummary) { var sm = window.getDailyTxSummary(); if (sm) { inc = sm.totalIncome || 0; exp = sm.totalExpense || 0; } } } catch(e) {}
-    var totalAssets = cash + hv, netAssets = totalAssets - liab;
+    var cashTotal = 0, lendTotal = 0, fxTotal = 0;
+    try { if (window.WealthCT && typeof WealthCT.loadCashs === 'function') (WealthCT.loadCashs()||[]).forEach(function(c){ cashTotal += parseFloat(c.amt)||0; }); } catch(e){}
+    try { if (window.WealthCT && typeof WealthCT.loadLendings === 'function') (WealthCT.loadLendings()||[]).forEach(function(L){ lendTotal += parseFloat(L.amt)||0; }); } catch(e){}
+    try { if (window.WealthCT && typeof WealthCT.loadAssets === 'function') (WealthCT.loadAssets()||[]).forEach(function(a){ fxTotal += parseFloat(a.amt)||0; }); } catch(e){}
+    var totalAssets = cash + hv + cashTotal + lendTotal + fxTotal, netAssets = totalAssets - liab;
     function money(v){ v = Math.round(v || 0); return v.toLocaleString('zh-CN'); }
     var row = function(label, val, color) {
       return '<div style="flex:1"><div style="font-size:12px;color:#94a3b8;margin-bottom:3px">'+label+'</div><div style="font-size:15px;font-weight:700;color:'+(color||'#1e293b')+'">'+val+'</div></div>';

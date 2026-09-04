@@ -88,7 +88,7 @@
 
     var income = jobIncome + otherIncome;
     var debt = bankDebt + otherDebt;
-    var totalAssets = savings + investment + prop + investProp;
+    var totalAssets = savings + investment + prop + investProp + (data.lendTotal || 0) + (data.fxTotal || 0);
     if (totalAssets === 0) totalAssets = 1;
 
     var isRetired = (ageGroup == 6) || (housingFund === 0 && housingFundYears >= 20);
@@ -798,6 +798,8 @@
       holdingsValue += toNum(h.quantity) * toNum(h.current_price);
     });
     if (holdingsValue > 0) d.equityInvest = Math.max(d.equityInvest, holdingsValue);
+    // b16: 存款现金并入 savings（max 防与档案双算）
+    if (d.cashTotal > 0) d.savings = Math.max(d.savings || 0, d.cashTotal);
     try {
       if (global.StockHoldings && typeof global.StockHoldings.calcSummary === 'function') {
         var calc = global.StockHoldings.calcSummary();
@@ -807,6 +809,15 @@
       }
     } catch(e) {}
     if (d.stockCash > 0) d.stableInvest = Math.max(d.stableInvest, d.stockCash);
+
+    // 3.5) b16 现金与应收 + 固定资产（存款现金 cashs / 借出 lendings / 固定资产 assets）
+    var bCash = 0, bLend = 0, bFx = 0;
+    if (global.WealthCT) {
+      try { if (typeof global.WealthCT.loadCashs === 'function') (global.WealthCT.loadCashs()||[]).forEach(function(c){ bCash += toNum(c.amt); }); } catch(e){}
+      try { if (typeof global.WealthCT.loadLendings === 'function') (global.WealthCT.loadLendings()||[]).forEach(function(L){ bLend += toNum(L.amt); }); } catch(e){}
+      try { if (typeof global.WealthCT.loadAssets === 'function') (global.WealthCT.loadAssets()||[]).forEach(function(a){ bFx += toNum(a.amt); }); } catch(e){}
+    }
+    d.cashTotal = bCash; d.lendTotal = bLend; d.fxTotal = bFx;
 
     // 4) 贷款 + 保险（wealth_ct 前缀）
     var loans = [], insurance = [];
