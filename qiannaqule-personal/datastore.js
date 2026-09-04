@@ -460,7 +460,27 @@
     saveField: function(f, v) { DataStore.save(this.MODULE, f, v); },
     loadField: function(f, d) { return DataStore.load(this.MODULE, f, d); },
     saveLoans: function(v) { DataStore.save(this.MODULE, 'loans', v); },
-    loadLoans: function() { return DataStore.load(this.MODULE, 'loans', []); },
+    loadLoans: function() {
+      var arr = DataStore.load(this.MODULE, 'loans', []);
+      // 一次性数据纠错(v52.8.10-b9/b10)：将误写进"贷款"的保单自动迁回"保险"。
+      // 特征=默认名'贷款'+异常高"利率"rate>=500(实为年缴保费被套进贷款对象)，正常贷款年利率不可能≥500%。
+      var dirty = false;
+      for (var i = arr.length - 1; i >= 0; i--) {
+        var it = arr[i] || {};
+        if (it.name === '\u8d37\u6b3e' && Number(it.rate) >= 500) {   // name==='贷款'
+          var ins = { type: 'life', amount: Number(it.amt) || 0, premium: Number(it.rate) || 0, term: Number(it.term) || 0, paid: Number(it.term) || 0, payDate: '' };
+          if (ins.amount > 0 && ins.premium > 0) {
+            var insArr = DataStore.load(this.MODULE, 'insurance', []);
+            insArr.push(ins);
+            DataStore.save(this.MODULE, 'insurance', insArr);
+          }
+          arr.splice(i, 1);
+          dirty = true;
+        }
+      }
+      if (dirty) DataStore.save(this.MODULE, 'loans', arr);
+      return arr;
+    },
     saveInsurance: function(v) { DataStore.save(this.MODULE, 'insurance', v); },
     loadInsurance: function() { return DataStore.load(this.MODULE, 'insurance', []); },
     saveFamilyMembers: function(v) { DataStore.save(this.MODULE, 'familyMembers', v); },
