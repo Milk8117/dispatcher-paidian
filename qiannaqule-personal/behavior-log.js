@@ -166,6 +166,8 @@
     result = _parseWater(text); if (result) return result;
     // 1. 饮食记录
     result = _parseMeal(text); if (result) return result;
+    // 1.5 购买/消费记录（优先于运动，避免"游泳镜购买180"被误归为运动且漏记金额）
+    result = _parsePurchase(text); if (result) return result;
     // 2. 运动记录
     result = _parseExercise(text); if (result) return result;
     // 3. 睡眠记录
@@ -225,6 +227,33 @@
     if (amount) msg += '（¥' + amount + '）';
 
     return { matched: true, module: 'behavior', action: 'meal', message: msg };
+  }
+
+  function _parsePurchase(text) {
+    // "买了双运动鞋200" "宝宝游泳镜购买180" "下单大米89" "花了50买菜"
+    // 必须含购买动词且带金额；时长/距离的"花了X分钟/公里"不视为消费
+    if (!/(购买|买单|下单|购入|付款|花了?|消费|入手|淘了|网购|回购|买)/.test(text)) return null;
+    // 若数字后跟时长/距离单位，多为运动/描述，不是金额
+    if (/(\d+(?:\.\d+)?)\s*(?:分钟|分|小时|h|秒|公里|km|千米)/i.test(text)) return null;
+    // 取最后一个数字作为金额（避免"买了2双袜子50"误取"2"）
+    var nums = text.match(/(\d+(?:\.\d+)?)/g);
+    if (!nums) return null;
+    var amount = parseFloat(nums[nums.length - 1]);
+    if (!(amount > 0)) return null;
+
+    var note = text.replace(/(购买|买单|下单|购入|付款|花了|消费|入手|淘了|网购|回购|买了?个|买了?|买了一?个?)/g, '')
+                   .replace(/(\d+(?:\.\d+)?)\s*(?:[元块¥￥])?/g, '')
+                   .replace(/的/g, '')
+                   .replace(/[¥￥元块\s]+$/, '')
+                   .trim();
+    if (!note) note = '购物';
+
+    // 记录消费（购物类目，个人消费/购物）
+    if (window.dailyTxAdd) {
+      window.dailyTxAdd({ type: 'expense', amount: amount, category: 'shopping', note: note, date: _today() });
+    }
+
+    return { matched: true, module: 'behavior', action: 'purchase', message: '已记录购物支出 ¥' + amount + (note ? '：' + note : '') };
   }
 
   function _parseWater(text) {
