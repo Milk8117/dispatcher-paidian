@@ -11251,6 +11251,12 @@ body {
     }
     // 按需初始化模块
     var flagKey = parent + '_' + subName;
+    // 健康总览/行为区每次切入都强制重渲染：总览受 moduleInitFlags 缓存，若录入健康数据后不刷新会滞留旧数据（如三餐不更新）
+    if (parent === 'health' && (subName === 'overview' || subName === 'behavior') && window.initBehaviorHub) {
+      requestAnimationFrame(function() {
+        requestAnimationFrame(function() { window.initBehaviorHub('behaviorHubContainer'); });
+      });
+    }
     if (!moduleInitFlags[flagKey]) {
       moduleInitFlags[flagKey] = true;
       if (parent === 'finance') {

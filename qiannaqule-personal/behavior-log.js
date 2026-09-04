@@ -217,6 +217,8 @@
     var timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
     log.meals.push({ type: mealType, time: timeStr, items: items || '未记录', where: where });
     saveTodayLog(log);
+    // 健康数据变化广播：刷新健康总览/明细（总览受 moduleInitFlags 缓存，写入后必须主动刷新，否则最新一餐不显示）
+    if (window.healthDataChanged) { try { window.healthDataChanged(); } catch(e) {} }
 
     // 如果有金额，同时记录消费
     if (amount && amount > 0 && window.dailyTxAdd) {
