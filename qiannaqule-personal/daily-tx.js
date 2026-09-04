@@ -123,6 +123,7 @@
           migrated = true;
         }
       });
+      raw.forEach(function(t) { if (!t.createdAt) t.createdAt = t.date ? t.date + 'T00:00:00' : ''; });
       if (migrated) saveTx(raw);
       return raw;
     } catch(e) { return []; }
@@ -287,7 +288,11 @@
     }
     var txList = loadTx();
     var monthTx = txList.filter(function(t) { return t.date && t.date.substr(0, 7) === viewMonth; });
-    monthTx.sort(function(a, b) { return b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt); });
+    monthTx.sort(function(a, b) {
+      var d = String(b.date || '').localeCompare(String(a.date || ''));
+      if (d) return d;
+      return String(b.createdAt || b.id || '').localeCompare(String(a.createdAt || a.id || ''));
+    });
 
     // Compute totals
     var totalExp = 0, totalInc = 0;

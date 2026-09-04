@@ -10823,6 +10823,169 @@ body {
     }, 200);
   }
 
+  // v52.8.10-b6: 节气食养 → 每日一荤一素一汤家常菜，结合健康档案规避禁忌
+  function _getProfileField(key) {
+    try { if (window.MemoryManager && MemoryManager.getSync) { var v = MemoryManager.getSync('user', key, '') || ''; if (v) return v; } } catch(e) {}
+    try { if (window.HealthBridge && HealthBridge.loadProfile) { var pp = HealthBridge.loadProfile(); if (key==='constitution') return (pp.constitutions||[]).join('、'); if (key==='disease') return (pp.chronicTags||[]).join('、'); } } catch(e) {}
+    return '';
+  }
+  var _DIS_AVOID = {
+    '痛风':'痛风低嘌呤——忌排骨、海鲜、动物内脏与浓汤',
+    '高血压':'高血压控盐——每日食盐<5克，少酱油腌制品与咸菜',
+    '糖尿病':'糖尿病控糖——少糖、粥与精制主食，餐后适量活动',
+    '高血脂':'高血脂控脂——忌肥肉、动物内脏与油炸',
+    '冠心病':'冠心病低脂低盐——忌肥腻与过饱',
+    '慢性胃炎':'慢性胃炎温和——忌辛辣刺激与生冷',
+    '高尿酸':'高尿酸低嘌呤——忌海鲜、内脏与浓汤',
+    '中风':'中风低盐低脂——控血压，忌过饱与用力',
+    '肾病':'肾病控盐控蛋白——按医嘱调整'
+  };
+  // 家庭家常菜库（按季节 + 荤/素/汤；allergy 为该菜可能致敏原，avoid 为命中则剔除的病种关键词）
+  var _HOME_MEALS = {
+    spring: {
+      meat: [
+        { name: '青椒肉丝', ing: '里脊肉150克、青椒2个、蒜2瓣', steps: '里脊切丝加少许生抽淀粉抓匀→热油下肉丝炒变色盛出→下蒜片青椒丝炒香→倒回肉丝翻炒调味出锅', allergy: [] },
+        { name: '番茄炒蛋', ing: '番茄2个、鸡蛋3枚、葱花少许', steps: '鸡蛋打散加盐炒至凝固盛出→番茄切块下锅炒出汁→倒回鸡蛋翻匀加糖盐调味', allergy: ['鸡蛋'] },
+        { name: '芹菜炒肉丝', ing: '芹菜1把、瘦肉150克、姜丝少许', steps: '芹菜切段焯水→肉丝滑油盛出→下姜丝芹菜炒断生→倒回肉丝调味快炒', allergy: [] }
+      ],
+      veg: [
+        { name: '蒜蓉菠菜', ing: '菠菜300克、蒜末2瓣', steps: '菠菜洗净焯水去草酸→热油下蒜末爆香→下菠菜快炒加盐出锅', allergy: [] },
+        { name: '凉拌黄瓜', ing: '黄瓜2根、蒜末、香醋、香油', steps: '黄瓜拍段加盐腌5分钟→加蒜末香醋香油生抽拌匀', allergy: [] },
+        { name: '清炒小白菜', ing: '小白菜300克、蒜片2瓣', steps: '热油下蒜片爆香→下小白菜猛火快炒→加盐调味出锅', allergy: [] }
+      ],
+      soup: [
+        { name: '番茄鸡蛋汤', ing: '番茄1个、鸡蛋1枚、葱花', steps: '番茄切块煸炒→加开水煮开→淋入蛋液成蛋花→加盐葱花', allergy: ['鸡蛋'] },
+        { name: '菠菜豆腐汤', ing: '菠菜150克、嫩豆腐1块', steps: '菠菜焯水→豆腐切块入开水煮3分钟→下菠菜加盐香油', allergy: [] },
+        { name: '紫菜蛋花汤', ing: '紫菜1小把、鸡蛋1枚、虾皮少许', steps: '水开下紫菜煮1分钟→淋蛋液成花→加虾皮盐葱花香油', allergy: ['鸡蛋','虾'] }
+      ]
+    },
+    summer: {
+      meat: [
+        { name: '冬瓜炒肉片', ing: '冬瓜300克、瘦肉150克、姜片', steps: '肉片滑油盛出→下冬瓜片炒至半透明→倒回肉片加盐调味', allergy: [] },
+        { name: '苦瓜炒蛋', ing: '苦瓜1根、鸡蛋3枚', steps: '苦瓜去瓤切薄片盐腌去苦→鸡蛋炒熟→同苦瓜快炒加盐', allergy: ['鸡蛋'] },
+        { name: '青椒炒鸡丁', ing: '鸡胸肉200克、青椒2个', steps: '鸡丁腌好滑油→下青椒炒香→倒回鸡丁调味快炒', allergy: [] }
+      ],
+      veg: [
+        { name: '凉拌苦瓜', ing: '苦瓜1根、蒜末、香醋', steps: '苦瓜去瓤切薄片焯水过凉→加蒜末香醋生抽香油拌匀', allergy: [] },
+        { name: '清炒空心菜', ing: '空心菜300克、蒜末', steps: '热油下蒜末→下空心菜猛火快炒→加盐出锅', allergy: [] },
+        { name: '蒜泥茄子', ing: '长茄子2个、蒜末', steps: '茄子切条蒸8分钟→捣蒜泥加生抽香醋香油→淋茄子拌匀', allergy: [] }
+      ],
+      soup: [
+        { name: '冬瓜海带汤', ing: '冬瓜200克、干海带1小把', steps: '海带泡发切条→与冬瓜片同煮10分钟→加盐调味', allergy: [] },
+        { name: '丝瓜鸡蛋汤', ing: '丝瓜1根、鸡蛋1枚', steps: '丝瓜去皮切片→水开煮2分钟→淋蛋液加盐', allergy: ['鸡蛋'] },
+        { name: '冬瓜排骨汤', ing: '冬瓜300克、排骨250克', steps: '排骨焯水→与姜片炖40分钟→下冬瓜再煮15分钟加盐', allergy: [], avoid: ['痛风','高尿酸'] }
+      ]
+    },
+    autumn: {
+      meat: [
+        { name: '木耳炒鸡蛋', ing: '干木耳1把泡发、鸡蛋3枚', steps: '木耳焯水→鸡蛋炒熟盛出→下木耳快炒→倒回鸡蛋加盐', allergy: ['鸡蛋'] },
+        { name: '白萝卜烧肉', ing: '白萝卜半根、五花肉150克', steps: '肉块煸出油→下萝卜块翻炒→加水焖煮至萝卜软烂加盐', allergy: [] },
+        { name: '香菇滑鸡', ing: '鸡腿肉250克、鲜香菇4朵', steps: '鸡块腌好→与香菇同炒→加少量水焖熟收汁', allergy: [] }
+      ],
+      veg: [
+        { name: '清炒藕片', ing: '莲藕1节、蒜片', steps: '藕切片洗去淀粉→热油下蒜片→下藕片炒断生加盐', allergy: [] },
+        { name: '香菇青菜', ing: '上海青250克、香菇3朵', steps: '香菇切片煸香→下青菜快炒→加盐调味出锅', allergy: [] },
+        { name: '干煸四季豆', ing: '四季豆300克、蒜末', steps: '四季豆撕筋切段多油煸至表皮微皱→加蒜末盐调味', allergy: [] }
+      ],
+      soup: [
+        { name: '山药排骨汤', ing: '铁棍山药1根、排骨250克', steps: '排骨焯水炖40分钟→下山药块再炖20分钟加盐', allergy: [], avoid: ['痛风','高尿酸'] },
+        { name: '萝卜丝鲫鱼汤', ing: '白萝卜半根、鲫鱼1条', steps: '鲫鱼两面煎黄→冲入开水下萝卜丝→煮至汤白加盐', allergy: [], avoid: ['痛风','高尿酸'] },
+        { name: '南瓜小米粥', ing: '南瓜150克、小米80克', steps: '南瓜去皮切块→与小米同煮至软烂成粥', allergy: [], avoid: ['糖尿病'] }
+      ]
+    },
+    winter: {
+      meat: [
+        { name: '土豆烧肉', ing: '土豆2个、五花肉150克', steps: '五花肉煸出油→下土豆块→加水焖熟收汁加盐', allergy: [] },
+        { name: '白菜炖豆腐', ing: '大白菜半棵、豆腐1块、五花肉50克', steps: '肉片煸香→下白菜炒软→加豆腐加水炖10分钟加盐', allergy: [] },
+        { name: '胡萝卜炒鸡丁', ing: '鸡胸肉200克、胡萝卜1根', steps: '鸡丁滑油→下胡萝卜片炒软→倒回鸡丁加盐调味', allergy: [] }
+      ],
+      veg: [
+        { name: '手撕包菜', ing: '包菜半棵、干辣椒少许', steps: '包菜手撕成片→热油加干辣椒→下包菜快速炒软加盐', allergy: [] },
+        { name: '清炒豆芽', ing: '绿豆芽300克、蒜末', steps: '热油下蒜末→下豆芽大火快炒→加盐醋出锅', allergy: [] },
+        { name: '炝炒萝卜丝', ing: '白萝卜半根、蒜末', steps: '萝卜切细丝→热油下蒜末→下萝卜丝炒熟加盐', allergy: [] }
+      ],
+      soup: [
+        { name: '萝卜羊肉汤', ing: '白萝卜半根、羊肉200克、姜片', steps: '羊肉焯水→与姜片炖1小时→下萝卜块再煮20分钟加盐', allergy: [], avoid: ['痛风','高尿酸','高血压'] },
+        { name: '菠菜猪肝汤', ing: '菠菜150克、猪肝100克', steps: '猪肝切片盐水焯→水开下肝片与焯水菠菜→煮2分钟加盐', allergy: [], avoid: ['痛风','高尿酸'] },
+        { name: '番茄豆腐汤', ing: '番茄1个、嫩豆腐1块', steps: '番茄煸炒出沙→加开水下豆腐煮3分钟→加盐', allergy: [] }
+      ]
+    }
+  };
+  function _seasonOf(td) {
+    if (td && td.season && _HOME_MEALS[td.season]) return td.season;
+    var m = new Date().getMonth() + 1;
+    if (m >= 3 && m <= 5) return 'spring';
+    if (m >= 6 && m <= 8) return 'summer';
+    if (m >= 9 && m <= 11) return 'autumn';
+    return 'winter';
+  }
+  function renderSeasonalMealRecs(el, td) {
+    if (!el) return;
+    var constitution = _getProfileField('constitution');
+    var allergy = _getProfileField('allergy');
+    var disease = _getProfileField('disease');
+    var hasProfile = !!(constitution || allergy || disease);
+    var season = _seasonOf(td);
+    var pool = _HOME_MEALS[season] || _HOME_MEALS.spring;
+    var allergyList = (allergy || '').split(/[、，,;\s]+/).filter(function(x){ return x; });
+    var disList = (disease || '').split(/[、，,;\s]+/).filter(function(x){ return x; });
+
+    // 逐类筛选：过敏剔除 + 病种命中该菜 avoid 则剔除
+    function pick(which) {
+      var list = pool[which].filter(function(r) {
+        var hay = (r.name || '') + (r.ing || '');
+        for (var i = 0; i < allergyList.length; i++) {
+          if (allergyList[i] && (hay.indexOf(allergyList[i]) >= 0 || (r.allergy || []).join('、').indexOf(allergyList[i]) >= 0)) return false;
+        }
+        for (var j = 0; j < disList.length; j++) {
+          if ((r.avoid || []).indexOf(disList[j]) >= 0) return false;
+        }
+        return true;
+      });
+      var day = new Date().getDate();
+      var base = (list.length ? list : pool[which]).slice();
+      return base[day % base.length];
+    }
+    var dishMeat = pick('meat');
+    var dishVeg = pick('veg');
+    var dishSoup = pick('soup');
+
+    var head = '';
+    if (hasProfile) {
+      head = '<div style="font-size:12px;color:#0f766e;font-weight:600;margin-bottom:4px">今日家常菜 · 一荤一素一汤，已结合你的健康档案规避忌口</div>';
+      var disTips = [];
+      for (var k in _DIS_AVOID) { if (disease && disease.indexOf(k) >= 0) disTips.push(_DIS_AVOID[k]); }
+      if (disTips.length) head += '<div style="font-size:11px;color:#dc2626;margin-bottom:4px">' + disTips.join('<br>') + '</div>';
+    } else {
+      head = '<div style="font-size:12px;color:#94a3b8;margin-bottom:4px">今日家常菜 · 一荤一素一汤。完善健康档案后，将按你的体质与忌口精准推荐。</div>';
+    }
+    var constTip = '';
+    if (constitution) {
+      if (constitution.indexOf('阳虚') >= 0 || constitution.indexOf('寒湿') >= 0) constTip = '你偏阳虚/寒湿，汤水宜温热，忌生冷。';
+      else if (constitution.indexOf('阴虚') >= 0) constTip = '你偏阴虚，宜润养，忌辛辣燥热。';
+      else if (constitution.indexOf('湿热') >= 0 || constitution.indexOf('痰湿') >= 0) constTip = '你偏湿热/痰湿，宜清淡祛湿，忌甜腻。';
+      else if (constitution.indexOf('血瘀') >= 0) constTip = '你偏血瘀，宜温通，忌久坐生冷不运动。';
+      else if (constitution.indexOf('气郁') >= 0) constTip = '你偏气郁，宜疏肝理气，忌郁怒。';
+    }
+    var out = head;
+    if (constTip) out += '<div style="font-size:11px;color:#475569;margin-bottom:5px">' + constTip + '</div>';
+    function block(r, label) {
+      out += '<div style="margin-bottom:7px;padding:8px;background:#f8fafc;border-radius:10px">' +
+        '<div style="font-size:13px;color:#134e4a;font-weight:600">' + label + ' · ' + r.name + '</div>' +
+        '<div style="font-size:11px;color:#64748b;margin-top:3px"><b>用料：</b>' + r.ing + '</div>' +
+        '<div style="font-size:11px;color:#475569;margin-top:2px"><b>做法：</b>' + r.steps + '</div>' +
+        '</div>';
+    }
+    block(dishMeat, '荤');
+    block(dishVeg, '素');
+    block(dishSoup, '汤');
+    if (allergyList.length) {
+      out += '<div style="font-size:11px;color:#dc2626">已为你规避过敏原：' + allergy + '。</div>';
+    }
+    out += '<div style="font-size:11px;color:#94a3b8;margin-top:4px">依据健康档案+当前节气（' + (td && td.name ? td.name : season) + '）推荐，每日轮换。</div>';
+    el.innerHTML = out;
+  }
+
   // v52: 节气养生banner更新
   function updateSolarTermBanner() {
     try {
@@ -10835,19 +10998,10 @@ body {
       if (tipEl && td.foods && td.foods.length) {
         tipEl.textContent = '宜食：' + td.foods.slice(0, 3).join('、');
       }
-      // 食材推荐
+      // 节气食养：依据健康档案推荐家常菜（剔除过敏原+病种忌口提示）
       var foodEl = document.getElementById('solarFoodRecommend');
       if (foodEl) {
-        if (td.foods && td.foods.length) {
-          var html = '';
-          td.foods.forEach(function(f) {
-            html += '· ' + f + '<br>';
-          });
-          html += '<br><span style="color:#94a3b8;font-size:12px">顺应时节，食养有道</span>';
-          foodEl.innerHTML = html;
-        } else {
-          foodEl.innerHTML = '暂无节气食养数据';
-        }
+        renderSeasonalMealRecs(foodEl, td);
       }
     } catch(e) {}
   }
