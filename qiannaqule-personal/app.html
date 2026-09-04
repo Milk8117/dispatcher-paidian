@@ -15344,10 +15344,10 @@ function toggleGuideSection(index) {
             '</div>' +
             '<div id="we-friend-block" style="display:none">' +
             '<div style="display:flex;gap:8px;margin-bottom:8px">' +
-              '<div style="flex:1"><div style="font-size:13px;color:#64748b;margin-bottom:4px">借贷名称</div><input type="text" id="we-loan-name" placeholder="如：张叔" style="font-size:16px;width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:10px"></div>' +
+              '<div style="flex:1"><div style="font-size:13px;color:#64748b;margin-bottom:4px">借贷名称</div><input type="text" id="we-loan-name-f" placeholder="如：张叔" style="font-size:16px;width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:10px"></div>' +
             '</div>' +
             '<div style="display:flex;gap:8px;margin-bottom:8px">' +
-              '<div style="flex:1"><div style="font-size:13px;color:#64748b;margin-bottom:4px">金额（元）</div><input type="number" id="we-amount" placeholder="50000" min="0" step="100" style="font-size:16px;width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:10px"></div>' +
+              '<div style="flex:1"><div style="font-size:13px;color:#64748b;margin-bottom:4px">金额（元）</div><input type="number" id="we-amount-f" placeholder="50000" min="0" step="100" style="font-size:16px;width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:10px"></div>' +
             '</div>' +
             '<div style="display:flex;gap:8px;margin-bottom:4px"><div style="font-size:13px;color:#64748b;margin-bottom:4px">还款日期</div></div>' +
             _wePaydateHtml() +
@@ -15394,8 +15394,8 @@ function toggleGuideSection(index) {
       var lkEl = document.getElementById('we-loan-kind'); if (lkEl) lkEl.value = lkind;
       if (typeof toggleLoanKind === 'function') { try { toggleLoanKind(); } catch(e) {} }
       if (lkind === 'friend') {
-        setWeVal('we-loan-name', it.name);
-        setWeVal('we-amount', it.amt);
+        setWeVal('we-loan-name-f', it.name);
+        setWeVal('we-amount-f', it.amt);
         _wePaydateSet(it.repayDate);
       } else {
         setWeVal('we-loan-name', it.name);
@@ -15420,7 +15420,13 @@ function toggleGuideSection(index) {
       if (document.getElementById('we-ins-type')) kind = 'insurance';
       else if (document.getElementById('we-loan-name') || document.getElementById('we-type')) kind = 'loan';
     } catch(e) { }
-    var amount = parseFloat(getWeEl('we-amount')) || 0;
+    var amount;
+    if (kind === 'insurance') {
+      amount = parseFloat(getWeEl('we-amount')) || 0;
+    } else {
+      var _lk = getWeEl('we-loan-kind') || 'bank';
+      amount = parseFloat(getWeEl(_lk === 'friend' ? 'we-amount-f' : 'we-amount')) || 0;
+    }
     if (amount <= 0) { alert('请输入有效金额'); return; }
     var premium = parseFloat(getWeEl('we-premium')) || 0;
     var term = parseFloat(getWeEl('we-term')) || 0;
@@ -15434,7 +15440,7 @@ function toggleGuideSection(index) {
       if (_weEditIndex >= 0 && _weEditIndex < ins.length) { ins[_weEditIndex] = obj; } else { ins.push(obj); }
       window.WealthCT.saveInsurance(ins);
     } else {
-      var name = getWeEl('we-loan-name') || '';
+      var name = getWeEl(lkind === 'friend' ? 'we-loan-name-f' : 'we-loan-name') || '';
       var lkind = getWeEl('we-loan-kind') || 'bank';
       var loans = window.WealthCT.loadLoans() || [];
       var obj;
@@ -16406,17 +16412,17 @@ function toggleGuideSection(index) {
         var curY = now.getFullYear();
         var yOpts = '';
         for (var yi = curY; yi >= 1900; yi--) {
-          yOpts += '<option value="' + yi + '"' + (String(yi) === y ? ' selected' : '') + '>' + yi + '年</option>';
+          for (var yy = y - 5; yy <= y + 30; yy++) yOpts += '<option value="' + yy + '"' + (yy === y ? ' selected' : '') + '>' + yy + '年</option>';
         }
         var mOpts = '';
         for (var mi = 1; mi <= 12; mi++) {
           var ms = mi < 10 ? '0' + mi : String(mi);
-          mOpts += '<option value="' + ms + '"' + (ms === m ? ' selected' : '') + '>' + mi + '月</option>';
+          for (var mm = 1; mm <= 12; mm++) mOpts += '<option value="' + mm + '"' + (mm === (now.getMonth() + 1) ? ' selected' : '') + '>' + mm + '月</option>';
         }
         var dOpts = '';
         for (var di = 1; di <= 31; di++) {
           var ds = di < 10 ? '0' + di : String(di);
-          dOpts += '<option value="' + ds + '"' + (ds === d ? ' selected' : '') + '>' + di + '日</option>';
+          for (var dd = 1; dd <= 31; dd++) dOpts += '<option value="' + dd + '"' + (dd === now.getDate() ? ' selected' : '') + '>' + dd + '日</option>';
         }
         html += '<div class="profile-date-row" data-field="' + field.key + '" data-layer="' + field.layer + '">';
         html += '<select class="profile-date-select" data-date-part="year">' + yOpts + '</select>';
