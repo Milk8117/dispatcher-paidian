@@ -209,7 +209,20 @@
         { name: '葛根茶', ing: '葛根15克', method: '葛根洗净切片，沸水冲泡加盖焖15分钟后代茶饮', apply: '肝阳上亢、气血瘀滞型，头晕颈项强痛者' },
         { name: '芹菜炖豆腐', ing: '鲜芹菜100克，嫩豆腐200克', method: '芹菜连根洗净切段，豆腐切块，同入锅加清水文火炖20分钟调味食用', apply: '肝阳上亢型，头晕头胀、面红目赤、血压偏高者' },
         { name: '丹参山楂粥', ing: '丹参10克，山楂10克，粳米100克', method: '丹参山楂先煎20分钟取汁，与粳米同煮为粥，早晚温食', apply: '气虚血瘀型恢复期，肢体麻木、舌质紫暗者' }
-      ]
+      ],
+      weekMenu: {
+        note: '通用原则：每日食盐≤5克（约一啤酒盖），以蒸煮炖为主、少油少盐；急性期若有吞咽困难，须将食物打成糊状或细碎再喂，防呛咳误吸。',
+        days: [
+          { day: '周一', meals: ['早：小米南瓜粥、水煮蛋(蛋白)、焯水菠菜', '午：清蒸鲈鱼、蒜蓉西兰花、杂粮饭', '晚：冬瓜瘦肉汤、蒸红薯、凉拌木耳'] },
+          { day: '周二', meals: ['早：燕麦牛奶粥、全麦馒头半个、凉拌黄瓜', '午：番茄炒蛋(少油·蛋黄半个)、清炒芦笋、米饭', '晚：青菜豆腐汤、清蒸鳕鱼、玉米'] },
+          { day: '周三', meals: ['早：山药胡萝卜粥、蒸蛋羹、焯水油麦菜', '午：鸡胸肉烩时蔬、糙米饭、凉拌芹菜', '晚：紫菜蛋花汤(去黄)、蒸南瓜、清炒白菜'] },
+          { day: '周四', meals: ['早：绿豆百合粥、蒸山药、水煮蛋蛋白', '午：豆腐炒虾仁(少盐)、清炒荷兰豆、米饭', '晚：萝卜排骨汤(撇油去沫)、蒸芋头、凉拌茄子'] },
+          { day: '周五', meals: ['早：菜肉馄饨(清淡汤底)、蒸蛋羹', '午：清蒸多宝鱼、蒜蓉木耳菜、杂粮饭', '晚：番茄豆腐汤、蒸玉米、清炒苋菜'] },
+          { day: '周六', meals: ['早：黑米红枣粥(少枣)、全麦吐司、焯水生菜', '午：香菇炖鸡(去皮去油)、清炒西葫芦、米饭', '晚：冬瓜薏米汤、蒸山药、清炒豆角'] },
+          { day: '周日', meals: ['早：小米粥、水煮蛋蛋白、凉拌豆腐丝', '午：白灼虾、蒜蓉空心菜、糙米饭', '晚：海带豆腐汤、蒸红薯、清炒芥蓝'] }
+        ],
+        tips: ['盐是头号红线：每日<5克，酱油、咸菜、腊味、腌制品一律不放', '油只用植物油、不放猪油，全免煎炸，肉类去皮去油', '蛋白以鱼虾豆腐蛋清鸡胸为主，红肉要少', '合并高血压需更严格减盐；合并糖尿病则粥类减量、多加粗粮；高尿酸者虾蟹菌菇要节制']
+      }
     },
   ];
 
@@ -322,6 +335,22 @@
       html += '</div>';
     });
     html += '</div>';
+    // ===== 一周家常菜谱（仅中风板块）=====
+    if (disease.weekMenu) {
+      html += '\u003cdiv class=\"cd-section\"\u003e';
+      html += '\u003cdiv class=\"cd-section-title\"\u003e\u003csvg viewBox=\"0 0 24 24\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"'+disease.color+'\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"\u003e\u003cpath d=\"M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2\"/\u003e\u003cpath d=\"M7 2v20\"/\u003e\u003cpath d=\"M21 15V2\"/\u003e\u003cpath d=\"M18 15a2 2 0 0 0 2 2 2 2 0 0 1 0 4 2 2 0 0 1-2-2z\"/\u003e\u003c/svg\u003e一周家常菜谱（低盐低脂）\u003c/div\u003e';
+      html += '\u003cdiv class=\"cd-week-note\"\u003e'+disease.weekMenu.note+'\u003c/div\u003e';
+      disease.weekMenu.days.forEach(function(w) {
+        html += '\u003cdiv class=\"cd-week-day\"\u003e';
+        html += '\u003cdiv class=\"cd-week-day-title\"\u003e'+w.day+'\u003c/div\u003e';
+        w.meals.forEach(function(m) { html += '\u003cdiv class=\"cd-week-meal\"\u003e'+m+'\u003c/div\u003e'; });
+        html += '\u003c/div\u003e';
+      });
+      html += '\u003cdiv class=\"cd-week-tip-title\"\u003e\u003csvg viewBox=\"0 0 24 24\" width=\"12\" height=\"12\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"\u003e\u003ccircle cx=\"12\" cy=\"12\" r=\"10\"/\u003e\u003cpath d=\"M12 16v-4\"/\u003e\u003cpath d=\"M12 8h.01\"/\u003e\u003c/svg\u003e 关键提醒\u003c/div\u003e';
+      disease.weekMenu.tips.forEach(function(t) { html += '\u003cdiv class=\"cd-week-tip\"\u003e'+t+'\u003c/div\u003e'; });
+      html += '\u003c/div\u003e';
+    }
+
 
     html += '</div>';
     containerEl.innerHTML = html;
@@ -376,7 +405,15 @@
       '.cd-recipe-card{background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:10px 12px;margin-bottom:8px}',
       '.cd-recipe-name{font-size:13px;font-weight:600;color:#92400e;margin-bottom:4px}',
       '.cd-recipe-row{font-size:11px;color:#78716c;display:flex;align-items:flex-start;gap:4px;margin:3px 0;line-height:1.4}',
-      '.cd-recipe-apply{font-size:11px;color:#059669;display:flex;align-items:flex-start;gap:4px;margin-top:4px;line-height:1.4}'
+      '.cd-recipe-apply{font-size:11px;color:#059669;display:flex;align-items:flex-start;gap:4px;margin-top:4px;line-height:1.4}',
+      '.cd-week-note{font-size:12px;color:#4b5563;background:#f6f4ff;border-left:3px solid #8B5CF6;padding:8px 10px;border-radius:6px;margin-bottom:10px;line-height:1.6}',
+      '.cd-week-day{background:#fff;border:1px solid #ede9fe;border-radius:8px;padding:8px 10px;margin-bottom:8px}',
+      '.cd-week-day-title{font-size:13px;font-weight:600;color:#5b21b6;border-bottom:1px dashed #ddd6fe;padding-bottom:4px;margin-bottom:4px}',
+      '.cd-week-meal{font-size:12px;color:#4b5563;line-height:1.6;padding:2px 0}',
+      '.cd-week-meal::before{content:"· ";color:#8B5CF6}',
+      '.cd-week-tip-title{font-size:12px;font-weight:600;color:#374151;display:flex;align-items:center;gap:4px;margin:10px 0 4px}',
+      '.cd-week-tip{font-size:11px;color:#78716c;padding:4px 0 4px 14px;position:relative;line-height:1.5}',
+      '.cd-week-tip::before{content:"";position:absolute;left:4px;top:11px;width:4px;height:4px;border-radius:50%;background:#8B5CF6;opacity:.5}'
     ].join('\n');
     document.head.appendChild(style);
   })();
