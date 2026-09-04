@@ -824,6 +824,15 @@
             }
             break;
 
+          case 'set_reminder':
+            if (action.text && window.MiReminder) {
+              var whenStr = action.datetime || action.when || '';
+              var base = new Date(); if (whenStr) { var parts=whenStr.split(/[T\s]/); if (parts[0]) { var dd=new Date(parts[0]); if (!isNaN(dd.getTime())) base=dd; } if (parts[1]) { var hm=parts[1].split(':'); base.setHours(parseInt(hm[0],10)||0, parseInt(hm[1],10)||0, 0, 0); } }
+              window.MiReminder.addOneTime(action.text, base.toISOString());
+              results.push({ type: 'set_reminder', success: true, text: action.text });
+            }
+            break;
+
           case 'add_expense':
             if (action.amount && window.dailyTxAdd) {
               window.dailyTxAdd({

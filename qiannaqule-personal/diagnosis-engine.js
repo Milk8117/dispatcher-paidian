@@ -813,7 +813,7 @@
     // 3.5) b16 现金与应收 + 固定资产（存款现金 cashs / 借出 lendings / 固定资产 assets）
     var bCash = 0, bLend = 0, bFx = 0;
     if (global.WealthCT) {
-      try { if (typeof global.WealthCT.loadCashs === 'function') (global.WealthCT.loadCashs()||[]).forEach(function(c){ bCash += toNum(c.amt); }); } catch(e){}
+      try { if (typeof global.WealthCT.loadCashs === 'function') (global.WealthCT.loadCashs()||[]).forEach(function(c){ bCash += (c && c.ctype === '每月定存') ? (toNum(c.amt) * (parseInt(c.period,10)||0)) : toNum(c.amt); }); } catch(e){}
       try { if (typeof global.WealthCT.loadLendings === 'function') (global.WealthCT.loadLendings()||[]).forEach(function(L){ bLend += toNum(L.amt); }); } catch(e){}
       try { if (typeof global.WealthCT.loadAssets === 'function') (global.WealthCT.loadAssets()||[]).forEach(function(a){ bFx += toNum(a.amt); }); } catch(e){}
     }

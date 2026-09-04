@@ -15050,7 +15050,7 @@ function toggleGuideSection(index) {
       }
     } catch(e) {}
     var cashTotal = 0, lendTotal = 0, fxTotal = 0;
-    try { if (window.WealthCT && typeof WealthCT.loadCashs === 'function') (WealthCT.loadCashs()||[]).forEach(function(c){ cashTotal += parseFloat(c.amt)||0; }); } catch(e){}
+    try { if (window.WealthCT && typeof WealthCT.loadCashs === 'function') (WealthCT.loadCashs()||[]).forEach(function(c){ cashTotal += _cashAmt(c); }); } catch(e){}
     try { if (window.WealthCT && typeof WealthCT.loadLendings === 'function') (WealthCT.loadLendings()||[]).forEach(function(L){ lendTotal += parseFloat(L.amt)||0; }); } catch(e){}
     try { if (window.WealthCT && typeof WealthCT.loadAssets === 'function') (WealthCT.loadAssets()||[]).forEach(function(a){ fxTotal += parseFloat(a.amt)||0; }); } catch(e){}
     var totalAssets = cash + holdingsValue + cashTotal + lendTotal + fxTotal;
@@ -15290,9 +15290,10 @@ function toggleGuideSection(index) {
         item.innerHTML =
           '<div class="wlc-item-left"><div class="wlc-item-icon" style="background:#ecfdf5;color:#10b981">' +
             '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div>' +
-            '<div style="min-width:0"><div class="wlc-item-name">' + escapeHtmlSafe(c.name || '存款') + '</div><div class="wlc-item-desc">' + (c.ctype || '现金') + (c.date ? ' · 存于 ' + c.date : '') + '</div></div></div>' +
-          '<div class="wlc-item-right"><div><div class="wlc-item-value">' + (Math.round(parseFloat(c.amt)||0)).toLocaleString('zh-CN') + '</div><div class="wlc-item-change">元</div></div>' +
+            '<div style="min-width:0"><div class="wlc-item-name">' + escapeHtmlSafe(c.name || '存款') + '</div><div class="wlc-item-desc">' + (c.ctype === '每月定存' ? ('月存¥'+(Math.round(parseFloat(c.amt)||0)).toLocaleString('zh-CN')) + ' · 已存' + (parseInt(c.period,10)||0) + '期 · 每月' + (parseInt(c.moDay,10)||'') + '号' : ((c.ctype || '现金') + (c.date ? ' · 存于 ' + c.date : ''))) + '</div></div></div>' +
+          '<div class="wlc-item-right"><div><div class="wlc-item-value">' + (c.ctype === '每月定存' ? (Math.round((parseFloat(c.amt)||0)*(parseInt(c.period,10)||0))).toLocaleString('zh-CN') : (Math.round(parseFloat(c.amt)||0)).toLocaleString('zh-CN')) + '</div><div class="wlc-item-change">元</div></div>' +
             '<div style="display:flex;flex-direction:column;gap:4px;margin-left:6px">' +
+              (c.ctype === '每月定存' ? '<button style="padding:2px 8px;font-size:11px;border:1px solid #dbeafe;border-radius:6px;background:#eff6ff;color:#2563eb;cursor:pointer" onclick="recordCashPeriod(' + idx + ')">存一期</button>' : '') +
               '<button style="padding:2px 8px;font-size:11px;border:1px solid #e2e8f0;border-radius:6px;background:#fff;color:#475569;cursor:pointer" onclick="editAsset(\'cash\',' + idx + ')">修改</button>' +
               '<button style="padding:2px 8px;font-size:11px;border:1px solid #fecaca;border-radius:6px;background:#fff;color:#ef4444;cursor:pointer" onclick="deleteAsset(\'cash\',' + idx + ')">删除</button>' +
             '</div></div>';
@@ -15328,7 +15329,7 @@ function toggleGuideSection(index) {
   }
   function renderCashLendSummary() {
     var cashT = 0, lendT = 0;
-    try { if (window.WealthCT && typeof WealthCT.loadCashs === 'function') (WealthCT.loadCashs()||[]).forEach(function(c){ cashT += parseFloat(c.amt)||0; }); } catch(e){}
+    try { if (window.WealthCT && typeof WealthCT.loadCashs === 'function') (WealthCT.loadCashs()||[]).forEach(function(c){ cashT += _cashAmt(c); }); } catch(e){}
     try { if (window.WealthCT && typeof WealthCT.loadLendings === 'function') (WealthCT.loadLendings()||[]).forEach(function(L){ lendT += parseFloat(L.amt)||0; }); } catch(e){}
     var el = document.getElementById('wealthCashLendTotal'); if (el) el.textContent = '¥' + fmtMoneySafe(cashT + lendT);
     return { cashT: cashT, lendT: lendT };
@@ -15356,7 +15357,13 @@ function toggleGuideSection(index) {
             '<div style="font-size:13px;color:#64748b;margin-bottom:4px">金额（元）</div>' +
             '<input type="number" id="we-cash-amt" placeholder="50000" min="0" step="100" style="font-size:16px;width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:12px">' +
             '<div style="font-size:13px;color:#64748b;margin-bottom:4px">类型</div>' +
-            '<select id="we-cash-type" style="font-size:16px;width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:12px"><option value="活期">活期</option><option value="定期">定期</option><option value="货币基金">货币基金</option><option value="现金">现金</option></select>' +
+            '<select id="we-cash-type" style="font-size:16px;width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:12px" onchange="window.toggleWeMoDay()"><option value="活期">活期</option><option value="定期">定期</option><option value="货币基金">货币基金</option><option value="现金">现金</option><option value="每月定存">每月定存</option></select>' +
+            '<div id="we-moday-box" style="display:none;border:1px solid #dbeafe;background:#eff6ff;border-radius:10px;padding:10px;margin-bottom:12px">' +
+              '<div style="font-size:13px;color:#64748b;margin-bottom:4px">每月存入日（几号）</div>' +
+              '<input type="number" id="we-cash-moday" placeholder="如 15" min="1" max="31" style="font-size:16px;width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:12px">' +
+              '<div style="font-size:13px;color:#64748b;margin-bottom:4px">已存期数（期，确认存一期后+1）</div>' +
+              '<input type="number" id="we-cash-period" placeholder="0" min="0" style="font-size:16px;width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:10px">' +
+            '</div>' +
             '<div style="font-size:13px;color:#64748b;margin-bottom:4px">存入日期</div>' + _wePaydateHtml()
           : '<div style="font-size:13px;color:#64748b;margin-bottom:4px">借给谁</div>' +
             '<input type="text" id="we-lend-name" placeholder="如：张叔" style="font-size:16px;width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:12px">' +
@@ -15378,7 +15385,7 @@ function toggleGuideSection(index) {
     var it = list[idx]; if (!it) return;
     if (kind === 'cash') {
       setWeVal('we-cash-name', it.name); setWeVal('we-cash-amt', it.amt);
-      var t = document.getElementById('we-cash-type'); if (t && it.ctype) t.value = it.ctype;
+      var t = document.getElementById('we-cash-type'); if (t && it.ctype) { t.value = it.ctype; window.toggleWeMoDay(); if (it.ctype === '每月定存') { setWeVal('we-cash-moday', it.moDay); setWeVal('we-cash-period', it.period || 0); } }
       _wePaydateSet(it.date);
     } else {
       setWeVal('we-lend-name', it.name); setWeVal('we-lend-amt', it.amt);
@@ -15395,6 +15402,7 @@ function toggleGuideSection(index) {
       var date = _wePaydateGet();
       var arr = window.WealthCT.loadCashs() || [];
       var obj = { kind: 'cash', name: name, amt: amt, ctype: ctype, date: date };
+      if (ctype === '每月定存') { obj.moDay = parseInt(getWeEl('we-cash-moday'),10)||0; obj.period = parseInt(getWeEl('we-cash-period'),10)||0; obj.lastYm = obj.lastYm || ''; }
       if (_weEditIndex >= 0 && _weEditIndex < arr.length) { arr[_weEditIndex] = obj; } else { arr.push(obj); }
       window.WealthCT.saveCashs(arr);
     } else {
@@ -15540,7 +15548,7 @@ function toggleGuideSection(index) {
     var now = new Date();
     var y = now.getFullYear();
     var yOpts = '', mOpts = '', dOpts = '';
-    for (var yy = y - 5; yy <= y + 30; yy++) yOpts += '\u003coption value="' + yy + '"' + (yy === y ? ' selected' : '') + '\u003e' + yy + '年\u003c/option\u003e';
+    for (var yy = y - 40; yy <= y + 30; yy++) yOpts += '\u003coption value="' + yy + '"' + (yy === y ? ' selected' : '') + '\u003e' + yy + '年\u003c/option\u003e';
     for (var mm = 1; mm <= 12; mm++) mOpts += '\u003coption value="' + mm + '"' + (mm === (now.getMonth() + 1) ? ' selected' : '') + '\u003e' + mm + '月\u003c/option\u003e';
     for (var dd = 1; dd <= 31; dd++) dOpts += '\u003coption value="' + dd + '"' + (dd === now.getDate() ? ' selected' : '') + '\u003e' + dd + '日\u003c/option\u003e';
     return {
@@ -15840,6 +15848,96 @@ function toggleGuideSection(index) {
   }
 
   // 财富域 R1 全量刷新入口
+  // ========== MiRun 统一提醒 v1：每月定存+保单缴费+目标到期+一次性提醒，集中播报 ==========
+  function _mrNowYm(){ var n=new Date(); return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0'); }
+  function _mrLoad(k,d){ try{ var v=JSON.parse(localStorage.getItem(k)||'null'); return v==null?d:v; }catch(e){ return d; } }
+  function _mrSave(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+  function _cashAmt(c){ var base=parseFloat(c.amt)||0; if(c && c.ctype==='每月定存'){ return base*(parseInt(c.period,10)||0); } return base; }
+  window.toggleWeMoDay = function(){ try{ var box=document.getElementById('we-moday-box'); var t=document.getElementById('we-cash-type'); if(box) box.style.display=(t && t.value==='每月定存')?'block':'none'; }catch(e){} };
+  window.recordCashPeriod = function(idx){
+    if(!window.WealthCT || typeof WealthCT.loadCashs!=='function') return;
+    var arr=WealthCT.loadCashs()||[]; var c=arr[idx]; if(!c||c.ctype!=='每月定存') return;
+    var a=parseFloat(c.amt)||0;
+    if(!window.confirm('确认本月已存入 ¥'+(Math.round(a)).toLocaleString('zh-CN')+' 吗？已存期数+1')) return;
+    c.period=(parseInt(c.period,10)||0)+1; c.lastYm=_mrNowYm();
+    arr[idx]=c; WealthCT.saveCashs(arr);
+    try{ renderInsuranceSummary(); }catch(e){}
+    try{ refreshWealthDashboard(); }catch(e){}
+  };
+  window.MiReminder = {
+    addOneTime: function(text, whenISO){
+      var d = new Date(whenISO); if(isNaN(d.getTime())) d = new Date(Date.now()+30*60*1000);
+      var f=function(x){ return String(x).padStart(2,'0'); };
+      var rec={ id:Date.now(), text:text,
+        date:d.getFullYear()+'-'+f(d.getMonth()+1)+'-'+f(d.getDate()),
+        at:f(d.getHours())+':'+f(d.getMinutes()), dismissed:false, fired:false };
+      var arr=_mrLoad('mijieai_mr_onetime', []); arr.push(rec); _mrSave('mijieai_mr_onetime', arr);
+      var self=this; setTimeout(function(){ self._fireDue(); }, 20000);
+      return rec;
+    },
+    _fireDue: function(){
+      try{
+        var now=new Date(); var f=function(x){ return String(x).padStart(2,'0'); };
+        var date=now.getFullYear()+'-'+f(now.getMonth()+1)+'-'+f(now.getDate());
+        var hm=f(now.getHours())+':'+f(now.getMinutes());
+        var arr=_mrLoad('mijieai_mr_onetime', []);
+        var due=[], old=[];
+        arr.forEach(function(r){ if(r.dismissed) return; if(r.date===date && !r.fired && r.at<=hm) due.push(r); else if(r.date<date) old.push(r); });
+        var all=due.concat(old);
+        if(all.length){
+          arr.forEach(function(r){ if(all.indexOf(r)>=0) r.fired=true; });
+          _mrSave('mijieai_mr_onetime', arr);
+          var msg=all.map(function(r){ return r.text; }).join('；');
+          this._pop('提醒：'+msg);
+        }
+      }catch(e){}
+      var self=this;
+      setTimeout(function(){ if(document.hidden===false){ self._fireDue(); } }, 60000);
+    },
+    _pop: function(msg){
+      try{ if(window.AIAction && AIAction._toast){ AIAction._toast(msg); return; } }catch(e){}
+      try{ var el=document.createElement('div'); el.style.cssText='position:fixed;top:0;left:0;right:0;z-index:20000;background:#2563eb;color:#fff;text-align:center;padding:12px;font-size:14px'; el.textContent=msg; document.body.appendChild(el); setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); },6000); }catch(e){}
+    },
+    collectToday: function(){
+      var items=[]; var now=new Date(); var f=function(x){ return String(x).padStart(2,'0'); };
+      var date=now.getFullYear()+'-'+f(now.getMonth()+1)+'-'+f(now.getDate());
+      var ym=_mrNowYm();
+      try{ (_mrLoad('mijieai_mr_onetime',[])).forEach(function(r){ if(!r.dismissed && r.date<=date) items.push({cat:'提醒', text:r.text}); }); }catch(e){}
+      try{ if(window.WealthCT && WealthCT.loadCashs){(WealthCT.loadCashs()||[]).forEach(function(c){
+        if(c.ctype!=='每月定存') return;
+        var md=parseInt(c.moDay,10)||0; if(!md) return;
+        if(c.lastYm===ym) return;
+        if(now.getDate()>=md) items.push({cat:'定存', text:'每月定存「'+(c.name||'存款')+'」该存本期了（月存¥'+(Math.round(parseFloat(c.amt)||0)).toLocaleString('zh-CN')+'），已存'+(parseInt(c.period,10)||0)+'期'});
+      });}}catch(e){}
+      try{ if(window.WealthCT && WealthCT.loadInsurance){(WealthCT.loadInsurance()||[]).forEach(function(i){
+        var m=/(\d{4})-(\d{1,2})-(\d{1,2})/.exec(String(i.payDate||''));
+        if(m && parseInt(m[1],10)===now.getFullYear() && parseInt(m[2],10)===(now.getMonth()+1)) items.push({cat:'缴费', text:'保单「'+(i.name||'保险')+'」本月该缴费（¥'+(Math.round(parseFloat(i.premium)||0)).toLocaleString('zh-CN')+'）'});
+      });}}catch(e){}
+      try{ if(window.getWealthGoal){(window.getWealthGoal()||[]).forEach(function(g){
+        if(!(parseInt(g.term,10)>0) || !g.id) return;
+        var st=new Date(parseInt(g.id,10)); if(isNaN(st.getTime())) return;
+        var dy=st.getFullYear(), dm=st.getMonth()+1+parseInt(g.term,10); while(dm>12){ dm-=12; dy++; }
+        if(dy===now.getFullYear() && dm===(now.getMonth()+1)) items.push({cat:'目标', text:'财务目标「'+(_goalTypeName(g.type)||'目标')+'」本月到期'});
+      });}}catch(e){}
+      return items;
+    },
+    checkDigest: function(){
+      try{ this._fireDue(); }catch(e){}
+      var now=new Date(); var conf=_mrLoad('mijieai_mr_conf', {time:'09:00'}); var tc=conf.time||'09:00';
+      var th=parseInt(tc.split(':')[0],10)||9, tm=parseInt(tc.split(':')[1],10)||0;
+      if(now.getHours()*60+now.getMinutes() < th*60+tm) return;
+      var f=function(x){ return String(x).padStart(2,'0'); };
+      var date=now.getFullYear()+'-'+f(now.getMonth()+1)+'-'+f(now.getDate());
+      if(_mrLoad('mijieai_mr_lastdigest','')===date) return;
+      _mrSave('mijieai_mr_lastdigest', date);
+      var items=this.collectToday();
+      if(items && items.length){
+        this._pop('今日待办 '+items.length+' 项：'+items.map(function(x){ return x.text; }).join('；'));
+      }
+    }
+  };
+  window.MiReminderActive = true;
+  document.addEventListener('DOMContentLoaded', function(){ setTimeout(function(){ try{ if(window.MiReminder) MiReminder.checkDigest(); }catch(e){} }, 1500); });
   function refreshWealthDashboard() {
     try { updateWealthScore(); } catch(e) {}
     try { refreshAssetSummary(); } catch(e) {}
@@ -15847,6 +15945,7 @@ function toggleGuideSection(index) {
     try { renderInsuranceSummary(); } catch(e) {}
     try { renderInvestOverviewIfAvail(); } catch(e) {}
     try { updateWealthDiagnosisSummary(); } catch(e) {}
+    try { if (window.MiReminder) MiReminder.checkDigest(); } catch(e) {}
   }
   window.refreshWealthDashboard = refreshWealthDashboard;
   window.renderInsuranceSummary = renderInsuranceSummary;
@@ -15866,7 +15965,7 @@ function toggleGuideSection(index) {
     try { if (window.WealthCT && typeof WealthCT.loadInsurance === 'function') { (WealthCT.loadInsurance() || []).forEach(function(i){ cov += parseFloat(i.amount)||0; if(!_insPaidUp(i)) prem += parseFloat(i.premium)||0; }); } } catch(e) {}
     try { if (window.getDailyTxSummary) { var sm = window.getDailyTxSummary(); if (sm) { inc = sm.totalIncome || 0; exp = sm.totalExpense || 0; } } } catch(e) {}
     var cashTotal = 0, lendTotal = 0, fxTotal = 0;
-    try { if (window.WealthCT && typeof WealthCT.loadCashs === 'function') (WealthCT.loadCashs()||[]).forEach(function(c){ cashTotal += parseFloat(c.amt)||0; }); } catch(e){}
+    try { if (window.WealthCT && typeof WealthCT.loadCashs === 'function') (WealthCT.loadCashs()||[]).forEach(function(c){ cashTotal += _cashAmt(c); }); } catch(e){}
     try { if (window.WealthCT && typeof WealthCT.loadLendings === 'function') (WealthCT.loadLendings()||[]).forEach(function(L){ lendTotal += parseFloat(L.amt)||0; }); } catch(e){}
     try { if (window.WealthCT && typeof WealthCT.loadAssets === 'function') (WealthCT.loadAssets()||[]).forEach(function(a){ fxTotal += parseFloat(a.amt)||0; }); } catch(e){}
     var totalAssets = cash + hv + cashTotal + lendTotal + fxTotal, netAssets = totalAssets - liab;
