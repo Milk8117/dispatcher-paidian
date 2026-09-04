@@ -15327,6 +15327,11 @@ function toggleGuideSection(index) {
   }
   window.closeWealthEntryModal = closeWealthEntryModal;
   window.saveWealthEntry = function(kind) {
+    // 防呆：按弹窗实际渲染字段强制路由，杜绝 kind 被污染导致保单误入贷款（v52.8.10-b9）
+    try {
+      if (document.getElementById('we-ins-type')) kind = 'insurance';
+      else if (document.getElementById('we-loan-name') || document.getElementById('we-type')) kind = 'loan';
+    } catch(e) { }
     var amount = parseFloat(getWeEl('we-amount')) || 0;
     if (amount <= 0) { alert('请输入有效金额'); return; }
     var premium = parseFloat(getWeEl('we-premium')) || 0;
