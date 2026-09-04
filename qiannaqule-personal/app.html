@@ -15243,9 +15243,9 @@ function toggleGuideSection(index) {
     var now = new Date();
     var y = now.getFullYear();
     var yOpts = '', mOpts = '', dOpts = '';
-    for (var yy = y - 5; yy <= y + 30; yy++) yOpts += '\u003coption value="' + yy + '"\u003e' + yy + '年\u003c/option\u003e';
-    for (var mm = 1; mm <= 12; mm++) mOpts += '\u003coption value="' + mm + '"\u003e' + mm + '月\u003c/option\u003e';
-    for (var dd = 1; dd <= 31; dd++) dOpts += '\u003coption value="' + dd + '"\u003e' + dd + '日\u003c/option\u003e';
+    for (var yy = y - 5; yy <= y + 30; yy++) yOpts += '\u003coption value="' + yy + '"\u003e' + (yy === y ? ' selected' : '') + yy + '年\u003c/option\u003e';
+    for (var mm = 1; mm <= 12; mm++) mOpts += '\u003coption value="' + mm + '"\u003e' + (mm === (now.getMonth() + 1) ? ' selected' : '') + mm + '月\u003c/option\u003e';
+    for (var dd = 1; dd <= 31; dd++) dOpts += '\u003coption value="' + dd + '"\u003e' + (dd === now.getDate() ? ' selected' : '') + dd + '日\u003c/option\u003e';
     return {
       y: yOpts, m: mOpts, d: dOpts
     };
@@ -16412,17 +16412,17 @@ function toggleGuideSection(index) {
         var curY = now.getFullYear();
         var yOpts = '';
         for (var yi = curY; yi >= 1900; yi--) {
-          for (var yy = y - 5; yy <= y + 30; yy++) yOpts += '<option value="' + yy + '"' + (yy === y ? ' selected' : '') + '>' + yy + '年</option>';
+          yOpts += '<option value="' + yi + '"' + (String(yi) === y ? ' selected' : '') + '>' + yi + '年</option>';
         }
         var mOpts = '';
         for (var mi = 1; mi <= 12; mi++) {
           var ms = mi < 10 ? '0' + mi : String(mi);
-          for (var mm = 1; mm <= 12; mm++) mOpts += '<option value="' + mm + '"' + (mm === (now.getMonth() + 1) ? ' selected' : '') + '>' + mm + '月</option>';
+          mOpts += '<option value="' + ms + '"' + (ms === m ? ' selected' : '') + '>' + mi + '月</option>';
         }
         var dOpts = '';
         for (var di = 1; di <= 31; di++) {
           var ds = di < 10 ? '0' + di : String(di);
-          for (var dd = 1; dd <= 31; dd++) dOpts += '<option value="' + dd + '"' + (dd === now.getDate() ? ' selected' : '') + '>' + dd + '日</option>';
+          dOpts += '<option value="' + ds + '"' + (ds === d ? ' selected' : '') + '>' + di + '日</option>';
         }
         html += '<div class="profile-date-row" data-field="' + field.key + '" data-layer="' + field.layer + '">';
         html += '<select class="profile-date-select" data-date-part="year">' + yOpts + '</select>';
