@@ -7452,7 +7452,7 @@ body {
           </span>
         </div>
         <div class="dashboard-grid">
-          <div class="dashboard-detail-card" onclick="showDailyTxDetail()">
+          <div class="dashboard-detail-card" >
             <div class="ddc-icon" style="background:#eff6ff;color:#2563eb">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
             </div>
@@ -7460,7 +7460,7 @@ body {
             <div class="ddc-value" id="lifeIncome">-</div>
             <div class="ddc-desc">元</div>
           </div>
-          <div class="dashboard-detail-card" onclick="showDailyTxDetail()">
+          <div class="dashboard-detail-card" >
             <div class="ddc-icon" style="background:#fee2e2;color:#ef4444">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
             </div>
@@ -7468,7 +7468,7 @@ body {
             <div class="ddc-value" id="lifeExpense">-</div>
             <div class="ddc-desc">元</div>
           </div>
-          <div class="dashboard-detail-card" onclick="showDailyTxDetail()">
+          <div class="dashboard-detail-card" >
             <div class="ddc-icon" style="background:#ecfdf5;color:#10b981">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
             </div>
@@ -7493,19 +7493,8 @@ body {
             <div class="wcc-legend" id="wealthSpendLegend"></div>
           </div>
         </div>
-        <!-- 最近交易 -->
-        <div class="wealth-list-card">
-          <div class="wlc-header">
-            <div class="wlc-title">最近交易</div>
-            <div class="wlc-more" onclick="showDailyTxDetail()">查看全部
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><polyline points="9 18 15 12 9 6"/></svg>
-            </div>
-          </div>
-          <div id="wealthRecentTxList" class="wlc-list">
-            <div class="wlc-empty">暂无交易记录，对AI说「记一笔午饭30元」开始记账</div>
-          </div>
-        </div>
-        <div id="dailyTxDetailContainer" style="display:none">
+        <!-- 日常收支（完整视图：年月切换+月汇总+构成+逐日明细，左右箭头已修复） -->
+        <div id="dailyTxDetailContainer">
           <div id="dailyTxContainer"></div>
         </div>
       </div>
@@ -8548,7 +8537,7 @@ body {
         <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         备份文件仅保存在您选择的位置，不会上传到任何服务器
       </div>
-      <input type="file" id="mirunBackupFile" accept="application/json,.json" style="display:none" />
+      <input type="file" id="mirunBackupFile" accept="application/json,.json" />
     </div>
 
     <!-- 关于 -->

@@ -280,7 +280,7 @@
   }
 
   // ==================== 渲染主函数 ====================
-  function render(root, viewMonth) {
+  function render(root, viewMonth, opts) {
     var now = new Date();
     if (!viewMonth) {
       viewMonth = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
@@ -319,9 +319,9 @@
 
     // Month navigation
     html += '<div class="dtx-month-nav">';
-    html += '<button class="dtx-month-btn" data-dir="-1">' + svgIcon('<path d="M15 18l-6-6 6-6"/>', '#374151', 18) + '</button>';
+    html += '<button class="dtx-month-btn" data-dir="-1">' + svgIcon('M15 18l-6-6 6-6', '#374151', 18) + '</button>';
     html += '<div class="dtx-month-label">' + vmYear + '年' + vmMonth + '月</div>';
-    html += '<button class="dtx-month-btn" data-dir="1">' + svgIcon('<path d="M9 18l6-6-6-6"/>', '#374151', 18) + '</button>';
+    html += '<button class="dtx-month-btn" data-dir="1">' + svgIcon('M9 18l6-6-6-6', '#374151', 18) + '</button>';
     html += '</div>';
 
     // Summary: total cards + CT field breakdown
@@ -368,7 +368,7 @@
     // Group by day
     if (monthTx.length === 0) {
       html += '<div class="dtx-empty">' + svgIcon('M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z', '#d1d5db', 36) + '<br>本月暂无记录<br><span style="font-size:13px;color:#d1d5db">点击右上角"记一笔"开始记账</span></div>';
-    } else {
+    } else if (!(opts && opts.hideDaily)) {
       var groups = {};
       var dayOrder = [];
       monthTx.forEach(function(t) {
@@ -768,6 +768,23 @@
     if (!el) return;
     injectStyles();
     render(el);
+  };
+
+  // 兼容别名：收支页初始化调用 window.dailyTxInit() 渲染完整「日常收支」（含逐日明细），默认容器为 dailyTxContainer
+  window.dailyTxInit = function(containerId) {
+    containerId = containerId || 'dailyTxContainer';
+    var el = document.getElementById(containerId);
+    if (!el) return;
+    injectStyles();
+    render(el);
+  };
+
+  // v52.8.10-b5: 按月统计视图（年月切换+月汇总+构成，不展开逐日明细）
+  window.initDailyTxMonth = function(containerId) {
+    var el = document.getElementById(containerId);
+    if (!el) return;
+    injectStyles();
+    render(el, null, { hideDaily: true });
   };
 
   window.dailyTxAdd = function(tx) {
