@@ -1099,7 +1099,12 @@
   function renderTopHoldings() {
     var wrap = document.getElementById('wealthTopHoldings');
     if (!wrap) return;
-    var list = loadHoldings().slice(0, 3);
+    // v52.8.10-b6: 持仓TOP3 按持仓市值(数量×现价)降序取前3
+    var list = loadHoldings().slice().sort(function(a, b) {
+      var va = (parseFloat(a.quantity) || 0) * (parseFloat(a.current_price) || 0);
+      var vb = (parseFloat(b.quantity) || 0) * (parseFloat(b.current_price) || 0);
+      return vb - va;
+    }).slice(0, 3);
     wrap.innerHTML = '';
     if (!list.length) {
       var empty = document.createElement('div');
