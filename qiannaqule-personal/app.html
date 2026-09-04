@@ -9073,7 +9073,9 @@ body {
             html += '<div class="record-item-right">';
             html += '<div class="record-item-value">' + (ex.duration || 0) + ' 分钟</div>';
             html += '<div class="record-item-sub">' + cal + ' kcal</div>';
-            html += '</div></div>';
+            html += '</div>';
+            html += '<button class="sport-del" onclick="event.stopPropagation();window.BehaviorLog.removeExercise(' + i + ')" title="删除" style="margin-left:6px;align-self:center;flex-shrink:0;width:26px;height:26px;border:none;background:#fee2e2;color:#dc2626;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>';
+            html += '</div>';
           }
           listEl.innerHTML = html;
         }

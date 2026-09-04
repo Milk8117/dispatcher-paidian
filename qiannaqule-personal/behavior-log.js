@@ -1186,6 +1186,14 @@
       if (window.healthDataChanged) { try { window.healthDataChanged(); } catch(e) {} }
       return log.meals;
     },
+    removeExercise: function(idx) {
+      var log = getTodayLog();
+      if (!log.exercise || idx < 0 || idx >= log.exercise.length) return log.exercise;
+      log.exercise.splice(idx, 1);
+      saveTodayLog(log);
+      if (window.healthDataChanged) { try { window.healthDataChanged(); } catch(e) {} }
+      return log.exercise;
+    },
     parseBehaviorInput: parseBehaviorInput,
     render: renderBehaviorHub
   };
