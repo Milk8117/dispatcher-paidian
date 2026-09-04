@@ -15544,25 +15544,64 @@ function toggleGuideSection(index) {
     document.body.appendChild(mask);
   };
 
-  // ========== v52.8.9 目标设置（可设并回显） ==========
+  // ========== v52.8.9+ 目标设置（支持多个：新增/编辑/删除） ==========
   function _goalKey(){ return (window.LS_PREFIX || 'mijieai_') + 'wealth_goal'; }
+  function _goalTypeName(t){ var tn = { emergency:'应急基金', saving:'月度储蓄', saving_target:'攒钱目标', repay:'还清贷款' }; return tn[t] || t || ''; }
   window.getWealthGoal = function(){
-    try { return JSON.parse(localStorage.getItem(_goalKey()) || 'null'); } catch(e) { return null; }
+    try { var v = JSON.parse(localStorage.getItem(_goalKey()) || 'null'); return Array.isArray(v) ? v : (v ? [v] : []); } catch(e) { return []; }
   };
+  window._wgEditId = null;
   window.saveWealthGoal = function(){
     var t = document.getElementById('wg-type'); var a = document.getElementById('wg-amount'); var m = document.getElementById('wg-term');
-    if (!t || !a) return;
-    var goal = { type: t.value, amount: Math.round(parseFloat(a.value) || 0), term: Math.round(parseFloat(m && m.value) || 0) };
-    try { localStorage.setItem(_goalKey(), JSON.stringify(goal)); } catch(e) {}
+    if (!t) return;
+    var amount = Math.round(parseFloat(a && a.value) || 0), term = Math.round(parseFloat(m && m.value) || 0);
+    var gs = window.getWealthGoal();
+    if (window._wgEditId != null) {
+      for (var i=0;i<gs.length;i++){ if (gs[i].id === window._wgEditId){ gs[i] = { id: gs[i].id, type: t.value, amount: amount, term: term }; } }
+    } else {
+      gs.push({ id: Date.now(), type: t.value, amount: amount, term: term });
+    }
+    try { localStorage.setItem(_goalKey(), JSON.stringify(gs)); } catch(e) {}
     try { var o = document.getElementById('goalSettingOverlay'); if (o) o.remove(); } catch(e) {}
-    if (typeof initWealthGoalSummary === 'function') { try { initWealthGoalSummary(); } catch(e) {} }
+    window.openGoalSetting();
+    try { if (typeof initWealthGoalSummary === 'function') initWealthGoalSummary(); } catch(e){}
+  };
+  window.removeWealthGoal = function(id){
+    var gs = window.getWealthGoal().filter(function(g){ return String(g.id) !== String(id); });
+    try { localStorage.setItem(_goalKey(), JSON.stringify(gs)); } catch(e) {}
+    try { var o = document.getElementById('goalSettingOverlay'); if (o) o.remove(); } catch(e) {}
+    window.openGoalSetting();
+    try { if (typeof initWealthGoalSummary === 'function') initWealthGoalSummary(); } catch(e){}
+  };
+  window.editWealthGoal = function(id){
+    var gs = window.getWealthGoal(); var g=null; for (var i=0;i<gs.length;i++){ if (String(gs[i].id) === String(id)) g=gs[i]; }
+    if (!g) return;
+    window._wgEditId = id;
+    var t = document.getElementById('wg-type'); var a = document.getElementById('wg-amount'); var m = document.getElementById('wg-term');
+    if (t) t.value = g.type;
+    if (a) a.value = g.amount || '';
+    if (m) m.value = g.term || '';
+    var tt = document.getElementById('wg-form-title'); if (tt) tt.textContent = '编辑目标';
+    var bt = document.getElementById('wg-save-btn'); if (bt) bt.textContent = '保存修改';
+    try { var f = document.getElementById('wg-form'); if (f) f.scrollIntoView({behavior:'smooth', block:'nearest'}); } catch(e){}
+  };
+  window.cancelEditWealthGoal = function(){
+    window._wgEditId = null;
+    var a = document.getElementById('wg-amount'); var m = document.getElementById('wg-term');
+    if (a) a.value=''; if (m) m.value='';
+    var tt = document.getElementById('wg-form-title'); if (tt) tt.textContent = '新增目标';
+    var bt = document.getElementById('wg-save-btn'); if (bt) bt.textContent = '保存目标';
   };
   window.initWealthGoalSummary = function(){
     var el = document.getElementById('wealthGoalSummary'); if (!el) return;
-    var g = null; try { g = window.getWealthGoal(); } catch(e) {}
-    if (g && g.type) {
-      var tn = { emergency:'应急基金', saving:'月度储蓄', saving_target:'攒钱目标', repay:'还清贷款' };
-      var text = '已设目标：'+ (tn[g.type]||g.type) + (g.amount>0?' · ¥'+g.amount.toLocaleString('zh-CN'):'') + (g.term>0?' · '+g.term+'个月':'');
+    var gs = window.getWealthGoal();
+    if (gs && gs.length) {
+      var text = gs.map(function(g){
+        var s = '已设目标：' + (_goalTypeName(g.type)||'未命名');
+        if (g.amount>0) s += ' · ¥' + g.amount.toLocaleString('zh-CN');
+        if (g.term>0) s += ' · ' + g.term + '个月';
+        return s;
+      }).join('\n');
       if (el.textContent !== text) el.textContent = text;
     } else {
       var d = '当前处于财务生存阶段。下一步目标：建立 3-6 个月应急基金，配置基础保障，进入财务安全阶段。';
@@ -15571,27 +15610,48 @@ function toggleGuideSection(index) {
   };
   window.openGoalSetting = function(){
     try { var od = document.getElementById('goalSettingOverlay'); if (od) od.remove(); } catch(e) {}
-    var g = null; try { g = window.getWealthGoal(); } catch(e) {}
+    window._wgEditId = null;
+    var gs = window.getWealthGoal();
     var mask = document.createElement('div');
     mask.id = 'goalSettingOverlay';
     mask.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:12000;display:flex;align-items:center;justify-content:center;padding:20px';
     mask.onclick = function(e){ if (e.target === this) this.remove(); };
     var inner = document.createElement('div');
-    inner.style.cssText = 'background:#fff;border-radius:16px;width:100%;max-width:360px;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,0.2)';
+    inner.style.cssText = 'background:#fff;border-radius:16px;width:100%;max-width:360px;text-align:center;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,0.2);max-height:85vh;overflow-y:auto;box-sizing:border-box';
     var opts = [['emergency','应急基金'],['saving','月度储蓄'],['saving_target','攒钱目标'],['repay','还清贷款']];
-    var selOpts = opts.map(function(o){ return '<option value="'+o[0]+'"'+(g&&g.type===o[0]?' selected':'')+'>'+o[1]+'</option>'; }).join('');
+    var selOpts = opts.map(function(o){ return '<option value="'+o[0]+'">'+o[1]+'</option>'; }).join('');
+    var listHtml = '';
+    if (gs && gs.length) {
+      listHtml = '<div style="margin-bottom:14px">' + gs.map(function(g){
+        var lab = (_goalTypeName(g.type)||'未命名') + (g.amount>0 ? ' ¥'+g.amount.toLocaleString('zh-CN') : '') + (g.term>0 ? ' '+g.term+'个月' : '');
+        return '<div style="display:flex;align-items:center;justify-content:space-between;background:#f8fafc;border:1px solid #eef2f7;border-radius:10px;padding:9px 10px;margin-bottom:8px">' +
+          '<div style="font-size:14px;color:#1f2937;text-align:left;flex:1">'+lab+'</div>' +
+          '<div style="display:flex;gap:12px">' +
+            '<span onclick="window.editWealthGoal('+g.id+')" style="cursor:pointer;color:#2563eb;font-size:13px">编辑</span>' +
+            '<span onclick="window.removeWealthGoal('+g.id+')" style="cursor:pointer;color:#ef4444;font-size:13px">删除</span>' +
+          '</div></div>';
+      }).join('') + '</div>';
+    } else {
+      listHtml = '<div style="font-size:13px;color:#94a3b8;margin-bottom:14px">暂无目标，请在下方新增</div>';
+    }
     inner.innerHTML =
-      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">' +
+      '<div style="text-align:left;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">' +
         '<div style="font-size:17px;font-weight:700;color:#1f2937">设置财务目标</div>' +
-        '<div style="cursor:pointer;color:#64748b;font-size:20px" onclick="(function(){var o=document.getElementById(\'goalSettingOverlay\');if(o)o.remove();})()">&times;</div>' +
+        '<div style="cursor:pointer;color:#64748b;font-size:22px" onclick="(function(){var o=document.getElementById(\'goalSettingOverlay\');if(o)o.remove();})()">&times;</div>' +
+      '</div>' + listHtml +
+      '<div id="wg-form" style="border-top:1px solid #eef2f7;padding-top:14px;text-align:left">' +
+        '<div id="wg-form-title" style="font-size:14px;font-weight:600;color:#1f2937;margin-bottom:12px">新增目标</div>' +
+        '<div style="font-size:13px;color:#64748b;margin-bottom:4px">目标类型</div>' +
+        '<select id="wg-type" style="font-size:16px;width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:12px;box-sizing:border-box">'+selOpts+'</select>' +
+        '<div style="font-size:13px;color:#64748b;margin-bottom:4px">目标金额（元）</div>' +
+        '<input type="number" id="wg-amount" placeholder="如 50000" min="0" style="font-size:16px;width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:12px;box-sizing:border-box">' +
+        '<div style="font-size:13px;color:#64748b;margin-bottom:4px">目标期限（月，可留空）</div>' +
+        '<input type="number" id="wg-term" placeholder="如 12" min="0" style="font-size:16px;width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:16px;box-sizing:border-box">' +
       '</div>' +
-      '<div style="font-size:13px;color:#64748b;margin-bottom:4px">目标类型</div>' +
-      '<select id="wg-type" style="font-size:16px;width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:12px">'+selOpts+'</select>' +
-      '<div style="font-size:13px;color:#64748b;margin-bottom:4px">目标金额（元）</div>' +
-      '<input type="number" id="wg-amount" value="'+(g&&g.amount?g.amount:'')+'" placeholder="如 50000" min="0" style="font-size:16px;width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:12px;box-sizing:border-box">' +
-      '<div style="font-size:13px;color:#64748b;margin-bottom:4px">目标期限（月，可留空）</div>' +
-      '<input type="number" id="wg-term" value="'+(g&&g.term?g.term:'')+'" placeholder="如 12" min="0" style="font-size:16px;width:100%;padding:9px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:18px;box-sizing:border-box">' +
-      '<button onclick="window.saveWealthGoal()" style="width:100%;padding:11px;font-size:15px;font-weight:600;color:#fff;background:#2563eb;border:none;border-radius:12px;cursor:pointer">保存目标</button>';
+      '<div style="display:flex;gap:10px">' +
+        '<button onclick="window.cancelEditWealthGoal()" style="flex:1;padding:11px;font-size:15px;color:#64748b;background:#f1f5f9;border:none;border-radius:12px;cursor:pointer">取消编辑</button>' +
+        '<button id="wg-save-btn" onclick="window.saveWealthGoal()" style="flex:2;padding:11px;font-size:15px;font-weight:600;color:#fff;background:#2563eb;border:none;border-radius:12px;cursor:pointer">保存目标</button>' +
+      '</div>';
     mask.appendChild(inner);
     document.body.appendChild(mask);
   };
