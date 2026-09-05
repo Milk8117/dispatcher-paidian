@@ -6147,7 +6147,7 @@ body {
     }
   })();
   </script>
-<style id="v526-input-antizoom" type="text/css">/* v52.8.3 global input anti-ios-zoom: font-size>=16px */input[type=text],input[type=number],input[type=tel],input[type=email],input[type=date],input[type=time],input[type=password],input[type=search],textarea,select{font-size:16px !important}input-modal-mask{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}.input-modal{background:#fff;border-radius:16px;padding:20px;width:100%;max-width:340px;box-sizing:border-box;box-shadow:0 20px 50px rgba(0,0,0,.2)}.im-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}.im-title{font-size:16px;font-weight:600;color:#1e293b}.im-close{background:none;border:none;color:#94a3b8;cursor:pointer;padding:4px;display:flex}.im-input{width:100%;box-sizing:border-box;padding:12px;font-size:16px;border:1px solid #e2e8f0;border-radius:10px;outline:none;color:#1e293b;background:#f8fafc;-webkit-appearance:none}.im-input:focus{border-color:#6366f1}.im-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:14px}.im-btn{padding:9px 18px;font-size:15px;border-radius:10px;border:none;cursor:pointer}.im-cancel{background:#f1f5f9;color:#475569}.im-ok{background:#6366f1;color:#fff}.im-hint{color:#ef4444;font-size:13px;margin-top:8px;min-height:18px}.input-modal-mask{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:10001;display:flex;align-items:center;justify-content:center;padding:20px}.input-modal{max-width:360px;max-height:84vh;overflow:auto}.imf-body{display:flex;flex-direction:column;gap:14px}.imf-row{width:100%}.imf-row label{display:block}.imf-label{font-size:13px;color:#475569;margin-bottom:6px}.imf-area{resize:vertical;min-height:64px}.mrl-ops{display:flex;gap:4px;align-items:center;flex-shrink:0;margin-left:auto}.mrl-op{background:none;border:none;color:#94a3b8;cursor:pointer;padding:6px;display:flex;align-items:center;border-radius:8px}.mrl-op:active{background:#f1f5f9}.mrl-del{color:#ef4444}</style>
+<style id="v526-input-antizoom" type="text/css">/* v52.8.3 global input anti-ios-zoom: font-size>=16px */input[type=text],input[type=number],input[type=tel],input[type=email],input[type=date],input[type=time],input[type=password],input[type=search],textarea,select{font-size:16px !important}input-modal-mask{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}.input-modal{background:#fff;border-radius:16px;padding:20px;width:100%;max-width:340px;box-sizing:border-box;box-shadow:0 20px 50px rgba(0,0,0,.2)}.im-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}.im-title{font-size:16px;font-weight:600;color:#1e293b}.im-close{background:none;border:none;color:#94a3b8;cursor:pointer;padding:4px;display:flex}.im-input{width:100%;box-sizing:border-box;padding:12px;font-size:16px;border:1px solid #e2e8f0;border-radius:10px;outline:none;color:#1e293b;background:#f8fafc;-webkit-appearance:none}.im-input:focus{border-color:#6366f1}.imf-dflex{display:flex;gap:6px;align-items:center}.imf-ym{flex:1;min-width:0;text-align:center}.imf-suf{color:#94a3b8;font-size:13px;padding:0 2px}.im-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:14px}.im-btn{padding:9px 18px;font-size:15px;border-radius:10px;border:none;cursor:pointer}.im-cancel{background:#f1f5f9;color:#475569}.im-ok{background:#6366f1;color:#fff}.im-hint{color:#ef4444;font-size:13px;margin-top:8px;min-height:18px}.input-modal-mask{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:10001;display:flex;align-items:center;justify-content:center;padding:20px}.input-modal{max-width:360px;max-height:84vh;overflow:auto}.imf-body{display:flex;flex-direction:column;gap:14px}.imf-row{width:100%}.imf-row label{display:block}.imf-label{font-size:13px;color:#475569;margin-bottom:6px}.imf-area{resize:vertical;min-height:64px}.mrl-ops{display:flex;gap:4px;align-items:center;flex-shrink:0;margin-left:auto}.mrl-op{background:none;border:none;color:#94a3b8;cursor:pointer;padding:6px;display:flex;align-items:center;border-radius:8px}.mrl-op:active{background:#f1f5f9}.mrl-del{color:#ef4444}</style>
 </head>
 <body>
 
@@ -17526,8 +17526,15 @@ function toggleGuideSection(index) {
         var label = '<div class="imf-label">' + f.label + req + '</div>';
         if (f.type === 'textarea') {
           rows += '<div class="imf-row"><label>' + label + '<textarea class="im-input imf-area" data-idx="' + i + '" placeholder="' + (f.placeholder||'') + '" rows="2">' + val + '</textarea></label></div>';
+        } else if (f.type === 'date') {
+          var dp = _medSplitDate(val);
+          rows += '<div class="imf-row"><label>' + label + '<div class="imf-dflex">' +
+            '<input class="im-input imf-ym" data-idx="' + i + '" data-part="y" type="text" inputmode="numeric" maxlength="4" placeholder="2026" value="' + (dp ? dp.y : '') + '"><span class="imf-suf">年</span>' +
+            '<input class="im-input imf-ym" data-idx="' + i + '" data-part="m" type="text" inputmode="numeric" maxlength="2" placeholder="6" value="' + (dp ? dp.m : '') + '"><span class="imf-suf">月</span>' +
+            '<input class="im-input imf-ym" data-idx="' + i + '" data-part="d" type="text" inputmode="numeric" maxlength="2" placeholder="5" value="' + (dp ? dp.d : '') + '"><span class="imf-suf">日</span>' +
+            '</div></label></div>';
         } else {
-          rows += '<div class="imf-row"><label>' + label + '<input class="im-input" data-idx="' + i + '" type="' + (f.type === 'date' ? 'date' : 'text') + '" placeholder="' + (f.placeholder||'') + '" value="' + val + '"></label></div>';
+          rows += '<div class="imf-row"><label>' + label + '<input class="im-input" data-idx="' + i + '" type="text" placeholder="' + (f.placeholder||'') + '" value="' + val + '"></label></div>';
         }
       });
       mask.innerHTML = '<div class="input-modal imf-modal">' +
@@ -17542,8 +17549,20 @@ function toggleGuideSection(index) {
         var out = {};
         var missing = null;
         fields.forEach(function(f, i) {
-          var el = mask.querySelector('[data-idx="' + i + '"]');
-          var v = (el.value || '').trim();
+          var v;
+          if (f.type === 'date') {
+            var ey = mask.querySelector('[data-idx="' + i + '"][data-part="y"]');
+            var em = mask.querySelector('[data-idx="' + i + '"][data-part="m"]');
+            var ed = mask.querySelector('[data-idx="' + i + '"][data-part="d"]');
+            var py = ey ? (ey.value||'').trim() : '';
+            var pm = em ? (em.value||'').trim() : '';
+            var pd = ed ? (ed.value||'').trim() : '';
+            if (py && pm && pd) { v = py + '-' + _medPad(pm) + '-' + _medPad(pd); }
+            else { v = ''; }
+          } else {
+            var el = mask.querySelector('[data-idx="' + i + '"]');
+            v = (el.value || '').trim();
+          }
           if (f.required && !v && missing === null) { missing = f.label; }
           out[f.key] = v;
         });
@@ -17558,6 +17577,19 @@ function toggleGuideSection(index) {
       mask.addEventListener('click', function(e){ if (e.target === mask) finish(null); });
       setTimeout(function(){ var el = mask.querySelector('.im-input'); if (el) el.focus(); }, 30);
     });
+  }
+
+  function _medPad(n) { return String(n).length < 2 ? '0' + n : String(n); }
+  function _medSplitDate(s) {
+    if (!s) return null;
+    var mm = String(s).match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+    if (!mm) return null;
+    return { y: mm[1], m: mm[2], d: mm[3] };
+  }
+  function _fmtCnDate(s) {
+    var pp = _medSplitDate(s);
+    if (!pp) { return (s === undefined || s === null || String(s) === '' || String(s) === '未填写') ? '未填写' : String(s); }
+    return String(parseInt(pp.y,10)) + '年' + String(parseInt(pp.m,10)) + '月' + String(parseInt(pp.d,10)) + '日';
   }
 
   function _medFind(listKey, id) {
@@ -17645,7 +17677,7 @@ function toggleGuideSection(index) {
       html += '<div class="mrl-title">' + escapeHtml(v.hospital) + ' · ' + escapeHtml(v.department) + '</div>';
       html += '<div class="mrl-desc">诊断：' + escapeHtml(v.diagnosis) + '</div>';
       if (v.advice) html += '<div class="mrl-desc" style="color:#94a3b8">医嘱：' + escapeHtml(v.advice) + '</div>';
-      html += '<div class="mrl-meta"><span>' + v.date + '</span></div>';
+      html += '<div class="mrl-meta"><span>' + _fmtCnDate(v.date) + '</span></div>';
       html += '</div>';
       html += '<div class="mrl-ops">' + _medBtnEdit + 'editMedicalVisit(\'' + v.id + '\')' + _medBtnEditEnd + _medBtnDel + 'removeMedicalVisit(\'' + v.id + '\')' + _medBtnDelEnd + '</div>';
       html += '</div>';
@@ -17691,7 +17723,7 @@ function toggleGuideSection(index) {
       html += '<div class="mrl-body">';
       html += '<div class="mrl-title">' + escapeHtml(m.name) + '</div>';
       html += '<div class="mrl-desc">' + escapeHtml(m.dosage || '') + '</div>';
-      html += '<div class="mrl-meta"><span>开始：' + m.startDate + '</span><span>' + (m.status === 'active' ? '服用中' : '已停药') + '</span></div>';
+      html += '<div class="mrl-meta"><span>开始：' + _fmtCnDate(m.startDate) + '</span><span>' + (m.status === 'active' ? '服用中' : '已停药') + '</span></div>';
       html += '</div>';
       html += '<div class="mrl-ops">' + _medBtnEdit + 'editMedication(\'' + m.id + '\')' + _medBtnEditEnd + _medBtnDel + 'removeMedication(\'' + m.id + '\')' + _medBtnDelEnd + '</div>';
       html += '</div>';
@@ -17736,7 +17768,7 @@ function toggleGuideSection(index) {
       html += '<div class="mrl-body">';
       html += '<div class="mrl-title">' + escapeHtml(e.organization) + '</div>';
       html += '<div class="mrl-desc">' + escapeHtml(e.summary || '') + '</div>';
-      html += '<div class="mrl-meta"><span>' + e.date + '</span></div>';
+      html += '<div class="mrl-meta"><span>' + _fmtCnDate(e.date) + '</span></div>';
       html += '</div>';
       html += '<div class="mrl-ops">' + _medBtnEdit + 'editMedicalExam(\'' + e.id + '\')' + _medBtnEditEnd + _medBtnDel + 'removeMedicalExam(\'' + e.id + '\')' + _medBtnDelEnd + '</div>';
       html += '</div>';
@@ -17780,7 +17812,7 @@ function toggleGuideSection(index) {
       html += '<div class="mrl-icon" style="background:#f5f3ff;color:#8b5cf6"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="m18 13 1.5-1.5a4.95 4.95 0 1 0-7-7L11 6"/><path d="m9 11-1.5 1.5a4.95 4.95 0 1 0 7 7L18 13"/><path d="m15 9-6 6"/></svg></div>';
       html += '<div class="mrl-body">';
       html += '<div class="mrl-title">' + escapeHtml(v.name) + '</div>';
-      html += '<div class="mrl-meta"><span>' + v.date + '</span><span>' + escapeHtml(v.dose || '') + '</span></div>';
+      html += '<div class="mrl-meta"><span>' + _fmtCnDate(v.date) + '</span><span>' + escapeHtml(v.dose || '') + '</span></div>';
       html += '</div>';
       html += '<div class="mrl-ops">' + _medBtnEdit + 'editVaccine(\'' + v.id + '\')' + _medBtnEditEnd + _medBtnDel + 'removeVaccine(\'' + v.id + '\')' + _medBtnDelEnd + '</div>';
       html += '</div>';
