@@ -6147,7 +6147,7 @@ body {
     }
   })();
   </script>
-<style id="v526-input-antizoom" type="text/css">/* v52.8.3 global input anti-ios-zoom: font-size>=16px */input[type=text],input[type=number],input[type=tel],input[type=email],input[type=date],input[type=time],input[type=password],input[type=search],textarea,select{font-size:16px !important}input-modal-mask{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}.input-modal{background:#fff;border-radius:16px;padding:20px;width:100%;max-width:340px;box-sizing:border-box;box-shadow:0 20px 50px rgba(0,0,0,.2)}.im-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}.im-title{font-size:16px;font-weight:600;color:#1e293b}.im-close{background:none;border:none;color:#94a3b8;cursor:pointer;padding:4px;display:flex}.im-input{width:100%;box-sizing:border-box;padding:12px;font-size:16px;border:1px solid #e2e8f0;border-radius:10px;outline:none;color:#1e293b;background:#f8fafc;-webkit-appearance:none}.im-input:focus{border-color:#6366f1}.im-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:14px}.im-btn{padding:9px 18px;font-size:15px;border-radius:10px;border:none;cursor:pointer}.im-cancel{background:#f1f5f9;color:#475569}.im-ok{background:#6366f1;color:#fff}.im-hint{color:#ef4444;font-size:13px;margin-top:8px;min-height:18px}</style>
+<style id="v526-input-antizoom" type="text/css">/* v52.8.3 global input anti-ios-zoom: font-size>=16px */input[type=text],input[type=number],input[type=tel],input[type=email],input[type=date],input[type=time],input[type=password],input[type=search],textarea,select{font-size:16px !important}input-modal-mask{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}.input-modal{background:#fff;border-radius:16px;padding:20px;width:100%;max-width:340px;box-sizing:border-box;box-shadow:0 20px 50px rgba(0,0,0,.2)}.im-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}.im-title{font-size:16px;font-weight:600;color:#1e293b}.im-close{background:none;border:none;color:#94a3b8;cursor:pointer;padding:4px;display:flex}.im-input{width:100%;box-sizing:border-box;padding:12px;font-size:16px;border:1px solid #e2e8f0;border-radius:10px;outline:none;color:#1e293b;background:#f8fafc;-webkit-appearance:none}.im-input:focus{border-color:#6366f1}.im-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:14px}.im-btn{padding:9px 18px;font-size:15px;border-radius:10px;border:none;cursor:pointer}.im-cancel{background:#f1f5f9;color:#475569}.im-ok{background:#6366f1;color:#fff}.im-hint{color:#ef4444;font-size:13px;margin-top:8px;min-height:18px}.input-modal-mask{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:10001;display:flex;align-items:center;justify-content:center;padding:20px}.input-modal{max-width:360px;max-height:84vh;overflow:auto}.imf-body{display:flex;flex-direction:column;gap:14px}.imf-row{width:100%}.imf-row label{display:block}.imf-label{font-size:13px;color:#475569;margin-bottom:6px}.imf-area{resize:vertical;min-height:64px}.mrl-ops{display:flex;gap:4px;align-items:center;flex-shrink:0;margin-left:auto}.mrl-op{background:none;border:none;color:#94a3b8;cursor:pointer;padding:6px;display:flex;align-items:center;border-radius:8px}.mrl-op:active{background:#f1f5f9}.mrl-del{color:#ef4444}</style>
 </head>
 <body>
 
@@ -17474,30 +17474,155 @@ function toggleGuideSection(index) {
     if (soc) soc.style.display = layer === 'society' ? '' : 'none';
   };
 
-  // 就诊记录相关
-    window.addMedicalVisit = function() {
-    promptSeq([
-      { title: '就诊日期', value: new Date().toISOString().slice(0,10), date: true, required: true },
-      { title: '医院', placeholder: '如：市人民医院' },
-      { title: '科室', placeholder: '如：消化内科' },
-      { title: '诊断结果', placeholder: '如：慢性胃炎' },
-      { title: '医嘱摘要', placeholder: '如：少食多餐，忌辛辣' }
-    ]).then(function(r) {
-      if (!r || r.length < 5) return;
-      var data = getMedicalData();
-      data.visits.unshift({
-        id: 'v_' + Date.now(),
-        date: r[0],
-        hospital: r[1] || '未填写',
-        department: r[2] || '未填写',
-        diagnosis: r[3] || '未填写',
-        advice: r[4] || '未填写'
+// ========== 医疗记录：多字段表单新增/编辑/删除 ==========
+  // 通用表单字段定义（key,label,type: text/date/textarea,required,placeholder/value）
+  var _medFieldDefs = {
+    visit: [
+      { key: 'date', label: '就诊日期', type: 'date', required: true, value: function(){ return new Date().toISOString().slice(0,10); } },
+      { key: 'hospital', label: '医院', placeholder: '如：市人民医院' },
+      { key: 'department', label: '科室', placeholder: '如：消化内科' },
+      { key: 'diagnosis', label: '诊断结果', placeholder: '如：慢性胃炎' },
+      { key: 'advice', label: '医嘱摘要', type: 'textarea', placeholder: '如：少食多餐，忌辛辣' }
+    ],
+    medication: [
+      { key: 'name', label: '药品名称', required: true, placeholder: '如：阿莫西林' },
+      { key: 'dosage', label: '用法用量', placeholder: '如：每日3次，每次1片', value: '每日3次，每次1片' },
+      { key: 'startDate', label: '开始日期', type: 'date', value: function(){ return new Date().toISOString().slice(0,10); } }
+    ],
+    exam: [
+      { key: 'date', label: '体检日期', type: 'date', required: true, value: function(){ return new Date().toISOString().slice(0,10); } },
+      { key: 'organization', label: '体检机构', placeholder: '如：市中心医院' },
+      { key: 'summary', label: '关键指标摘要', type: 'textarea', placeholder: '如：血压偏高，血脂正常' }
+    ],
+    vaccine: [
+      { key: 'name', label: '疫苗名称', required: true, placeholder: '如：新冠疫苗第三针' },
+      { key: 'date', label: '接种日期', type: 'date', value: function(){ return new Date().toISOString().slice(0,10); } },
+      { key: 'dose', label: '剂次', placeholder: '如：第1针', value: '第1针' }
+    ]
+  };
+
+  // 通用多字段表单弹窗（一次填完，不再逐字段弹）
+  function medicalFormModal(title, fields, initial) {
+    return new Promise(function(resolve) {
+      var closeSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+      var mask = document.createElement('div');
+      mask.className = 'input-modal-mask';
+      var rows = '';
+      fields.forEach(function(f, i) {
+        var val = '';
+        if (initial && initial[f.key] !== undefined && initial[f.key] !== null && String(initial[f.key]) !== '未填写') {
+          val = initial[f.key];
+        } else if (typeof f.value === 'function') {
+          val = f.value();
+        } else if (f.value) {
+          val = f.value;
+        }
+        var req = f.required ? '<span style="color:#ef4444">*</span>' : '';
+        var label = '<div class="imf-label">' + f.label + req + '</div>';
+        if (f.type === 'textarea') {
+          rows += '<div class="imf-row"><label>' + label + '<textarea class="im-input imf-area" data-idx="' + i + '" placeholder="' + (f.placeholder||'') + '" rows="2">' + val + '</textarea></label></div>';
+        } else {
+          rows += '<div class="imf-row"><label>' + label + '<input class="im-input" data-idx="' + i + '" type="' + (f.type === 'date' ? 'date' : 'text') + '" placeholder="' + (f.placeholder||'') + '" value="' + val + '"></label></div>';
+        }
       });
-      saveMedicalData(data);
-      renderMedicalVisits();
-      updateMedicalStats();
+      mask.innerHTML = '<div class="input-modal imf-modal">' +
+        '<div class="im-head"><div class="im-title">' + title + '</div><button class="im-close" type="button">' + closeSvg + '</button></div>' +
+        '<div class="imf-body">' + rows + '</div>' +
+        '<div class="im-actions"><button class="im-btn im-cancel" type="button">取消</button><button class="im-btn im-ok" type="button">保存</button></div>' +
+        '<div class="im-hint"></div>' +
+        '</div>';
+      document.body.appendChild(mask);
+      var hint = mask.querySelector('.im-hint');
+      function collect() {
+        var out = {};
+        var missing = null;
+        fields.forEach(function(f, i) {
+          var el = mask.querySelector('[data-idx="' + i + '"]');
+          var v = (el.value || '').trim();
+          if (f.required && !v && missing === null) { missing = f.label; }
+          out[f.key] = v;
+        });
+        if (missing) { hint.textContent = '请填写' + missing; return null; }
+        return out;
+      }
+      function finish(res) { if (document.body.contains(mask)) document.body.removeChild(mask); resolve(res); }
+      function onOk() { var o = collect(); if (o) finish(o); }
+      mask.querySelector('.im-close').addEventListener('click', function(){ finish(null); });
+      mask.querySelector('.im-cancel').addEventListener('click', function(){ finish(null); });
+      mask.querySelector('.im-ok').addEventListener('click', onOk);
+      mask.addEventListener('click', function(e){ if (e.target === mask) finish(null); });
+      setTimeout(function(){ var el = mask.querySelector('.im-input'); if (el) el.focus(); }, 30);
+    });
+  }
+
+  function _medFind(listKey, id) {
+    var data = getMedicalData();
+    var list = data[listKey] || [];
+    for (var i = 0; i < list.length; i++) { if (String(list[i].id) === String(id)) return list[i]; }
+    return null;
+  }
+
+  function _medSave(listKey, rec, isEdit) {
+    var data = getMedicalData();
+    if (isEdit) {
+      var list = data[listKey] || [];
+      for (var i = 0; i < list.length; i++) {
+        if (String(list[i].id) === String(rec.id)) { list[i] = rec; break; }
+      }
+    } else {
+      (data[listKey] = data[listKey] || []).unshift(rec);
+    }
+    saveMedicalData(data);
+    _medRenderAll();
+  }
+
+  function _medRemove(listKey, id, label) {
+    if (!window.confirm('确定删除这条' + label + '吗？')) return;
+    var data = getMedicalData();
+    var list = data[listKey] || [];
+    for (var i = 0; i < list.length; i++) { if (String(list[i].id) === String(id)) { list.splice(i, 1); break; } }
+    saveMedicalData(data);
+    _medRenderAll();
+  }
+
+  function _medRenderAll() {
+    try { if (typeof renderMedicalVisits === 'function') renderMedicalVisits(); } catch(e) {}
+    try { if (typeof renderMedications === 'function') renderMedications(); } catch(e) {}
+    try { if (typeof renderExams === 'function') renderExams(); } catch(e) {}
+    try { if (typeof renderVaccines === 'function') renderVaccines(); } catch(e) {}
+    try { if (typeof updateMedicalStats === 'function') updateMedicalStats(); } catch(e) {}
+  }
+
+  // 编辑/删除按钮（医用 SVG 线性图标，b24 运动删除同风格）
+  var _medBtnEdit = '<button class="mrl-op" onclick="event.stopPropagation();' ;
+  var _medBtnEditEnd = '" title="编辑"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg></button>';
+  var _medBtnDel = '<button class="mrl-op mrl-del" onclick="event.stopPropagation();' ;
+  var _medBtnDelEnd = '" title="删除"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>';
+
+  // ---------- 就诊记录 ----------
+  window.addMedicalVisit = function() {
+    medicalFormModal('新增就诊记录', _medFieldDefs.visit, null).then(function(r) {
+      if (!r) return;
+      _medSave('visits', {
+        id: 'v_' + Date.now(),
+        date: r.date,
+        hospital: r.hospital || '未填写',
+        department: r.department || '未填写',
+        diagnosis: r.diagnosis || '未填写',
+        advice: r.advice || ''
+      }, false);
     });
   };
+  window.editMedicalVisit = function(id) {
+    var it = _medFind('visits', id); if (!it) return;
+    medicalFormModal('编辑就诊记录', _medFieldDefs.visit, it).then(function(r) {
+      if (!r) return;
+      it.date = r.date; it.hospital = r.hospital || '未填写'; it.department = r.department || '未填写';
+      it.diagnosis = r.diagnosis || '未填写'; it.advice = r.advice || '';
+      _medSave('visits', it, true);
+    });
+  };
+  window.removeMedicalVisit = function(id) { _medRemove('visits', id, '就诊记录'); };
 
   function renderMedicalVisits() {
     var list = document.getElementById('medicalVisitList');
@@ -17516,32 +17641,35 @@ function toggleGuideSection(index) {
       html += '<div class="mrl-desc">诊断：' + escapeHtml(v.diagnosis) + '</div>';
       if (v.advice) html += '<div class="mrl-desc" style="color:#94a3b8">医嘱：' + escapeHtml(v.advice) + '</div>';
       html += '<div class="mrl-meta"><span>' + v.date + '</span></div>';
-      html += '</div></div>';
+      html += '</div>';
+      html += '<div class="mrl-ops">' + _medBtnEdit + 'editMedicalVisit(\'' + v.id + '\')' + _medBtnEditEnd + _medBtnDel + 'removeMedicalVisit(\'' + v.id + '\')' + _medBtnDelEnd + '</div>';
+      html += '</div>';
     });
     list.innerHTML = html;
   }
 
-  // 用药记录相关
-    window.addMedication = function() {
-    promptSeq([
-      { title: '药品名称', placeholder: '如：阿莫西林', required: true },
-      { title: '用法用量', placeholder: '如：每日3次，每次1片', value: '每日3次，每次1片' },
-      { title: '开始日期', value: new Date().toISOString().slice(0,10), date: true }
-    ]).then(function(r) {
-      if (!r || r.length < 3) return;
-      var data = getMedicalData();
-      data.medications.unshift({
+  // ---------- 用药记录 ----------
+  window.addMedication = function() {
+    medicalFormModal('新增用药记录', _medFieldDefs.medication, null).then(function(r) {
+      if (!r) return;
+      _medSave('medications', {
         id: 'm_' + Date.now(),
-        name: r[0],
-        dosage: r[1] || '',
-        startDate: r[2],
+        name: r.name,
+        dosage: r.dosage || '',
+        startDate: r.startDate,
         status: 'active'
-      });
-      saveMedicalData(data);
-      renderMedications();
-      updateMedicalStats();
+      }, false);
     });
   };
+  window.editMedication = function(id) {
+    var it = _medFind('medications', id); if (!it) return;
+    medicalFormModal('编辑用药记录', _medFieldDefs.medication, it).then(function(r) {
+      if (!r) return;
+      it.name = r.name; it.dosage = r.dosage || ''; it.startDate = r.startDate;
+      _medSave('medications', it, true);
+    });
+  };
+  window.removeMedication = function(id) { _medRemove('medications', id, '用药记录'); };
 
   function renderMedications() {
     var list = document.getElementById('medicalMedList');
@@ -17559,31 +17687,34 @@ function toggleGuideSection(index) {
       html += '<div class="mrl-title">' + escapeHtml(m.name) + '</div>';
       html += '<div class="mrl-desc">' + escapeHtml(m.dosage || '') + '</div>';
       html += '<div class="mrl-meta"><span>开始：' + m.startDate + '</span><span>' + (m.status === 'active' ? '服用中' : '已停药') + '</span></div>';
-      html += '</div></div>';
+      html += '</div>';
+      html += '<div class="mrl-ops">' + _medBtnEdit + 'editMedication(\'' + m.id + '\')' + _medBtnEditEnd + _medBtnDel + 'removeMedication(\'' + m.id + '\')' + _medBtnDelEnd + '</div>';
+      html += '</div>';
     });
     list.innerHTML = html;
   }
 
-  // 体检报告相关
-    window.addMedicalExam = function() {
-    promptSeq([
-      { title: '体检日期', value: new Date().toISOString().slice(0,10), date: true, required: true },
-      { title: '体检机构', placeholder: '如：市中心医院' },
-      { title: '关键指标摘要', placeholder: '如：血压偏高，血脂正常' }
-    ]).then(function(r) {
-      if (!r || r.length < 3) return;
-      var data = getMedicalData();
-      data.exams.unshift({
+  // ---------- 体检报告 ----------
+  window.addMedicalExam = function() {
+    medicalFormModal('新增体检报告', _medFieldDefs.exam, null).then(function(r) {
+      if (!r) return;
+      _medSave('exams', {
         id: 'e_' + Date.now(),
-        date: r[0],
-        organization: r[1] || '未填写',
-        summary: r[2] || '未填写'
-      });
-      saveMedicalData(data);
-      renderExams();
-      updateMedicalStats();
+        date: r.date,
+        organization: r.organization || '未填写',
+        summary: r.summary || '未填写'
+      }, false);
     });
   };
+  window.editMedicalExam = function(id) {
+    var it = _medFind('exams', id); if (!it) return;
+    medicalFormModal('编辑体检报告', _medFieldDefs.exam, it).then(function(r) {
+      if (!r) return;
+      it.date = r.date; it.organization = r.organization || '未填写'; it.summary = r.summary || '未填写';
+      _medSave('exams', it, true);
+    });
+  };
+  window.removeMedicalExam = function(id) { _medRemove('exams', id, '体检报告'); };
 
   function renderExams() {
     var list = document.getElementById('medicalExamList');
@@ -17601,31 +17732,34 @@ function toggleGuideSection(index) {
       html += '<div class="mrl-title">' + escapeHtml(e.organization) + '</div>';
       html += '<div class="mrl-desc">' + escapeHtml(e.summary || '') + '</div>';
       html += '<div class="mrl-meta"><span>' + e.date + '</span></div>';
-      html += '</div></div>';
+      html += '</div>';
+      html += '<div class="mrl-ops">' + _medBtnEdit + 'editMedicalExam(\'' + e.id + '\')' + _medBtnEditEnd + _medBtnDel + 'removeMedicalExam(\'' + e.id + '\')' + _medBtnDelEnd + '</div>';
+      html += '</div>';
     });
     list.innerHTML = html;
   }
 
-  // 疫苗接种相关
-    window.addVaccine = function() {
-    promptSeq([
-      { title: '疫苗名称', placeholder: '如：新冠疫苗第三针', required: true },
-      { title: '接种日期', value: new Date().toISOString().slice(0,10), date: true },
-      { title: '剂次', placeholder: '如：第1针', value: '第1针' }
-    ]).then(function(r) {
-      if (!r || r.length < 3) return;
-      var data = getMedicalData();
-      data.vaccines.unshift({
+  // ---------- 疫苗接种 ----------
+  window.addVaccine = function() {
+    medicalFormModal('新增疫苗记录', _medFieldDefs.vaccine, null).then(function(r) {
+      if (!r) return;
+      _medSave('vaccines', {
         id: 'vac_' + Date.now(),
-        name: r[0],
-        date: r[1],
-        dose: r[2] || ''
-      });
-      saveMedicalData(data);
-      renderVaccines();
-      updateMedicalStats();
+        name: r.name,
+        date: r.date,
+        dose: r.dose || ''
+      }, false);
     });
   };
+  window.editVaccine = function(id) {
+    var it = _medFind('vaccines', id); if (!it) return;
+    medicalFormModal('编辑疫苗记录', _medFieldDefs.vaccine, it).then(function(r) {
+      if (!r) return;
+      it.name = r.name; it.date = r.date; it.dose = r.dose || '';
+      _medSave('vaccines', it, true);
+    });
+  };
+  window.removeVaccine = function(id) { _medRemove('vaccines', id, '疫苗记录'); };
 
   function renderVaccines() {
     var list = document.getElementById('medicalVaccineList');
@@ -17642,7 +17776,9 @@ function toggleGuideSection(index) {
       html += '<div class="mrl-body">';
       html += '<div class="mrl-title">' + escapeHtml(v.name) + '</div>';
       html += '<div class="mrl-meta"><span>' + v.date + '</span><span>' + escapeHtml(v.dose || '') + '</span></div>';
-      html += '</div></div>';
+      html += '</div>';
+      html += '<div class="mrl-ops">' + _medBtnEdit + 'editVaccine(\'' + v.id + '\')' + _medBtnEditEnd + _medBtnDel + 'removeVaccine(\'' + v.id + '\')' + _medBtnDelEnd + '</div>';
+      html += '</div>';
     });
     list.innerHTML = html;
   }
