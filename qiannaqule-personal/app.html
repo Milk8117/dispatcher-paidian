@@ -108,6 +108,13 @@
       }
     };
   })();
+  // b37: 全系统日期统一为本地日历日（北京凌晨00:00-08:00也归属当天，不再被UTC偏到昨天）
+  window._mrLocalDate = function() {
+    var n = new Date();
+    var m = ('0' + (n.getMonth() + 1)).slice(-2);
+    var dd = ('0' + n.getDate()).slice(-2);
+    return n.getFullYear() + '-' + m + '-' + dd;
+  };
   </script>
 
   <script>
@@ -8854,13 +8861,13 @@ body {
 
     getToday: function() {
       var all = this.getAll();
-      var today = new Date().toISOString().split('T')[0];
+      var today = _mrLocalDate();
       return all[today] || { breakfast: [], lunch: [], dinner: [], snack: [] };
     },
 
     addRecord: function(mealType, foodName) {
       var all = this.getAll();
-      var today = new Date().toISOString().split('T')[0];
+      var today = _mrLocalDate();
       if (!all[today]) all[today] = { breakfast: [], lunch: [], dinner: [], snack: [] };
       if (!all[today][mealType]) all[today][mealType] = [];
       var time = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
@@ -9040,7 +9047,7 @@ body {
     // 渲染运动专项页
     renderExercise: function() {
       if (typeof window.BehaviorLog === 'undefined') return;
-      var today = new Date().toISOString().split('T')[0];
+      var today = _mrLocalDate();
       var log = window.BehaviorLog.getLogForDate(today) || {};
       var exercises = log.exercise || [];
       var steps = log.steps || 0;
@@ -9165,7 +9172,7 @@ body {
     // 渲染情绪专项页
     renderMood: function() {
       if (typeof window.BehaviorLog === 'undefined') return;
-      var today = new Date().toISOString().split('T')[0];
+      var today = _mrLocalDate();
       var moods = window.BehaviorLog.getRecentMoods(7) || [];
       var todayMood = null;
       for (var i = moods.length - 1; i >= 0; i--) {
@@ -9254,7 +9261,7 @@ body {
         // 修改：弹层输入新内容（支持改餐次或置空保留）
         function editMeal(idx) {
           if (!window.BehaviorLog || !window.BehaviorLog.getLogForDate) { alert('数据源不可用'); return; }
-          var today = new Date().toISOString().split('T')[0];
+          var today = _mrLocalDate();
           var log = window.BehaviorLog.getLogForDate(today) || {};
           var meals = log.meals || [];
           var m = meals[idx];
@@ -9276,7 +9283,7 @@ body {
         // 删除：确认后删除
         function delMeal(idx) {
           if (!window.BehaviorLog || !window.BehaviorLog.removeMeal) { alert('数据源不可用'); return; }
-          var today = new Date().toISOString().split('T')[0];
+          var today = _mrLocalDate();
           var log = window.BehaviorLog.getLogForDate(today) || {};
           var meals = log.meals || [];
           var m = meals[idx];
@@ -9288,7 +9295,7 @@ body {
         return { editMeal: editMeal, delMeal: delMeal };
       })();
       if (typeof window.BehaviorLog === 'undefined') return;
-      var today = new Date().toISOString().split('T')[0];
+      var today = _mrLocalDate();
       var log = window.BehaviorLog.getLogForDate(today) || {};
       var meals = log.meals || [];
 
@@ -9601,7 +9608,7 @@ body {
     var moodToday = '--';
     try {
       var _bl = (window.BehaviorLog && window.BehaviorLog.getLogForDate)
-        ? window.BehaviorLog.getLogForDate(new Date().toISOString().slice(0,10)) : null;
+        ? window.BehaviorLog.getLogForDate(_mrLocalDate()) : null;
       if (_bl && _bl.exercise) {
         var _exMin = _bl.exercise.reduce(function(s,e){return s+(e.duration||0);},0);
         if (_exMin > 0) todaySteps = _exMin + 'min';
@@ -11098,7 +11105,7 @@ body {
       // 只刷新概览数据部分，避免整页重渲
       var ovItems = document.querySelectorAll('.home-overview-item .ov-num');
       if (ovItems.length >= 3) {
-        var todayStr = new Date().toISOString().substr(0, 10);
+        var todayStr = _mrLocalDate();
         var incToday = 0, expToday = 0;
         try {
           var txList = [];
@@ -13185,7 +13192,7 @@ body {
                    .trim();
     if (note.length < 2) note = '';
 
-    return { type: type, amount: amount, ctField: ctField, subCategory: subCategory, note: note, date: new Date().toISOString().substr(0, 10) };
+    return { type: type, amount: amount, ctField: ctField, subCategory: subCategory, note: note, date: _mrLocalDate() };
   }
 
   function detectIntent(text) {
@@ -17261,7 +17268,7 @@ function toggleGuideSection(index) {
   }
 
   function parseVisitFromText(text) {
-    var result = { hospital: '', department: '', diagnosis: '', date: new Date().toISOString().slice(0,10) };
+    var result = { hospital: '', department: '', diagnosis: '', date: _mrLocalDate() };
     var hospMatch = text.match(/(在|去)(.+?)医院/);
     if (hospMatch && hospMatch[2]) {
       result.hospital = hospMatch[2].replace(/[，,。.的了]/g, '') + '医院';
@@ -17283,7 +17290,7 @@ function toggleGuideSection(index) {
   }
 
   function parseMedicationFromText(text) {
-    var result = { name: '', dosage: '每日3次，每次1片', startDate: new Date().toISOString().slice(0,10) };
+    var result = { name: '', dosage: '每日3次，每次1片', startDate: _mrLocalDate() };
     var medPatterns = [
       /(?:吃|服用|开始吃|用)([一-龥A-Za-z0-9]{2,10})(?:药|片|胶囊|颗粒|合剂)?/,
       /(阿莫西林|头孢|布洛芬|感冒灵|维生素|降压药|降糖药|阿司匹林|甲硝唑|左氧氟沙星)/i
@@ -17307,7 +17314,7 @@ function toggleGuideSection(index) {
   }
 
   function parseVaccineFromText(text) {
-    var result = { name: '', date: new Date().toISOString().slice(0,10), dose: '' };
+    var result = { name: '', date: _mrLocalDate(), dose: '' };
     var vacMatch = text.match(/(?:打了|接种)(.+?)(?:疫苗|针)/);
     if (vacMatch && vacMatch[1]) {
       result.name = vacMatch[1].trim() + '疫苗';
@@ -17504,7 +17511,7 @@ function toggleGuideSection(index) {
   // 通用表单字段定义（key,label,type: text/date/textarea,required,placeholder/value）
   var _medFieldDefs = {
     visit: [
-      { key: 'date', label: '就诊日期', type: 'date', required: true, value: function(){ return new Date().toISOString().slice(0,10); } },
+      { key: 'date', label: '就诊日期', type: 'date', required: true, value: function(){ return _mrLocalDate(); } },
       { key: 'hospital', label: '医院', placeholder: '如：市人民医院' },
       { key: 'department', label: '科室', placeholder: '如：消化内科' },
       { key: 'diagnosis', label: '诊断结果', placeholder: '如：慢性胃炎' },
@@ -17513,16 +17520,16 @@ function toggleGuideSection(index) {
     medication: [
       { key: 'name', label: '药品名称', required: true, placeholder: '如：阿莫西林' },
       { key: 'dosage', label: '用法用量', placeholder: '如：每日3次，每次1片', value: '每日3次，每次1片' },
-      { key: 'startDate', label: '开始日期', type: 'date', value: function(){ return new Date().toISOString().slice(0,10); } }
+      { key: 'startDate', label: '开始日期', type: 'date', value: function(){ return _mrLocalDate(); } }
     ],
     exam: [
-      { key: 'date', label: '体检日期', type: 'date', required: true, value: function(){ return new Date().toISOString().slice(0,10); } },
+      { key: 'date', label: '体检日期', type: 'date', required: true, value: function(){ return _mrLocalDate(); } },
       { key: 'organization', label: '体检机构', placeholder: '如：市中心医院' },
       { key: 'summary', label: '关键指标摘要', type: 'textarea', placeholder: '如：血压偏高，血脂正常' }
     ],
     vaccine: [
       { key: 'name', label: '疫苗名称', required: true, placeholder: '如：新冠疫苗第三针' },
-      { key: 'date', label: '接种日期', type: 'date', value: function(){ return new Date().toISOString().slice(0,10); } },
+      { key: 'date', label: '接种日期', type: 'date', value: function(){ return _mrLocalDate(); } },
       { key: 'dose', label: '剂次', placeholder: '如：第1针', value: '第1针' }
     ]
   };

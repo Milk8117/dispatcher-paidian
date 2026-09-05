@@ -47,6 +47,23 @@
   // ---------- 日期状态 ----------
   var _selectedDate = null; // 当前选中日期，null表示今天
 
+  // b37: 全系统日期统一为本地日历日（个人应用仅服务本人，北京凌晨00:00-08:00不再被UTC算到昨天）
+  function _localDateStr(d) {
+    d = d || new Date();
+    var m = ('0' + (d.getMonth() + 1)).slice(-2);
+    var dd = ('0' + d.getDate()).slice(-2);
+    return d.getFullYear() + '-' + m + '-' + dd;
+  }
+  function _localIso(d) {
+    d = d || new Date();
+    var off = -d.getTimezoneOffset();
+    var sign = off >= 0 ? '+' : '-';
+    var a = Math.abs(off);
+    var zh = ('0' + Math.floor(a / 60)).slice(-2);
+    var zm = ('0' + (a % 60)).slice(-2);
+    return _localDateStr(d) + 'T' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2) + ':' + ('0' + d.getSeconds()).slice(-2) + sign + zh + ':' + zm;
+  }
+
   function _getSelectedDate() {
     return _selectedDate || _today();
   }
@@ -92,7 +109,7 @@
     var logs = _load(KEYS.behavior, []);
     var cutoff = new Date();
     cutoff.setDate(cutoff.getDate() - days);
-    var cutoffStr = cutoff.toISOString().substr(0, 10);
+    var cutoffStr = _localDateStr(cutoff);
     return logs.filter(function(l) { return l.date >= cutoffStr; });
   }
 
@@ -124,7 +141,7 @@
       }
     }
     entry.id = Date.now().toString(36) + Math.random().toString(36).substr(2, 4);
-    entry.timestamp = new Date().toISOString();
+    entry.timestamp = _localIso();
     logs.push(entry);
     if (logs.length > 500) logs = logs.slice(-500);
     _save(KEYS.mood, logs);
@@ -136,8 +153,8 @@
     var logs = _load(KEYS.mood, []);
     var cutoff = new Date();
     cutoff.setDate(cutoff.getDate() - days);
-    var cutoffISO = cutoff.toISOString();
-    return logs.filter(function(l) { return l.timestamp >= cutoffISO; });
+    var cutoffStr = _localDateStr(cutoff);
+    return logs.filter(function(l) { return l.timestamp && l.timestamp.substr(0, 10) >= cutoffStr; });
   }
 
   // ---------- 偏好画像 ----------
@@ -540,9 +557,10 @@
 
   // ==================== 日期导航 ====================
   function _shiftDate(dateStr, delta) {
-    var d = new Date(dateStr + 'T00:00:00');
+    var parts = String(dateStr).split('-');
+    var d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
     d.setDate(d.getDate() + delta);
-    return d.toISOString().substr(0, 10);
+    return _localDateStr(d);
   }
 
   function _formatDateDisplay(dateStr) {
@@ -1123,7 +1141,7 @@
   }
 
   // ==================== 工具函数 ====================
-  function _today() { return new Date().toISOString().substr(0, 10); }
+  function _today() { return _localDateStr(); }
   function _nowTime() {
     var n = new Date();
     return String(n.getHours()).padStart(2,'0') + ':' + String(n.getMinutes()).padStart(2,'0');
