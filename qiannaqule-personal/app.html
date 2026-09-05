@@ -6501,7 +6501,7 @@ body {
         日程明细
       </div>
       <div class="dashboard-grid">
-        <div class="dashboard-detail-card" onclick="if(window.Schedule) Schedule.openPanel()">
+        <div class="dashboard-detail-card" onclick="openTodaySchedule()">
           <div class="ddc-icon" style="background:#f5f3ff;color:#8b5cf6">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
           </div>
@@ -16514,9 +16514,10 @@ function toggleGuideSection(index) {
   function getTodayTodoCount() {
     try {
       if (window.scheduleGetTasks) {
-        var today = new Date().toISOString().slice(0, 10);
+        var today=new Date(), f=function(x){ return String(x).padStart(2,'0'); };
+        var todayStr=today.getFullYear()+'-'+f(today.getMonth()+1)+'-'+f(today.getDate());
         var tasks = window.scheduleGetTasks().filter(function(t) {
-          return t.date === today && t.status !== 'done';
+          return t.date === todayStr && t.status !== 'done';
         });
         return tasks.length;
       }
@@ -16524,6 +16525,20 @@ function toggleGuideSection(index) {
     return 0;
   }
 
+  function getTodayPendingTitles() {
+    try {
+      if (window.scheduleGetTasks) {
+        var today=new Date(), g2=function(x){ return String(x).padStart(2,'0'); };
+        var todayStr=today.getFullYear()+'-'+g2(today.getMonth()+1)+'-'+g2(today.getDate());
+        return window.scheduleGetTasks().filter(function(t) { return t.date === todayStr && t.status !== 'done'; }).map(function(t) { return t.title || '未命名'; });
+      }
+    } catch(e) {}
+    return [];
+  }
+  function openTodaySchedule() {
+    try { var el = document.getElementById('scheduleContainer'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch(e) {}
+    try { if (window._schState) { window._schState.selectedDay = new Date().getDate(); } if (window.initSchedule) { window.initSchedule('scheduleContainer'); } } catch(e) {}
+  }
   function getWeeklyTaskStats() {
     try {
       if (window.scheduleGetTasks) {
@@ -16560,7 +16575,10 @@ function toggleGuideSection(index) {
         if (_ws.total === 0 && getTodayTodoCount() === 0) {}
         else if (_ws.total > 0 && _ws.rate >= 80) _concl = '本周任务完成率优秀，继续保持';
         else if (_ws.total > 0 && _ws.rate >= 50) _concl = '本周已完成 ' + _ws.done + '/' + _ws.total + ' 项，再接再厉';
-        else if (getTodayTodoCount() > 0) _concl = '今天还有 ' + getTodayTodoCount() + ' 项待办待完成';
+        else if (getTodayTodoCount() > 0) {
+          var _pt = getTodayPendingTitles();
+          _concl = '今日待办 ' + getTodayTodoCount() + ' 项：' + (_pt.length ? _pt.join('、') : '');
+        }
         _conclEl.textContent = _concl;
       }
       var _weekHours = 0;
@@ -16577,7 +16595,8 @@ function toggleGuideSection(index) {
         _allT.forEach(function(t){ if (t.status === 'done' && t.date) _doneSel[String(t.date).slice(0,10)] = 1; });
         var _d = new Date();
         var _cd = 0;
-        while (_doneSel[new Date(_d.getTime()).toISOString().slice(0,10)]) { _cd++; _d.setDate(_d.getDate() - 1); if (_cd > 365) break; }
+        var _dz=function(dd){ var _p=function(x){return String(x).padStart(2,'0');}; return dd.getFullYear()+'-'+_p(dd.getMonth()+1)+'-'+_p(dd.getDate()); };
+        while (_doneSel[_dz(_d)]) { _cd++; _d.setDate(_d.getDate() - 1); if (_cd > 365) break; }
         _streak = _cd;
       } catch(e) {}
       var _sdEl = document.getElementById('workStreakDays');
