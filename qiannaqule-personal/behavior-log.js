@@ -141,7 +141,9 @@
       }
     }
     entry.id = Date.now().toString(36) + Math.random().toString(36).substr(2, 4);
-    entry.timestamp = _localIso();
+    // b40: 补录历史日期情绪时按所选日期归属（今天则当前时刻）
+    if (entry && entry.dateStr) { var _hds = _localIso(); entry.timestamp = entry.dateStr + _hds.substr(10); }
+    else { entry.timestamp = _localIso(); }
     logs.push(entry);
     if (logs.length > 500) logs = logs.slice(-500);
     _save(KEYS.mood, logs);
@@ -667,8 +669,7 @@
     html += '</div>'; // overview grid
     html += '</div>'; // section
 
-    // --- 快捷记录按钮（仅今天可录入） ---
-    if (viewingToday) {
+    // --- 快捷记录按钮（历史日期=补录到所选日） ---
     html += '<div class="bh-section">';
     html += '<div class="bh-section-title">' + svgIcon('M12 5v14M5 12h14', '#22c55e') + ' 快捷记录</div>';
     html += '<div class="bh-quick-actions">';
@@ -680,7 +681,6 @@
     html += '<button class="bh-qa-btn" onclick="window._bhShowAddLearning()">' + svgIcon('M12 14l9-5-9-5-9 5 9 5z', '#06b6d4', 18) + '<span>记学习</span></button>';
     html += '</div>';
     html += '</div>';
-    } // end if (viewingToday)
 
     // --- 当日详细日志 ---
     html += '<div class="bh-section">';
@@ -918,12 +918,13 @@
       var where = ov.querySelector('#bhMealWhere').value.trim();
       var amount = parseFloat(ov.querySelector('#bhMealAmount').value) || 0;
 
-      var log = getTodayLog();
+      var log = getLogForDate(_getSelectedDate());
+      if (log._empty) delete log._empty;
       log.meals.push({ type: type, time: _nowTime(), items: items, where: where });
       saveTodayLog(log);
 
       if (amount > 0 && window.dailyTxAdd) {
-        window.dailyTxAdd({ type: 'expense', amount: amount, category: 'food', note: type + ': ' + items, date: _today() });
+        window.dailyTxAdd({ type: 'expense', amount: amount, category: 'food', note: type + ': ' + items, date: _getSelectedDate() });
       }
       window.showToast && window.showToast('已记录' + type + '：' + items);
       renderBehaviorHub('behaviorHubContainer');
@@ -944,7 +945,8 @@
       var dur = parseInt(ov.querySelector('#bhExDur').value) || 0;
       var dist = parseFloat(ov.querySelector('#bhExDist').value) || 0;
 
-      var log = getTodayLog();
+      var log = getLogForDate(_getSelectedDate());
+      if (log._empty) delete log._empty;
       log.exercise.push({ type: type, duration: dur, distance: dist, intensity: '中', time: _nowTime() });
       saveTodayLog(log);
       window.showToast && window.showToast('已记录运动：' + type);
@@ -969,7 +971,8 @@
       var selBtn = ov.querySelector('.bh-q-btn.active');
       var quality = selBtn ? parseInt(selBtn.getAttribute('data-score')) : 3;
 
-      var log = getTodayLog();
+      var log = getLogForDate(_getSelectedDate());
+      if (log._empty) delete log._empty;
       log.sleep = { bedtime: bedtime, waketime: waketime, quality: quality };
       saveTodayLog(log);
       window.showToast && window.showToast('已记录睡眠');
@@ -1007,7 +1010,7 @@
       var trigger = ov.querySelector('#bhMoodTrigger').value.trim();
       var physical = ov.querySelector('#bhMoodPhysical').value.trim();
 
-      addMoodEntry({ score: score, label: moodInfo.label, trigger: trigger, physical: physical ? [physical] : [], coping: '' });
+      addMoodEntry({ score: score, label: moodInfo.label, trigger: trigger, physical: physical ? [physical] : [], coping: '', dateStr: _getSelectedDate() });
       window.showToast && window.showToast('已记录情绪：' + moodInfo.label);
       renderBehaviorHub('behaviorHubContainer');
       window.healthDataChanged && window.healthDataChanged();
