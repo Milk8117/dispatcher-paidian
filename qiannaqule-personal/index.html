@@ -6988,6 +6988,12 @@ body {
   <!-- 饮食 -->
   <div id="health-diet" class="sub-tab-content">
     <div class="dashboard-section">
+      <div class="health-spec-datebar" style="display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:7px 12px;margin-bottom:14px;box-shadow:0 1px 2px rgba(15,23,42,.04)">
+        <button type="button" onclick="window._bhShiftDate(-1)" title="前一天" style="width:30px;height:30px;border:none;background:#f1f5f9;color:#0f172a;border-radius:8px;font-size:18px;line-height:1;cursor:pointer">‹</button>
+        <div id="dietDateLabel" style="font-size:13px;font-weight:600;color:#0f172a">今日</div>
+        <button type="button" onclick="window._bhShiftDate(1)" title="后一天" style="width:30px;height:30px;border:none;background:#f1f5f9;color:#0f172a;border-radius:8px;font-size:18px;line-height:1;cursor:pointer">›</button>
+        <button type="button" onclick="window._bhGoToday()" style="height:30px;padding:0 12px;border:none;background:#0f172a;color:#fff;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">回到今天</button>
+      </div>
       <div class="dashboard-card">
         <div class="dashboard-card-header">
           <div>
@@ -7040,6 +7046,12 @@ body {
   <!-- 睡眠 -->
     <div id="health-sleep" class="sub-tab-content">
     <div class="dashboard-section">
+      <div class="health-spec-datebar" style="display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:7px 12px;margin-bottom:14px;box-shadow:0 1px 2px rgba(15,23,42,.04)">
+        <button type="button" onclick="window._bhShiftDate(-1)" title="前一天" style="width:30px;height:30px;border:none;background:#f1f5f9;color:#0f172a;border-radius:8px;font-size:18px;line-height:1;cursor:pointer">‹</button>
+        <div id="sleepDateLabel" style="font-size:13px;font-weight:600;color:#0f172a">今日</div>
+        <button type="button" onclick="window._bhShiftDate(1)" title="后一天" style="width:30px;height:30px;border:none;background:#f1f5f9;color:#0f172a;border-radius:8px;font-size:18px;line-height:1;cursor:pointer">›</button>
+        <button type="button" onclick="window._bhGoToday()" style="height:30px;padding:0 12px;border:none;background:#0f172a;color:#fff;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">回到今天</button>
+      </div>
       <div class="dashboard-card">
         <div class="dashboard-card-header">
           <div>
@@ -7085,6 +7097,12 @@ body {
   <!-- 运动 -->
     <div id="health-exercise" class="sub-tab-content">
     <div class="dashboard-section">
+      <div class="health-spec-datebar" style="display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:7px 12px;margin-bottom:14px;box-shadow:0 1px 2px rgba(15,23,42,.04)">
+        <button type="button" onclick="window._bhShiftDate(-1)" title="前一天" style="width:30px;height:30px;border:none;background:#f1f5f9;color:#0f172a;border-radius:8px;font-size:18px;line-height:1;cursor:pointer">‹</button>
+        <div id="extDateLabel" style="font-size:13px;font-weight:600;color:#0f172a">今日</div>
+        <button type="button" onclick="window._bhShiftDate(1)" title="后一天" style="width:30px;height:30px;border:none;background:#f1f5f9;color:#0f172a;border-radius:8px;font-size:18px;line-height:1;cursor:pointer">›</button>
+        <button type="button" onclick="window._bhGoToday()" style="height:30px;padding:0 12px;border:none;background:#0f172a;color:#fff;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">回到今天</button>
+      </div>
       <!-- 今日运动概览 -->
       <div class="exercise-stats-card">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
@@ -7145,9 +7163,15 @@ body {
   <!-- 情绪 -->
     <div id="health-mood" class="sub-tab-content">
     <div class="dashboard-section">
+      <div class="health-spec-datebar" style="display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:7px 12px;margin-bottom:14px;box-shadow:0 1px 2px rgba(15,23,42,.04)">
+        <button type="button" onclick="window._bhShiftDate(-1)" title="前一天" style="width:30px;height:30px;border:none;background:#f1f5f9;color:#0f172a;border-radius:8px;font-size:18px;line-height:1;cursor:pointer">‹</button>
+        <div id="moodDateLabel" style="font-size:13px;font-weight:600;color:#0f172a">今日</div>
+        <button type="button" onclick="window._bhShiftDate(1)" title="后一天" style="width:30px;height:30px;border:none;background:#f1f5f9;color:#0f172a;border-radius:8px;font-size:18px;line-height:1;cursor:pointer">›</button>
+        <button type="button" onclick="window._bhGoToday()" style="height:30px;padding:0 12px;border:none;background:#0f172a;color:#fff;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">回到今天</button>
+      </div>
       <!-- 今日心情 -->
       <div class="mood-today-card">
-        <div class="mood-today-label">今日心情</div>
+        <div class="mood-today-label" id="moodTodayLabelTitle">今日心情</div>
         <div style="margin:8px 0">
           <span style="font-size:36px" id="moodTodayEmoji">😊</span>
         </div>
@@ -9012,6 +9036,20 @@ body {
   }
 
   window.HealthSpecial = {
+    // b41: 更新各专项页顶部日期条（跟随全局所选日期）
+    updateSpecialDateBars: function() {
+      var sel = _healthSelDate();
+      var isToday = (window.BehaviorLog && typeof window.BehaviorLog.isViewingToday === 'function') ? window.BehaviorLog.isViewingToday() : (sel === _mrLocalDate());
+      var lbl = '';
+      try { var d = new Date(String(sel).replace(/-/g, '/')); lbl = (d.getMonth()+1) + '月' + d.getDate() + '日'; } catch(e) { lbl = sel; }
+      var suffix = isToday ? ' · 今天' : ' · 补录';
+      var map = { dietDateLabel: lbl+suffix, sleepDateLabel: lbl+suffix, extDateLabel: lbl+suffix, moodDateLabel: lbl+suffix };
+      for (var k in map) { var el = document.getElementById(k); if (el) el.textContent = map[k]; }
+      var _dTag = document.getElementById('healthDietTag');
+      if (_dTag && !isToday) _dTag.textContent = '该日 ' + lbl;
+      var _moT = document.getElementById('moodTodayLabelTitle');
+      if (_moT) _moT.textContent = isToday ? '今日心情' : (lbl + '心情');
+    },
     // 情绪分数对应 emoji 和标签
     moodMap: {
       5: { emoji: '😄', label: '非常开心' },
@@ -9047,7 +9085,8 @@ body {
     // 渲染运动专项页
     renderExercise: function() {
       if (typeof window.BehaviorLog === 'undefined') return;
-      var today = _mrLocalDate();
+      var today = _healthSelDate();
+      this.updateSpecialDateBars && this.updateSpecialDateBars();
       var log = window.BehaviorLog.getLogForDate(today) || {};
       var exercises = log.exercise || [];
       var steps = log.steps || 0;
@@ -9118,6 +9157,7 @@ body {
     // 渲染睡眠专项页
     renderSleep: function() {
       if (typeof window.BehaviorLog === 'undefined') return;
+      this.updateSpecialDateBars && this.updateSpecialDateBars();
       var listEl = document.getElementById('sleepRecordList');
       if (!listEl) return;
 
@@ -9172,7 +9212,8 @@ body {
     // 渲染情绪专项页
     renderMood: function() {
       if (typeof window.BehaviorLog === 'undefined') return;
-      var today = _mrLocalDate();
+      var today = _healthSelDate();
+      this.updateSpecialDateBars && this.updateSpecialDateBars();
       var moods = window.BehaviorLog.getRecentMoods(7) || [];
       var todayMood = null;
       for (var i = moods.length - 1; i >= 0; i--) {
@@ -9261,7 +9302,7 @@ body {
         // 修改：弹层输入新内容（支持改餐次或置空保留）
         function editMeal(idx) {
           if (!window.BehaviorLog || !window.BehaviorLog.getLogForDate) { alert('数据源不可用'); return; }
-          var today = _mrLocalDate();
+          var today = _healthSelDate();
           var log = window.BehaviorLog.getLogForDate(today) || {};
           var meals = log.meals || [];
           var m = meals[idx];
@@ -9283,7 +9324,7 @@ body {
         // 删除：确认后删除
         function delMeal(idx) {
           if (!window.BehaviorLog || !window.BehaviorLog.removeMeal) { alert('数据源不可用'); return; }
-          var today = _mrLocalDate();
+          var today = _healthSelDate();
           var log = window.BehaviorLog.getLogForDate(today) || {};
           var meals = log.meals || [];
           var m = meals[idx];
@@ -9295,7 +9336,8 @@ body {
         return { editMeal: editMeal, delMeal: delMeal };
       })();
       if (typeof window.BehaviorLog === 'undefined') return;
-      var today = _mrLocalDate();
+      var today = _healthSelDate();
+      this.updateSpecialDateBars && this.updateSpecialDateBars();
       var log = window.BehaviorLog.getLogForDate(today) || {};
       var meals = log.meals || [];
 
@@ -9385,6 +9427,7 @@ body {
 
     // 刷新所有健康专项页（数据更新时调用）
     refreshAll: function() {
+      this.updateSpecialDateBars && this.updateSpecialDateBars();
       this.renderExercise();
       this.renderSleep();
       this.renderMood();
@@ -16354,6 +16397,10 @@ function toggleGuideSection(index) {
     if (window.initWealthGoalSummary) { try { initWealthGoalSummary(); } catch(e) {} }
   }
 
+  function _healthSelDate() {
+    return (window.BehaviorLog && typeof window.BehaviorLog.getSelectedDate === 'function') ? (window.BehaviorLog.getSelectedDate() || _mrLocalDate()) : _mrLocalDate();
+  }
+
   function updateHealthDashboard() {
     // b39: 评分随所选日期刷新——历史日期读该日数据（默认今天）
     var _bhSel = (window.BehaviorLog && typeof window.BehaviorLog.getSelectedDate === 'function') ? window.BehaviorLog.getSelectedDate() : null;
@@ -16460,9 +16507,9 @@ function toggleGuideSection(index) {
         _sleepTagEl.textContent = _sleepAvg === null ? '最近' : (_sleepAvg >= 7 && _sleepAvg <= 9 ? '充足' : (_sleepAvg >= 6 ? '一般' : '偏少'));
       }
       var _exTagEl = document.getElementById('exerciseTag');
-      if (_exTagEl) _exTagEl.textContent = exerciseMin >= 30 ? '已达标' : (exerciseMin > 0 ? '今日' : '今日');
+      if (_exTagEl) _exTagEl.textContent = _isViewingToday ? (exerciseMin >= 30 ? '已达标' : '今日') : '该日';
       var _dietTagEl = document.getElementById('healthDietTag');
-      if (_dietTagEl) _dietTagEl.textContent = dietCount >= 3 ? '打卡 ' + dietCount : '今日';
+      if (_dietTagEl) _dietTagEl.textContent = _isViewingToday ? (dietCount >= 3 ? '打卡 ' + dietCount : '今日') : '该日';
       var _conclEl = document.getElementById('healthConclusion');
       if (_conclEl) {
         var _concl;

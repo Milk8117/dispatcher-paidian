@@ -188,34 +188,82 @@
   // ==================== 自然语言解析引擎 ====================
   // 返回值: { matched: true/false, module, action, data, message }
 
+  // b41: 从自然语言中提取时间归属（今天/昨天/前天/昨晚/某月某日/9月5日/9-5），返回目标日期与剥离后的文本
+  function _extractInputDate(rawText) {
+    var date = _today();
+    var rest = rawText;
+    var rel = rest.match(/^(?:今天早上|今天上午|今天中午|今天下午|今天晚上|今天凌晨|昨天早上|昨天上午|昨天中午|昨天下午|昨天晚上|昨天凌晨|今天|今日|昨天|昨日|今晚|今早|今晨|昨夜|昨晚|前天|前日|大前天|前前天)\s*/i);
+    if (rel) {
+      var w = rel[0].replace(/\s+$/, '');
+      rest = rest.slice(rel[0].length);
+      if (/今天|今日|今早|今晨|今晚/.test(w)) date = _today();
+      else if (/大前天|前前天/.test(w)) date = _shiftDate(_today(), -3);
+      else if (/前天|前日/.test(w)) date = _shiftDate(_today(), -2);
+      else date = _shiftDate(_today(), -1);
+    } else {
+      var dm = rest.match(/^(\d{4})[-年/.](\d{1,2})[-月/.](\d{1,2})(?:日|号)?\s*/i);
+      if (dm) {
+        var y1 = Number(dm[1]), m1 = Number(dm[2]), d1 = Number(dm[3]);
+        if (m1 >= 1 && m1 <= 12 && d1 >= 1 && d1 <= 31) {
+          date = _localDateStr(new Date(y1, m1 - 1, d1));
+          rest = rest.slice(dm[0].length);
+        }
+      } else {
+        dm = rest.match(/^(\d{1,2})[月/](\d{1,2})(?:日|号)?\s*/i);
+        if (dm) {
+          var yy = parseInt(_today().substring(0, 4), 10);
+          var m2 = Number(dm[1]), d2 = Number(dm[2]);
+          if (m2 >= 1 && m2 <= 12 && d2 >= 1 && d2 <= 31) {
+            date = _localDateStr(new Date(yy, m2 - 1, d2));
+            rest = rest.slice(dm[0].length);
+          }
+        }
+      }
+    }
+    if (date > _today()) date = _today();
+    rest = rest.replace(/^[，,\s：:、]+/, '');
+    return { date: date, rest: rest };
+  }
+
   function parseBehaviorInput(text) {
     if (!text || text.trim().length < 2) return { matched: false };
 
     var result;
 
+    // b41: 提取自然语言中的时间归属（今天/昨天/前天/某月某日），支持对话框补录历史日期
+    var dateInfo = _extractInputDate(text);
+    var recDate = dateInfo.date;
+    text = dateInfo.rest;
+    var _wrapRet = function (r) {
+      if (r && r.message && typeof r.message === 'string' && recDate !== _today()) {
+        r.message += '（已补录到' + _formatDateDisplay(recDate).replace(/ · 周.*/, '') + '）';
+      }
+      return r;
+    };
     // 0. 饮水记录（优先于饮食，避免"喝水"被误判为饮食）
-    result = _parseWater(text); if (result) return result;
+    result = _parseWater(text, recDate); if (result) return _wrapRet(result);
     // 1. 饮食记录
-    result = _parseMeal(text); if (result) return result;
+    result = _parseMeal(text, recDate); if (result) return _wrapRet(result);
     // 1.5 购买/消费记录（优先于运动，避免"游泳镜购买180"被误归为运动且漏记金额）
-    result = _parsePurchase(text); if (result) return result;
+    result = _parsePurchase(text, recDate); if (result) return _wrapRet(result);
     // 2. 运动记录
-    result = _parseExercise(text); if (result) return result;
+    result = _parseExercise(text, recDate); if (result) return _wrapRet(result);
     // 3. 睡眠记录
-    result = _parseSleep(text); if (result) return result;
+    result = _parseSleep(text, recDate); if (result) return _wrapRet(result);
     // 4. 学习记录
-    result = _parseLearning(text); if (result) return result;
+    result = _parseLearning(text, recDate); if (result) return _wrapRet(result);
     // 5. 情绪记录
-    result = _parseMood(text); if (result) return result;
+    result = _parseMood(text, recDate); if (result) return _wrapRet(result);
     // 6. 偏好设置
-    result = _parsePreference(text); if (result) return result;
+    result = _parsePreference(text); if (result) return _wrapRet(result);
     // 7. 家庭教育
     result = _parseFamilyEdu(text); if (result) return result;
 
     return { matched: false };
   }
 
-  function _parseMeal(text) {
+  function _parseMeal(text, dateStr) {
+    dateStr = dateStr || _today();
     // "早餐吃了燕麦牛奶" "午饭牛肉面25" "晚餐吃了火锅" "喝了杯奶茶15"
     var mealMatch = text.match(/(早餐|早饭|午餐|午饭|晚餐|晚饭|加餐|夜宵|吃了?|喝了?|吃了个?|来了一?个?|点?了?(?:外卖|餐))(.*?)(\d+(?:\.\d+)?)?\s*(?:元|块|¥)?$/i);
     if (!mealMatch && !/(?:早餐|午饭|午餐|晚饭|晚餐|外卖|食堂|吃了|喝了|干饭|吃个|喝杯)/.test(text)) return null;
@@ -242,8 +290,8 @@
                 .replace(/(在|去|从)(\S+?)(?:吃|的)/, function(m, p1, p2) { where = p2; return ''; })
                 .trim();
 
-    // 记录饮食
-    var log = getTodayLog();
+    var log = getLogForDate(dateStr);
+    delete log._empty;
     var now = new Date();
     var timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
     log.meals.push({ type: mealType, time: timeStr, items: items || '未记录', where: where });
@@ -253,7 +301,7 @@
 
     // 如果有金额，同时记录消费
     if (amount && amount > 0 && window.dailyTxAdd) {
-      window.dailyTxAdd({ type: 'expense', amount: amount, category: 'food', note: mealType + ': ' + (items || ''), date: _today() });
+      window.dailyTxAdd({ type: 'expense', amount: amount, category: 'food', note: mealType + ': ' + (items || ''), date: dateStr });
     }
 
     var msg = '已记录' + mealType + (items ? '：' + items : '');
@@ -262,7 +310,8 @@
     return { matched: true, module: 'behavior', action: 'meal', message: msg };
   }
 
-  function _parsePurchase(text) {
+  function _parsePurchase(text, dateStr) {
+    dateStr = dateStr || _today();
     // "买了双运动鞋200" "宝宝游泳镜购买180" "下单大米89" "花了50买菜"
     // 必须含购买动词且带金额；时长/距离的"花了X分钟/公里"不视为消费
     if (!/(购买|买单|下单|购入|付款|花了?|消费|入手|淘了|网购|回购|买)/.test(text)) return null;
@@ -283,13 +332,14 @@
 
     // 记录消费（购物类目，个人消费/购物）
     if (window.dailyTxAdd) {
-      window.dailyTxAdd({ type: 'expense', amount: amount, category: 'shopping', note: note, date: _today() });
+      window.dailyTxAdd({ type: 'expense', amount: amount, category: 'shopping', note: note, date: dateStr });
     }
 
     return { matched: true, module: 'behavior', action: 'purchase', message: '已记录购物支出 ¥' + amount + (note ? '：' + note : '') };
   }
 
-  function _parseWater(text) {
+  function _parseWater(text, dateStr) {
+    dateStr = dateStr || _today();
     // "喝了3杯水" "喝了两杯水" "今天喝了三杯水" "喝了一杯水"
     // 注意：要排除"喝奶茶""喝咖啡""喝了碗汤"等饮食类
     if (!/喝了?\s*(?:\d+|[一二三四五六七八九十]+)\s*杯水|喝了?水|喝水/.test(text)) return null;
@@ -304,14 +354,16 @@
       count = numMap[n] || parseInt(n) || 1;
     }
 
-    var log = getTodayLog();
+    var log = getLogForDate(dateStr);
+    delete log._empty;
     log.water = (log.water || 0) + count;
     saveTodayLog(log);
 
     return { matched: true, module: 'behavior', action: 'water', message: '已记录饮水 +' + count + ' 杯（今日共' + log.water + '杯）' };
   }
 
-  function _parseExercise(text) {
+  function _parseExercise(text, dateStr) {
+    dateStr = dateStr || _today();
     // "跑了5公里" "跑步30分钟" "游泳了一小时" "做了瑜伽"
     if (!/(?:跑步|跑了|走路|走了|骑行|骑了|游泳|游了|瑜伽|健身|打球|爬山|爬了|散步|拉伸|运动|锻炼了?|练了?)/.test(text)) return null;
 
@@ -340,7 +392,8 @@
     var distM = text.match(/(\d+\.?\d*)\s*(?:公里|km|千米)/i);
     if (distM) distance = parseFloat(distM[1]);
 
-    var log = getTodayLog();
+    var log = getLogForDate(dateStr);
+    delete log._empty;
     log.exercise.push({ type: type, duration: duration, distance: distance, intensity: '中', time: _nowTime() });
     saveTodayLog(log);
 
@@ -351,11 +404,13 @@
     return { matched: true, module: 'behavior', action: 'exercise', message: msg };
   }
 
-  function _parseSleep(text) {
+  function _parseSleep(text, dateStr) {
+    dateStr = dateStr || _today();
     // "昨晚11点睡的7点起" "睡了8小时" "昨晚失眠" "睡眠质量很差"
     if (!/(?:昨晚|昨夜|昨天睡|睡了|失眠|早睡|晚睡|熬夜|起床|入睡|睡眠质量|几点睡|几点起)/.test(text)) return null;
 
-    var log = getTodayLog();
+    var log = getLogForDate(dateStr);
+    delete log._empty;
     if (!log.sleep) log.sleep = {};
 
     // 提取入睡时间
@@ -404,7 +459,8 @@
     return { matched: true, module: 'behavior', action: 'sleep', message: msg };
   }
 
-  function _parseLearning(text) {
+  function _parseLearning(text, dateStr) {
+    dateStr = dateStr || _today();
     // "学了2小时Python" "看了1小时书" "背了50个单词" "上课2小时"
     if (!/(?:学了|学习了|看了.*书|读了|背了|上课|听课|刷了|练习|写了.*代码|做了.*题|研究|学了)/.test(text)) return null;
 
@@ -432,7 +488,8 @@
     else if (/刷题|做题/.test(text)) ltype = '练习';
     else ltype = '自学';
 
-    var log = getTodayLog();
+    var log = getLogForDate(dateStr);
+    delete log._empty;
     log.learning.push({ topic: topic || '未记录', duration: duration, type: ltype, time: _nowTime() });
     saveTodayLog(log);
 
@@ -442,7 +499,8 @@
     return { matched: true, module: 'behavior', action: 'learning', message: msg };
   }
 
-  function _parseMood(text) {
+  function _parseMood(text, dateStr) {
+    dateStr = dateStr || _today();
     // "心情不好" "今天很开心" "感觉焦虑" "情绪低落" "好烦"
     if (!/(?:心情|情绪|感觉|感到|担[心忧]|发愁|烦|好[开心高兴难过烦累]|开心|高兴|满意|难过|伤心|焦虑|压力|烦躁|郁闷|疲惫|兴奋|沮丧|低落|不错|挺好的|崩溃|绝望|平静|感恩|还好|一般般|不是很好|不太好|担忧|失望|委屈)/.test(text)) return null;
 
@@ -478,6 +536,7 @@
                   .trim();
 
     var entry = { score: score, label: label, trigger: trigger, physical: [], coping: '' };
+    if (dateStr && dateStr !== _today()) entry.dateStr = dateStr;
     addMoodEntry(entry);
 
     return { matched: true, module: 'mood', action: 'record', message: '已记录情绪：' + label + '（' + score + '/5）' + (trigger ? ' — ' + trigger : '') };
