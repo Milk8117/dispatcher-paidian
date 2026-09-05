@@ -61,7 +61,8 @@
       scenario_tip: true,
       financial: true,
       health: true,
-      behavior: true
+      behavior: true,
+      holding_news: true
     },
     suppressedInsights: [],       // 被永久屏蔽的洞察/建议列表 [{type, dedupeKey, reason, suppressedAt}]
     dailyBriefingInterval: 1      // 晨报间隔天数（1=每天，2=每2天）
@@ -78,7 +79,8 @@
   var DEDUPE_WINDOW = {
     insight_alert: 24 * 60 * 60 * 1000,   // 同类预警24小时内不重复
     scenario_tip: 48 * 60 * 60 * 1000,    // 同类建议48小时内不重复
-    daily_briefing: 20 * 60 * 60 * 1000   // 晨报20小时内不重复
+    daily_briefing: 20 * 60 * 60 * 1000,  // 晨报20小时内不重复
+    holding_news: 4 * 60 * 60 * 1000      // 持仓动态4小时内不重复（配合每日上限防轰炸）
   };
 
   // 反馈原因枚举
@@ -922,14 +924,23 @@
           if (score !== undefined && score <= 3) lowCount++;
           else if (recentMoods[m].mood === '低落' || recentMoods[m].mood === '焦虑') lowCount++;
         }
-        if (lowCount >= 2 && !wasPushedRecently('scenario_tip', 'mood_low_streak')
-            && !isSuppressed('scenario_tip', 'mood_low_streak')) {
+        if (lowCount >= 2 && !wasPushedRecently('scenario_tip', 'mood_low_cheer')
+            && !isSuppressed('scenario_tip', 'mood_low_cheer')) {
+          // 正向干预：不点破"情绪低"，用温暖/有趣的内容哄一哄，让人会心一笑
+          var cheerLines = [
+            '路过一家花店，替你看了一眼，满天星今天开得正好。日子总会慢慢开出花来。去楼下走一走，抬头看看天。',
+            '你最近其实挺能扛的，一件接一件没停过。那就奖励自己一下：泡杯好喝的，或者吃点想吃的。辛苦啦，今晚早点歇。',
+            '有个说法，嘴角先扬一下，大脑也会跟着信。现在，先冲这句笑一个。好了，你已经赢了一小步。',
+            '抽屉里那包没舍得拆的零食，今天也许该登场了。允许自己歇口气，天塌不下来，你比你以为的能干。',
+            '今天不赶进度，只陪自己做一件开心的小事：听首老歌、看窗外的云、或者干脆发会儿呆。这些都是被允许的。'
+          ];
+          var cheerIdx = (mood.length || 0) % cheerLines.length;
           pushes.push({
             id: genId(),
             type: 'scenario_tip',
-            dedupeKey: 'mood_low_streak',
-            title: '心情有点沉',
-            content: '最近几天情绪偏低，要不要试试：1）出门走15分钟 2）给朋友发个消息 3）早睡半小时。有时候最简单的事最管用。',
+            dedupeKey: 'mood_low_cheer',
+            title: '给你带个小温柔',
+            content: cheerLines[cheerIdx],
             severity: SEVERITY.WARNING,
             category: 'health',
             timestamp: Date.now(),
@@ -945,6 +956,133 @@
     } catch(e) {}
 
     return pushes;
+  }
+
+  // ==================== 持仓新闻推送 (b29) ====================
+  // 从东财资讯接口拉取持仓标的最新的真实新闻报道推送（数据真实，不写假数）
+  function _loadHoldingsList() {
+    try {
+      var raw = localStorage.getItem('mijieai_stock_holdings');
+      var arr = raw ? JSON.parse(raw) : null;
+      if (Array.isArray(arr)) {
+        return arr.filter(function(h) { return h && h.code; });
+      }
+    } catch(e) {}
+    return [];
+  }
+
+  function _buildNewsSearchUrl(keyword) {
+    var hook = {
+      uid: '', keyword: keyword, type: ['cmsArticleWebOld'],
+      client: 'web', clientType: 'web', clientVersion: 'curr',
+      param: { cmsArticleWebOld: { searchScope: 'default', sort: 'default', pageIndex: 1, pageSize: 5 } }
+    };
+    return 'https://search-api-web.eastmoney.com/search/jsonp?cb=x&param=' +
+      encodeURIComponent(JSON.stringify(hook));
+  }
+
+  function _parseNewsSearch(text) {
+    try {
+      var body = text;
+      var s = body.indexOf('(');
+      var e = body.lastIndexOf(')');
+      if (s >= 0 && e > s) body = body.substring(s + 1, e);
+      var json = JSON.parse(body);
+      var list = json && json.result && json.result.cmsArticleWebOld;
+      if (Array.isArray(list)) return list;
+    } catch(e) {}
+    return [];
+  }
+
+  function _stripHtmlTag(str) {
+    return String(str || '').replace(/<[^>]+>/g, '').trim();
+  }
+
+  function generateHoldingsNews() {
+    var settings = getSettings();
+    if (!settings.enabled) return Promise.resolve([]);
+    if (settings.categories.holding_news === false) return Promise.resolve([]);
+
+    var holdings = _loadHoldingsList();
+    if (!holdings || holdings.length === 0) return Promise.resolve([]);
+
+    var today = todayStr();
+    var log = getPushLog();
+    var pushedKeys = {};
+    log.forEach(function(li) {
+      if (li.date === today && li.type === 'holding_news') pushedKeys[li.dedupeKey] = true;
+    });
+
+    var news = [];
+    var targets = holdings.slice(0, 6);
+
+    return targets.reduce(function(chain, h) {
+      return chain.then(function() {
+        if (news.length >= 2) return;
+        var code = String(h.code || '').trim();
+        if (!code) return;
+        var key = code + '_' + today;
+        if (pushedKeys[key]) return;
+        var url = _buildNewsSearchUrl(code);
+        return fetch(url)
+          .then(function(r) { return r.text(); })
+          .then(function(text) {
+            var list = _parseNewsSearch(text);
+            if (!list || list.length === 0) return;
+            var it = list[0];
+            var title = _stripHtmlTag(it.title);
+            if (!title) return;
+            var summary = _stripHtmlTag(it.content).substring(0, 60);
+            var date = (it.date || '').substring(0, 16);
+            var meta = '来源：' + (it.mediaName || '财经媒体') + (date ? ' ' + date : '');
+            var lines = [title];
+            if (summary) lines.push(summary);
+            lines.push(meta);
+            news.push({
+              id: genId(),
+              type: 'holding_news',
+              dedupeKey: key,
+              title: (h.name ? h.name : code) + ' · 动态',
+              content: lines.join(String.fromCharCode(10)),
+              url: it.url || '',
+              severity: SEVERITY.INFO,
+              category: 'holding_news',
+              timestamp: Date.now(),
+              date: today,
+              read: false,
+              feedback: null,
+              feedbackReasons: [],
+              feedbackTime: null,
+              feedbackNote: ''
+            });
+            pushedKeys[key] = true;
+          })
+          .catch(function() {});
+      });
+    }, Promise.resolve()).then(function() {
+      return news;
+    });
+  }
+
+  var _lastHoldingsCheck = 0;
+  function pollHoldingsNews() {
+    try {
+      var settings = getSettings();
+      if (!settings.enabled) return;
+      if (isInQuietHours(settings)) return;
+      var now = Date.now();
+      if (now - _lastHoldingsCheck < 3 * 60 * 60 * 1000) return; // 3小时节流，防轰炸
+      _lastHoldingsCheck = now;
+      generateHoldingsNews().then(function(list) {
+        if (!list || list.length === 0) return;
+        var remaining = Math.max(0, settings.maxPerDay - getTodayPushCount());
+        var toPush = list.slice(0, remaining);
+        toPush.forEach(function(p) { addPushLog(p); });
+        if (toPush.length > 0) {
+          window.dispatchEvent(new CustomEvent('push_new', { detail: { unread: getUnreadCount() } }));
+        }
+      });
+    } catch(e) {}
   }
 
   // ==================== 核心调度 ====================
@@ -1023,6 +1161,8 @@
         type: pushes[i].type,
         dedupeKey: pushes[i].dedupeKey,
         title: pushes[i].title,
+        content: pushes[i].content || '',
+        url: pushes[i].url || '',
         severity: pushes[i].severity,
         category: pushes[i].category,
         timestamp: pushes[i].timestamp,
@@ -1244,6 +1384,9 @@
         if (p.content) {
           html += '<div style="font-size:12px;color:#475569;line-height:1.6;white-space:pre-wrap;">' + escapeHtml(p.content) + '</div>';
         }
+        if (p.url) {
+          html += '<div style="margin-top:6px;"><a href="' + escapeHtml(p.url) + '" target="_blank" rel="noopener" style="font-size:12px;color:#8b5cf6;text-decoration:none;font-weight:500;">查看原文</a></div>';
+        }
         var d = new Date(p.timestamp);
         html += '<div style="font-size:11px;color:#94a3b8;margin-top:6px;">' +
           formatTime(d) + '</div>';
@@ -1286,10 +1429,12 @@
     // 启动时先检查一次（延迟3秒，等页面加载完）
     setTimeout(function() {
       checkAndGenerate();
+      pollHoldingsNews();
     }, 3000);
 
     _checkTimer = setInterval(function() {
       checkAndGenerate();
+      pollHoldingsNews();
       // 有新推送时触发事件
       var unread = getUnreadCount();
       if (unread > 0) {
@@ -1341,6 +1486,8 @@
     generateDailyBriefing: generateDailyBriefing,
     generateInsightAlerts: generateInsightAlerts,
     generateScenarioTips: generateScenarioTips,
+    generateHoldingsNews: generateHoldingsNews,
+    pollHoldingsNews: pollHoldingsNews,
 
     // ===== 反馈闭环（共生内核L1）=====
     recordFeedback: recordFeedback,

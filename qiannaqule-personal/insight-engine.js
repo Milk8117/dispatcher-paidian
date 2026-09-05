@@ -465,22 +465,42 @@
         reasons: reasons
       };
 
+      // --- 生成"注意事项"（找最弱维度，给出可执行建议）---
+      var minKey = null, minVal = 101;
+      ['mood', 'expense', 'exercise', 'sleep', 'water'].forEach(function(k) {
+        if (scores[k] !== undefined && scores[k] < minVal) { minVal = scores[k]; minKey = k; }
+      });
+      var attention = null;
+      if (minKey === 'exercise' && minVal < 40) {
+        attention = '今天还没怎么活动，起身走一走、舒展一下身体';
+      } else if (minKey === 'sleep' && minVal < 60) {
+        attention = '睡眠偏少，今晚尽量早点休息';
+      } else if (minKey === 'water' && minVal < 60) {
+        attention = '饮水量偏少，记得多补几杯水';
+      } else if (minKey === 'expense' && minVal < 60) {
+        attention = '今天开支有点高，留意一下能不能省';
+      } else if (minKey === 'mood' && minVal <= 30) {
+        attention = '今天心情有点闷，给自己安排点轻松的小事缓缓';
+      }
+
       if (total >= 80) {
         result.type = 'info';
-        result.detail = '今日综合健康度' + total + '分，状态良好（' + reasons.join('；') + '）';
         result.severity = 1;
+        result.detail = attention
+          ? ('今日健康度' + total + '分，整体不错，唯一要注意：' + attention + '。')
+          : ('今日健康度' + total + '分，状态良好，无特别需要调整。');
       } else if (total >= 60) {
         result.type = 'info';
-        result.detail = '今日综合健康度' + total + '分，状态一般（' + reasons.join('；') + '）';
         result.severity = 1;
+        result.detail = '今日健康度' + total + '分，中等，建议关注：' + (attention || '保持规律作息和适量活动') + '。';
       } else if (total >= 40) {
         result.type = 'warning';
-        result.detail = '今日综合健康度' + total + '分，需要关注（' + reasons.join('；') + '）';
         result.severity = 2;
+        result.detail = '今日健康度' + total + '分，需要关注：' + (attention || '保持规律作息和适量活动') + '。';
       } else {
         result.type = 'alert';
-        result.detail = '今日综合健康度' + total + '分，状态较差，建议调整（' + reasons.join('；') + '）';
         result.severity = 3;
+        result.detail = '今日健康度' + total + '分，偏低，今天优先调整：' + (attention || '休息好、动一动、吃均衡') + '。';
       }
     } catch(e) {
       result.type = 'info';
