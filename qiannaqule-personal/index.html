@@ -9245,8 +9245,13 @@ body {
         if (emojiEl) emojiEl.textContent = m.emoji;
         if (scoreEl) scoreEl.textContent = todayMood.score;
         if (labelEl) labelEl.textContent = m.label;
+      } else {
+        // b43: 该日无情绪记录时清空今日心情卡片(删除记录后不残留旧值)
+        var _isT = (window.BehaviorLog && typeof window.BehaviorLog.isViewingToday === 'function') ? window.BehaviorLog.isViewingToday() : true;
+        if (emojiEl) emojiEl.textContent = '😊';
+        if (scoreEl) scoreEl.textContent = '-';
+        if (labelEl) labelEl.textContent = (_isT ? '今日' : '该日') + '还未记录心情';
       }
-
       if (listEl) {
         if (moods.length === 0) {
           listEl.innerHTML = '<div class="record-empty">暂无情绪记录，对AI说「今天心情不错」</div>';
