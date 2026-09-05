@@ -579,11 +579,13 @@
     if (newDate > _today()) return;
     _selectedDate = (newDate === _today()) ? null : newDate;
     renderBehaviorHub('behaviorHubContainer');
+    window.healthDataChanged && window.healthDataChanged();
   };
 
   window._bhGoToday = function() {
     _selectedDate = null;
     renderBehaviorHub('behaviorHubContainer');
+    window.healthDataChanged && window.healthDataChanged();
   };
 
   window._bhPickDate = function() {
@@ -596,6 +598,7 @@
       }
       _selectedDate = (val === _today()) ? null : val;
       renderBehaviorHub('behaviorHubContainer');
+      window.healthDataChanged && window.healthDataChanged();
     }
   };
 
@@ -1023,7 +1026,8 @@
   };
 
   window._bhShowAddWater = function() {
-    var log = getTodayLog();
+    var log = getLogForDate(_getSelectedDate());
+    if (log._empty) delete log._empty;
     log.water = (log.water || 0) + 1;
     saveTodayLog(log);
     window.showToast && window.showToast('已记录饮水 +1 杯（共' + log.water + '杯）');
@@ -1047,7 +1051,8 @@
       var dur = parseInt(ov.querySelector('#bhLearnDur').value) || 0;
       var type = ov.querySelector('#bhLearnType').value;
 
-      var log = getTodayLog();
+      var log = getLogForDate(_getSelectedDate());
+      if (log._empty) delete log._empty;
       log.learning.push({ topic: topic || '未记录', duration: dur, type: type, time: _nowTime() });
       saveTodayLog(log);
       window.showToast && window.showToast('已记录学习：' + (topic || '未命名'));
@@ -1182,6 +1187,9 @@
     getLogForDate: getLogForDate,
     getRecentLogs: getRecentLogs,
     getRecentMoods: getRecentMoods,
+    // b39: 暴露当前选中日期/是否今天（健康总览评分随所选日期刷新）
+    getSelectedDate: function(){ return _getSelectedDate(); },
+    isViewingToday: function(){ return _isViewingToday(); },
     addMoodEntry: addMoodEntry,
     // 情绪删除（确认后按 id 定位，避免同句双链路/重复记录累积）
     removeMoodEntry: function(id) {

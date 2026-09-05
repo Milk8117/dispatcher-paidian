@@ -16355,8 +16355,10 @@ function toggleGuideSection(index) {
   }
 
   function updateHealthDashboard() {
-    var now = new Date();
-    var todayStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+    // b39: 评分随所选日期刷新——历史日期读该日数据（默认今天）
+    var _bhSel = (window.BehaviorLog && typeof window.BehaviorLog.getSelectedDate === 'function') ? window.BehaviorLog.getSelectedDate() : null;
+    var _isViewingToday = (window.BehaviorLog && typeof window.BehaviorLog.isViewingToday === 'function') ? window.BehaviorLog.isViewingToday() : true;
+    var todayStr = _bhSel || _mrLocalDate();
 
     var dietCount = 0, exerciseMin = 0, sleepHour = null, mood = null;
 
@@ -16409,18 +16411,18 @@ function toggleGuideSection(index) {
     var _pts = 0, _tips = [];
     if (dietCount >= 3) _pts += 25;
     else if (dietCount >= 1) { _pts += 15; _tips.push('饮食只记了' + dietCount + '餐，还差' + (3 - dietCount) + '餐到三餐'); }
-    else _tips.push('今天还没记录饮食');
+    else _tips.push((_isViewingToday?'今天':'该日')+'还没记录饮食');
     if (exerciseMin >= 30) _pts += 25;
     else if (exerciseMin >= 10) { _pts += 15; _tips.push('运动' + exerciseMin + '分钟，差' + (30 - exerciseMin) + '分钟达标'); }
     else if (exerciseMin > 0) _tips.push('运动才' + exerciseMin + '分钟，目标30分钟');
-    else _tips.push('今天还没运动');
+    else _tips.push((_isViewingToday?'今天':'该日')+'还没运动');
     if (sleepHour !== null) {
       if (sleepHour >= 7 && sleepHour <= 9) _pts += 25;
       else if (sleepHour >= 6) { _pts += 15; _tips.push('睡眠' + sleepHour + '小时，建议7-9小时'); }
       else { _pts += 5; _tips.push('睡眠仅' + sleepHour + '小时，休息偏少'); }
-    } else _tips.push('还没记录睡眠');
+    } else _tips.push((_isViewingToday?'今天':'该日')+'还没记录睡眠');
     if (mood) _pts += 25;
-    else _tips.push('今天还没记录情绪');
+    else _tips.push((_isViewingToday?'今天':'该日')+'还没记录情绪');
     var _hasAny = (dietCount > 0 || exerciseMin > 0 || sleepHour !== null || mood);
     var _scoreGrade = _pts >= 85 ? '优秀' : (_pts >= 70 ? '良好' : (_pts >= 60 ? '合格' : '待提升'));
     var scoreEl = document.getElementById('healthScore');
@@ -16468,8 +16470,8 @@ function toggleGuideSection(index) {
         else {
           if (_pts >= 85) _concl = '健康状态' + _scoreGrade + '(' + _pts + '分)，继续保持';
           else if (_pts >= 70) _concl = '健康' + _scoreGrade + '(' + _pts + '分)，有提升空间';
-          else if (_pts >= 60) _concl = '刚过' + _scoreGrade + '线(' + _pts + '分)，今天有几项没做到位';
-          else _concl = _scoreGrade + '(' + _pts + '分)，今天几项没达标，需要留意';
+          else if (_pts >= 60) _concl = '刚过' + _scoreGrade + '线(' + _pts + '分)，' + (_isViewingToday?'今天':'该日') + '有几项没做到位';
+          else _concl = _scoreGrade + '(' + _pts + '分)，' + (_isViewingToday?'今天':'该日') + '几项没达标，需要留意';
         }
         if (_tips && _tips.length) _concl += '。待完成：' + _tips.join('、');
         _conclEl.textContent = _concl;
