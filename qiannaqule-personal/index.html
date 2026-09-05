@@ -15933,20 +15933,19 @@ function toggleGuideSection(index) {
         var date=now.getFullYear()+'-'+f(now.getMonth()+1)+'-'+f(now.getDate());
         var hm=f(now.getHours())+':'+f(now.getMinutes());
         var arr=_mrLoad('mijieai_mr_onetime', []);
-        var due=[], old=[];
-        arr.forEach(function(r){ if(r.dismissed) return; if(r.date===date && !r.fired && r.at<=hm) due.push(r); else if(r.date<date) old.push(r); });
-        var all=due.concat(old);
-        if(all.length){
-          arr.forEach(function(r){ if(all.indexOf(r)>=0) r.fired=true; });
-          _mrSave('mijieai_mr_onetime', arr);
-          var msg=all.map(function(r){ return r.text; }).join('；');
-          this._pop('提醒：'+msg);
-        }
+        var due=[], remain=[];
+        arr.forEach(function(r){
+          if(r.dismissed || r.fired || String(r.date)\u003cdate) return;
+          if(String(r.date)===date \u0026\u0026 (r.at||'')\u003c=hm){ due.push(r); return; }
+          remain.push(r);
+        });
+        _mrSave('mijieai_mr_onetime', remain);
+        if(due.length){ this._pop('提醒：'+due.map(function(r){ return r.text; }).join('；')); }
       }catch(e){}
       var self=this;
       setTimeout(function(){ if(document.hidden===false){ self._fireDue(); } }, 60000);
     },
-    _pop: function(msg){
+_pop: function(msg){
       try{ if(window.AIAction && AIAction._toast){ AIAction._toast(msg); return; } }catch(e){}
       try{ var el=document.createElement('div'); el.style.cssText='position:fixed;top:0;left:0;right:0;z-index:20000;background:#2563eb;color:#fff;text-align:center;padding:12px;font-size:14px'; el.textContent=msg; document.body.appendChild(el); setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); },6000); }catch(e){}
     },
