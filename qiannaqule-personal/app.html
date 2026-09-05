@@ -9238,6 +9238,7 @@ body {
         if (!confirm('确定删除这条情绪记录？\n' + label)) return;
         if (window.BehaviorLog.removeMoodEntry(id)) { _refresh(); }
       }
+      window.MoodOps = { del: del }; // b28 挂载全局(按钮onclick调用window.MoodOps.del, 此前仅HealthSpecial内部导致点击无效)
       return { del: del };
     })(),
 
@@ -12808,7 +12809,11 @@ body {
             refreshTodayOverview();
             if (typeof updateWealthDashboard === 'function') setTimeout(updateWealthDashboard, 300);
           }
-          if (result.intent.type === 'recording') setTimeout(function() { try { if (typeof updateHealthDashboard === "function") updateHealthDashboard(); } catch(e) {} }, 200);
+          if (result.intent.type === 'recording') setTimeout(function() {
+            try { if (typeof updateHealthDashboard === "function") updateHealthDashboard(); } catch(e) {}
+            try { if (window.HealthSpecial && typeof window.HealthSpecial.renderMood === 'function') window.HealthSpecial.renderMood(); } catch(e) {}
+            try { if (window.healthDataChanged) window.healthDataChanged(); } catch(e) {}
+          }, 200);
           if (result.intent.type === 'schedule') {
             setTimeout(function() { try { if (typeof updateWorkDashboard === "function") updateWorkDashboard(); } catch(e) {} }, 200);
             refreshTodayOverview();
