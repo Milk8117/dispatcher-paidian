@@ -74,7 +74,7 @@
     // 2. 记录类：饮食/运动/睡眠/情绪/健康
     var recordingKeywords = [
       '吃了', '早餐', '午餐', '晚餐', '吃了一碗', '喝了',
-      '跑步', '走路', '运动了', '锻炼', '健身', '游泳', '瑜伽',
+      '跑步', '走路', '运动', '拉伸', '走了', '锻炼', '健身', '游泳', '瑜伽',
       '睡了', '失眠', '熬夜', '睡眠',
       '心情', '开心', '烦躁', '焦虑', '累了', '压力',
       '体重', '血压', '血糖', '体检', '测量', '测了'
@@ -618,13 +618,9 @@
     // 今日运动时长（分钟）
     var exerciseMin = 0;
     try {
-      if (window.DataStore && DataStore.load) {
-        var behaviors = DataStore.load('behavior_log', 'records', []) || [];
-        behaviors.forEach(function(b) {
-          if (b.date === todayStr && b.category === 'exercise') {
-            exerciseMin += b.duration || 0;
-          }
-        });
+      if (window.BehaviorLog && window.BehaviorLog.getLogForDate) {
+        var bl = window.BehaviorLog.getLogForDate(todayStr) || {};
+        (bl.exercise || []).forEach(function(e) { exerciseMin += (e.duration || 0); });
       }
     } catch(e) {}
 

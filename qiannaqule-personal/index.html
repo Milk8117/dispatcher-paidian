@@ -9197,8 +9197,9 @@ body {
           for (var j = 0; j < Math.min(sorted.length, 7); j++) {
             var mo = sorted[j];
             var mInfo = this.moodMap[mo.score] || this.moodMap[3];
-            var timeStr = mo.timestamp ? mo.timestamp.substr(11,5) : '';
-            var dateStr = mo.timestamp ? mo.timestamp.substr(5,5) : '';
+            var _dt = mo.timestamp ? new Date(mo.timestamp) : null;
+            var timeStr = _dt ? String(_dt.getHours()).padStart(2,'0') + ':' + String(_dt.getMinutes()).padStart(2,'0') : '';
+            var dateStr = _dt ? String(_dt.getMonth()+1).padStart(2,'0') + '-' + String(_dt.getDate()).padStart(2,'0') : '';
             html += '<div class="mood-record-item">';
             html += '<div class="mood-record-icon">' + mInfo.emoji + '</div>';
             html += '<div class="mood-record-content">';
@@ -9599,10 +9600,14 @@ body {
     var weekSleepAvg = '--';
     var moodToday = '--';
     try {
+      var _bl = (window.BehaviorLog && window.BehaviorLog.getLogForDate)
+        ? window.BehaviorLog.getLogForDate(new Date().toISOString().slice(0,10)) : null;
+      if (_bl && _bl.exercise) {
+        var _exMin = _bl.exercise.reduce(function(s,e){return s+(e.duration||0);},0);
+        if (_exMin > 0) todaySteps = _exMin + 'min';
+      }
       if (window.behaviorGetTodayData && typeof behaviorGetTodayData === 'function') {
         var td = behaviorGetTodayData() || {};
-        if (td.exercise && td.exercise.duration) todaySteps = td.exercise.duration + 'min';
-        else if (td.exercise && td.exercise.steps) todaySteps = td.exercise.steps + '步';
         if (td.mood && td.mood.level) moodToday = td.mood.label || td.mood.level;
       }
       // 本周睡眠均值（简单取最近7天）
