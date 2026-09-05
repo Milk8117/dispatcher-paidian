@@ -16405,25 +16405,26 @@ function toggleGuideSection(index) {
     el = document.getElementById('healthMood');
     if (el) el.textContent = mood || '--';
 
-    // 健康评分（简单计算）
-    var score = 0, count = 0;
-    if (dietCount >= 3) { score += 25; count++; }
-    else if (dietCount >= 1) { score += 15; count++; }
-    if (exerciseMin >= 30) { score += 25; count++; }
-    else if (exerciseMin >= 10) { score += 15; count++; }
+    // b38: 健康评分改100分制（饮食/运动/睡眠/情绪 4 维各25分）+ 未达标项智能提醒
+    var _pts = 0, _tips = [];
+    if (dietCount >= 3) _pts += 25;
+    else if (dietCount >= 1) { _pts += 15; _tips.push('饮食只记了' + dietCount + '餐，还差' + (3 - dietCount) + '餐到三餐'); }
+    else _tips.push('今天还没记录饮食');
+    if (exerciseMin >= 30) _pts += 25;
+    else if (exerciseMin >= 10) { _pts += 15; _tips.push('运动' + exerciseMin + '分钟，差' + (30 - exerciseMin) + '分钟达标'); }
+    else if (exerciseMin > 0) _tips.push('运动才' + exerciseMin + '分钟，目标30分钟');
+    else _tips.push('今天还没运动');
     if (sleepHour !== null) {
-      if (sleepHour >= 7 && sleepHour <= 9) score += 25;
-      else if (sleepHour >= 6) score += 15;
-      else score += 5;
-      count++;
-    }
-    if (mood) { score += 25; count++; }
-
+      if (sleepHour >= 7 && sleepHour <= 9) _pts += 25;
+      else if (sleepHour >= 6) { _pts += 15; _tips.push('睡眠' + sleepHour + '小时，建议7-9小时'); }
+      else { _pts += 5; _tips.push('睡眠仅' + sleepHour + '小时，休息偏少'); }
+    } else _tips.push('还没记录睡眠');
+    if (mood) _pts += 25;
+    else _tips.push('今天还没记录情绪');
+    var _hasAny = (dietCount > 0 || exerciseMin > 0 || sleepHour !== null || mood);
+    var _scoreGrade = _pts >= 85 ? '优秀' : (_pts >= 70 ? '良好' : (_pts >= 60 ? '合格' : '待提升'));
     var scoreEl = document.getElementById('healthScore');
-    if (scoreEl) {
-      if (count === 0) scoreEl.textContent = '-';
-      else scoreEl.textContent = Math.round(score / count * (count / 4));
-    }
+    if (scoreEl) scoreEl.textContent = _hasAny ? String(_pts) : '-';
 
     // 节气养生摘要
     try {
@@ -16462,11 +16463,15 @@ function toggleGuideSection(index) {
       if (_dietTagEl) _dietTagEl.textContent = dietCount >= 3 ? '打卡 ' + dietCount : '今日';
       var _conclEl = document.getElementById('healthConclusion');
       if (_conclEl) {
-        var _concl = '记录你的饮食、运动与睡眠，开启健康的一天';
-        if (dietCount >= 3 && exerciseMin >= 30 && sleepHour !== null) _concl = '均衡饮食 + 运动达标 + 睡眠规律，状态很棒';
-        else if (exerciseMin >= 30) _concl = '今日运动已达标，记得补充水分多休息';
-        else if (dietCount >= 3) _concl = '今日三餐规律，营养摄入均衡';
-        else if (sleepHour !== null && sleepHour < 6) _concl = '睡眠偏少，建议今晚早点休息';
+        var _concl;
+        if (!_hasAny) _concl = '记录你的饮食、运动、睡眠与情绪，开启健康的一天';
+        else {
+          if (_pts >= 85) _concl = '健康状态' + _scoreGrade + '(' + _pts + '分)，继续保持';
+          else if (_pts >= 70) _concl = '健康' + _scoreGrade + '(' + _pts + '分)，有提升空间';
+          else if (_pts >= 60) _concl = '刚过' + _scoreGrade + '线(' + _pts + '分)，今天有几项没做到位';
+          else _concl = _scoreGrade + '(' + _pts + '分)，今天几项没达标，需要留意';
+        }
+        if (_tips && _tips.length) _concl += '。待完成：' + _tips.join('、');
         _conclEl.textContent = _concl;
       }
     } catch(e) {}

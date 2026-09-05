@@ -617,7 +617,7 @@
     html += '<button class="bh-dnav-btn" onclick="window._bhShiftDate(-1)" title="前一天">' + svgIcon('M15 18l-6-6 6-6', 'currentColor', 18) + '</button>';
     html += '<div class="bh-dnav-center">';
     html += '<input type="date" id="bhDatePicker" class="bh-dnav-picker" value="' + selDate + '" max="' + _today() + '" onchange="window._bhPickDate()" />';
-    html += '<span class="bh-dnav-label">' + _formatDateDisplay(selDate) + '</span>';
+    html += '<span class="bh-dnav-label">' + _formatDateDisplay(selDate) + (viewingToday ? '' : '<em class="bh-dnav-note"> · 此页记录将补录到该日</em>') + '</span>';
     html += '</div>';
     html += '<button class="bh-dnav-btn" onclick="window._bhShiftDate(1)" title="后一天"' + (viewingToday ? ' disabled' : '') + '>' + svgIcon('M9 18l6-6-6-6', 'currentColor', 18) + '</button>';
     if (!viewingToday) {
@@ -1134,6 +1134,7 @@
       '.bh-modal-cancel:hover{background:#f3f4f6}',
       '.bh-quality-select{display:flex;gap:6px}',
       '.bh-q-btn{flex:1;padding:8px;border:1.5px solid #e5e7eb;border-radius:8px;background:#fff;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s}',
+      '.bh-dnav-note{font-style:normal;color:#f97316;font-size:12px;font-weight:600}',
       '.bh-q-btn.active{color:#fff !important}',
       '@media(max-width:380px){.bh-overview-grid{grid-template-columns:repeat(2,1fr)}.bh-quick-actions{grid-template-columns:repeat(2,1fr)}}'
     ].join('\n');
@@ -1196,7 +1197,8 @@
     },
     // 睡眠写入委托：接受 {bedtime, waketime, quality, hour(深夜检测)}
     updateSleep: function(fields) {
-      var log = getTodayLog();
+      var log = getLogForDate(_getSelectedDate());
+      if (log._empty) delete log._empty;
       if (!log.sleep) log.sleep = {};
       if (fields) {
         if (typeof fields.bedtime === 'string' && fields.bedtime) log.sleep.bedtime = fields.bedtime;
@@ -1212,7 +1214,8 @@
     },
     // 饮食写入委托（统一写 behavior_log.meals，对话录入 / 专属页同源）
     addMeal: function(mealType, items) {
-      var log = getTodayLog();
+      var log = getLogForDate(_getSelectedDate());
+      if (log._empty) delete log._empty;
       var now = new Date();
       var timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
       log.meals.push({ type: mealType || '加餐', time: timeStr, items: items || '未记录', where: '' });
@@ -1222,7 +1225,8 @@
     },
     // 饮食编辑/删除（支持错误/多余记录的修改与删除，并同步各页）
     updateMeal: function(idx, fields) {
-      var log = getTodayLog();
+      var log = getLogForDate(_getSelectedDate());
+      if (log._empty) delete log._empty;
       if (!log.meals || idx < 0 || idx >= log.meals.length) return log.meals;
       var m = log.meals[idx];
       if (!m) return log.meals;
@@ -1235,7 +1239,8 @@
       return log.meals;
     },
     removeMeal: function(idx) {
-      var log = getTodayLog();
+      var log = getLogForDate(_getSelectedDate());
+      if (log._empty) delete log._empty;
       if (!log.meals || idx < 0 || idx >= log.meals.length) return log.meals;
       log.meals.splice(idx, 1);
       saveTodayLog(log);
@@ -1243,7 +1248,8 @@
       return log.meals;
     },
     removeExercise: function(idx) {
-      var log = getTodayLog();
+      var log = getLogForDate(_getSelectedDate());
+      if (log._empty) delete log._empty;
       if (!log.exercise || idx < 0 || idx >= log.exercise.length) return log.exercise;
       log.exercise.splice(idx, 1);
       saveTodayLog(log);
