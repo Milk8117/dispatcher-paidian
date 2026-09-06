@@ -7088,6 +7088,18 @@ body {
         </div>
       </div>
 
+      <!-- b44: MiRun 睡眠分析（数据驱动建议） -->
+      <div class="dashboard-card" id="sleepAnalyzeCard" style="display:none">
+        <div class="dashboard-card-header">
+          <div>
+            <div class="dashboard-card-title">MiRun 睡眠分析</div>
+            <div class="dashboard-card-subtitle">基于你最近的睡眠数据，帮你找到可改善的地方</div>
+          </div>
+          <span class="dashboard-card-tag" style="background:#8b5cf6;color:#fff">数据洞察</span>
+        </div>
+        <div id="sleepAnalyzeBox"></div>
+      </div>
+
       <div class="dashboard-card">
         <div class="dashboard-card-header">
           <div class="dashboard-card-title">睡眠小贴士</div>
@@ -9173,6 +9185,24 @@ body {
       var listEl = document.getElementById('sleepRecordList');
       if (!listEl) return;
 
+      // b44: MiRun 睡眠分析（汇总近7天真实睡眠，给出改善建议）
+      var anaCard = document.getElementById('sleepAnalyzeCard');
+      var anaBox = document.getElementById('sleepAnalyzeBox');
+      try {
+        var ana = (window.BehaviorLog && typeof window.BehaviorLog.analyzeSleep === 'function') ? window.BehaviorLog.analyzeSleep(7) : null;
+        if (anaCard && ana) {
+          var ah = '';
+          ah += '<div style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:9px">' + ana.summary + '</div>';
+          for (var ai = 0; ai < ana.tips.length; ai++) {
+            ah += '<div style="display:flex;align-items:flex-start;margin-bottom:7px"><svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" style="flex-shrink:0;margin-top:2px"><path d="M20 6L9 17l-5-5"/></svg><span style="font-size:12.5px;color:#475569;line-height:1.55;margin-left:7px">' + ana.tips[ai] + '</span></div>';
+          }
+          anaBox.innerHTML = ah;
+          anaCard.style.display = 'block';
+        } else if (anaCard) {
+          anaCard.style.display = 'none';
+        }
+      } catch(e) {}
+
       var logs = window.BehaviorLog.getRecentLogs(7) || [];
       var sleepRecords = [];
       for (var i = 0; i < logs.length; i++) {
@@ -9853,6 +9883,10 @@ body {
   (function() {
     var STORAGE_KEY = 'mirun_proactive_care_state';
 
+    // b44: 本次真实会话的起点与消息轮数（不持久化，避免跨天/跨刷新用旧累计值误判"聊了很久"）
+    var _realStartTs = Date.now();
+    var _sessionCount = 0;
+
     // 状态
     var state = {
       lastSleepCareDate: null,      // 上次作息关怀日期
@@ -9960,6 +9994,7 @@ body {
     // 主检测函数：每轮用户消息后调用
     function checkAfterUserMessage(text) {
       state.todayMsgCount++;
+      _sessionCount++;
       saveState();
 
       var careMsgs = [];
@@ -9982,9 +10017,9 @@ body {
         }
       }
 
-      // 2. 连续使用提醒：超过30轮 或 超过2小时
-      var sessionDuration = Date.now() - state.sessionStartTime;
-      if ((state.todayMsgCount > 30 || sessionDuration > 7200000) &&
+      // 2. 连续使用提醒：b44 改为基于本次真实会话（超过60轮或超3小时才提示），不再用跨天累计的持久化值，避免刚聊几句就被说"聊了很久"
+      var sessionDuration = Date.now() - _realStartTs;
+      if ((_sessionCount > 60 || sessionDuration > 10800000) &&
           (Date.now() - state.lastContinuousCareTs > 14400000)) { // 每4小时最多1次
         state.lastContinuousCareTs = Date.now();
         careMsgs.push({ type: 'continuous', text: randomPick(templates.continuous) });
@@ -18506,7 +18541,7 @@ function toggleGuideSection(index) {
 <script src="schedule.js?v=52.6.0"></script>
 <script src="daily-tx.js?v=52.6.0"></script>
 <script src="stock-holdings.js?v=52.6.0"></script>
-<script src="behavior-log.js?v=52.6.0"></script>
+<script src="behavior-log.js?v=52.8.10"></script>
 <script src="user-profile.js?v=52.6.0"></script>
 <script src="insight-engine.js?v=52.6.0"></script>
 <script src="health-bridge.js?v=52.6.0"></script>

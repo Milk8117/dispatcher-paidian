@@ -406,57 +406,108 @@
 
   function _parseSleep(text, dateStr) {
     dateStr = dateStr || _today();
-    // "昨晚11点睡的7点起" "睡了8小时" "昨晚失眠" "睡眠质量很差"
-    if (!/(?:昨晚|昨夜|昨天睡|睡了|失眠|早睡|晚睡|熬夜|起床|入睡|睡眠质量|几点睡|几点起)/.test(text)) return null;
+    if (!/(?:昨晚|昨夜|昨天睡|睡了|睡着|失眠|早睡|晚睡|熬夜|起床|起[来床]|入睡|睡眠|几点睡|几点起|躺下|没睡|睡到|睡满)/.test(text)) return null;
 
     var log = getLogForDate(dateStr);
     delete log._empty;
     if (!log.sleep) log.sleep = {};
+    var s = log.sleep;
+    var _pad = function(n){ return n<10 ? '0'+n : String(n); };
 
-    // 提取入睡时间
-    var bedM = text.match(/(?:睡|入睡|躺下)[在是]?\s*(\d{1,2})[点时:：](\d{0,2})/);
-    if (bedM) {
-      var h = String(parseInt(bedM[1])).padStart(2, '0');
-      var m = bedM[2] ? String(parseInt(bedM[2])).padStart(2, '0') : '00';
-      log.sleep.bedtime = h + ':' + m;
+    // 入睡时间：支持「3点才入睡/11点睡的/23:30睡/入睡3点」等（时间在动词前或后均可）
+    var bed = text.match(/(\d{1,2})\s*[点时:：]\s*(\d{1,2})?\s*(?:才?入睡|才?睡[的觉]?|躺下|才睡)/)
+          || text.match(/(?:入睡|躺下)[在是]?\s*(\d{1,2})[点时:：]?\s*(\d{1,2})?/);
+    if (bed) {
+      var bh = parseInt(bed[1]), bm = bed[2] ? parseInt(bed[2]) : 0;
+      if (bed[1].length<=2 && bh>=0 && bh<=23 && bm>=0 && bm<=59) s.bedtime = _pad(bh)+':'+_pad(bm);
     }
 
-    // 提取起床时间
-    var wakeM = text.match(/(?:起|起床)[在是了]?\s*(\d{1,2})[点时:：](\d{0,2})/);
-    if (wakeM) {
-      var h2 = String(parseInt(wakeM[1])).padStart(2, '0');
-      var m2 = wakeM[2] ? String(parseInt(wakeM[2])).padStart(2, '0') : '00';
-      log.sleep.waketime = h2 + ':' + m2;
+    // 起床时间
+    var wake = text.match(/(\d{1,2})\s*[点时:：]\s*(\d{1,2})?\s*(?:才?起床|起来|起了|才起)/)
+           || text.match(/(?:起床|起来)[在是了]?\s*(\d{1,2})[点时:：]?\s*(\d{1,2})?/);
+    if (wake) {
+      var wh = parseInt(wake[1]), wm = wake[2] ? parseInt(wake[2]) : 0;
+      if (wake[1].length<=2 && wh>=0 && wh<=23 && wm>=0 && wm<=59) s.waketime = _pad(wh)+':'+_pad(wm);
     }
 
-    // 睡眠质量
-    if (/很差|失眠|没睡好|睡得不好/.test(text)) log.sleep.quality = 1;
-    else if (/不太好|睡得少|睡得晚/.test(text)) log.sleep.quality = 2;
-    else if (/还行|一般|凑合|普通/.test(text)) log.sleep.quality = 3;
-    else if (/不错|睡得好的|睡得好/.test(text)) log.sleep.quality = 4;
-    else if (/很好|很棒|精力充沛|神清气爽/.test(text)) log.sleep.quality = 5;
+    // 睡眠质量（细化词库）
+    if (/失眠|整夜没睡|一晚上没睡|根本没睡着|睡得很差|睡得极差|没睡好|没睡成|几乎没睡/.test(text)) s.quality = 1;
+    else if (/不太好|睡得少|醒了好几次|频繁醒|醒来几次|半夜.+醒|睡得很晚|睡得浅/.test(text)) s.quality = 2;
+    else if (/还行|一般|凑合|普通|还行吧|马马虎虎/.test(text)) s.quality = 3;
+    else if (/不错|睡得好|睡得可以|还算好|舒服/.test(text)) s.quality = 4;
+    else if (/很好|神清气爽|精力充沛|睡满|睡到自然醒|睡得香/.test(text)) s.quality = 5;
 
-    // 时长解析：睡了X小时 / 七小时
-    if (!log.sleep.duration) {
-      var durH = null;
-      var durM = text.match(/(\d+(?:\.\d+)?)\s*(?:个小时?|小时|h)/i);
-      var cnMap = {'一':1,'二':2,'三':3,'四':4,'五':5,'六':6,'七':7,'八':8,'九':9,'十':10};
-      if (!durM) {
-        var cnM = text.match(/([一二三四五六七八九十]+)\s*(?:个小时?|小时)/);
-        if (cnM) { var sum=0; cnM[1].split('').forEach(function(c){sum+=(cnMap[c]||0);}); durH=sum; }
-      } else { durH = parseFloat(durM[1]); }
-      if (durH !== null && durH > 0) {
-        log.sleep.duration = Math.round(durH * 10) / 10;
-        if (!log.sleep.quality) log.sleep.quality = (durH >= 7 && durH <= 9) ? 4 : (durH >= 6 ? 3 : 2);
-      }
+    // 时长：显式「睡了X小时」优先；否则用入睡-起床时间差推算
+    var durH = null;
+    var durM = text.match(/(\d+(?:\.\d+)?)\s*(?:个小时?|小时|h)/i);
+    var cnMap = {'一':1,'二':2,'三':3,'四':4,'五':5,'六':6,'七':7,'八':8,'九':9,'十':10};
+    if (durM) { durH = parseFloat(durM[1]); s.duration = Math.round(durH*10)/10; }
+    else {
+      var cnM = text.match(/([一二三四五六七八九十]+)\s*(?:个小时?|小时)/);
+      if (cnM) { var sum=0; cnM[1].split('').forEach(function(c){sum+=(cnMap[c]||0);}); durH=sum; s.duration=durH; }
     }
+    if (!s.duration && s.bedtime && s.waketime) {
+      var bb = s.bedtime.split(':'), ww = s.waketime.split(':');
+      var bm2 = parseInt(bb[0])*60 + parseInt(bb[1]);
+      var wm2 = parseInt(ww[0])*60 + parseInt(ww[1]);
+      var diff = (wm2 - bm2 + 1440) % 1440;   // 跨天自动+24h
+      if (diff > 0 && diff <= 960) { s.duration = Math.round(diff/60*10)/10; durH = s.duration; }
+    }
+    // 质量缺失时的推断：先看时长，再看是否凌晨入睡（熬夜降质）
+    if (!s.quality) {
+      var late = s.bedtime && parseInt(s.bedtime) < 6;
+      if (durH !== null) s.quality = (durH>=7 && durH<=9) ? 4 : (durH>=6 ? 3 : 2);
+      if (late && s.quality > 2) s.quality = 2;
+    }
+
     saveTodayLog(log);
+
     var msg = '已记录睡眠';
-    if (log.sleep.bedtime) msg += ' 入睡 ' + log.sleep.bedtime;
-    if (log.sleep.waketime) msg += ' 起床 ' + log.sleep.waketime;
-    if (log.sleep.quality) msg += ' 质量:' + log.sleep.quality + '/5';
+    if (s.bedtime) msg += ' 入睡 ' + s.bedtime;
+    if (s.waketime) msg += ' 起床 ' + s.waketime;
+    if (s.duration) msg += ' 睡了 ' + s.duration + ' 小时';
+    if (s.quality) msg += ' 质量 ' + s.quality + '/5';
+    // 记录后即时轻反馈（让记录立刻有回应）
+    if (s.duration !== undefined && s.duration !== null && s.duration < 6.5) msg += '，时长略少，今晚尽量睡够7小时';
+    else if (s.bedtime && parseInt(s.bedtime) >= 24) msg += '，注意早点睡，别熬夜';
+    else if (s.duration >= 7 && s.duration <= 9) msg += '，时长很合适，继续保持';
 
     return { matched: true, module: 'behavior', action: 'sleep', message: msg };
+  }
+
+  // b44: 睡眠数据分析引擎——聚合近N天睡眠、生成概况与改善建议（离线规则引擎，数据不出本地）
+  function analyzeSleep(days) {
+    days = days || 7;
+    var logs = getRecentLogs(days);
+    var recs = [];
+    for (var i=0;i<logs.length;i++){
+      var s = logs[i].sleep;
+      if (s && (s.duration || s.bedtime || s.quality)) recs.push({ date: logs[i].date, s: s });
+    }
+    if (recs.length === 0) return null;
+    var durSum=0, durN=0, quaSum=0, quaN=0, shortN=0, longOk=0, lateN=0;
+    var wsets = {};
+    for (var j=0;j<recs.length;j++){
+      var s = recs[j].s;
+      if (s.duration) { durSum += s.duration; durN++; if (s.duration < 6.5) shortN++; else if (s.duration <= 9) longOk++; }
+      if (s.quality) { quaSum += s.quality; quaN++; }
+      if (s.bedtime) { var bh = parseInt(s.bedtime); if (bh >= 23 || bh < 6) lateN++; }
+      if (s.waketime) wsets[s.waketime] = 1;
+    }
+    var avgDur = durN ? Math.round(durSum/durN*10)/10 : null;
+    var avgQua = quaN ? Math.round(quaSum/quaN*10)/10 : null;
+    var tips = [];
+    if (avgDur !== null) {
+      if (avgDur < 6.5) tips.push('平均只睡' + avgDur + '小时，偏少。目标是7-9小时，试着把入睡时间往前挪。');
+      else if (avgDur < 7) tips.push('平均' + avgDur + '小时，略低于推荐。再睡足一点，精神状态会更好。');
+      else tips.push('平均' + avgDur + '小时，时长很合适，继续保持这个节奏。');
+    }
+    if (lateN > 0) tips.push(recs.length > 1 ? (recs.length + '天里有' + lateN + '天晚睡/熬夜，尽量固定晚上11点前入睡。') : '这次入睡偏晚，注意别熬夜。');
+    if (avgQua !== null && avgQua < 3) tips.push('近期睡眠质量偏低，睡前1小时别看手机、别喝咖啡，试试温水泡脚助眠。');
+    if (avgQua !== null && avgQua >= 4) tips.push('睡眠质量不错，规律作息也记得保持。');
+    if (recs.length >= 3 && Object.keys(wsets).length > 1) tips.push('最近起床时间不太规律，尽量每天同一时间起床，帮助稳定生物钟。');
+    var summary = '近' + recs.length + '天睡眠' + (avgDur !== null ? ('，平均 ' + avgDur + ' 小时') : '') + (avgQua !== null ? ('，质量 ' + avgQua + '/5') : '');
+    return { count: recs.length, avgDuration: avgDur, avgQuality: avgQua, lateN: lateN, shortN: shortN, summary: summary, tips: tips };
   }
 
   function _parseLearning(text, dateStr) {
@@ -1229,6 +1280,8 @@
     return parseBehaviorInput(text);
   };
 
+  window.analyzeSleep = analyzeSleep;
+
   // 对外数据读取接口（供未来分析引擎使用）
   window.getBehaviorData = function() {
     return {
@@ -1327,6 +1380,7 @@
       return log.exercise;
     },
     parseBehaviorInput: parseBehaviorInput,
+    analyzeSleep: analyzeSleep,
     render: renderBehaviorHub
   };
 
