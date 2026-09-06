@@ -9192,6 +9192,7 @@ body {
         var ana = (window.BehaviorLog && typeof window.BehaviorLog.analyzeSleep === 'function') ? window.BehaviorLog.analyzeSleep(7) : null;
         if (anaCard && ana) {
           var ah = '';
+          if (ana.normalBedtime) ah += '<div style="display:flex;align-items:center;font-size:12.5px;color:#6366f1;font-weight:600;margin-bottom:7px"><svg viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" style="flex-shrink:0;margin-right:6px"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>你的常态入睡点：约 ' + ana.normalBedtime + '</div>';
           ah += '<div style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:9px">' + ana.summary + '</div>';
           for (var ai = 0; ai < ana.tips.length; ai++) {
             ah += '<div style="display:flex;align-items:flex-start;margin-bottom:7px"><svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" style="flex-shrink:0;margin-top:2px"><path d="M20 6L9 17l-5-5"/></svg><span style="font-size:12.5px;color:#475569;line-height:1.55;margin-left:7px">' + ana.tips[ai] + '</span></div>';

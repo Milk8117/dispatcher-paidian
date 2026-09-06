@@ -307,6 +307,19 @@
     var msg = '已记录' + mealType + (items ? '：' + items : '');
     if (amount) msg += '（¥' + amount + '）';
 
+    // b46 饮食情境化关怀：识别不健康信号，按情况关心并给可行建议
+    var _mcare = null;
+    if (/(夜宵|宵夜)/.test(text) || /(晚上|睡前|半夜|深夜)/.test(text) && /(吃|喝)/.test(text)) {
+      _mcare = '，这个点还在吃，是有点馋还是饿得睡不着？偶尔可以，但别养成习惯，胃也扛不住。明早把睡眠和早餐顾好，我盯着你';
+    } else if (/(暴食|吃撑|吃多|吃到撑|撑得|吃太饱|暴饮暴食)/.test(text)) {
+      _mcare = '，这次是吃到撑了？暴食往往是情绪的信号，是不是有压力或烦心事没处说？可以跟我讲讲，比靠吃顶着强。下次试着细嚼慢咽、吃到七八分就停，我陪你一起调整';
+    } else if (/(奶茶|可乐|含糖|高糖|甜点|蛋糕|炸鸡|烧烤|油炸|辣条|油炸食品|肥肉|红烧肉|油大)/.test(text)) {
+      _mcare = '，这顿偏重油高糖了，偶尔解馋没大问题。这几天尽量清淡些，多喝点水，帮你把负担压回去';
+    } else if (/(没吃|不想吃|吃不下|没胃口|饿|一天没吃)/.test(text)) {
+      _mcare = '，今天没好好吃饭呀？是不是太忙或胃口差了点。再忙也要按时吃饭，身体是本钱，要不要我帮你排个简单的营养餐？';
+    }
+    if (_mcare) msg += _mcare;
+
     return { matched: true, module: 'behavior', action: 'meal', message: msg };
   }
 
@@ -401,6 +414,21 @@
     if (distance) msg += ' ' + distance + '公里';
     if (duration) msg += ' ' + duration + '分钟';
 
+    // b46 运动情境化关怀：隔很久才动→鼓励(看原因)，高强度→提醒量力
+    var _ecare = null;
+    var _exInfo = _recentExerciseInfo(14);
+    var _exAfter = _exInfo.daysWith;      // 含本次
+    var _exBefore = (_exAfter > 0) ? (_exAfter - 1) : 0; // 本次之前
+    var _causeEx = _careCause(text);
+    if (duration > 120) {
+      _ecare = '，这次练得挺狠，' + duration + '分钟强度不小。注意别透支，练完拉伸放松，明早起来酸疼的话我教你放松';
+    } else if (_exBefore <= 1) {
+      _ecare = (_exBefore === 0 ? '，隔了有一段时间没动了，今天重新动起来很棒！刚开始别求猛，慢慢加量，我陪你坚持下去' :
+                (_causeEx ? '，' + _causeEx.txt + '还能坚持运动，真不容易。运动是最好的解压方式，我陪你稳住这个习惯' :
+                  '，最近动得不多，今天能坚持练，很好。把节奏稳住，我陪你慢慢养成习惯'));
+    }
+    if (_ecare) msg += _ecare;
+
     return { matched: true, module: 'behavior', action: 'exercise', message: msg };
   }
 
@@ -467,12 +495,94 @@
     if (s.waketime) msg += ' 起床 ' + s.waketime;
     if (s.duration) msg += ' 睡了 ' + s.duration + ' 小时';
     if (s.quality) msg += ' 质量 ' + s.quality + '/5';
-    // 记录后即时轻反馈（让记录立刻有回应）
-    if (s.duration !== undefined && s.duration !== null && s.duration < 6.5) msg += '，时长略少，今晚尽量睡够7小时';
-    else if (s.bedtime && parseInt(s.bedtime) >= 24) msg += '，注意早点睡，别熬夜';
-    else if (s.duration >= 7 && s.duration <= 9) msg += '，时长很合适，继续保持';
+    // b46: 情境化关怀——先了解情况(原因线索)再给对应关怀。显著晚于个人常态入睡点→针对性关怀
+    var _care = null;
+    var _cause = _careCause(text);
+    if (s.bedtime) {
+      var _base = _sleepBaseline();
+      if (_base.hasBase) {
+        var _cur = parseInt(s.bedtime) < 6 ? parseInt(s.bedtime) + 24 : parseInt(s.bedtime);
+        var _diff = Math.round(_cur - _base.baseH);
+        var _bt = _base.baseH >= 24 ? ('凌晨' + (_base.baseH - 24) + '点') : (_base.baseH + '点');
+        if (_diff >= 2) {
+          if (_cause) _care = '。今天睡这么晚，' + _cause.txt + '吧？辛苦了，忙完给自己留点缓冲，别让大脑一直转，试试睡前1小时放下手机、热水泡脚，我陪你慢慢调回作息';
+          else _care = '。比平时（约' + _bt + '入睡）今晚晚了约' + _diff + '小时，是遇到什么事、压力大还是心里有事？可以跟我说说，别一个人扛着。睡前1小时放下手机、热水泡脚放松，我陪你一起把作息调回来';
+        } else if (_diff >= 1) {
+          if (_cause) _care = '。今晚比平时睡得晚了些，' + _cause.txt + '吗？辛苦了，睡前做点放松的事，别让脑子一直转，我陪你把节奏找回来';
+          else _care = '。比平时（约' + _bt + '入睡）今晚睡得明显偏晚，看看是不是有什么放不下的事。睡前做点放松的事，我陪你把节奏找回来';
+        }
+      }
+    }
+    if (_care) {
+      msg += _care;
+    } else {
+      // 记录后即时轻反馈（让记录立刻有回应）——无基线时回归通用提示
+      if (s.duration !== undefined && s.duration !== null && s.duration < 6.5) msg += '，时长略少，今晚尽量睡够7小时';
+      else if (s.bedtime && parseInt(s.bedtime) >= 24) msg += '，注意早点睡，别熬夜';
+      else if (s.duration >= 7 && s.duration <= 9) msg += '，时长很合适，继续保持';
+    }
 
     return { matched: true, module: 'behavior', action: 'sleep', message: msg };
+  }
+
+  // b45: 常态入睡基线引擎——统计近30天历史入睡时间(排除今天)、取中位数的"平时入睡点"。离线规则，数据不出本地
+  function _sleepBaseline() {
+    var logs = _load(KEYS.behavior, []);
+    var hrs = [], todayStr = _today();
+    var cut = new Date(); cut.setDate(cut.getDate() - 30);
+    var cutStr = _localDateStr(cut);
+    for (var i = 0; i < logs.length; i++) {
+      var d = logs[i].date, s = logs[i].sleep;
+      if (d === todayStr || d < cutStr || !s || !s.bedtime) continue;
+      var bh = parseInt(s.bedtime);
+      if (isNaN(bh)) continue;
+      hrs.push(bh < 6 ? bh + 24 : bh);   // 凌晨入睡映射为+24，避免跨天比较错位
+    }
+    if (hrs.length < 3) return { hasBase: false, count: hrs.length, baseH: 23 };
+    hrs.sort(function(a, b) { return a - b; });
+    return { hasBase: true, count: hrs.length, baseH: hrs[Math.floor(hrs.length / 2)] };
+  }
+
+  // b46: 原因线索提取——从用户原话"了解情况"，识别本次背后的情境（工作/心事/身体/聚会/娱乐/家庭）
+  // 这是"主动关怀先了解情况"的第一步：有话里的事实就针对性关怀，没有才主动问
+  function _careCause(text) {
+    if (!text) return null;
+    var c = null;
+    if (/(加班|赶工|工作|项目|方案|改稿|汇报|写|任务|deadline|熬夜赶|上班|开会|处理事)/.test(text)) c = { key: 'work', txt: '最近工作挺忙' };
+    else if (/(压力|焦虑|担心|心事|烦|烦躁|紧张|纠结|想太多|心里难受|失眠|睡不着|没睡意|脑子停不下来)/.test(text)) c = { key: 'worry', txt: '最近心里压着事或有些焦虑' };
+    else if (/(感冒|发烧|生病|头晕|头疼|不舒服|身体不适|胃疼|难受|刚病|肠胃|没精神)/.test(text)) c = { key: 'sick', txt: '最近身体不太舒服' };
+    else if (/(聚会|应酬|喝酒|饭局|朋友|出去玩|庆生|过节|生日|聚餐)/.test(text)) c = { key: 'social', txt: '外面有聚会应酬' };
+    else if (/(刷手机|打游戏|看剧|追剧|刷视频|玩游戏|看小说|玩手机|聊天|刷抖音)/.test(text)) c = { key: 'tech', txt: '睡前玩手机或娱乐弄得太晚' };
+    else if (/(孩子|娃|宝宝|家人|家里|接娃|辅导|照顾|陪)/.test(text)) c = { key: 'family', txt: '家里的事占住了时间' };
+    return c;
+  }
+
+  // 情绪常态基线：近30天平均心情分（排除今天），数据不出本地
+  function _moodBaseline() {
+    var logs = _load(KEYS.mood, []);
+    var todayStr = _today();
+    var sum = 0, n = 0;
+    for (var i = 0; i < logs.length; i++) {
+      var t = logs[i] && logs[i].timestamp ? logs[i].timestamp.substr(0, 10) : '';
+      if (t === todayStr || !t) continue;
+      var sc = logs[i].score;
+      if (sc >= 1 && sc <= 5) { sum += sc; n++; }
+    }
+    return n >= 3 ? { hasBase: true, avg: Math.round(sum / n * 10) / 10, n: n } : { hasBase: false, avg: 3, n: n };
+  }
+
+  // 近N天有运动的天数（用于"好久没动"判据）
+  function _recentExerciseInfo(days) {
+    days = days || 14;
+    var logs = _load(KEYS.behavior, []);
+    var cut = new Date(); cut.setDate(cut.getDate() - days);
+    var p = function(n){ return n<10 ? '0'+n : String(n); };
+    var cutStr = '' + cut.getFullYear() + '-' + p(cut.getMonth()+1) + '-' + p(cut.getDate());
+    var daysWith = 0;
+    for (var i = 0; i < logs.length; i++) {
+      if (logs[i].date >= cutStr && logs[i].exercise && logs[i].exercise.length > 0) daysWith++;
+    }
+    return { days: days, daysWith: daysWith };
   }
 
   // b44: 睡眠数据分析引擎——聚合近N天睡眠、生成概况与改善建议（离线规则引擎，数据不出本地）
@@ -506,8 +616,11 @@
     if (avgQua !== null && avgQua < 3) tips.push('近期睡眠质量偏低，睡前1小时别看手机、别喝咖啡，试试温水泡脚助眠。');
     if (avgQua !== null && avgQua >= 4) tips.push('睡眠质量不错，规律作息也记得保持。');
     if (recs.length >= 3 && Object.keys(wsets).length > 1) tips.push('最近起床时间不太规律，尽量每天同一时间起床，帮助稳定生物钟。');
+    var _base = _sleepBaseline();
+    var normalBedtimeStr = null;
+    if (_base.hasBase && _base.count >= 3) normalBedtimeStr = _base.baseH >= 24 ? ('凌晨' + (_base.baseH - 24) + '点') : (_base.baseH + '点');
     var summary = '近' + recs.length + '天睡眠' + (avgDur !== null ? ('，平均 ' + avgDur + ' 小时') : '') + (avgQua !== null ? ('，质量 ' + avgQua + '/5') : '');
-    return { count: recs.length, avgDuration: avgDur, avgQuality: avgQua, lateN: lateN, shortN: shortN, summary: summary, tips: tips };
+    return { count: recs.length, avgDuration: avgDur, avgQuality: avgQua, lateN: lateN, shortN: shortN, normalBedtime: normalBedtimeStr, summary: summary, tips: tips };
   }
 
   function _parseLearning(text, dateStr) {
@@ -590,7 +703,18 @@
     if (dateStr && dateStr !== _today()) entry.dateStr = dateStr;
     addMoodEntry(entry);
 
-    return { matched: true, module: 'mood', action: 'record', message: '已记录情绪：' + label + '（' + score + '/5）' + (trigger ? ' — ' + trigger : '') };
+    var _msg = '已记录情绪：' + label + '（' + score + '/5）' + (trigger ? ' — ' + trigger : '');
+    // b46 情绪情境化关怀：对比个人常态情绪基线，明显低落且平时不低→识别异常并关心(结合原因线索，无则主动问)
+    var _mb = _moodBaseline();
+    var _mcause = _careCause(text);
+    if (score <= 2 && _mb.hasBase && _mb.avg >= 3.5) {
+      if (_mcause) _msg += '。最近你心情大多在' + _mb.avg + '/5 左右，今天突然掉到' + score + '分，' + _mcause.txt + '吗？辛苦了。这种事最容易闷在心里，愿意的话跟我讲讲，我陪你理理，别自己扛';
+      else _msg += '。最近你心情多在' + _mb.avg + '/5，今天只有' + score + '分，是遇到什么事了吗？可以跟我说说，别自己闷着，我一直在';
+    } else if (score === 1) {
+      _msg += '。今天情绪特别差，' + (trigger || '是不是出了什么事') + '让我有点担心。深呼吸一下，先别急着做决定，跟我说说现在的感受，我陪你度过';
+    }
+
+    return { matched: true, module: 'mood', action: 'record', message: _msg };
   }
 
   function _parsePreference(text) {
