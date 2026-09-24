@@ -1805,7 +1805,7 @@
     html += '<label class="recipe-form-photo-btn">';
     html += '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>';
     html += '拍照/选图';
-    html += '<input type="file" accept="image/*" capture id="recipeFormFile" />';
+    html += '<input type="file" accept="image/*" id="recipeFormFile" />';
     html += '</label>';
     html += '<img class="recipe-form-preview" id="recipeFormPreview" alt="预览" />';
     html += '</div>';

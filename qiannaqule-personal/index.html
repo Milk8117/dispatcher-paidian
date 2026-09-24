@@ -5460,6 +5460,11 @@ body {
   display: flex; align-items: center; justify-content: center;
 }
 .ipm-label { font-size: 11px; color: #64748b; }
+.ipm-item { position: relative; }
+.ipm-file-ctrl {
+  position: absolute; width: 1px; height: 1px; padding: 0;
+  opacity: 0; overflow: hidden; left: -9999px;
+}
 /* ====== 语音输入 ====== */
 .input-action-btn.recording {
   background: #ef4444 !important;
@@ -8828,31 +8833,32 @@ body {
 <div class="app-input-bar-v52">
   <!-- +号弹出菜单 -->
   <div class="input-plus-menu" id="inputPlusMenu" style="display:none">
-    <div class="ipm-item" onclick="triggerImageUploadFromPlus()">
+    <label class="ipm-item" onclick="hidePlusMenu()">
       <div class="ipm-icon" style="background:#eff6ff;color:#2563eb">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
       </div>
       <div class="ipm-label">图片</div>
-    </div>
-    <div class="ipm-item" onclick="triggerFileImport()">
+      <input type="file" id="imageFileInput" accept="image/*" class="ipm-file-ctrl" />
+    </label>
+    <label class="ipm-item" onclick="hidePlusMenu()">
       <div class="ipm-icon" style="background:#f0fdf4;color:#16a34a">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
       </div>
       <div class="ipm-label">文件</div>
-    </div>
-    <div class="ipm-item" onclick="triggerCameraCapture()">
+      <input type="file" id="importFileInput" accept=".csv,.json,.txt" class="ipm-file-ctrl" />
+    </label>
+    <label class="ipm-item" onclick="hidePlusMenu()">
       <div class="ipm-icon" style="background:#fef3c7;color:#d97706">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
       </div>
       <div class="ipm-label">拍照</div>
-    </div>
+      <input type="file" id="cameraFileInput" accept="image/*" capture="environment" class="ipm-file-ctrl" />
+    </label>
   </div>
   <button class="input-plus-btn" id="inputPlusBtn" onclick="togglePlusMenu()" title="更多">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
   </button>
-  <input type="file" id="imageFileInput" accept="image/*" style="display:none" />
-  <input type="file" id="importFileInput" accept=".csv,.json,.txt" style="display:none" />
-  <input type="file" id="cameraFileInput" accept="image/*" capture="environment" style="display:none" />
+  <!-- 图片/文件/拍照的 file input 已移入上方 + 菜单的 <label> 内，由 label 原生触发（iOS 可靠） -->
   <!-- 语音输入状态提示 -->
   <div class="voice-status-bar" id="voiceStatusBar" style="display:none">
     <div class="vsb-icon">
@@ -12416,30 +12422,20 @@ body {
   };
 
   // +号菜单
+  // 图片/文件/拍照的 file input 已放进 + 菜单的 <label> 内，由 label 原生触发（iOS 上比 display:none+click 可靠），这里只负责收起菜单
+  function hidePlusMenu() {
+    var menu = document.getElementById('inputPlusMenu');
+    if (menu) menu.style.display = 'none';
+  }
   window.togglePlusMenu = function() {
     var m = document.getElementById('inputPlusMenu');
     if (!m) return;
     m.style.display = m.style.display === 'none' ? 'flex' : 'none';
   };
-  window.triggerImageUploadFromPlus = function() {
-    var input = document.getElementById('imageFileInput');
-    if (input) input.click();
-    var menu = document.getElementById('inputPlusMenu');
-    if (menu) menu.style.display = 'none';
-  };
-  window.triggerFileImport = function() {
-    var input = document.getElementById('importFileInput');
-    if (input) input.click();
-    var menu = document.getElementById('inputPlusMenu');
-    if (menu) menu.style.display = 'none';
-  };
-  // 拍照触发
-  window.triggerCameraCapture = function() {
-    var input = document.getElementById('cameraFileInput');
-    if (input) input.click();
-    var menu = document.getElementById('inputPlusMenu');
-    if (menu) menu.style.display = 'none';
-  };
+  // 兼容兜底：若仍从外部以 JS 方式调用，也仅收起菜单（input 由 label 触发）
+  window.triggerImageUploadFromPlus = function() { hidePlusMenu(); };
+  window.triggerFileImport = function() { hidePlusMenu(); };
+  window.triggerCameraCapture = function() { hidePlusMenu(); };
 
   // ==================== 语音输入 ====================
   var _voiceRecognition = null;
@@ -14717,18 +14713,25 @@ body {
     });
   }
 
-  // 绑定导入按钮
-  var btnImport = $('btnImport');
+  // 文件导入（+ 菜单"文件"项）：change 独立绑定，保证选中文件后一定有导入动作
   var importFileInput = $('importFileInput');
+  if (importFileInput) {
+    importFileInput.addEventListener('change', function() {
+      if (this.files && this.files.length > 0) {
+        try {
+          importData(this.files[0]);
+        } catch (e) {
+          if (window.showToast) showToast('文件导入失败：' + (e && e.message ? e.message : e));
+        }
+      }
+    });
+  }
+  // 旧版导入按钮兼容
+  var btnImport = $('btnImport');
   if (btnImport && importFileInput) {
     btnImport.addEventListener('click', function() {
       importFileInput.value = ''; // 重置，允许重复选择同一文件
       importFileInput.click();
-    });
-    importFileInput.addEventListener('change', function() {
-      if (this.files && this.files.length > 0) {
-        importData(this.files[0]);
-      }
     });
     btnImport.addEventListener('mouseenter', function() {
       btnImport.style.background = '#f0fdf4';
