@@ -1830,20 +1830,40 @@
     });
 
     // 图片选择
+    // 图片选择：选图后先压缩再存储，避免 iPhone 原图过大撑爆 localStorage 导致静默丢图
     document.getElementById('recipeFormFile').addEventListener('change', function() {
       var file = this.files && this.files[0];
       if (!file) return;
       var reader = new FileReader();
       reader.onload = function(ev) {
-        _currentFormImageBase64 = ev.target.result;
-        var preview = document.getElementById('recipeFormPreview');
-        if (preview) {
-          preview.src = _currentFormImageBase64;
-          preview.classList.add('visible');
-        }
+        _compressRecipeImage(ev.target.result, function(compressed) {
+          _currentFormImageBase64 = compressed || ev.target.result;
+          var preview = document.getElementById('recipeFormPreview');
+          if (preview) {
+            preview.src = _currentFormImageBase64;
+            preview.classList.add('visible');
+          }
+        });
       };
       reader.readAsDataURL(file);
     });
+
+    function _compressRecipeImage(dataUrl, cb) {
+      var img = new Image();
+      img.onload = function() {
+        try {
+          var w = img.width, h = img.height, maxW = 900;
+          if (w > maxW) { h = h * maxW / w; w = maxW; }
+          var c = document.createElement('canvas');
+          c.width = w; c.height = h;
+          var ctx = c.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          cb(c.toDataURL('image/jpeg', 0.8));
+        } catch(e) { cb(dataUrl); }
+      };
+      img.onerror = function() { cb(dataUrl); };
+      img.src = dataUrl;
+    }
 
     // 提交事件
     document.getElementById('recipeFormSubmit').addEventListener('click', function() {
