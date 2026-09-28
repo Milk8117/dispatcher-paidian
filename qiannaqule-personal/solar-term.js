@@ -1696,7 +1696,7 @@
         grouped[term].forEach(function(item) {
           var r = item.recipe;
           var isCustom = !!r._custom;
-          html += '<div class="collection-recipe-card">';
+          html += '<div class="collection-recipe-card" style="cursor:pointer" onclick="solarOpenCollectionDetail(' + item.index + ')">';
           html += '<div class="collection-recipe-card-inner">';
           // 缩略图（仅自定义且有图片时）
           if (isCustom && r._image) {
@@ -1740,6 +1740,7 @@
 
   // ==================== 菜谱录入表单弹窗 ====================
   var _currentFormImageBase64 = '';
+    var _editingColIdx = -1; // 编辑模式下标(-1=新增)
 
   function openRecipeFormModal(containerEl, currentTermIdx, prefillText) {
     _currentFormImageBase64 = '';
@@ -1750,6 +1751,19 @@
       var parts = prefillText.split(/[，,\s]+/);
       if (parts.length > 0) prefillName = parts[0];
       if (parts.length > 1) prefillIng = parts.slice(1).join('、');
+    }
+    // 编辑模式：从收藏详情进入时回填已有内容
+    var prefillMethod = ''; var prefillTerm = ''; var prefillNote = ''; var prefillImage = '';
+    if (_editingColIdx >= 0) {
+      var ec = getCollection()[_editingColIdx];
+      if (ec) {
+        prefillName = ec.name || '';
+        prefillIng = ec.ingredients || ec.ing || '';
+        prefillMethod = ec.method || '';
+        prefillTerm = ec._termName || '';
+        prefillNote = ec._note || '';
+        prefillImage = ec._image || '';
+      }
     }
 
     // 构建24节气选项
@@ -1783,7 +1797,7 @@
     // 做法
     html += '<div class="recipe-form-group">';
     html += '<label class="recipe-form-label">做法</label>';
-    html += '<textarea class="recipe-form-textarea" id="recipeFormMethod" placeholder="简述烹饪步骤..."></textarea>';
+    html += '<textarea class="recipe-form-textarea" id="recipeFormMethod" placeholder="简述烹饪步骤...">' + (prefillMethod?String(prefillMethod).replace(/</g,'&lt;'):'') + '</textarea>';
     html += '</div>';
 
     // 归属节气
@@ -1795,7 +1809,7 @@
     // 备注
     html += '<div class="recipe-form-group">';
     html += '<label class="recipe-form-label">备注</label>';
-    html += '<input class="recipe-form-input" id="recipeFormNote" type="text" placeholder="口味偏好、小贴士等（可选）" />';
+    html += '<input class="recipe-form-input" id="recipeFormNote" type="text" placeholder="口味偏好、小贴士等（可选）" value="' + String(prefillNote||'').replace(/"/g,'&quot;') + '" />';
     html += '</div>';
 
     // 拍照/选图
@@ -1820,6 +1834,16 @@
     var existing = document.getElementById('recipeFormOverlay');
     if (existing) existing.remove();
     document.body.insertAdjacentHTML('beforeend', html);
+    // 编辑回填：节气与图片预览
+    if (_editingColIdx >= 0) {
+      var termSel = document.getElementById('recipeFormTerm');
+      if (termSel && prefillTerm && termSel.value !== prefillTerm) termSel.value = prefillTerm;
+      if (prefillImage) {
+        _currentFormImageBase64 = prefillImage;
+        var pv = document.getElementById('recipeFormPreview');
+        if (pv) { pv.src = prefillImage; pv.classList.add('visible'); }
+      }
+    }
 
     // 关闭事件
     document.getElementById('recipeFormClose').addEventListener('click', function() {
@@ -1892,7 +1916,17 @@
       if (note) recipe._note = note;
       if (_currentFormImageBase64) recipe._image = _currentFormImageBase64;
 
-      addToCollection(recipe, recipe._termName);
+      if (_editingColIdx >= 0) {
+        var ecol = getCollection();
+        if (_editingColIdx < ecol.length) {
+          recipe._addedAt = ecol[_editingColIdx]._addedAt || recipe._addedAt;
+          ecol[_editingColIdx] = recipe;
+          saveCollection(ecol);
+        }
+        _editingColIdx = -1;
+      } else {
+        addToCollection(recipe, recipe._termName);
+      }
       closeRecipeForm();
       // 刷新收藏视图
       if (window.solarSwitchView) window.solarSwitchView('collection');
@@ -1906,6 +1940,43 @@
     if (overlay) overlay.remove();
     _currentFormImageBase64 = '';
   }
+
+  // 收藏菜谱详情（点卡片查看 / 编辑 / 删除）
+  window.solarOpenCollectionDetail = function(index) {
+    var collection = getCollection();
+    var r = collection[index];
+    if (!r) return;
+    function escT(t) { return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    var body = '';
+    if (r._termName) body += '<div style="margin:6px 0"><span style="font-weight:700;color:#f97316">节气</span>&nbsp;' + escT(r._termName) + '</div>';
+    if (r.ingredients || r.ing) body += '<div style="margin:6px 0"><span style="font-weight:700;color:#f97316">食材</span>&nbsp;' + escT(r.ingredients||r.ing) + '</div>';
+    if (r.method) body += '<div style="margin:6px 0"><span style="font-weight:700;color:#f97316">做法</span>&nbsp;' + escT(r.method).replace(/\n/g,'<br>') + '</div>';
+    if (r._note) body += '<div style="margin:6px 0"><span style="font-weight:700;color:#f97316">备注</span>&nbsp;' + escT(r._note) + '</div>';
+    var html = '<div class="recipe-form-overlay" id="recipeFormOverlay"><div class="recipe-form-panel">';
+    html += '<div class="recipe-form-title"><span>' + escT(r.name) + '</span><button class="recipe-form-close" id="recipeFormClose"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg></button></div>';
+    if (r._image) html += '<img style="max-width:100%;max-height:240px;object-fit:cover;border-radius:10px;margin-bottom:8px" src="' + r._image + '" alt="' + escT(r.name) + '" />';
+    html += '<div style="font-size:13px;line-height:1.7;color:#374151">' + body + '</div>';
+    html += '<div style="display:flex;gap:10px;margin-top:14px"><button class="recipe-form-submit" id="recipeDetailEdit" style="flex:1">编辑</button><button id="recipeDetailDel" style="flex:1;padding:10px 0;border:none;border-radius:8px;background:#fef2f2;color:#dc2626;font-size:14px;cursor:pointer">删除</button></div>';
+    html += '</div></div>';
+    var existing = document.getElementById('recipeFormOverlay');
+    if (existing) existing.remove();
+    document.body.insertAdjacentHTML('beforeend', html);
+    document.getElementById('recipeFormClose').addEventListener('click', closeRecipeForm);
+    document.getElementById('recipeDetailEdit').addEventListener('click', function() {
+      _editingColIdx = index;
+      closeRecipeForm();
+      var containerEl = document.getElementById('collectionContainer');
+      openRecipeFormModal(containerEl, getCurrentTermIndex(), '');
+    });
+    document.getElementById('recipeDetailDel').addEventListener('click', function() {
+      var c = getCollection();
+      if (index >= 0 && index < c.length) { c.splice(index, 1); saveCollection(c); }
+      _editingColIdx = -1;
+      closeRecipeForm();
+      if (window.solarSwitchView) window.solarSwitchView('collection');
+      if (window.showToast) window.showToast('已删除菜谱');
+    });
+  };
 
   // 暴露给index.html调用的AI辅助录入接口
   window.solarOpenRecipeForm = function(prefillText) {
