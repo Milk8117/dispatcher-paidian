@@ -11964,55 +11964,69 @@ body {
   }
 
   function sendImageMessage(fullBase64, thumbBase64) {
-    var list = document.getElementById('chatHistoryList');
-    if (!list) return;
-    var emptyEl = list.querySelector('.chat-history-empty');
-    if (emptyEl) emptyEl.remove();
-
-    var id = Date.now();
-    var card = document.createElement('div');
-    card.className = 'chat-history-card expanded';
-    card.id = 'chat-card-img-' + id;
-    card.innerHTML = '<div class="card-header"><span class="card-question"><img src="' + thumbBase64 + '" class="card-question-img" />图片</span><span class="card-time">' + formatTime(id) + '</span><span class="card-toggle">▼</span></div>' +
-      '<div class="card-content" style="display:block"><div class="card-ai-r"><img src="' + thumbBase64 + '" class="chat-image-thumb" onclick="window.openImagePreview(this.src)" /><div style="font-size:12px;color:#94a3b8;margin-top:4px">正在识别图片内容...</div></div></div>';
-    list.insertBefore(card, list.firstChild);
-    card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-
-    // 调用ImageRecognizer识别（chat场景：视觉模型直接输出回复+actions，省二次调用）
+    // v52.2 气泡消息体系：图片作为气泡插入实时对话流（原生支持 type:'image'）
+    addChatMessage('user', '[图片]', { type: 'image', imageUrl: (thumbBase64 || fullBase64) });
     if (!window.ImageRecognizer) {
-      updateImageCardResult(id, '图片识别模块未加载，请刷新页面重试', thumbBase64);
+      addChatMessage('ai', '图片识别模块未加载，请刷新页面重试');
       return;
     }
-
-    // 先快速展示"正在识别"状态
-    updateImageCardResult(id, '正在识别图片内容...', thumbBase64);
-
-    // 构建上下文提示（给视觉模型更多背景）
     var ctxHint = '';
     if (window.AiEngine && AiEngine.getContextSummary) {
       try { ctxHint = AiEngine.getContextSummary(); } catch(e) {}
     }
-
     window.ImageRecognizer.recognizeChat(fullBase64, ctxHint).then(function(result) {
       if (!result.success) {
         var errMsg = result.error || '识别失败';
-        updateImageCardResult(id, errMsg, thumbBase64);
-        // 识别失败也存一条历史
+        addChatMessage('ai', errMsg);
         saveChatToHistory('[图片] 识别失败', errMsg);
         return;
       }
-      // 解析视觉模型返回的JSON（含reply/description/actions）
       var parsed = window.ImageRecognizer.parseChatResult(result.content);
       var desc = parsed.description || '图片识别结果';
-      updateImageCardResult(id, parsed.reply, thumbBase64);
-      // 直接存历史，不再二次调用AI引擎
-      finishImageChatResult(id, parsed, thumbBase64, desc, fullBase64);
+      addChatMessage('ai', parsed.reply || '好的。');
+      if (window.ImageRecognizer && ImageRecognizer.setActiveImageContext) {
+        try { ImageRecognizer.setActiveImageContext(fullBase64, parsed.reply || '好的。'); } catch(e) {}
+      }
+      executeImageActions(parsed);
+      saveChatToHistory('[图片] ' + desc, parsed.reply || '好的。');
     }).catch(function(err) {
-      var errMsg = '图片识别失败：' + (err.message || err);
-      updateImageCardResult(id, errMsg, thumbBase64);
+      addChatMessage('ai', '图片识别失败：' + (err.message || err));
     });
   }
 
+  function executeImageActions(parsed) {
+    if (parsed.actions && parsed.actions.length > 0) {
+      parsed.actions.forEach(function(action) {
+        try {
+          if (action.type === 'navigate' && action.module) {
+            switchModule(action.module);
+          } else if (action.type === 'add_schedule' && action.title) {
+            if (window.scheduleAddTask) {
+              window.scheduleAddTask({ title: action.title, desc: action.desc || '', date: action.date, group: action.group || '' });
+              switchModule('schedule');
+            }
+          } else if (action.type === 'add_expense' && action.amount) {
+            if (window.dailyTxAdd) {
+              window.dailyTxAdd({ type: 'expense', amount: parseFloat(action.amount), ctField: action.ctField || 'expensePersonal', note: action.note || '', date: new Date().toISOString().substr(0,10) });
+              switchModule('dailytx');
+            }
+          } else if (action.type === 'add_income' && action.amount) {
+            if (window.dailyTxAdd) {
+              window.dailyTxAdd({ type: 'income', amount: parseFloat(action.amount), ctField: action.ctField || 'jobIncome', note: action.note || '', date: new Date().toISOString().substr(0,10) });
+              switchModule('dailytx');
+            }
+          } else if (action.type === 'recommend_recipe') {
+            showTodayRecipes();
+          } else if (action.type === 'show_health_tips') {
+            switchModule('health', 'solar');
+            if (window.solarSwitchView) setTimeout(function() { window.solarSwitchView('health'); }, 200);
+          }
+        } catch(e) {
+          console.warn('执行图片action失败:', e);
+        }
+      });
+    }
+  }
   function updateImageCardResult(id, text, thumbBase64) {
     var card = document.getElementById('chat-card-img-' + id);
     if (!card) return;
