@@ -11924,15 +11924,23 @@ body {
     // 读取并压缩
     var reader = new FileReader();
     reader.onload = function(e) {
+      var data = e.target.result;
       var img = new Image();
       img.onload = function() {
-        // 生成缩略图（最大600px）
-        var thumb = compressImageDataUrl(img, 600, 0.85);
-        // 生成原图用于识别（最大1280px，由ImageRecognizer再压缩）
-        var full = e.target.result;
-        sendImageMessage(full, thumb);
+        // 正常路径：压缩生成缩略图后进入消息流
+        try {
+          var thumb = compressImageDataUrl(img, 600, 0.85) || data;
+          sendImageMessage(data, thumb);
+        } catch(err) {
+          // 压缩异常兜底：直接用原图，保证图片一定能进消息流
+          sendImageMessage(data, data);
+        }
       };
-      img.src = e.target.result;
+      img.onerror = function() {
+        // iOS HEIC 等格式解码失败兜底：直接用原图发送，避免静默无反应
+        try { sendImageMessage(data, data); } catch(e) {}
+      };
+      img.src = data;
     };
     reader.readAsDataURL(file);
   }
