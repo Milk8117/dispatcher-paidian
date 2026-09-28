@@ -1412,7 +1412,7 @@
       '.recipe-form-photo-row { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }',
       '.recipe-form-photo-btn { display: flex; align-items: center; gap: 4px; padding: 8px 14px; border: 1px solid #e5e7eb; border-radius: 8px; background: #f9fafb; color: #6b7280; font-size: 13px; cursor: pointer; transition: all .2s; }',
       '.recipe-form-photo-btn:hover { border-color: #f97316; color: #f97316; }',
-      '.recipe-form-photo-btn input[type="file"] { display: none; }',
+      '.recipe-form-photo-btn input[type="file"] { position: absolute; width: 1px; height: 1px; padding: 0; opacity: 0; overflow: hidden; left: -9999px; }',
       '.recipe-form-preview { width: 56px; height: 56px; border-radius: 8px; object-fit: cover; border: 1px solid #e5e7eb; display: none; }',
       '.recipe-form-preview.visible { display: block; }',
       '.recipe-form-submit { width: 100%; padding: 11px; border: none; border-radius: 10px; background: #1f2937; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 6px; transition: background .2s; }',
